@@ -9,20 +9,28 @@ const MyTeam = () => {
 
   useEffect(() => {
     const fetchTeamMembers = async () => {
+      console.log('Fetching team members...');
       try {
+        console.log('Sending request to API with token:', localStorage.getItem('token'));
         const { data } = await axios.get('http://localhost:5001/api/users/my-team', {
           headers: {
             Authorization: `Bearer ${localStorage.getItem('token')}`,
           },
         });
+        console.log('Team members data received:', data);
         setTeamMembers(data);
       } catch (error) {
         console.error('Failed to fetch team members', error);
+        if (error.response) {
+          console.log('Error Response:', error.response.data);
+        }
       }
     };
-
-    fetchTeamMembers();
-  }, [user]);
+  
+    if (user) {
+      fetchTeamMembers();
+    }
+  }, [user]);  
 
   if (!user) {
     return <p>Loading...</p>;

@@ -1,3 +1,4 @@
+const mongoose = require('mongoose');
 const User = require('../models/userModel');
 const Department = require('../models/departmentModel');
 const bcrypt = require('bcryptjs');
@@ -48,7 +49,7 @@ const searchUsers = async (req, res) => {
     const query = {};
 
     if (department) {
-      query.department = { $in: departmentIds };
+      query.department = { $in: departmentIds.map(id => mongoose.Types.ObjectId(id)) };
     }
 
     if (skills) {
@@ -130,31 +131,75 @@ const updateUserPassword = async (req, res) => {
 // @desc    Get team members based on the user's department and role
 // @route   GET /api/users/my-team
 // @access  Private
+// @desc    Get team members based on the user's department and role
+// @route   GET /api/users/my-team
+// @access  Private
 const getMyTeam = async (req, res) => {
   try {
+    console.log('Entering getMyTeam');
+    console.log('req.user:', req.user);
+
+    // Validate req.user._id as a valid ObjectId
+    if (!mongoose.Types.ObjectId.isValid(req.user._id)) {
+      console.log('Invalid User ObjectId:', req.user._id);
+      return res.status(400).json({ message: 'Invalid user ID' });
+    }
+
+    // Fetch the user from the database and populate the department
     const user = await User.findById(req.user._id).populate('department');
 
     if (!user) {
+      console.log('User not found');
       return res.status(404).json({ message: 'User not found' });
     }
 
-    const query = {
-      department: user.department._id,
-    };
+    console.log('User found:', user);
 
-    if (user.role === 'Team Leader') {
-      query.department = user.department._id;
+    // Initialize the query
+    let query = {};
+
+    // Check the user’s role to build the appropriate query
+    if (user.role === 'Employee' || user.role === 'Team Leader') {
+      console.log('Role is Employee or Team Leader');
+      // Check if the department exists and is valid
+      if (user.department && mongoose.Types.ObjectId.isValid(user.department._id)) {
+        query = { department: user.department._id };
+      } else {
+        console.log('Invalid or missing department for the user');
+        return res.status(400).json({ message: 'Invalid or missing department for the user' });
+      }
     } else if (user.role === 'Department Manager') {
-      query.department = { $in: await Department.find({ parentDepartment: user.department._id }).select('_id') };
+      console.log('Role is Department Manager');
+      if (user.department && mongoose.Types.ObjectId.isValid(user.department._id)) {
+        const subDepartments = await Department.find({ parentDepartment: user.department._id }).select('_id');
+        query = { department: { $in: [user.department._id, ...subDepartments.map(subDept => subDept._id)] } };
+      } else {
+        console.log('Invalid or missing department for the user');
+        return res.status(400).json({ message: 'Invalid or missing department for the user' });
+      }
+    } else {
+      console.log('Not authorized to view team');
+      return res.status(403).json({ message: 'Not authorized to view team' });
     }
 
+    console.log('Final query before DB operation:', query);
+
+    // Perform the query to find team members
     const teamMembers = await User.find(query).populate('department');
 
+    if (!teamMembers.length) {
+      console.log('No team members found');
+      return res.status(404).json({ message: 'No team members found' });
+    }
+
+    console.log('Team members found:', teamMembers);
     res.json(teamMembers);
   } catch (error) {
-    res.status(500).json({ message: error.message });
+    console.error('Error in getMyTeam:', error.message);
+    res.status(500).json({ message: 'Internal Server Error' });
   }
 };
+
 
 module.exports = {
   getUsers,
