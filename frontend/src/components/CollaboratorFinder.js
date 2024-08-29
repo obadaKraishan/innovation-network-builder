@@ -3,33 +3,37 @@ import axios from 'axios';
 
 const CollaboratorFinder = () => {
   const [department, setDepartment] = useState('');
-  const [skills, setSkills] = useState([]);  // Updated to an array for multiple select
-  const [departments, setDepartments] = useState([]);  // State for departments
-  const [allSkills, setAllSkills] = useState([]);  // State for all available skills
+  const [skills, setSkills] = useState([]);
+  const [departments, setDepartments] = useState([]);
+  const [allSkills, setAllSkills] = useState([]);
+  const [filteredSkills, setFilteredSkills] = useState([]);
   const [results, setResults] = useState([]);
 
   useEffect(() => {
-    // Fetch departments and skills when component mounts
+    // Fetch departments when the component mounts
     const fetchDepartments = async () => {
       try {
         const { data } = await axios.get('http://localhost:5001/api/departments', {
           headers: {
-            Authorization: `Bearer ${localStorage.getItem('token')}`, // Add token to headers
+            Authorization: `Bearer ${localStorage.getItem('token')}`,
           },
         });
-        // Filter out sub-departments (those with no subDepartments field)
-        const mainDepartments = data.filter(dept => dept.subDepartments.length > 0);
-        setDepartments(mainDepartments);
+        setDepartments(data); // Directly set the departments
       } catch (error) {
         console.error('Error fetching departments:', error);
       }
     };
 
+    fetchDepartments();
+  }, []);
+
+  useEffect(() => {
+    // Fetch all skills when the component mounts
     const fetchSkills = async () => {
       try {
         const { data } = await axios.get('http://localhost:5001/api/users/skills', {
           headers: {
-            Authorization: `Bearer ${localStorage.getItem('token')}`, // Add token to headers
+            Authorization: `Bearer ${localStorage.getItem('token')}`,
           },
         });
         setAllSkills(data);
@@ -38,9 +42,32 @@ const CollaboratorFinder = () => {
       }
     };
 
-    fetchDepartments();
     fetchSkills();
   }, []);
+
+  useEffect(() => {
+    // Filter skills based on the selected department
+    if (department) {
+      const fetchUsersByDepartment = async () => {
+        try {
+          const { data } = await axios.get('http://localhost:5001/api/users/search', {
+            params: { department },
+            headers: {
+              Authorization: `Bearer ${localStorage.getItem('token')}`,
+            },
+          });
+          const departmentSkills = Array.from(new Set(data.flatMap(user => user.skills)));
+          setFilteredSkills(departmentSkills);
+        } catch (error) {
+          console.error('Error fetching users by department:', error);
+        }
+      };
+
+      fetchUsersByDepartment();
+    } else {
+      setFilteredSkills(allSkills); // Reset to all skills if no department is selected
+    }
+  }, [department, allSkills]);
 
   const handleSearch = async (e) => {
     e.preventDefault();
@@ -49,10 +76,10 @@ const CollaboratorFinder = () => {
       const { data } = await axios.get('http://localhost:5001/api/users/search', {
         params: {
           department,
-          skills: skills.join(','),  // Join array into a string for query params
+          skills: skills.join(','),
         },
         headers: {
-          Authorization: `Bearer ${localStorage.getItem('token')}`, // Add token to headers
+          Authorization: `Bearer ${localStorage.getItem('token')}`,
         },
       });
 
@@ -93,8 +120,9 @@ const CollaboratorFinder = () => {
             value={skills}
             onChange={handleSkillChange}
             multiple
+            style={{ height: '200px' }} // Increased height for better visibility
           >
-            {allSkills.map((skill, index) => (
+            {filteredSkills.map((skill, index) => (
               <option key={index} value={skill}>
                 {skill}
               </option>
@@ -110,13 +138,23 @@ const CollaboratorFinder = () => {
       </form>
       <div>
         <h2 className="text-xl mb-4">Results</h2>
-        <ul>
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
           {results.map((user) => (
-            <li key={user._id} className="mb-2">
-              {user.name} - {user.role} ({user.skills.join(', ')})
-            </li>
+            <div key={user._id} className="border rounded-lg p-4 shadow-md">
+              <h3 className="text-lg font-semibold">{user.name}</h3>
+              <p><strong>Position:</strong> {user.position}</p>
+              <p><strong>Role:</strong> {user.role}</p>
+              <p><strong>Department:</strong> {user.department?.name}</p>
+              <p><strong>Email:</strong> <a href={`mailto:${user.email}`} className="text-blue-500">{user.email}</a></p>
+              <div className="mt-2">
+                <strong>Skills:</strong>
+                <div className="border border-gray-300 rounded p-2 mt-1" style={{ minHeight: '150px' }}>
+                  {user.skills.join(', ')}
+                </div>
+              </div>
+            </div>
           ))}
-        </ul>
+        </div>
       </div>
     </div>
   );

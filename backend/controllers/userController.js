@@ -1,4 +1,5 @@
 const User = require('../models/userModel');
+const Department = require('../models/departmentModel');
 
 // @desc    Get all users
 // @route   GET /api/users
@@ -35,10 +36,18 @@ const searchUsers = async (req, res) => {
   const { department, skills } = req.query;
 
   try {
+    let departmentIds = [department];
+
+    // If a department is selected, find all sub-departments
+    if (department) {
+      const subDepartments = await Department.find({ parentDepartment: department }).select('_id');
+      departmentIds = departmentIds.concat(subDepartments.map(subDept => subDept._id));
+    }
+
     const query = {};
 
     if (department) {
-      query.department = department;
+      query.department = { $in: departmentIds };
     }
 
     if (skills) {
@@ -75,5 +84,5 @@ module.exports = {
   getUsers,
   getUserById,
   searchUsers,
-  getSkills, // Export the getSkills function
+  getSkills,
 };

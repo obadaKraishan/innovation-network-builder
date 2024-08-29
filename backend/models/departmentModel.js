@@ -5,10 +5,11 @@ const departmentSchema = new mongoose.Schema({
     type: String,
     required: true,
   },
-  subDepartments: [{
+  parentDepartment: {
     type: mongoose.Schema.Types.ObjectId,
     ref: 'Department',
-  }],
+    default: null,  // Null indicates this is a main department
+  },
   manager: {
     type: mongoose.Schema.Types.ObjectId,
     ref: 'User',

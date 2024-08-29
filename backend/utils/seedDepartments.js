@@ -14,157 +14,76 @@ const seedDepartments = async () => {
   try {
     await Department.deleteMany({});
 
-    // First, create all sub-departments as individual Department documents
-    const subDepartmentsData = [
-      { name: 'Software Development', manager: null },
-      { name: 'Network Security', manager: null },
-      { name: 'Technical Support', manager: null },
-      { name: 'Data Analytics', manager: null },
-      { name: 'DevOps', manager: null },
-      { name: 'Recruitment', manager: null },
-      { name: 'Employee Relations', manager: null },
-      { name: 'Compensation and Benefits', manager: null },
-      { name: 'Training and Development', manager: null },
-      { name: 'Accounting', manager: null },
-      { name: 'Payroll', manager: null },
-      { name: 'Financial Planning', manager: null },
-      { name: 'Internal Audit', manager: null },
-      { name: 'Domestic Sales', manager: null },
-      { name: 'International Sales', manager: null },
-      { name: 'Sales Operations', manager: null },
-      { name: 'Channel Sales', manager: null },
-      { name: 'Digital Marketing', manager: null },
-      { name: 'Market Research', manager: null },
-      { name: 'Brand Management', manager: null },
-      { name: 'Content Marketing', manager: null },
-      { name: 'Logistics', manager: null },
-      { name: 'Supply Chain Management', manager: null },
-      { name: 'Facilities Management', manager: null },
-      { name: 'Procurement', manager: null },
-      { name: 'Corporate Law', manager: null },
-      { name: 'Compliance', manager: null },
-      { name: 'Intellectual Property', manager: null },
-      { name: 'Contract Management', manager: null },
-      { name: 'Product Innovation', manager: null },
-      { name: 'Quality Assurance', manager: null },
-      { name: 'Research Labs', manager: null },
-      { name: 'Prototyping', manager: null },
-      { name: 'Customer Service', manager: null },
-      { name: 'Technical Support', manager: null },
-      { name: 'Customer Success', manager: null },
-      { name: 'Call Center Operations', manager: null },
-      { name: 'Product Strategy', manager: null },
-      { name: 'Product Design', manager: null },
-      { name: 'Product Development', manager: null },
-      { name: 'Product Marketing', manager: null },
+    // First, create all main departments
+    const mainDepartmentsData = [
+      { name: 'IT' },
+      { name: 'HR' },
+      { name: 'Finance' },
+      { name: 'Sales' },
+      { name: 'Marketing' },
+      { name: 'Operations' },
+      { name: 'Legal' },
+      { name: 'Research and Development' },
+      { name: 'Customer Support' },
+      { name: 'Product Management' },
     ];
 
-    const createdSubDepartments = await Department.insertMany(subDepartmentsData);
+    const createdMainDepartments = await Department.insertMany(mainDepartmentsData);
 
-    // Map of sub-departments by name for easy lookup
-    const subDeptMap = createdSubDepartments.reduce((map, dept) => {
+    // Map of main departments by name for easy lookup
+    const mainDeptMap = createdMainDepartments.reduce((map, dept) => {
       map[dept.name] = dept._id;
       return map;
     }, {});
 
-    // Now create parent departments and assign sub-departments
-    const departments = [
-      {
-        name: 'IT',
-        subDepartments: [
-          subDeptMap['Software Development'],
-          subDeptMap['Network Security'],
-          subDeptMap['Technical Support'],
-          subDeptMap['Data Analytics'],
-          subDeptMap['DevOps'],
-        ],
-      },
-      {
-        name: 'HR',
-        subDepartments: [
-          subDeptMap['Recruitment'],
-          subDeptMap['Employee Relations'],
-          subDeptMap['Compensation and Benefits'],
-          subDeptMap['Training and Development'],
-        ],
-      },
-      {
-        name: 'Finance',
-        subDepartments: [
-          subDeptMap['Accounting'],
-          subDeptMap['Payroll'],
-          subDeptMap['Financial Planning'],
-          subDeptMap['Internal Audit'],
-        ],
-      },
-      {
-        name: 'Sales',
-        subDepartments: [
-          subDeptMap['Domestic Sales'],
-          subDeptMap['International Sales'],
-          subDeptMap['Sales Operations'],
-          subDeptMap['Channel Sales'],
-        ],
-      },
-      {
-        name: 'Marketing',
-        subDepartments: [
-          subDeptMap['Digital Marketing'],
-          subDeptMap['Market Research'],
-          subDeptMap['Brand Management'],
-          subDeptMap['Content Marketing'],
-        ],
-      },
-      {
-        name: 'Operations',
-        subDepartments: [
-          subDeptMap['Logistics'],
-          subDeptMap['Supply Chain Management'],
-          subDeptMap['Facilities Management'],
-          subDeptMap['Procurement'],
-        ],
-      },
-      {
-        name: 'Legal',
-        subDepartments: [
-          subDeptMap['Corporate Law'],
-          subDeptMap['Compliance'],
-          subDeptMap['Intellectual Property'],
-          subDeptMap['Contract Management'],
-        ],
-      },
-      {
-        name: 'Research and Development',
-        subDepartments: [
-          subDeptMap['Product Innovation'],
-          subDeptMap['Quality Assurance'],
-          subDeptMap['Research Labs'],
-          subDeptMap['Prototyping'],
-        ],
-      },
-      {
-        name: 'Customer Support',
-        subDepartments: [
-          subDeptMap['Customer Service'],
-          subDeptMap['Technical Support'],
-          subDeptMap['Customer Success'],
-          subDeptMap['Call Center Operations'],
-        ],
-      },
-      {
-        name: 'Product Management',
-        subDepartments: [
-          subDeptMap['Product Strategy'],
-          subDeptMap['Product Design'],
-          subDeptMap['Product Development'],
-          subDeptMap['Product Marketing'],
-        ],
-      },
+    // Create sub-departments and assign them to their respective main department
+    const subDepartmentsData = [
+      { name: 'Software Development', parentDepartment: mainDeptMap['IT'] },
+      { name: 'Network Security', parentDepartment: mainDeptMap['IT'] },
+      { name: 'Technical Support', parentDepartment: mainDeptMap['IT'] },
+      { name: 'Data Analytics', parentDepartment: mainDeptMap['IT'] },
+      { name: 'DevOps', parentDepartment: mainDeptMap['IT'] },
+      { name: 'Recruitment', parentDepartment: mainDeptMap['HR'] },
+      { name: 'Employee Relations', parentDepartment: mainDeptMap['HR'] },
+      { name: 'Compensation and Benefits', parentDepartment: mainDeptMap['HR'] },
+      { name: 'Training and Development', parentDepartment: mainDeptMap['HR'] },
+      { name: 'Accounting', parentDepartment: mainDeptMap['Finance'] },
+      { name: 'Payroll', parentDepartment: mainDeptMap['Finance'] },
+      { name: 'Financial Planning', parentDepartment: mainDeptMap['Finance'] },
+      { name: 'Internal Audit', parentDepartment: mainDeptMap['Finance'] },
+      { name: 'Domestic Sales', parentDepartment: mainDeptMap['Sales'] },
+      { name: 'International Sales', parentDepartment: mainDeptMap['Sales'] },
+      { name: 'Sales Operations', parentDepartment: mainDeptMap['Sales'] },
+      { name: 'Channel Sales', parentDepartment: mainDeptMap['Sales'] },
+      { name: 'Digital Marketing', parentDepartment: mainDeptMap['Marketing'] },
+      { name: 'Market Research', parentDepartment: mainDeptMap['Marketing'] },
+      { name: 'Brand Management', parentDepartment: mainDeptMap['Marketing'] },
+      { name: 'Content Marketing', parentDepartment: mainDeptMap['Marketing'] },
+      { name: 'Logistics', parentDepartment: mainDeptMap['Operations'] },
+      { name: 'Supply Chain Management', parentDepartment: mainDeptMap['Operations'] },
+      { name: 'Facilities Management', parentDepartment: mainDeptMap['Operations'] },
+      { name: 'Procurement', parentDepartment: mainDeptMap['Operations'] },
+      { name: 'Corporate Law', parentDepartment: mainDeptMap['Legal'] },
+      { name: 'Compliance', parentDepartment: mainDeptMap['Legal'] },
+      { name: 'Intellectual Property', parentDepartment: mainDeptMap['Legal'] },
+      { name: 'Contract Management', parentDepartment: mainDeptMap['Legal'] },
+      { name: 'Product Innovation', parentDepartment: mainDeptMap['Research and Development'] },
+      { name: 'Quality Assurance', parentDepartment: mainDeptMap['Research and Development'] },
+      { name: 'Research Labs', parentDepartment: mainDeptMap['Research and Development'] },
+      { name: 'Prototyping', parentDepartment: mainDeptMap['Research and Development'] },
+      { name: 'Customer Service', parentDepartment: mainDeptMap['Customer Support'] },
+      { name: 'Technical Support', parentDepartment: mainDeptMap['Customer Support'] },
+      { name: 'Customer Success', parentDepartment: mainDeptMap['Customer Support'] },
+      { name: 'Call Center Operations', parentDepartment: mainDeptMap['Customer Support'] },
+      { name: 'Product Strategy', parentDepartment: mainDeptMap['Product Management'] },
+      { name: 'Product Design', parentDepartment: mainDeptMap['Product Management'] },
+      { name: 'Product Development', parentDepartment: mainDeptMap['Product Management'] },
+      { name: 'Product Marketing', parentDepartment: mainDeptMap['Product Management'] },
     ];
 
-    await Department.insertMany(departments);
+    await Department.insertMany(subDepartmentsData);
 
-    console.log('Departments and sub-departments seeded successfully');
+    console.log('Main departments and their sub-departments seeded successfully');
     process.exit();
   } catch (error) {
     console.error(`Error: ${error.message}`);
