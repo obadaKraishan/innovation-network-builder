@@ -127,6 +127,35 @@ const updateUserPassword = async (req, res) => {
   }
 };
 
+// @desc    Get team members based on the user's department and role
+// @route   GET /api/users/my-team
+// @access  Private
+const getMyTeam = async (req, res) => {
+  try {
+    const user = await User.findById(req.user._id).populate('department');
+
+    if (!user) {
+      return res.status(404).json({ message: 'User not found' });
+    }
+
+    const query = {
+      department: user.department._id,
+    };
+
+    if (user.role === 'Team Leader') {
+      query.department = user.department._id;
+    } else if (user.role === 'Department Manager') {
+      query.department = { $in: await Department.find({ parentDepartment: user.department._id }).select('_id') };
+    }
+
+    const teamMembers = await User.find(query).populate('department');
+
+    res.json(teamMembers);
+  } catch (error) {
+    res.status(500).json({ message: error.message });
+  }
+};
+
 module.exports = {
   getUsers,
   getUserById,
@@ -134,4 +163,5 @@ module.exports = {
   getSkills,
   updateUserInfo,
   updateUserPassword,
+  getMyTeam,
 };
