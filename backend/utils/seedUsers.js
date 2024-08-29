@@ -5,7 +5,8 @@ const dotenv = require('dotenv');
 const connectDB = require('../config/db');
 const bcrypt = require('bcryptjs');
 
-dotenv.config();
+// Load environment variables manually
+dotenv.config({ path: './backend/.env' });
 
 connectDB();
 
@@ -62,14 +63,14 @@ const seedUsers = async () => {
         name: 'David Harris',
         email: 'david.harris@example.com',
         password: await bcrypt.hash('password123', 10),
-        role: 'Legal Advisor',
+        role: 'Department Manager',
         department: departments.find(dept => dept.name === 'Legal')._id,
       },
       {
         name: 'Fiona White',
         email: 'fiona.white@example.com',
         password: await bcrypt.hash('password123', 10),
-        role: 'Product Manager',
+        role: 'Team Leader',
         department: departments.find(dept => dept.name === 'Product Management')._id,
       },
       {

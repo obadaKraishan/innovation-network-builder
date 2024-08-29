@@ -17,7 +17,16 @@ const userSchema = new mongoose.Schema({
   },
   role: {
     type: String,
-    enum: ['Employee', 'Team Leader', 'Department Manager', 'Executive'],
+    enum: [
+      'Employee',
+      'Team Leader',
+      'Department Manager',
+      'Executive',
+      'Legal Advisor',        // Add new roles here
+      'Product Manager',      // Add new roles here
+      'Research Scientist',   // Add new roles here
+      'Customer Support Specialist', // Add new roles here
+    ],
     default: 'Employee',
   },
   department: {
