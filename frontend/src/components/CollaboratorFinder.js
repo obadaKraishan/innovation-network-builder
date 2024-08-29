@@ -17,7 +17,9 @@ const CollaboratorFinder = () => {
             Authorization: `Bearer ${localStorage.getItem('token')}`, // Add token to headers
           },
         });
-        setDepartments(data);
+        // Filter out sub-departments (those with no subDepartments field)
+        const mainDepartments = data.filter(dept => dept.subDepartments.length > 0);
+        setDepartments(mainDepartments);
       } catch (error) {
         console.error('Error fetching departments:', error);
       }
