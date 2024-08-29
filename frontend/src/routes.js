@@ -8,6 +8,7 @@ import Dashboard from './components/Dashboard';
 import CollaboratorFinder from './components/CollaboratorFinder';
 import Profile from './components/Profile'; // Import Profile
 import MyTeam from './components/MyTeam';  // Import MyTeam component
+import ManageTeam from './components/ManageTeam'; 
 
 const AppRoutes = () => {
   return (
@@ -19,6 +20,7 @@ const AppRoutes = () => {
           <Route path="/collaborator-finder" element={<CollaboratorFinder />} />
           <Route path="/profile" element={<Profile />} /> {/* New Route */}
           <Route path="/my-team" element={<MyTeam />} /> 
+          <Route path="/manage-team" component={ManageTeam} />
           <Route path="/" element={<Navigate to="/login" />} />
           <Route path="*" element={<Navigate to="/" />} />
         </Routes>

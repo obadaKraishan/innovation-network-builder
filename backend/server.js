@@ -1,27 +1,38 @@
 const express = require('express');
-const dotenv = require('dotenv');
-const cors = require('cors');
 const connectDB = require('./config/db');
 
-dotenv.config();
-
-connectDB();
+// Import routes
+const authRoutes = require('./routes/authRoutes');
+const userRoutes = require('./routes/userRoutes');
+const departmentRoutes = require('./routes/departmentRoutes');
+const networkRoutes = require('./routes/networkRoutes');
+const teamRoutes = require('./routes/teamRoutes');  // Import the new team routes
 
 const app = express();
 
+// Connect Database
+connectDB();
+
+// Init Middleware
 app.use(express.json());
-app.use(cors());
 
-app.use('/api/auth', require('./routes/authRoutes'));
-app.use('/api/users', require('./routes/userRoutes'));
-app.use('/api/departments', require('./routes/departmentRoutes')); // Include department routes
-app.use('/api/network', require('./routes/networkRoutes'));
+// Define Routes
+app.use('/api/auth', authRoutes);
+app.use('/api/users', userRoutes);
+app.use('/api/departments', departmentRoutes);
+app.use('/api/network', networkRoutes);
+app.use('/api/teams', teamRoutes);  // Add the new team routes here
 
-// Add a basic route for the root path
-app.get('/', (req, res) => {
-  res.send('API is running...');
+// Error Handling Middleware (optional)
+app.use((err, req, res, next) => {
+  console.error(err.message);
+  if (!res.headersSent) {
+    res.status(500).json({ message: 'Server Error' });
+  }
 });
 
 const PORT = process.env.PORT || 5001;
 
-app.listen(PORT, () => console.log(`Server running on port ${PORT}`));
+app.listen(PORT, () => {
+  console.log(`Server started on port ${PORT}`);
+});
