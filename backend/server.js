@@ -14,6 +14,7 @@ app.use(cors());
 
 app.use('/api/auth', require('./routes/authRoutes'));
 app.use('/api/users', require('./routes/userRoutes'));
+app.use('/api/departments', require('./routes/departmentRoutes')); // Include department routes
 app.use('/api/network', require('./routes/networkRoutes'));
 
 // Add a basic route for the root path

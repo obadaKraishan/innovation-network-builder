@@ -1,4 +1,3 @@
-// Existing imports
 const User = require('../models/userModel');
 
 // @desc    Get all users
@@ -46,8 +45,27 @@ const searchUsers = async (req, res) => {
       query.skills = { $in: skills.split(',') };
     }
 
-    const users = await User.find(query);
+    const users = await User.find(query).populate('department');
     res.json(users);
+  } catch (error) {
+    res.status(500).json({ message: error.message });
+  }
+};
+
+// @desc    Get all unique skills
+// @route   GET /api/users/skills
+// @access  Private
+const getSkills = async (req, res) => {
+  try {
+    const users = await User.find();
+    const skillsSet = new Set();
+
+    users.forEach(user => {
+      user.skills.forEach(skill => skillsSet.add(skill));
+    });
+
+    const skillsArray = Array.from(skillsSet);
+    res.json(skillsArray);
   } catch (error) {
     res.status(500).json({ message: error.message });
   }
@@ -56,5 +74,6 @@ const searchUsers = async (req, res) => {
 module.exports = {
   getUsers,
   getUserById,
-  searchUsers, // Export the new searchUsers function
+  searchUsers,
+  getSkills, // Export the getSkills function
 };

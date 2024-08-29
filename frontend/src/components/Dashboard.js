@@ -1,5 +1,6 @@
 import React from 'react';
 import Sidebar from './Sidebar';
+import CollaboratorFinder from './CollaboratorFinder'; // Import the new component
 
 const Dashboard = () => {
   return (
@@ -7,7 +8,7 @@ const Dashboard = () => {
       <Sidebar />
       <main className="w-3/4 p-6">
         <h1>Welcome to the Dashboard</h1>
-        <p>Select a menu option from the sidebar to get started.</p>
+        <CollaboratorFinder /> {/* Add the Collaborator Finder here */}
       </main>
     </div>
   );
