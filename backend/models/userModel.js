@@ -26,8 +26,16 @@ const userSchema = new mongoose.Schema({
       'Product Manager',
       'Research Scientist',
       'Customer Support Specialist',
+      'CEO',
+      'CTO',
+      'Director of HR',
+      'Director of Finance',
     ],
     default: 'Employee',
+  },
+  position: {
+    type: String,
+    required: true,
   },
   department: {
     type: mongoose.Schema.Types.ObjectId,

@@ -15,99 +15,122 @@ const seedConnections = async () => {
 
     const users = await User.find({});
 
+    const getUserId = (condition) => {
+      const user = users.find(condition);
+      return user ? user._id : null;
+    };
+
     const connections = [
-      // Executive connections
+      // Executive Team Connections
       {
-        userA: users[0]._id, // John Doe
-        userB: users[1]._id, // Jane Smith (HR Manager)
+        userA: getUserId(user => user.role === 'CEO'), // Robert CEO
+        userB: getUserId(user => user.role === 'CTO'), // Linda Brown
         connectionType: 'Strong Tie',
       },
       {
-        userA: users[0]._id, // John Doe
-        userB: users[2]._id, // Alice Johnson (Finance Team Leader)
+        userA: getUserId(user => user.role === 'CEO'), // Robert CEO
+        userB: getUserId(user => user.role === 'Director of HR'), // James Director
         connectionType: 'Strong Tie',
       },
       {
-        userA: users[0]._id, // John Doe
-        userB: users[8]._id, // George King (R&D Research Scientist)
+        userA: getUserId(user => user.role === 'CEO'), // Robert CEO
+        userB: getUserId(user => user.role === 'Director of Finance'), // Alice Johnson
         connectionType: 'Strong Tie',
       },
       {
-        userA: users[0]._id, // John Doe
-        userB: users[6]._id, // David Harris (Legal Advisor)
-        connectionType: 'Strong Tie',
-      },
-
-      // Cross-department connections
-      {
-        userA: users[1]._id, // Jane Smith (HR Manager)
-        userB: users[3]._id, // Bob Brown (Sales Employee)
-        connectionType: 'Weak Tie',
-      },
-      {
-        userA: users[2]._id, // Alice Johnson (Finance Team Leader)
-        userB: users[4]._id, // Charlie Davis (Marketing Employee)
-        connectionType: 'Weak Tie',
-      },
-      {
-        userA: users[5]._id, // Emily Green (Operations Employee)
-        userB: users[7]._id, // Fiona White (Product Manager)
-        connectionType: 'Weak Tie',
-      },
-      {
-        userA: users[8]._id, // George King (R&D Research Scientist)
-        userB: users[9]._id, // Hannah Lee (Customer Support Specialist)
-        connectionType: 'Weak Tie',
-      },
-
-      // Department-specific connections
-      {
-        userA: users[1]._id, // Jane Smith (HR Manager)
-        userB: users[4]._id, // Charlie Davis (Marketing Employee)
-        connectionType: 'Weak Tie',
-      },
-      {
-        userA: users[3]._id, // Bob Brown (Sales Employee)
-        userB: users[5]._id, // Emily Green (Operations Employee)
-        connectionType: 'Weak Tie',
-      },
-      {
-        userA: users[2]._id, // Alice Johnson (Finance Team Leader)
-        userB: users[6]._id, // David Harris (Legal Advisor)
-        connectionType: 'Weak Tie',
-      },
-
-      // Connections between similar roles
-      {
-        userA: users[0]._id, // John Doe (Executive)
-        userB: users[7]._id, // Fiona White (Product Manager)
-        connectionType: 'Strong Tie',
-      },
-      {
-        userA: users[8]._id, // George King (R&D Research Scientist)
-        userB: users[2]._id, // Alice Johnson (Finance Team Leader)
+        userA: getUserId(user => user.role === 'CTO'), // Linda Brown
+        userB: getUserId(user => user.position === 'Software Development Manager'), // John Doe
         connectionType: 'Strong Tie',
       },
 
-      // Additional connections
+      // Cross-Department Connections
       {
-        userA: users[1]._id, // Jane Smith (HR Manager)
-        userB: users[9]._id, // Hannah Lee (Customer Support Specialist)
+        userA: getUserId(user => user.position === 'HR Manager'), // Jane Smith
+        userB: getUserId(user => user.position === 'Sales Representative'), // Bob Brown
         connectionType: 'Weak Tie',
       },
       {
-        userA: users[4]._id, // Charlie Davis (Marketing Employee)
-        userB: users[5]._id, // Emily Green (Operations Employee)
+        userA: getUserId(user => user.position === 'Financial Analyst Lead'), // Alice Johnson
+        userB: getUserId(user => user.position === 'Digital Marketing Specialist'), // Charlie Davis
         connectionType: 'Weak Tie',
       },
       {
-        userA: users[3]._id, // Bob Brown (Sales Employee)
-        userB: users[6]._id, // David Harris (Legal Advisor)
+        userA: getUserId(user => user.position === 'Operations Specialist'), // Emily Green
+        userB: getUserId(user => user.position === 'Product Manager'), // Fiona White
+        connectionType: 'Weak Tie',
+      },
+      {
+        userA: getUserId(user => user.position === 'Research Scientist'), // George King
+        userB: getUserId(user => user.position === 'Customer Support Specialist'), // Hannah Lee
+        connectionType: 'Weak Tie',
+      },
+
+      // Department-Specific Connections
+      {
+        userA: getUserId(user => user.position === 'Software Development Manager'), // John Doe
+        userB: getUserId(user => user.position === 'Frontend Developer'), // Michael Green
+        connectionType: 'Strong Tie',
+      },
+      {
+        userA: getUserId(user => user.position === 'Software Development Manager'), // John Doe
+        userB: getUserId(user => user.position === 'Backend Developer'), // David White
+        connectionType: 'Strong Tie',
+      },
+      {
+        userA: getUserId(user => user.position === 'Network Security Team Lead'), // Sara Williams
+        userB: getUserId(user => user.position === 'DevOps Engineer'), // Robert Brown
+        connectionType: 'Strong Tie',
+      },
+      {
+        userA: getUserId(user => user.position === 'Recruitment Lead'), // Laura Adams
+        userB: getUserId(user => user.position === 'Compensation Specialist'), // Mark Johnson
+        connectionType: 'Strong Tie',
+      },
+      {
+        userA: getUserId(user => user.position === 'HR Manager'), // Jane Smith
+        userB: getUserId(user => user.position === 'Recruitment Lead'), // Laura Adams
+        connectionType: 'Strong Tie',
+      },
+
+      // Similar Roles Across Departments
+      {
+        userA: getUserId(user => user.role === 'Department Manager' && user.department && user.department.name === 'Legal'), // David Harris
+        userB: getUserId(user => user.role === 'Department Manager' && user.department && user.department.name === 'Finance'), // Alice Johnson
+        connectionType: 'Weak Tie',
+      },
+      {
+        userA: getUserId(user => user.position === 'Legal Manager'), // David Harris
+        userB: getUserId(user => user.position === 'Corporate Lawyer'), // Sophia White
+        connectionType: 'Strong Tie',
+      },
+      {
+        userA: getUserId(user => user.position === 'Sales Representative'), // Bob Brown
+        userB: getUserId(user => user.position === 'International Sales Specialist'), // Rachel Green
+        connectionType: 'Strong Tie',
+      },
+
+      // Additional Connections
+      {
+        userA: getUserId(user => user.position === 'HR Manager'), // Jane Smith
+        userB: getUserId(user => user.position === 'Customer Support Specialist'), // Hannah Lee
+        connectionType: 'Weak Tie',
+      },
+      {
+        userA: getUserId(user => user.position === 'Digital Marketing Specialist'), // Charlie Davis
+        userB: getUserId(user => user.position === 'Operations Specialist'), // Emily Green
+        connectionType: 'Weak Tie',
+      },
+      {
+        userA: getUserId(user => user.position === 'Sales Representative'), // Bob Brown
+        userB: getUserId(user => user.position === 'Legal Manager'), // David Harris
         connectionType: 'Weak Tie',
       },
     ];
 
-    await Connection.insertMany(connections);
+    // Filter out any connections where a user couldn't be found
+    const validConnections = connections.filter(conn => conn.userA && conn.userB);
+
+    await Connection.insertMany(validConnections);
 
     console.log('Connections seeded successfully');
     process.exit();
