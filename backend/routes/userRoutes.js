@@ -4,6 +4,7 @@ const { getUsers, getUserById } = require('../controllers/userController');
 
 const router = express.Router();
 
+// Use the protect middleware for routes that require authentication
 router.route('/').get(protect, admin, getUsers);
 router.route('/:id').get(protect, getUserById);
 
