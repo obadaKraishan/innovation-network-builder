@@ -13,7 +13,7 @@ const Sidebar = () => {
 
   const links = {
     Employee: ['Profile', 'My Team', 'Collaborator Finder'],
-    'Team Leader': ['Profile', 'My Team', 'Team Overview', 'Collaborator Finder'],
+    'Team Leader': ['Profile', 'My Team', 'Manage Team', 'Team Overview', 'Collaborator Finder'],
     'Department Manager': ['Profile', 'Manage Team', 'Reports', 'Collaborator Finder'],
     'CEO': ['Profile', 'Overview', 'Company Reports', 'Manage Departments', 'Collaborator Finder'],
     'CTO': ['Profile', 'Technology Overview', 'Manage IT', 'Collaborator Finder'],

@@ -6,9 +6,9 @@ import { AuthProvider } from './context/AuthContext';
 import Login from './components/Login';
 import Dashboard from './components/Dashboard';
 import CollaboratorFinder from './components/CollaboratorFinder';
-import Profile from './components/Profile'; // Import Profile
-import MyTeam from './components/MyTeam';  // Import MyTeam component
-import ManageTeam from './components/ManageTeam'; 
+import Profile from './components/Profile';
+import MyTeam from './components/MyTeam';
+import ManageTeam from './components/ManageTeam';
 
 const AppRoutes = () => {
   return (
@@ -18,9 +18,9 @@ const AppRoutes = () => {
           <Route path="/login" element={<Login />} />
           <Route path="/dashboard" element={<Dashboard />} />
           <Route path="/collaborator-finder" element={<CollaboratorFinder />} />
-          <Route path="/profile" element={<Profile />} /> {/* New Route */}
-          <Route path="/my-team" element={<MyTeam />} /> 
-          <Route path="/manage-team" component={ManageTeam} />
+          <Route path="/profile" element={<Profile />} />
+          <Route path="/my-team" element={<MyTeam />} />
+          <Route path="/manage-team" element={<ManageTeam />} /> {/* Fixed the route */}
           <Route path="/" element={<Navigate to="/login" />} />
           <Route path="*" element={<Navigate to="/" />} />
         </Routes>
