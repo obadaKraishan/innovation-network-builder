@@ -1,4 +1,5 @@
 import React, { useContext } from 'react';
+import { Link } from 'react-router-dom';
 import AuthContext from '../context/AuthContext';
 
 const Sidebar = () => {
@@ -10,24 +11,28 @@ const Sidebar = () => {
   }
 
   const links = {
-    Employee: ['Profile', 'My Team'],
-    'Department Manager': ['Profile', 'Manage Team', 'Reports'],
-    Executive: ['Profile', 'Overview', 'Company Reports', 'Manage Departments'],
+    Employee: ['Profile', 'My Team', 'Collaborator Finder'],
+    'Department Manager': ['Profile', 'Manage Team', 'Reports', 'Collaborator Finder'],
+    Executive: ['Profile', 'Overview', 'Company Reports', 'Manage Departments', 'Collaborator Finder'],
   };
 
   return (
-    <aside className="w-1/4 bg-gray-800 text-white h-screen p-6">
-      <h2 className="text-xl mb-4">Dashboard</h2>
-      <ul>
-        {links[user.role]?.map((link, index) => (
-          <li key={index} className="mb-2">
-            <a href="#" className="hover:text-blue-400">{link}</a>
-          </li>
-        ))}
-      </ul>
+    <aside className="w-1/4 bg-gray-800 text-white p-6 h-full flex flex-col justify-between">
+      <div>
+        <h2 className="text-xl mb-4">Dashboard</h2>
+        <ul>
+          {links[user.role]?.map((link, index) => (
+            <li key={index} className="mb-2">
+              <Link to={link === 'Collaborator Finder' ? '/collaborator-finder' : '#'} className="hover:text-blue-400">
+                {link}
+              </Link>
+            </li>
+          ))}
+        </ul>
+      </div>
       <button
         onClick={logout}
-        className="mt-6 w-full bg-red-500 text-white p-2 rounded hover:bg-red-700"
+        className="w-full bg-red-500 text-white p-2 rounded hover:bg-red-700 mt-auto"
       >
         Logout
       </button>

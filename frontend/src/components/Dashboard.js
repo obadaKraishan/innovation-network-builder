@@ -1,14 +1,13 @@
 import React from 'react';
 import Sidebar from './Sidebar';
-import CollaboratorFinder from './CollaboratorFinder'; // Import the new component
 
 const Dashboard = () => {
   return (
-    <div className="flex">
+    <div className="flex h-screen">
       <Sidebar />
-      <main className="w-3/4 p-6">
-        <h1>Welcome to the Dashboard</h1>
-        <CollaboratorFinder /> {/* Add the Collaborator Finder here */}
+      <main className="flex-1 bg-gray-100 overflow-y-auto p-6">
+        <h1 className="text-3xl font-bold">Welcome to the Dashboard</h1>
+        <p className="mt-4">Use the menu on the left to navigate through the features.</p>
       </main>
     </div>
   );
