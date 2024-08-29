@@ -22,10 +22,10 @@ const userSchema = new mongoose.Schema({
       'Team Leader',
       'Department Manager',
       'Executive',
-      'Legal Advisor',        // Add new roles here
-      'Product Manager',      // Add new roles here
-      'Research Scientist',   // Add new roles here
-      'Customer Support Specialist', // Add new roles here
+      'Legal Advisor',
+      'Product Manager',
+      'Research Scientist',
+      'Customer Support Specialist',
     ],
     default: 'Employee',
   },
@@ -33,13 +33,16 @@ const userSchema = new mongoose.Schema({
     type: mongoose.Schema.Types.ObjectId,
     ref: 'Department',
   },
+  skills: {
+    type: [String],
+    required: true,
+  },
   createdAt: {
     type: Date,
     default: Date.now,
   },
 });
 
-// Encrypt password before saving
 userSchema.pre('save', async function (next) {
   if (!this.isModified('password')) {
     next();
@@ -49,7 +52,6 @@ userSchema.pre('save', async function (next) {
   this.password = await bcrypt.hash(this.password, salt);
 });
 
-// Match user-entered password to hashed password in database
 userSchema.methods.matchPassword = async function (enteredPassword) {
   return await bcrypt.compare(enteredPassword, this.password);
 };

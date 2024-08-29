@@ -1,3 +1,4 @@
+// Existing imports
 const User = require('../models/userModel');
 
 // @desc    Get all users
@@ -28,7 +29,32 @@ const getUserById = async (req, res) => {
   }
 };
 
+// @desc    Search users by department or skills
+// @route   GET /api/users/search
+// @access  Private
+const searchUsers = async (req, res) => {
+  const { department, skills } = req.query;
+
+  try {
+    const query = {};
+
+    if (department) {
+      query.department = department;
+    }
+
+    if (skills) {
+      query.skills = { $in: skills.split(',') };
+    }
+
+    const users = await User.find(query);
+    res.json(users);
+  } catch (error) {
+    res.status(500).json({ message: error.message });
+  }
+};
+
 module.exports = {
   getUsers,
   getUserById,
+  searchUsers, // Export the new searchUsers function
 };
