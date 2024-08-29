@@ -10,9 +10,13 @@ export const AuthProvider = ({ children }) => {
 
   const login = async (email, password) => {
     try {
+      localStorage.removeItem('token'); // Clear any old tokens
+      localStorage.removeItem('userInfo'); // Clear any old user info
+
       const { data } = await axios.post('http://localhost:5001/api/auth/login', { email, password });
       setUser(data);
       localStorage.setItem('userInfo', JSON.stringify(data));
+      localStorage.setItem('token', data.token); // Store the new token
       navigate('/dashboard');
     } catch (error) {
       console.error('Login failed', error.response?.data?.message || error.message);
@@ -22,6 +26,7 @@ export const AuthProvider = ({ children }) => {
   const logout = () => {
     setUser(null);
     localStorage.removeItem('userInfo');
+    localStorage.removeItem('token'); // Clear token on logout
     navigate('/login');
   };
 
