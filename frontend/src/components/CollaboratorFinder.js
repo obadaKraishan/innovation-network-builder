@@ -18,7 +18,7 @@ const CollaboratorFinder = () => {
             Authorization: `Bearer ${localStorage.getItem('token')}`,
           },
         });
-        setDepartments(data); // Directly set the departments
+        setDepartments(data);
       } catch (error) {
         console.error('Error fetching departments:', error);
       }
