@@ -1,3 +1,5 @@
+// File: frontend/src/components/Sidebar.js
+
 import React, { useContext } from 'react';
 import { Link } from 'react-router-dom';
 import AuthContext from '../context/AuthContext';
@@ -5,9 +7,8 @@ import AuthContext from '../context/AuthContext';
 const Sidebar = () => {
   const { user, logout } = useContext(AuthContext);
 
-  // Check if user is null
   if (!user) {
-    return null; // or return a loading indicator or a placeholder
+    return null;
   }
 
   const links = {
@@ -21,9 +22,23 @@ const Sidebar = () => {
       <div>
         <h2 className="text-xl mb-4">Dashboard</h2>
         <ul>
+          <li className="mb-2">
+            <Link to="/dashboard" className="hover:text-blue-400">
+              Dashboard
+            </Link>
+          </li>
           {links[user.role]?.map((link, index) => (
             <li key={index} className="mb-2">
-              <Link to={link === 'Collaborator Finder' ? '/collaborator-finder' : '#'} className="hover:text-blue-400">
+              <Link
+                to={
+                  link === 'Profile'
+                    ? '/profile'
+                    : link === 'Collaborator Finder'
+                    ? '/collaborator-finder'
+                    : '#'
+                }
+                className="hover:text-blue-400"
+              >
                 {link}
               </Link>
             </li>

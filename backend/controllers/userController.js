@@ -1,5 +1,6 @@
 const User = require('../models/userModel');
 const Department = require('../models/departmentModel');
+const bcrypt = require('bcryptjs');
 
 // @desc    Get all users
 // @route   GET /api/users
@@ -80,9 +81,57 @@ const getSkills = async (req, res) => {
   }
 };
 
+// @desc    Update user information
+// @route   PUT /api/users/:id
+// @access  Private
+const updateUserInfo = async (req, res) => {
+  const { name, skills } = req.body;  // Only allow name and skills to be updated
+
+  try {
+    const user = await User.findById(req.params.id);
+
+    if (user) {
+      user.name = name || user.name;
+      user.skills = skills || user.skills;
+
+      const updatedUser = await user.save();
+      res.json(updatedUser);
+    } else {
+      res.status(404).json({ message: 'User not found' });
+    }
+  } catch (error) {
+    res.status(500).json({ message: error.message });
+  }
+};
+
+// @desc    Update user password
+// @route   PUT /api/users/:id/password
+// @access  Private
+const updateUserPassword = async (req, res) => {
+  const { password } = req.body;
+
+  try {
+    const user = await User.findById(req.params.id);
+
+    if (user) {
+      const salt = await bcrypt.genSalt(10);
+      user.password = await bcrypt.hash(password, salt);
+
+      await user.save();
+      res.json({ message: 'Password updated successfully' });
+    } else {
+      res.status(404).json({ message: 'User not found' });
+    }
+  } catch (error) {
+    res.status(500).json({ message: error.message });
+  }
+};
+
 module.exports = {
   getUsers,
   getUserById,
   searchUsers,
   getSkills,
+  updateUserInfo,
+  updateUserPassword,
 };

@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import axios from 'axios';
+import Sidebar from './Sidebar';  // Import Sidebar component
 
 const CollaboratorFinder = () => {
   const [department, setDepartment] = useState('');
@@ -95,67 +96,70 @@ const CollaboratorFinder = () => {
   };
 
   return (
-    <div className="p-6">
-      <h1 className="text-2xl mb-4">Find Collaborators</h1>
-      <form onSubmit={handleSearch} className="mb-4">
-        <div className="mb-4">
-          <label>Department</label>
-          <select
-            className="w-full p-2 border border-gray-300 rounded"
-            value={department}
-            onChange={(e) => setDepartment(e.target.value)}
+    <div className="flex h-screen">
+      <Sidebar /> {/* Add Sidebar */}
+      <main className="flex-1 bg-gray-100 overflow-y-auto p-6">
+        <h1 className="text-2xl mb-4">Find Collaborators</h1>
+        <form onSubmit={handleSearch} className="mb-4">
+          <div className="mb-4">
+            <label>Department</label>
+            <select
+              className="w-full p-2 border border-gray-300 rounded"
+              value={department}
+              onChange={(e) => setDepartment(e.target.value)}
+            >
+              <option value="">Select a department</option>
+              {departments.map((dept) => (
+                <option key={dept._id} value={dept._id}>
+                  {dept.name}
+                </option>
+              ))}
+            </select>
+          </div>
+          <div className="mb-4">
+            <label>Skills (hold Ctrl/Cmd to select multiple)</label>
+            <select
+              className="w-full p-2 border border-gray-300 rounded"
+              value={skills}
+              onChange={handleSkillChange}
+              multiple
+              style={{ height: '200px' }} // Increased height for better visibility
+            >
+              {filteredSkills.map((skill, index) => (
+                <option key={index} value={skill}>
+                  {skill}
+                </option>
+              ))}
+            </select>
+          </div>
+          <button
+            type="submit"
+            className="w-full bg-blue-500 text-white p-2 rounded hover:bg-blue-700"
           >
-            <option value="">Select a department</option>
-            {departments.map((dept) => (
-              <option key={dept._id} value={dept._id}>
-                {dept.name}
-              </option>
-            ))}
-          </select>
-        </div>
-        <div className="mb-4">
-          <label>Skills (hold Ctrl/Cmd to select multiple)</label>
-          <select
-            className="w-full p-2 border border-gray-300 rounded"
-            value={skills}
-            onChange={handleSkillChange}
-            multiple
-            style={{ height: '200px' }} // Increased height for better visibility
-          >
-            {filteredSkills.map((skill, index) => (
-              <option key={index} value={skill}>
-                {skill}
-              </option>
-            ))}
-          </select>
-        </div>
-        <button
-          type="submit"
-          className="w-full bg-blue-500 text-white p-2 rounded hover:bg-blue-700"
-        >
-          Search
-        </button>
-      </form>
-      <div>
-        <h2 className="text-xl mb-4">Results</h2>
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-          {results.map((user) => (
-            <div key={user._id} className="border rounded-lg p-4 shadow-md">
-              <h3 className="text-lg font-semibold">{user.name}</h3>
-              <p><strong>Position:</strong> {user.position}</p>
-              <p><strong>Role:</strong> {user.role}</p>
-              <p><strong>Department:</strong> {user.department?.name}</p>
-              <p><strong>Email:</strong> <a href={`mailto:${user.email}`} className="text-blue-500">{user.email}</a></p>
-              <div className="mt-2">
-                <strong>Skills:</strong>
-                <div className="border border-gray-300 rounded p-2 mt-1" style={{ minHeight: '150px' }}>
-                  {user.skills.join(', ')}
+            Search
+          </button>
+        </form>
+        <div>
+          <h2 className="text-xl mb-4">Results</h2>
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+            {results.map((user) => (
+              <div key={user._id} className="border rounded-lg p-4 shadow-md">
+                <h3 className="text-lg font-semibold">{user.name}</h3>
+                <p><strong>Position:</strong> {user.position}</p>
+                <p><strong>Role:</strong> {user.role}</p>
+                <p><strong>Department:</strong> {user.department?.name}</p>
+                <p><strong>Email:</strong> <a href={`mailto:${user.email}`} className="text-blue-500">{user.email}</a></p>
+                <div className="mt-2">
+                  <strong>Skills:</strong>
+                  <div className="border border-gray-300 rounded p-2 mt-1" style={{ minHeight: '150px' }}>
+                    {user.skills.join(', ')}
+                  </div>
                 </div>
               </div>
-            </div>
-          ))}
+            ))}
+          </div>
         </div>
-      </div>
+      </main>
     </div>
   );
 };

@@ -1,9 +1,12 @@
+// File: frontend/src/routes.js
+
 import React from 'react';
 import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-dom';
 import { AuthProvider } from './context/AuthContext';
 import Login from './components/Login';
 import Dashboard from './components/Dashboard';
-import CollaboratorFinder from './components/CollaboratorFinder'; // Import Collaborator Finder
+import CollaboratorFinder from './components/CollaboratorFinder';
+import Profile from './components/Profile'; // Import Profile
 
 const AppRoutes = () => {
   return (
@@ -12,7 +15,8 @@ const AppRoutes = () => {
         <Routes>
           <Route path="/login" element={<Login />} />
           <Route path="/dashboard" element={<Dashboard />} />
-          <Route path="/collaborator-finder" element={<CollaboratorFinder />} /> {/* New Route */}
+          <Route path="/collaborator-finder" element={<CollaboratorFinder />} />
+          <Route path="/profile" element={<Profile />} /> {/* New Route */}
           <Route path="/" element={<Navigate to="/login" />} />
           <Route path="*" element={<Navigate to="/" />} />
         </Routes>

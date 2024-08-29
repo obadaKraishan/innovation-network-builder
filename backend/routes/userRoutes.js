@@ -1,6 +1,13 @@
 const express = require('express');
 const { protect, admin } = require('../middleware/authMiddleware');
-const { getUsers, getUserById, searchUsers, getSkills } = require('../controllers/userController');
+const { 
+  getUsers, 
+  getUserById, 
+  searchUsers, 
+  getSkills, 
+  updateUserInfo, 
+  updateUserPassword 
+} = require('../controllers/userController');
 
 const router = express.Router();
 
@@ -8,6 +15,8 @@ const router = express.Router();
 router.route('/').get(protect, admin, getUsers);
 router.route('/search').get(protect, searchUsers); // Add the search route
 router.route('/skills').get(protect, getSkills); // Add the skills route
-router.route('/:id').get(protect, getUserById);
+router.route('/:id').get(protect, getUserById); // Get user by ID
+router.route('/:id').put(protect, updateUserInfo); // Update user information (only name and skills)
+router.route('/:id/password').put(protect, updateUserPassword); // Update user password
 
 module.exports = router;
