@@ -138,7 +138,7 @@ const TeamDetails = () => {
   return (
     <div className="flex h-screen">
       <Sidebar />
-      <div className="flex-1 p-6">
+      <div className="flex-1 bg-gray-100 overflow-y-auto p-6">
         <ToastContainer />
         <button onClick={() => navigate('/manage-team')} className="mb-4 text-blue-500 underline">
           Back to Manage Teams
