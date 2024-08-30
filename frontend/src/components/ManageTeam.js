@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react';
+import { useNavigate } from 'react-router-dom';
 import api from '../utils/api';
 import Sidebar from './Sidebar';
 
@@ -9,6 +10,7 @@ const ManageTeam = () => {
   const [teamDescription, setTeamDescription] = useState('');
   const [members, setMembers] = useState([]);
   const [availableEmployees, setAvailableEmployees] = useState([]);
+  const navigate = useNavigate();
 
   useEffect(() => {
     console.log('Fetching teams and available employees...');
@@ -52,6 +54,10 @@ const ManageTeam = () => {
     } catch (error) {
       console.error('Error creating team:', error);
     }
+  };
+
+  const handleViewTeam = (teamId) => {
+    navigate(`/team-details/${teamId}`);
   };
 
   return (
@@ -121,7 +127,12 @@ const ManageTeam = () => {
                 <p>{team.objective}</p>
                 <p>{team.description}</p>
                 <p>Members: {team.members.map(member => member.name).join(', ')}</p>
-                <button className="bg-green-500 text-white p-2 rounded mt-2">View/Edit Team</button>
+                <button
+                  onClick={() => handleViewTeam(team._id)}
+                  className="bg-green-500 text-white p-2 rounded mt-2"
+                >
+                  View/Edit Team
+                </button>
               </div>
             ))
           ) : (
