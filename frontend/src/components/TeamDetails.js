@@ -147,17 +147,25 @@ const TeamDetails = () => {
       ));
   };
 
+  const handleBackButtonClick = () => {
+    if (user.role === 'Employee') {
+      navigate('/my-team');
+    } else {
+      navigate('/manage-team');
+    }
+  };
+
   return (
     <div className="flex h-screen">
       <Sidebar />
       <div className="flex-1 bg-gray-100 overflow-y-auto p-6">
         <ToastContainer />
         <button
-          onClick={() => navigate('/manage-team')}
+          onClick={handleBackButtonClick}
           className="mb-4 bg-blue-500 text-white py-2 px-4 rounded inline-flex items-center shadow-md hover:bg-blue-600 transition"
         >
           <FaArrowLeft className="mr-2" />
-          Back to Manage Teams
+          Back
         </button>
         {team ? (
           <>

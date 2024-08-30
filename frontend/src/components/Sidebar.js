@@ -1,10 +1,11 @@
 import React, { useContext } from 'react';
-import { Link } from 'react-router-dom';
+import { Link, useLocation } from 'react-router-dom';
 import { FaUser, FaSignOutAlt, FaTachometerAlt, FaUsers, FaChartLine, FaBuilding, FaCogs } from 'react-icons/fa';
 import AuthContext from '../context/AuthContext';
 
 const Sidebar = () => {
   const { user, logout } = useContext(AuthContext);
+  const location = useLocation();
 
   if (!user) {
     return null;
@@ -66,13 +67,20 @@ const Sidebar = () => {
     ],
   };
 
+  const isActive = (path) => location.pathname === path;
+
   return (
-    <aside className="w-64 bg-gray-900 text-white p-6 h-full flex flex-col justify-between">
+    <aside className="w-64 bg-gradient-to-b from-blue-500 to-indigo-600 text-white p-6 h-full flex flex-col justify-between">
       <div>
-        <h2 className="text-2xl font-semibold mb-6 text-blue-400">Welcome Back...</h2>
+        <h2 className="text-2xl font-semibold mb-6 text-white">Welcome Back...</h2>
         <ul className="space-y-4">
           <li>
-            <Link to="/dashboard" className="flex items-center space-x-3 text-lg text-gray-300 hover:text-white">
+            <Link
+              to="/dashboard"
+              className={`flex items-center space-x-3 text-lg ${
+                isActive('/dashboard') ? 'text-white bg-indigo-700 rounded-md p-2' : 'text-gray-200 hover:text-white'
+              }`}
+            >
               <FaTachometerAlt />
               <span>Dashboard</span>
             </Link>
@@ -81,7 +89,9 @@ const Sidebar = () => {
             <li key={index}>
               <Link
                 to={link.path}
-                className="flex items-center space-x-3 text-lg text-gray-300 hover:text-white"
+                className={`flex items-center space-x-3 text-lg ${
+                  isActive(link.path) ? 'text-white bg-indigo-700 rounded-md p-2' : 'text-gray-200 hover:text-white'
+                }`}
               >
                 {link.icon}
                 <span>{link.name}</span>
@@ -92,7 +102,7 @@ const Sidebar = () => {
       </div>
       <button
         onClick={logout}
-        className="w-full bg-red-600 text-white p-3 rounded flex items-center justify-center hover:bg-red-700 mt-6"
+        className="w-full bg-red-600 text-white p-3 rounded flex items-center justify-center hover:bg-red-700 mt-6 transition"
       >
         <FaSignOutAlt className="mr-2" />
         Logout
