@@ -225,10 +225,15 @@ const getUsersByDepartment = async (req, res) => {
       return res.status(400).json({ message: 'User does not belong to any department' });
     }
 
-    const users = await User.find({ department: departmentId }).select('name _id');
+    // Find all sub-departments for the user's department
+    const subDepartments = await Department.find({ parentDepartment: departmentId }).select('_id');
+    const departmentIds = [departmentId, ...subDepartments.map(subDept => subDept._id)];
+
+    // Find users in the main department and all sub-departments
+    const users = await User.find({ department: { $in: departmentIds } }).select('name _id department');
 
     if (!users.length) {
-      return res.status(404).json({ message: 'No users found in your department' });
+      return res.status(404).json({ message: 'No users found in your department or sub-departments' });
     }
 
     res.json(users);
