@@ -5,6 +5,7 @@ import { ToastContainer, toast } from 'react-toastify'; // Import Toastify for n
 import 'react-toastify/dist/ReactToastify.css';
 import api from '../utils/api';
 import Sidebar from './Sidebar';
+import { formatDistanceToNow, parseISO } from 'date-fns'; // Import date-fns for time formatting
 
 const TeamDetails = () => {
   const { id } = useParams();
@@ -85,6 +86,11 @@ const TeamDetails = () => {
     }
   };
 
+  const formatTimeAgo = (dateString) => {
+    const date = parseISO(dateString);
+    return formatDistanceToNow(date, { addSuffix: true });
+  };
+
   const renderComments = (comments, parentId = null, level = 0) => {
     return comments
       .filter(comment => comment.parent === parentId)
@@ -94,6 +100,9 @@ const TeamDetails = () => {
             <p>
               <strong>{comment.user?.name || "Unknown User"}:</strong> {comment.comment}
             </p>
+            <div className="text-sm text-gray-500">
+              {formatTimeAgo(comment.createdAt)}
+            </div>
             <div>
               <FaEdit
                 className="inline text-blue-500 cursor-pointer mx-1"
@@ -135,13 +144,22 @@ const TeamDetails = () => {
 
             <div className="bg-white p-6 rounded shadow-md mb-4">
               <h3 className="text-xl font-semibold mb-4">Tasks</h3>
-              <ul>
+              <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4">
                 {team.tasks?.map(task => (
-                  <li key={task._id}>
-                    {task.description} - {task.assignedTo?.name || "Unassigned"} - {new Date(task.deadline).toLocaleDateString()}
-                  </li>
+                  <div key={task._id} className="bg-gray-100 p-4 rounded shadow-md">
+                    <h4 className="text-lg font-semibold">{task.description}</h4>
+                    <p className="text-gray-600">Assigned to: {task.assignedTo?.name || "Unassigned"}</p>
+                    <p className="text-gray-600">Deadline: {new Date(task.deadline).toLocaleDateString()}</p>
+                    <p className={`text-sm font-medium mt-2 ${
+                      task.status === 'Pending' ? 'text-yellow-500' :
+                      task.status === 'In Progress' ? 'text-blue-500' :
+                      'text-green-500'
+                    }`}>
+                      {task.status}
+                    </p>
+                  </div>
                 )) || "No tasks available"}
-              </ul>
+              </div>
               <div className="mt-4">
                 <h4 className="text-lg font-semibold mb-2">Add New Task</h4>
                 <input
