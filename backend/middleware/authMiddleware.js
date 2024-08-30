@@ -1,7 +1,10 @@
+// File: backend/middleware/authMiddleware.js
+
 const jwt = require('jsonwebtoken');
+const asyncHandler = require('express-async-handler');
 const User = require('../models/userModel');
 
-const protect = async (req, res, next) => {
+const protect = asyncHandler(async (req, res, next) => {
   let token;
 
   if (
@@ -32,10 +35,13 @@ const protect = async (req, res, next) => {
   } else {
     res.status(401).json({ message: 'Not authorized, no token' });
   }
-};
+});
 
 const admin = (req, res, next) => {
-  if (req.user && req.user.role === 'Executive') {
+  if (
+    req.user &&
+    ['Executive', 'CEO', 'CTO', 'Director of HR', 'Director of Finance'].includes(req.user.role)
+  ) {
     next();
   } else {
     res.status(401).json({ message: 'Not authorized as an admin' });
