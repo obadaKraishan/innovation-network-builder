@@ -1,5 +1,8 @@
 import React, { useState, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
+import { FaEdit, FaTrashAlt } from 'react-icons/fa';
+import { ToastContainer, toast } from 'react-toastify'; // Import Toastify for notifications
+import 'react-toastify/dist/ReactToastify.css';
 import api from '../utils/api';
 import Sidebar from './Sidebar';
 
@@ -11,6 +14,7 @@ const TeamDetails = () => {
   const [assignedTo, setAssignedTo] = useState('');
   const [deadline, setDeadline] = useState('');
   const [newComment, setNewComment] = useState('');
+  const [editCommentId, setEditCommentId] = useState(null);
   const [parentCommentId, setParentCommentId] = useState(null);
 
   useEffect(() => {
@@ -23,6 +27,7 @@ const TeamDetails = () => {
       setTeam(response.data);
     } catch (error) {
       console.error('Error fetching team details:', error);
+      toast.error('Error fetching team details');
     }
   };
 
@@ -37,19 +42,46 @@ const TeamDetails = () => {
       setNewTask('');
       setAssignedTo('');
       setDeadline('');
+      toast.success('Task added successfully!');
     } catch (error) {
       console.error('Error adding task:', error);
+      toast.error('Error adding task');
     }
   };
 
-  const addComment = async () => {
+  const handleCommentSubmit = async () => {
     try {
-      await api.post(`/teams/${id}/comment`, { comment: newComment, parent: parentCommentId });
-      fetchTeamDetails(); // Refresh the team details after adding a comment
+      if (editCommentId) {
+        await api.put(`/teams/${id}/comment/${editCommentId}`, { comment: newComment });
+        toast.success('Comment updated successfully!');
+      } else {
+        await api.post(`/teams/${id}/comment`, { comment: newComment, parent: parentCommentId });
+        toast.success('Comment added successfully!');
+      }
+      fetchTeamDetails(); // Refresh the team details after adding or editing a comment
       setNewComment('');
-      setParentCommentId(null); // Reset parent comment after replying
+      setEditCommentId(null);
+      setParentCommentId(null);
     } catch (error) {
-      console.error('Error adding comment:', error);
+      console.error('Error adding/editing comment:', error);
+      toast.error('Error adding/editing comment');
+    }
+  };
+
+  const handleEditComment = (comment) => {
+    setNewComment(comment.comment);
+    setEditCommentId(comment._id);
+    setParentCommentId(comment.parent || null);
+  };
+
+  const handleDeleteComment = async (commentId) => {
+    try {
+      await api.delete(`/teams/${id}/comment/${commentId}`);
+      fetchTeamDetails();
+      toast.success('Comment deleted successfully!');
+    } catch (error) {
+      console.error('Error deleting comment:', error);
+      toast.error('Error deleting comment');
     }
   };
 
@@ -57,9 +89,25 @@ const TeamDetails = () => {
     return comments
       .filter(comment => comment.parent === parentId)
       .map(comment => (
-        <div key={comment._id} style={{ marginLeft: level * 20 }}>
-          <p><strong>{comment.user?.name || "Unknown User"}:</strong> {comment.comment}</p>
-          <button onClick={() => setParentCommentId(comment._id)} className="text-sm text-blue-500">Reply</button>
+        <div key={comment._id} style={{ marginLeft: level * 20 }} className="mb-2">
+          <div className="flex justify-between items-center">
+            <p>
+              <strong>{comment.user?.name || "Unknown User"}:</strong> {comment.comment}
+            </p>
+            <div>
+              <FaEdit
+                className="inline text-blue-500 cursor-pointer mx-1"
+                onClick={() => handleEditComment(comment)}
+              />
+              <FaTrashAlt
+                className="inline text-red-500 cursor-pointer mx-1"
+                onClick={() => handleDeleteComment(comment._id)}
+              />
+            </div>
+          </div>
+          <button onClick={() => setParentCommentId(comment._id)} className="text-sm text-blue-500">
+            Reply
+          </button>
           {renderComments(comments, comment._id, level + 1)}
         </div>
       ));
@@ -69,6 +117,7 @@ const TeamDetails = () => {
     <div className="flex h-screen">
       <Sidebar />
       <div className="flex-1 p-6">
+        <ToastContainer />
         <button onClick={() => navigate('/manage-team')} className="mb-4 text-blue-500 underline">
           Back to Manage Teams
         </button>
@@ -132,15 +181,15 @@ const TeamDetails = () => {
                 {renderComments(team.discussions || [])}
               </ul>
               <div className="mt-4">
-                <h4 className="text-lg font-semibold mb-2">Add New Comment</h4>
+                <h4 className="text-lg font-semibold mb-2">{editCommentId ? 'Edit Comment' : 'Add New Comment'}</h4>
                 <textarea
                   placeholder="Comment"
                   value={newComment}
                   onChange={(e) => setNewComment(e.target.value)}
                   className="w-full p-2 border border-gray-300 rounded mb-4"
                 />
-                <button onClick={addComment} className="bg-blue-500 text-white p-2 rounded w-full">
-                  {parentCommentId ? 'Reply' : 'Add Comment'}
+                <button onClick={handleCommentSubmit} className="bg-blue-500 text-white p-2 rounded w-full">
+                  {parentCommentId ? 'Reply' : editCommentId ? 'Update Comment' : 'Add Comment'}
                 </button>
               </div>
             </div>
