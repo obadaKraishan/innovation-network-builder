@@ -1,5 +1,3 @@
-// File: backend/controllers/teamController.js
-
 const Team = require('../models/teamModel');
 const User = require('../models/userModel');
 const Department = require('../models/departmentModel');
@@ -42,6 +40,20 @@ const createTeam = async (req, res) => {
 const getTeams = async (req, res) => {
   try {
     console.log('Fetching teams for user department:', req.user.department);
+
+    // Verify that the department exists in the request
+    if (!req.user.department) {
+      console.log('No department found in the user data.');
+      return res.status(400).json({ message: 'No department assigned to the user' });
+    }
+
+    // Check if department exists in the database
+    const departmentExists = await Department.findById(req.user.department);
+    if (!departmentExists) {
+      console.log('Department does not exist in the database:', req.user.department);
+      return res.status(404).json({ message: 'Department not found' });
+    }
+
     const teams = await Team.find({ department: req.user.department }).populate('members teamLeader');
 
     if (!teams.length) {

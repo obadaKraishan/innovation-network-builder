@@ -27,7 +27,10 @@ app.use('/api/auth', authRoutes);
 app.use('/api/users', userRoutes);
 app.use('/api/departments', departmentRoutes);
 app.use('/api/network', networkRoutes);
-app.use('/api/teams', teamRoutes);  // Add the new team routes here
+app.use('/api/teams', (req, res, next) => {
+  console.log('Teams route hit');  // Add this log for debugging
+  next();
+}, teamRoutes);  // Add the new team routes here
 
 // Error Handling Middleware (optional)
 app.use((err, req, res, next) => {
