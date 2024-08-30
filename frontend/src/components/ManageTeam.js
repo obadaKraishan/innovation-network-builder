@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
+import { FaUsers, FaRegClipboard, FaUserPlus, FaRegEye } from 'react-icons/fa';
 import api from '../utils/api';
 import Sidebar from './Sidebar';
 
@@ -63,46 +64,50 @@ const ManageTeam = () => {
   return (
     <div className="flex h-screen">
       <Sidebar />
-      <div className="flex-1 bg-gray-100 overflow-y-auto p-6">
-        <h2 className="text-2xl font-bold mb-6">Manage Teams</h2>
-        <div className="bg-white p-6 rounded shadow-md">
-          <h3 className="text-xl font-semibold mb-4">Create a New Team</h3>
-          <div className="mb-4">
+      <div className="flex-1 bg-gray-50 p-6 overflow-y-auto">
+        <h2 className="text-3xl font-bold text-gray-800 mb-8 flex items-center">
+          <FaUsers className="mr-3 text-blue-500" /> Manage Teams
+        </h2>
+        <div className="bg-white p-8 rounded-lg shadow-lg">
+          <h3 className="text-2xl font-semibold text-gray-700 mb-6 flex items-center">
+            <FaRegClipboard className="mr-2 text-green-500" /> Create a New Team
+          </h3>
+          <div className="mb-6">
             <label className="block text-sm font-medium text-gray-700 mb-2">Team Name</label>
             <input
               type="text"
               placeholder="Team Name"
               value={teamName}
               onChange={(e) => setTeamName(e.target.value)}
-              className="w-full p-2 border border-gray-300 rounded"
+              className="w-full p-3 border border-gray-300 rounded-lg focus:border-blue-500"
             />
           </div>
-          <div className="mb-4">
+          <div className="mb-6">
             <label className="block text-sm font-medium text-gray-700 mb-2">Team Objective</label>
             <input
               type="text"
               placeholder="Team Objective"
               value={teamObjective}
               onChange={(e) => setTeamObjective(e.target.value)}
-              className="w-full p-2 border border-gray-300 rounded"
+              className="w-full p-3 border border-gray-300 rounded-lg focus:border-blue-500"
             />
           </div>
-          <div className="mb-4">
+          <div className="mb-6">
             <label className="block text-sm font-medium text-gray-700 mb-2">Team Description</label>
             <textarea
               placeholder="Team Description"
               value={teamDescription}
               onChange={(e) => setTeamDescription(e.target.value)}
-              className="w-full p-2 border border-gray-300 rounded"
+              className="w-full p-3 border border-gray-300 rounded-lg focus:border-blue-500"
             />
           </div>
-          <div className="mb-4">
+          <div className="mb-6">
             <label className="block text-sm font-medium text-gray-700 mb-2">Team Members</label>
             <select
               multiple
               value={members}
               onChange={(e) => setMembers([...e.target.selectedOptions].map(option => option.value))}
-              className="w-full p-2 border border-gray-300 rounded"
+              className="w-full p-3 border border-gray-300 rounded-lg focus:border-blue-500"
             >
               {availableEmployees.map(employee => (
                 <option key={employee._id} value={employee._id}>
@@ -113,30 +118,34 @@ const ManageTeam = () => {
           </div>
           <button
             onClick={createTeam}
-            className="bg-blue-500 text-white p-2 rounded w-full"
+            className="w-full bg-blue-500 text-white p-3 rounded-lg font-semibold hover:bg-blue-600 transition"
           >
-            Create Team
+            <FaUserPlus className="inline-block mr-2" /> Create Team
           </button>
         </div>
-        <div className="mt-8">
-          <h3 className="text-xl font-semibold mb-4">My Teams</h3>
+        <div className="mt-12">
+          <h3 className="text-2xl font-semibold text-gray-700 mb-6 flex items-center">
+            <FaUsers className="mr-2 text-purple-500" /> My Teams
+          </h3>
           {teams.length > 0 ? (
-            teams.map(team => (
-              <div key={team._id} className="mb-4 p-4 border border-gray-300 rounded shadow-sm">
-                <h4 className="text-lg font-bold">{team.name}</h4>
-                <p>{team.objective}</p>
-                <p>{team.description}</p>
-                <p>Members: {team.members.map(member => member.name).join(', ')}</p>
-                <button
-                  onClick={() => handleViewTeam(team._id)}
-                  className="bg-green-500 text-white p-2 rounded mt-2"
-                >
-                  View/Edit Team
-                </button>
-              </div>
-            ))
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+              {teams.map(team => (
+                <div key={team._id} className="bg-white p-6 rounded-lg shadow-lg hover:shadow-xl transition-shadow">
+                  <h4 className="text-xl font-bold text-gray-800 mb-2">{team.name}</h4>
+                  <p className="text-gray-600 mb-4"><strong>Objective:</strong> {team.objective}</p>
+                  <p className="text-gray-600 mb-4"><strong>Description:</strong> {team.description}</p>
+                  <p className="text-gray-600 mb-4"><strong>Members:</strong> {team.members.map(member => member.name).join(', ')}</p>
+                  <button
+                    onClick={() => handleViewTeam(team._id)}
+                    className="w-full bg-green-500 text-white p-2 rounded-lg font-semibold hover:bg-green-600 transition"
+                  >
+                    <FaRegEye className="inline-block mr-2" /> View/Edit Team
+                  </button>
+                </div>
+              ))}
+            </div>
           ) : (
-            <p>No teams have been created yet.</p>
+            <p className="text-gray-500">No teams have been created yet.</p>
           )}
         </div>
       </div>
