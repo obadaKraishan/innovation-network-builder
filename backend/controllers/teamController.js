@@ -72,7 +72,12 @@ const getTeams = async (req, res) => {
 const getTeamById = async (req, res) => {
   try {
     console.log('Fetching team by ID:', req.params.id);
-    const team = await Team.findById(req.params.id).populate('members teamLeader');
+    const team = await Team.findById(req.params.id)
+      .populate('members teamLeader')
+      .populate({
+        path: 'tasks',
+        populate: { path: 'assignedTo', select: 'name' }, // Populate assignedTo with user's name
+      });
 
     if (!team) {
       console.log('Team not found:', req.params.id);
@@ -182,6 +187,6 @@ module.exports = {
   getTeams,
   getTeamById,
   updateTeam,
-  addTask,     // Export the new addTask function
+  addTask,
   addComment,
 };

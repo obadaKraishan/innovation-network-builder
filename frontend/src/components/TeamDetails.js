@@ -67,17 +67,17 @@ const TeamDetails = () => {
               <h3 className="text-xl font-semibold mb-4 mt-4">Team Description</h3>
               <p>{team.description}</p>
               <h3 className="text-xl font-semibold mb-4 mt-4">Team Members</h3>
-              <p>{team.members.map(member => member.name).join(', ')}</p>
+              <p>{team.members?.map(member => member?.name).join(', ') || "No members available"}</p>
             </div>
 
             <div className="bg-white p-6 rounded shadow-md mb-4">
               <h3 className="text-xl font-semibold mb-4">Tasks</h3>
               <ul>
-                {team.tasks.map(task => (
+                {team.tasks?.map(task => (
                   <li key={task._id}>
-                    {task.description} - {task.assignedTo.name} - {new Date(task.deadline).toLocaleDateString()}
+                    {task.description} - {task.assignedTo?.name || "Unassigned"} - {new Date(task.deadline).toLocaleDateString()}
                   </li>
-                ))}
+                )) || "No tasks available"}
               </ul>
               <div className="mt-4">
                 <h4 className="text-lg font-semibold mb-2">Add New Task</h4>
@@ -94,11 +94,11 @@ const TeamDetails = () => {
                   className="w-full p-2 border border-gray-300 rounded mb-2"
                 >
                   <option value="">Assign to</option>
-                  {team.members.map(member => (
+                  {team.members?.map(member => (
                     <option key={member._id} value={member._id}>
                       {member.name}
                     </option>
-                  ))}
+                  )) || <option disabled>No members available</option>}
                 </select>
                 <input
                   type="date"
@@ -115,11 +115,11 @@ const TeamDetails = () => {
             <div className="bg-white p-6 rounded shadow-md">
               <h3 className="text-xl font-semibold mb-4">Team Discussions</h3>
               <ul>
-                {team.discussions.map(discussion => (
+                {team.discussions?.map(discussion => (
                   <li key={discussion._id}>
-                    {discussion.user.name}: {discussion.comment} - {new Date(discussion.createdAt).toLocaleString()}
+                    {discussion.user?.name || "Unknown User"}: {discussion.comment} - {new Date(discussion.createdAt).toLocaleString()}
                   </li>
-                ))}
+                )) || "No discussions available"}
               </ul>
               <div className="mt-4">
                 <h4 className="text-lg font-semibold mb-2">Add New Comment</h4>

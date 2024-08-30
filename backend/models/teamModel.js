@@ -1,6 +1,13 @@
 const mongoose = require('mongoose');
 const Schema = mongoose.Schema;
 
+const discussionSchema = new Schema({
+  user: { type: Schema.Types.ObjectId, ref: 'User' },
+  comment: String,
+  parent: { type: Schema.Types.ObjectId, ref: 'Discussion', default: null }, // Added for replies
+  createdAt: { type: Date, default: Date.now },
+});
+
 const teamSchema = new Schema({
   name: {
     type: String,
@@ -32,11 +39,7 @@ const teamSchema = new Schema({
     type: Schema.Types.ObjectId,
     ref: 'Task',
   }],
-  discussions: [{
-    user: { type: Schema.Types.ObjectId, ref: 'User' },
-    comment: String,
-    createdAt: { type: Date, default: Date.now },
-  }],
+  discussions: [discussionSchema], // Updated to use discussionSchema
   createdAt: {
     type: Date,
     default: Date.now,
