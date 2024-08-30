@@ -1,4 +1,5 @@
 const Department = require('../models/departmentModel');
+const User = require('../models/userModel'); // Assuming you have a user model
 
 // @desc    Get all main departments (excluding sub-departments)
 // @route   GET /api/departments
@@ -17,21 +18,18 @@ const getDepartments = async (req, res) => {
 // @access  Private
 const getTheDepartments = async (req, res) => {
   try {
-    // Fetch all main departments
     const departments = await Department.find({ parentDepartment: null });
 
-    // Populate sub-departments manually
     const departmentsWithSubs = await Promise.all(departments.map(async (department) => {
       const subDepartments = await Department.find({ parentDepartment: department._id });
       return {
-        ...department.toObject(), // Convert Mongoose document to plain object
+        ...department.toObject(),
         subDepartments,
       };
     }));
 
     res.json(departmentsWithSubs);
   } catch (error) {
-    console.error('Error fetching departments:', error.message);
     res.status(500).json({ message: error.message });
   }
 };
@@ -79,21 +77,42 @@ const editDepartment = async (req, res) => {
   }
 };
 
-// @desc    Delete a department
+// @desc    Delete a department and its sub-departments
 // @route   DELETE /api/departments/:id
 // @access  Private
 const deleteDepartment = async (req, res) => {
   try {
     const department = await Department.findById(req.params.id);
 
-    if (department) {
-      await department.remove();
-      res.json({ message: 'Department removed' });
-    } else {
-      res.status(404).json({ message: 'Department not found' });
+    if (!department) {
+      console.error(`Department with ID ${req.params.id} not found`);
+      return res.status(404).json({ message: 'Department not found' });
     }
+
+    console.log(`Deleting department: ${department.name}`);
+
+    // Delete all sub-departments recursively
+    await deleteSubDepartments(department._id);
+
+    // Optionally, remove users associated with this department
+    await User.updateMany({ department: department._id }, { $unset: { department: '' } });
+
+    // Finally, remove the department
+    await department.remove();
+    res.json({ message: 'Department removed' });
   } catch (error) {
+    console.error(`Error deleting department: ${error.message}`);
     res.status(500).json({ message: error.message });
+  }
+};
+
+// Helper function to delete sub-departments recursively
+const deleteSubDepartments = async (parentDepartmentId) => {
+  const subDepartments = await Department.find({ parentDepartment: parentDepartmentId });
+  
+  for (const subDept of subDepartments) {
+    await deleteSubDepartments(subDept._id); // Recursively delete sub-departments
+    await subDept.remove(); // Remove the sub-department
   }
 };
 
@@ -120,7 +139,7 @@ const getDepartmentById = async (req, res) => {
 
 module.exports = {
   getDepartments,
-  getTheDepartments, // New function added
+  getTheDepartments,
   addDepartment,
   editDepartment,
   deleteDepartment,

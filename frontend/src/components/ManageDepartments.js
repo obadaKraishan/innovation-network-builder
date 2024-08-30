@@ -3,6 +3,9 @@ import { FaPlus, FaEdit, FaTrash, FaSearch } from 'react-icons/fa';
 import api from '../utils/api';
 import Sidebar from './Sidebar';
 import { Link } from 'react-router-dom';
+import { ToastContainer, toast } from 'react-toastify';
+import 'react-toastify/dist/ReactToastify.css';
+import Swal from 'sweetalert2'; // Import SweetAlert2
 
 const ManageDepartments = () => {
   const [departments, setDepartments] = useState([]);
@@ -15,7 +18,7 @@ const ManageDepartments = () => {
 
   const fetchDepartments = async () => {
     try {
-      const { data } = await api.get('/departments/full'); // Use the new route to fetch the full hierarchy
+      const { data } = await api.get('/departments/full');
       setDepartments(data);
     } catch (error) {
       console.error('Error fetching departments:', error);
@@ -28,7 +31,20 @@ const ManageDepartments = () => {
 
   const handleAddDepartment = async () => {
     try {
-      await api.post('/departments', newDepartment);
+      const [name, parentName] = newDepartment.name.split(',').map(str => str.trim());
+      let parentId = null;
+
+      if (parentName) {
+        const parentDepartment = departments.find(dept => dept.name === parentName);
+        if (parentDepartment) {
+          parentId = parentDepartment._id;
+        } else {
+          console.error('Parent department not found');
+          return;
+        }
+      }
+
+      await api.post('/departments', { name, parent: parentId });
       setNewDepartment({ name: '', parent: null });
       fetchDepartments();
     } catch (error) {
@@ -45,12 +61,26 @@ const ManageDepartments = () => {
     }
   };
 
-  const handleDeleteDepartment = async (id) => {
+  const handleDeleteDepartment = async (id, departmentName) => {
     try {
-      await api.delete(`/departments/${id}`);
-      fetchDepartments();
+      const result = await Swal.fire({
+        title: `Are you sure you want to delete the department "${departmentName}"?`,
+        text: "This action cannot be undone!",
+        icon: 'warning',
+        showCancelButton: true,
+        confirmButtonColor: '#d33',
+        cancelButtonColor: '#3085d6',
+        confirmButtonText: 'Yes, delete it!',
+      });
+
+      if (result.isConfirmed) {
+        await api.delete(`/departments/${id}`);
+        toast.success(`Department "${departmentName}" deleted successfully.`);
+        fetchDepartments();
+      }
     } catch (error) {
       console.error('Error deleting department:', error);
+      toast.error('Failed to delete department. Please try again.');
     }
   };
 
@@ -62,8 +92,9 @@ const ManageDepartments = () => {
     <div className="flex h-screen">
       <Sidebar />
       <div className="flex-1 p-6 bg-gray-100 overflow-y-auto">
+        <ToastContainer />
         <h1 className="text-3xl font-bold mb-6 text-gray-800">Manage Departments</h1>
-        
+
         <div className="flex items-center mb-6">
           <input
             type="text"
@@ -101,7 +132,7 @@ const ManageDepartments = () => {
                   </Link>
                   <button
                     className="bg-red-500 text-white p-2 rounded hover:bg-red-600"
-                    onClick={() => handleDeleteDepartment(department._id)}
+                    onClick={() => handleDeleteDepartment(department._id, department.name)}
                   >
                     <FaTrash />
                   </button>
@@ -109,13 +140,13 @@ const ManageDepartments = () => {
               </div>
             ))}
           </div>
-          
+
           <div className="mt-8">
             <h2 className="text-2xl font-semibold mb-4 text-gray-700">Add New Department</h2>
             <div className="space-y-4">
               <input
                 type="text"
-                placeholder="Department Name"
+                placeholder="Department Name, Parent Department Name (optional)"
                 value={newDepartment.name}
                 onChange={(e) => setNewDepartment({ ...newDepartment, name: e.target.value })}
                 className="p-3 border border-gray-300 rounded-lg w-full"

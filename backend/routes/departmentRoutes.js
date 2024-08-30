@@ -3,7 +3,7 @@ const { protect, admin } = require('../middleware/authMiddleware');
 const {
   getDepartments,
   getTheDepartments,
-  getDepartmentById, // Import the new function
+  getDepartmentById,
   addDepartment,
   editDepartment,
   deleteDepartment,
@@ -19,7 +19,7 @@ router.route('/full')
   .get(protect, admin, getTheDepartments);
 
 router.route('/:id')
-  .get(protect, admin, getDepartmentById) // Add this route to fetch a department by ID
+  .get(protect, admin, getDepartmentById)
   .put(protect, admin, editDepartment)
   .delete(protect, admin, deleteDepartment);
 
