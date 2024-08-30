@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useContext } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
-import { FaEdit, FaTrashAlt, FaArrowLeft } from 'react-icons/fa';
+import { FaEdit, FaTrashAlt, FaArrowLeft, FaPlusCircle, FaTasks, FaUserTie, FaRegClock } from 'react-icons/fa';
 import { ToastContainer, toast } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
 import api from '../utils/api';
@@ -110,7 +110,7 @@ const TeamDetails = () => {
       .map(comment => (
         <div
           key={comment._id}
-          style={{ marginLeft: level * 5, marginTop: 20 }}
+          style={{ marginLeft: level * 10, marginTop: 20 }}
           className={`mb-8 p-6 rounded-lg shadow-md ${
             level === 0 ? 'bg-gray-100 border border-gray-300' : 'bg-gray-200 border-l-4 border-blue-200'
           }`}
@@ -145,7 +145,7 @@ const TeamDetails = () => {
           {renderComments(comments, comment._id, level + 1)}
         </div>
       ));
-  };  
+  };
 
   return (
     <div className="flex h-screen">
@@ -154,7 +154,7 @@ const TeamDetails = () => {
         <ToastContainer />
         <button
           onClick={() => navigate('/manage-team')}
-          className="mb-4 bg-blue-500 text-white py-2 px-4 rounded inline-flex items-center shadow-md hover:bg-blue-600"
+          className="mb-4 bg-blue-500 text-white py-2 px-4 rounded inline-flex items-center shadow-md hover:bg-blue-600 transition"
         >
           <FaArrowLeft className="mr-2" />
           Back to Manage Teams
@@ -164,15 +164,21 @@ const TeamDetails = () => {
             <h2 className="text-3xl font-bold mb-6 text-gray-800">{team.name} - Team Details</h2>
             <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
               <div className="bg-white p-6 rounded-lg shadow-lg">
-                <h3 className="text-xl font-semibold mb-4 text-gray-700">Team Objective</h3>
+                <h3 className="text-xl font-semibold mb-4 text-gray-700 flex items-center">
+                  <FaTasks className="mr-2 text-gray-500" /> Team Objective
+                </h3>
                 <p className="text-gray-600">{team.objective}</p>
               </div>
               <div className="bg-white p-6 rounded-lg shadow-lg">
-                <h3 className="text-xl font-semibold mb-4 text-gray-700">Team Description</h3>
+                <h3 className="text-xl font-semibold mb-4 text-gray-700 flex items-center">
+                  <FaRegClock className="mr-2 text-gray-500" /> Team Description
+                </h3>
                 <p className="text-gray-600">{team.description}</p>
               </div>
               <div className="bg-white p-6 rounded-lg shadow-lg">
-                <h3 className="text-xl font-semibold mb-4 text-gray-700">Team Members</h3>
+                <h3 className="text-xl font-semibold mb-4 text-gray-700 flex items-center">
+                  <FaUserTie className="mr-2 text-gray-500" /> Team Members
+                </h3>
                 <ul className="list-disc list-inside text-gray-600">
                   {team.members?.map(member => (
                     <li key={member._id}>{member.name}</li>
@@ -228,18 +234,20 @@ const TeamDetails = () => {
               </div>
               {(user.role === 'Team Leader' || user.role === 'Department Manager') && (
                 <div className="mt-6">
-                  <h4 className="text-lg font-semibold mb-4 text-gray-700">Add New Task</h4>
+                  <h4 className="text-lg font-semibold mb-4 text-gray-700 flex items-center">
+                    <FaPlusCircle className="mr-2 text-green-500" /> Add New Task
+                  </h4>
                   <input
                     type="text"
                     placeholder="Task Description"
                     value={newTask}
                     onChange={(e) => setNewTask(e.target.value)}
-                    className="w-full p-3 border border-gray-300 rounded mb-4"
+                    className="w-full p-3 border border-gray-300 rounded mb-4 focus:border-green-500"
                   />
                   <select
                     value={assignedTo}
                     onChange={(e) => setAssignedTo(e.target.value)}
-                    className="w-full p-3 border border-gray-300 rounded mb-4"
+                    className="w-full p-3 border border-gray-300 rounded mb-4 focus:border-green-500"
                   >
                     <option value="">Assign to</option>
                     {team.members?.map(member => (
@@ -252,9 +260,9 @@ const TeamDetails = () => {
                     type="date"
                     value={deadline}
                     onChange={(e) => setDeadline(e.target.value)}
-                    className="w-full p-3 border border-gray-300 rounded mb-6"
+                    className="w-full p-3 border border-gray-300 rounded mb-6 focus:border-green-500"
                   />
-                  <button onClick={addTask} className="bg-green-500 text-white p-3 rounded w-full hover:bg-green-600">
+                  <button onClick={addTask} className="bg-green-500 text-white p-3 rounded w-full hover:bg-green-600 transition">
                     Add Task
                   </button>
                 </div>
@@ -272,9 +280,9 @@ const TeamDetails = () => {
                   placeholder="Comment"
                   value={newComment}
                   onChange={(e) => setNewComment(e.target.value)}
-                  className="w-full p-3 border border-gray-300 rounded mb-6"
+                  className="w-full p-3 border border-gray-300 rounded mb-6 focus:border-blue-500"
                 />
-                <button onClick={handleCommentSubmit} className="bg-blue-500 text-white p-3 rounded w-full hover:bg-blue-600">
+                <button onClick={handleCommentSubmit} className="bg-blue-500 text-white p-3 rounded w-full hover:bg-blue-600 transition">
                   {parentCommentId ? 'Reply' : editCommentId ? 'Update Comment' : 'Add Comment'}
                 </button>
               </div>
