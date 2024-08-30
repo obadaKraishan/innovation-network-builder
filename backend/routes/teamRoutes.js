@@ -7,7 +7,8 @@ const {
   addTask,
   addComment,
   updateComment,
-  deleteComment,  // Added new routes for comment updates and deletions
+  deleteComment,
+  updateTaskStatus, // Added the updateTaskStatus route
 } = require('../controllers/teamController');
 const { protect } = require('../middleware/authMiddleware');
 
@@ -37,7 +38,8 @@ router.put('/:id', protect, (req, res, next) => {
 router.post('/:id/task', protect, addTask);
 
 router.post('/:id/comment', protect, addComment);
-router.put('/:id/comment/:commentId', protect, updateComment);  // New route for updating comments
-router.delete('/:id/comment/:commentId', protect, deleteComment); // New route for deleting comments
+router.put('/:id/comment/:commentId', protect, updateComment);
+router.delete('/:id/comment/:commentId', protect, deleteComment);
+router.put('/:id/task/:taskId', protect, updateTaskStatus); // Added route for updating task status
 
 module.exports = router;

@@ -254,6 +254,31 @@ const deleteComment = async (req, res) => {
   }
 };
 
+const updateTaskStatus = async (req, res) => {
+  try {
+    console.log('Updating task status:', req.params.taskId);
+    const task = await Task.findById(req.params.taskId);
+
+    if (!task) {
+      return res.status(404).json({ message: 'Task not found' });
+    }
+
+    if (task.assignedTo.toString() !== req.user._id.toString()) {
+      return res.status(403).json({ message: 'Not authorized to update this task' });
+    }
+
+    task.status = req.body.status || task.status;
+
+    await task.save();
+
+    console.log('Task status updated successfully:', task);
+    res.json(task);
+  } catch (error) {
+    console.error('Error updating task status:', error);
+    res.status(500).json({ message: 'Internal Server Error' });
+  }
+};
+
 module.exports = {
   createTeam,
   getTeams,
@@ -263,4 +288,5 @@ module.exports = {
   addComment,
   updateComment,
   deleteComment,
+  updateTaskStatus,
 };

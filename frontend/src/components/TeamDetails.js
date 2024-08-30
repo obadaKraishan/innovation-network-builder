@@ -5,13 +5,13 @@ import { ToastContainer, toast } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
 import api from '../utils/api';
 import Sidebar from './Sidebar';
-import AuthContext from '../context/AuthContext'; // Import AuthContext for role checking
+import AuthContext from '../context/AuthContext';
 import { formatDistanceToNow, parseISO } from 'date-fns';
 
 const TeamDetails = () => {
   const { id } = useParams();
   const navigate = useNavigate();
-  const { user } = useContext(AuthContext); // Access user from context
+  const { user } = useContext(AuthContext);
   const [team, setTeam] = useState(null);
   const [newTask, setNewTask] = useState('');
   const [assignedTo, setAssignedTo] = useState('');
@@ -49,6 +49,17 @@ const TeamDetails = () => {
     } catch (error) {
       console.error('Error adding task:', error);
       toast.error('Error adding task');
+    }
+  };
+
+  const updateTaskStatus = async (taskId, status) => {
+    try {
+      await api.put(`/teams/${id}/task/${taskId}`, { status });
+      fetchTeamDetails();
+      toast.success('Task status updated successfully!');
+    } catch (error) {
+      console.error('Error updating task status:', error);
+      toast.error('Error updating task status');
     }
   };
 
@@ -143,6 +154,33 @@ const TeamDetails = () => {
               <h3 className="text-xl font-semibold mb-4 mt-4">Team Members</h3>
               <p>{team.members?.map(member => member?.name).join(', ') || "No members available"}</p>
             </div>
+
+            {user.role === 'Employee' && (
+              <div className="bg-white p-6 rounded shadow-md mb-4">
+                <h3 className="text-xl font-semibold mb-4">My Tasks</h3>
+                <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4">
+                  {team.tasks?.filter(task => task.assignedTo?._id === user._id).map(task => (
+                    <div key={task._id} className="bg-gray-100 p-4 rounded shadow-md">
+                      <h4 className="text-lg font-semibold">{task.description}</h4>
+                      <p className="text-gray-600">Deadline: {new Date(task.deadline).toLocaleDateString()}</p>
+                      <select
+                        value={task.status}
+                        onChange={(e) => updateTaskStatus(task._id, e.target.value)}
+                        className={`w-full p-2 mt-2 rounded ${
+                          task.status === 'Pending' ? 'bg-yellow-200' :
+                          task.status === 'In Progress' ? 'bg-blue-200' :
+                          'bg-green-200'
+                        }`}
+                      >
+                        <option value="Pending">Pending</option>
+                        <option value="In Progress">In Progress</option>
+                        <option value="Completed">Completed</option>
+                      </select>
+                    </div>
+                  )) || "No tasks available"}
+                </div>
+              </div>
+            )}
 
             <div className="bg-white p-6 rounded shadow-md mb-4">
               <h3 className="text-xl font-semibold mb-4">Tasks</h3>
