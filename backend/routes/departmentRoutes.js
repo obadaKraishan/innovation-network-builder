@@ -2,7 +2,8 @@ const express = require('express');
 const { protect, admin } = require('../middleware/authMiddleware');
 const {
   getDepartments,
-  getTheDepartments, // Importing the new function
+  getTheDepartments,
+  getDepartmentById, // Import the new function
   addDepartment,
   editDepartment,
   deleteDepartment,
@@ -15,9 +16,10 @@ router.route('/')
   .post(protect, admin, addDepartment);
 
 router.route('/full')
-  .get(protect, admin, getTheDepartments); // Adding a new route for the full department hierarchy
+  .get(protect, admin, getTheDepartments);
 
 router.route('/:id')
+  .get(protect, admin, getDepartmentById) // Add this route to fetch a department by ID
   .put(protect, admin, editDepartment)
   .delete(protect, admin, deleteDepartment);
 

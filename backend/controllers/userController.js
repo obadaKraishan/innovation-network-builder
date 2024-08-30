@@ -239,21 +239,26 @@ const getMyTeam = async (req, res) => {
 // @access  Private
 const getUsersByDepartment = async (req, res) => {
   try {
-    const departmentId = req.user.department;
+    const departmentId = req.query.department; // Get department ID from query parameter
 
     if (!departmentId) {
-      return res.status(400).json({ message: 'User does not belong to any department' });
+      return res.status(400).json({ message: 'Department ID is required' });
     }
 
-    // Find all sub-departments for the user's department
+    // Validate that departmentId is a valid ObjectId
+    if (!mongoose.Types.ObjectId.isValid(departmentId)) {
+      return res.status(400).json({ message: 'Invalid Department ID' });
+    }
+
+    // Find all sub-departments for the given department
     const subDepartments = await Department.find({ parentDepartment: departmentId }).select('_id');
     const departmentIds = [departmentId, ...subDepartments.map(subDept => subDept._id)];
 
     // Find users in the main department and all sub-departments
-    const users = await User.find({ department: { $in: departmentIds } }).select('name _id department');
+    const users = await User.find({ department: { $in: departmentIds } }).select('name position skills role email');
 
     if (!users.length) {
-      return res.status(404).json({ message: 'No users found in your department or sub-departments' });
+      return res.status(404).json({ message: 'No users found in this department or sub-departments' });
     }
 
     res.json(users);

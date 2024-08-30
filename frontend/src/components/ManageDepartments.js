@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { FaPlus, FaEdit, FaTrash, FaSearch } from 'react-icons/fa';
 import api from '../utils/api';
 import Sidebar from './Sidebar';
+import { Link } from 'react-router-dom';
 
 const ManageDepartments = () => {
   const [departments, setDepartments] = useState([]);
@@ -93,12 +94,11 @@ const ManageDepartments = () => {
                   )}
                 </div>
                 <div className="flex space-x-3">
-                  <button
-                    className="bg-blue-500 text-white p-2 rounded hover:bg-blue-600"
-                    onClick={() => handleEditDepartment(department._id, department)}
-                  >
-                    <FaEdit />
-                  </button>
+                  <Link to={`/edit-department/${department._id}`}>
+                    <button className="bg-blue-500 text-white p-2 rounded hover:bg-blue-600">
+                      <FaEdit /> View/Edit
+                    </button>
+                  </Link>
                   <button
                     className="bg-red-500 text-white p-2 rounded hover:bg-red-600"
                     onClick={() => handleDeleteDepartment(department._id)}

@@ -17,9 +17,21 @@ const getDepartments = async (req, res) => {
 // @access  Private
 const getTheDepartments = async (req, res) => {
   try {
-    const departments = await Department.find({ parentDepartment: null }).populate('subDepartments');
-    res.json(departments);
+    // Fetch all main departments
+    const departments = await Department.find({ parentDepartment: null });
+
+    // Populate sub-departments manually
+    const departmentsWithSubs = await Promise.all(departments.map(async (department) => {
+      const subDepartments = await Department.find({ parentDepartment: department._id });
+      return {
+        ...department.toObject(), // Convert Mongoose document to plain object
+        subDepartments,
+      };
+    }));
+
+    res.json(departmentsWithSubs);
   } catch (error) {
+    console.error('Error fetching departments:', error.message);
     res.status(500).json({ message: error.message });
   }
 };
@@ -85,10 +97,32 @@ const deleteDepartment = async (req, res) => {
   }
 };
 
+// @desc    Get a department by ID
+// @route   GET /api/departments/:id
+// @access  Private
+const getDepartmentById = async (req, res) => {
+  try {
+    const department = await Department.findById(req.params.id);
+
+    if (department) {
+      const subDepartments = await Department.find({ parentDepartment: department._id });
+      res.json({
+        ...department.toObject(),
+        subDepartments,
+      });
+    } else {
+      res.status(404).json({ message: 'Department not found' });
+    }
+  } catch (error) {
+    res.status(500).json({ message: error.message });
+  }
+};
+
 module.exports = {
   getDepartments,
   getTheDepartments, // New function added
   addDepartment,
   editDepartment,
   deleteDepartment,
+  getDepartmentById,
 };
