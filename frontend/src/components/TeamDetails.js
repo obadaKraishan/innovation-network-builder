@@ -108,32 +108,44 @@ const TeamDetails = () => {
     return comments
       .filter(comment => comment.parent === parentId)
       .map(comment => (
-        <div key={comment._id} style={{ marginLeft: level * 20 }} className="mb-2">
+        <div
+          key={comment._id}
+          style={{ marginLeft: level * 20 }}
+          className={`mb-6 p-6 rounded-lg shadow-md ${
+            level === 0 ? 'bg-gray-100 border border-gray-300' : 'bg-gray-200 border-l-4 border-blue-200'
+          }`}
+        >
           <div className="flex justify-between items-center">
-            <p>
-              <strong>{comment.user?.name || "Unknown User"}:</strong> {comment.comment}
+            <p className="font-semibold text-gray-700">
+              {comment.user?.name || "Unknown User"}:
             </p>
-            <div className="text-sm text-gray-500">
+            <div className="text-xs text-gray-500 ml-4">
               {formatTimeAgo(comment.createdAt)}
             </div>
-            <div>
+          </div>
+          <p className="mt-4 text-gray-800">{comment.comment}</p>
+          <div className="flex justify-between items-center mt-4">
+            <button
+              onClick={() => setParentCommentId(comment._id)}
+              className="text-xs text-blue-500 hover:underline py-1 px-2 rounded bg-gray-100 hover:bg-blue-100"
+            >
+              Reply
+            </button>
+            <div className="flex">
               <FaEdit
-                className="inline text-blue-500 cursor-pointer mx-1"
+                className="text-blue-500 cursor-pointer mr-3"
                 onClick={() => handleEditComment(comment)}
               />
               <FaTrashAlt
-                className="inline text-red-500 cursor-pointer mx-1"
+                className="text-red-500 cursor-pointer"
                 onClick={() => handleDeleteComment(comment._id)}
               />
             </div>
           </div>
-          <button onClick={() => setParentCommentId(comment._id)} className="text-sm text-blue-500">
-            Reply
-          </button>
           {renderComments(comments, comment._id, level + 1)}
         </div>
       ));
-  };
+  };  
 
   return (
     <div className="flex h-screen">

@@ -63,7 +63,7 @@ const ManageTeam = () => {
   return (
     <div className="flex h-screen">
       <Sidebar />
-      <div className="flex-1 p-6">
+      <div className="flex-1 bg-gray-100 overflow-y-auto p-6">
         <h2 className="text-2xl font-bold mb-6">Manage Teams</h2>
         <div className="bg-white p-6 rounded shadow-md">
           <h3 className="text-xl font-semibold mb-4">Create a New Team</h3>
