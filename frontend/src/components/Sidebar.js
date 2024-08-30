@@ -1,7 +1,6 @@
-// File: frontend/src/components/Sidebar.js
-
 import React, { useContext } from 'react';
 import { Link } from 'react-router-dom';
+import { FaUser, FaSignOutAlt, FaTachometerAlt, FaUsers, FaChartLine, FaBuilding, FaCogs } from 'react-icons/fa';
 import AuthContext from '../context/AuthContext';
 
 const Sidebar = () => {
@@ -12,70 +11,80 @@ const Sidebar = () => {
   }
 
   const links = {
-    Employee: ['Profile', 'My Team', 'Collaborator Finder'],
-    'Team Leader': ['Profile', 'My Team', 'Manage Team', 'Team Overview', 'Collaborator Finder'],
-    'Department Manager': ['Profile', 'Manage Team', 'Reports', 'Collaborator Finder'],
-    'CEO': ['Profile', 'Overview', 'Company Reports', 'Manage Departments', 'Collaborator Finder'],
-    'CTO': ['Profile', 'Technology Overview', 'Manage IT', 'Collaborator Finder'],
-    'Director of HR': ['Profile', 'HR Overview', 'Manage Recruitment', 'Collaborator Finder'],
-    'Director of Finance': ['Profile', 'Finance Overview', 'Budget Reports', 'Collaborator Finder'],
-    'Research Scientist': ['Profile', 'Research Projects', 'Collaborator Finder'],
-    'Customer Support Specialist': ['Profile', 'Customer Cases', 'Collaborator Finder'],
+    Employee: [
+      { name: 'Profile', icon: <FaUser />, path: '/profile' },
+      { name: 'My Team', icon: <FaUsers />, path: '/my-team' },
+      { name: 'Collaborator Finder', icon: <FaCogs />, path: '/collaborator-finder' },
+    ],
+    'Team Leader': [
+      { name: 'Profile', icon: <FaUser />, path: '/profile' },
+      { name: 'My Team', icon: <FaUsers />, path: '/my-team' },
+      { name: 'Manage Team', icon: <FaUsers />, path: '/manage-team' },
+      { name: 'Team Overview', icon: <FaChartLine />, path: '/team-overview' },
+      { name: 'Collaborator Finder', icon: <FaCogs />, path: '/collaborator-finder' },
+    ],
+    'Department Manager': [
+      { name: 'Profile', icon: <FaUser />, path: '/profile' },
+      { name: 'Manage Team', icon: <FaUsers />, path: '/manage-team' },
+      { name: 'Reports', icon: <FaChartLine />, path: '/reports' },
+      { name: 'Collaborator Finder', icon: <FaCogs />, path: '/collaborator-finder' },
+    ],
+    CEO: [
+      { name: 'Profile', icon: <FaUser />, path: '/profile' },
+      { name: 'Overview', icon: <FaTachometerAlt />, path: '/overview' },
+      { name: 'Company Reports', icon: <FaChartLine />, path: '/company-reports' },
+      { name: 'Manage Departments', icon: <FaBuilding />, path: '/manage-departments' },
+      { name: 'Collaborator Finder', icon: <FaCogs />, path: '/collaborator-finder' },
+    ],
+    CTO: [
+      { name: 'Profile', icon: <FaUser />, path: '/profile' },
+      { name: 'Technology Overview', icon: <FaTachometerAlt />, path: '/technology-overview' },
+      { name: 'Manage IT', icon: <FaCogs />, path: '/manage-it' },
+      { name: 'Collaborator Finder', icon: <FaCogs />, path: '/collaborator-finder' },
+    ],
+    'Director of HR': [
+      { name: 'Profile', icon: <FaUser />, path: '/profile' },
+      { name: 'HR Overview', icon: <FaTachometerAlt />, path: '/hr-overview' },
+      { name: 'Manage Recruitment', icon: <FaUsers />, path: '/manage-recruitment' },
+      { name: 'Collaborator Finder', icon: <FaCogs />, path: '/collaborator-finder' },
+    ],
+    'Director of Finance': [
+      { name: 'Profile', icon: <FaUser />, path: '/profile' },
+      { name: 'Finance Overview', icon: <FaChartLine />, path: '/finance-overview' },
+      { name: 'Budget Reports', icon: <FaChartLine />, path: '/budget-reports' },
+      { name: 'Collaborator Finder', icon: <FaCogs />, path: '/collaborator-finder' },
+    ],
+    'Research Scientist': [
+      { name: 'Profile', icon: <FaUser />, path: '/profile' },
+      { name: 'Research Projects', icon: <FaChartLine />, path: '/research-projects' },
+      { name: 'Collaborator Finder', icon: <FaCogs />, path: '/collaborator-finder' },
+    ],
+    'Customer Support Specialist': [
+      { name: 'Profile', icon: <FaUser />, path: '/profile' },
+      { name: 'Customer Cases', icon: <FaUsers />, path: '/customer-cases' },
+      { name: 'Collaborator Finder', icon: <FaCogs />, path: '/collaborator-finder' },
+    ],
   };
 
   return (
-    <aside className="w-1/4 bg-gray-800 text-white p-6 h-full flex flex-col justify-between">
+    <aside className="w-64 bg-gray-900 text-white p-6 h-full flex flex-col justify-between">
       <div>
-        <h2 className="text-xl mb-4">Dashboard</h2>
-        <ul>
-          <li className="mb-2">
-            <Link to="/dashboard" className="hover:text-blue-400">
-              Dashboard
+        <h2 className="text-2xl font-semibold mb-6 text-blue-400">Welcome Back...</h2>
+        <ul className="space-y-4">
+          <li>
+            <Link to="/dashboard" className="flex items-center space-x-3 text-lg text-gray-300 hover:text-white">
+              <FaTachometerAlt />
+              <span>Dashboard</span>
             </Link>
           </li>
           {links[user.role]?.map((link, index) => (
-            <li key={index} className="mb-2">
+            <li key={index}>
               <Link
-                to={
-                  link === 'Profile'
-                    ? '/profile'
-                    : link === 'Collaborator Finder'
-                    ? '/collaborator-finder'
-                    : link === 'My Team'
-                    ? '/my-team'
-                    : link === 'Manage Team'
-                    ? '/manage-team'
-                    : link === 'Reports'
-                    ? '/reports'
-                    : link === 'Overview'
-                    ? '/overview'
-                    : link === 'Company Reports'
-                    ? '/company-reports'
-                    : link === 'Manage Departments'
-                    ? '/manage-departments'
-                    : link === 'Technology Overview'
-                    ? '/technology-overview'
-                    : link === 'Manage IT'
-                    ? '/manage-it'
-                    : link === 'HR Overview'
-                    ? '/hr-overview'
-                    : link === 'Manage Recruitment'
-                    ? '/manage-recruitment'
-                    : link === 'Finance Overview'
-                    ? '/finance-overview'
-                    : link === 'Budget Reports'
-                    ? '/budget-reports'
-                    : link === 'Research Projects'
-                    ? '/research-projects'
-                    : link === 'Customer Cases'
-                    ? '/customer-cases'
-                    : link === 'Team Overview'
-                    ? '/team-overview'
-                    : '#'
-                }
-                className="hover:text-blue-400"
+                to={link.path}
+                className="flex items-center space-x-3 text-lg text-gray-300 hover:text-white"
               >
-                {link}
+                {link.icon}
+                <span>{link.name}</span>
               </Link>
             </li>
           ))}
@@ -83,8 +92,9 @@ const Sidebar = () => {
       </div>
       <button
         onClick={logout}
-        className="w-full bg-red-500 text-white p-2 rounded hover:bg-red-700 mt-auto"
+        className="w-full bg-red-600 text-white p-3 rounded flex items-center justify-center hover:bg-red-700 mt-6"
       >
+        <FaSignOutAlt className="mr-2" />
         Logout
       </button>
     </aside>
