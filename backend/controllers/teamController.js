@@ -223,7 +223,6 @@ const updateComment = async (req, res) => {
 };
 
 // Delete a comment from a team's discussion
-// Delete a comment from a team's discussion
 const deleteComment = async (req, res) => {
   try {
     console.log('Deleting comment from team:', req.params.id);
@@ -244,8 +243,8 @@ const deleteComment = async (req, res) => {
       return res.status(403).json({ message: 'Not authorized to delete this comment' });
     }
 
-    // Remove the subdocument from the array
-    discussion.remove();
+    // Correctly remove the subdocument from the array using `pull`
+    team.discussions.pull(discussion._id);
     await team.save();
 
     console.log('Comment deleted successfully');
@@ -255,6 +254,7 @@ const deleteComment = async (req, res) => {
     res.status(500).json({ message: 'Internal Server Error' });
   }
 };
+
 
 module.exports = {
   createTeam,
