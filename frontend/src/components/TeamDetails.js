@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useContext } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
-import { FaEdit, FaTrashAlt } from 'react-icons/fa';
+import { FaEdit, FaTrashAlt, FaArrowLeft } from 'react-icons/fa';
 import { ToastContainer, toast } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
 import api from '../utils/api';
@@ -110,12 +110,12 @@ const TeamDetails = () => {
       .map(comment => (
         <div
           key={comment._id}
-          style={{ marginLeft: level * 20 }}
-          className={`mb-6 p-6 rounded-lg shadow-md ${
+          style={{ marginLeft: level * 5, marginTop: 20 }}
+          className={`mb-8 p-6 rounded-lg shadow-md ${
             level === 0 ? 'bg-gray-100 border border-gray-300' : 'bg-gray-200 border-l-4 border-blue-200'
           }`}
         >
-          <div className="flex justify-between items-center">
+          <div className="flex justify-between items-center mb-2">
             <p className="font-semibold text-gray-700">
               {comment.user?.name || "Unknown User"}:
             </p>
@@ -123,7 +123,7 @@ const TeamDetails = () => {
               {formatTimeAgo(comment.createdAt)}
             </div>
           </div>
-          <p className="mt-4 text-gray-800">{comment.comment}</p>
+          <p className="mt-2 text-gray-800">{comment.comment}</p>
           <div className="flex justify-between items-center mt-4">
             <button
               onClick={() => setParentCommentId(comment._id)}
@@ -152,33 +152,47 @@ const TeamDetails = () => {
       <Sidebar />
       <div className="flex-1 bg-gray-100 overflow-y-auto p-6">
         <ToastContainer />
-        <button onClick={() => navigate('/manage-team')} className="mb-4 text-blue-500 underline">
+        <button
+          onClick={() => navigate('/manage-team')}
+          className="mb-4 bg-blue-500 text-white py-2 px-4 rounded inline-flex items-center shadow-md hover:bg-blue-600"
+        >
+          <FaArrowLeft className="mr-2" />
           Back to Manage Teams
         </button>
         {team ? (
           <>
-            <h2 className="text-2xl font-bold mb-6">{team.name} - Team Details</h2>
-            <div className="bg-white p-6 rounded shadow-md mb-4">
-              <h3 className="text-xl font-semibold mb-4">Team Objective</h3>
-              <p>{team.objective}</p>
-              <h3 className="text-xl font-semibold mb-4 mt-4">Team Description</h3>
-              <p>{team.description}</p>
-              <h3 className="text-xl font-semibold mb-4 mt-4">Team Members</h3>
-              <p>{team.members?.map(member => member?.name).join(', ') || "No members available"}</p>
+            <h2 className="text-3xl font-bold mb-6 text-gray-800">{team.name} - Team Details</h2>
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
+              <div className="bg-white p-6 rounded-lg shadow-lg">
+                <h3 className="text-xl font-semibold mb-4 text-gray-700">Team Objective</h3>
+                <p className="text-gray-600">{team.objective}</p>
+              </div>
+              <div className="bg-white p-6 rounded-lg shadow-lg">
+                <h3 className="text-xl font-semibold mb-4 text-gray-700">Team Description</h3>
+                <p className="text-gray-600">{team.description}</p>
+              </div>
+              <div className="bg-white p-6 rounded-lg shadow-lg">
+                <h3 className="text-xl font-semibold mb-4 text-gray-700">Team Members</h3>
+                <ul className="list-disc list-inside text-gray-600">
+                  {team.members?.map(member => (
+                    <li key={member._id}>{member.name}</li>
+                  )) || <li>No members available</li>}
+                </ul>
+              </div>
             </div>
 
             {user.role === 'Employee' && (
-              <div className="bg-white p-6 rounded shadow-md mb-4">
-                <h3 className="text-xl font-semibold mb-4">My Tasks</h3>
-                <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4">
+              <div className="bg-white p-8 rounded-lg shadow-lg mb-8">
+                <h3 className="text-xl font-semibold mb-4 text-gray-700">My Tasks</h3>
+                <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-6">
                   {team.tasks?.filter(task => task.assignedTo?._id === user._id).map(task => (
-                    <div key={task._id} className="bg-gray-100 p-4 rounded shadow-md">
-                      <h4 className="text-lg font-semibold">{task.description}</h4>
-                      <p className="text-gray-600">Deadline: {new Date(task.deadline).toLocaleDateString()}</p>
+                    <div key={task._id} className="bg-gray-50 p-6 rounded-lg shadow-md">
+                      <h4 className="text-lg font-semibold text-gray-700">{task.description}</h4>
+                      <p className="text-gray-600 mt-2">Deadline: {new Date(task.deadline).toLocaleDateString()}</p>
                       <select
                         value={task.status}
                         onChange={(e) => updateTaskStatus(task._id, e.target.value)}
-                        className={`w-full p-2 mt-2 rounded ${
+                        className={`w-full p-2 mt-4 rounded ${
                           task.status === 'Pending' ? 'bg-yellow-200' :
                           task.status === 'In Progress' ? 'bg-blue-200' :
                           'bg-green-200'
@@ -194,15 +208,15 @@ const TeamDetails = () => {
               </div>
             )}
 
-            <div className="bg-white p-6 rounded shadow-md mb-4">
-              <h3 className="text-xl font-semibold mb-4">Tasks</h3>
-              <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4">
+            <div className="bg-white p-8 rounded-lg shadow-lg mb-8">
+              <h3 className="text-xl font-semibold mb-4 text-gray-700">Tasks</h3>
+              <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-6">
                 {team.tasks?.map(task => (
-                  <div key={task._id} className="bg-gray-100 p-4 rounded shadow-md">
-                    <h4 className="text-lg font-semibold">{task.description}</h4>
-                    <p className="text-gray-600">Assigned to: {task.assignedTo?.name || "Unassigned"}</p>
-                    <p className="text-gray-600">Deadline: {new Date(task.deadline).toLocaleDateString()}</p>
-                    <p className={`text-sm font-medium mt-2 ${
+                  <div key={task._id} className="bg-gray-50 p-6 rounded-lg shadow-md">
+                    <h4 className="text-lg font-semibold text-gray-700">{task.description}</h4>
+                    <p className="text-gray-600 mt-2">Assigned to: {task.assignedTo?.name || "Unassigned"}</p>
+                    <p className="text-gray-600 mt-2">Deadline: {new Date(task.deadline).toLocaleDateString()}</p>
+                    <p className={`text-sm font-medium mt-4 ${
                       task.status === 'Pending' ? 'text-yellow-500' :
                       task.status === 'In Progress' ? 'text-blue-500' :
                       'text-green-500'
@@ -213,19 +227,19 @@ const TeamDetails = () => {
                 )) || "No tasks available"}
               </div>
               {(user.role === 'Team Leader' || user.role === 'Department Manager') && (
-                <div className="mt-4">
-                  <h4 className="text-lg font-semibold mb-2">Add New Task</h4>
+                <div className="mt-6">
+                  <h4 className="text-lg font-semibold mb-4 text-gray-700">Add New Task</h4>
                   <input
                     type="text"
                     placeholder="Task Description"
                     value={newTask}
                     onChange={(e) => setNewTask(e.target.value)}
-                    className="w-full p-2 border border-gray-300 rounded mb-2"
+                    className="w-full p-3 border border-gray-300 rounded mb-4"
                   />
                   <select
                     value={assignedTo}
                     onChange={(e) => setAssignedTo(e.target.value)}
-                    className="w-full p-2 border border-gray-300 rounded mb-2"
+                    className="w-full p-3 border border-gray-300 rounded mb-4"
                   >
                     <option value="">Assign to</option>
                     {team.members?.map(member => (
@@ -238,29 +252,29 @@ const TeamDetails = () => {
                     type="date"
                     value={deadline}
                     onChange={(e) => setDeadline(e.target.value)}
-                    className="w-full p-2 border border-gray-300 rounded mb-4"
+                    className="w-full p-3 border border-gray-300 rounded mb-6"
                   />
-                  <button onClick={addTask} className="bg-green-500 text-white p-2 rounded w-full">
+                  <button onClick={addTask} className="bg-green-500 text-white p-3 rounded w-full hover:bg-green-600">
                     Add Task
                   </button>
                 </div>
               )}
             </div>
 
-            <div className="bg-white p-6 rounded shadow-md">
-              <h3 className="text-xl font-semibold mb-4">Team Discussions</h3>
+            <div className="bg-white p-8 rounded-lg shadow-lg">
+              <h3 className="text-xl font-semibold mb-6 text-gray-700">Team Discussions</h3>
               <ul>
                 {renderComments(team.discussions || [])}
               </ul>
-              <div className="mt-4">
-                <h4 className="text-lg font-semibold mb-2">{editCommentId ? 'Edit Comment' : 'Add New Comment'}</h4>
+              <div className="mt-6">
+                <h4 className="text-lg font-semibold mb-4 text-gray-700">{editCommentId ? 'Edit Comment' : 'Add New Comment'}</h4>
                 <textarea
                   placeholder="Comment"
                   value={newComment}
                   onChange={(e) => setNewComment(e.target.value)}
-                  className="w-full p-2 border border-gray-300 rounded mb-4"
+                  className="w-full p-3 border border-gray-300 rounded mb-6"
                 />
-                <button onClick={handleCommentSubmit} className="bg-blue-500 text-white p-2 rounded w-full">
+                <button onClick={handleCommentSubmit} className="bg-blue-500 text-white p-3 rounded w-full hover:bg-blue-600">
                   {parentCommentId ? 'Reply' : editCommentId ? 'Update Comment' : 'Add Comment'}
                 </button>
               </div>
