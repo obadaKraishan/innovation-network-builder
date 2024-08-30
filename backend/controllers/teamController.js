@@ -1,4 +1,5 @@
 const Team = require('../models/teamModel');
+const Task = require('../models/taskModel');
 const User = require('../models/userModel');
 const Department = require('../models/departmentModel');
 
@@ -114,6 +115,40 @@ const updateTeam = async (req, res) => {
   }
 };
 
+// Add a task to a team
+const addTask = async (req, res) => {
+  try {
+    console.log('Adding task to team:', req.params.id);
+    const { description, assignedTo, deadline } = req.body;
+
+    if (!description || !assignedTo || !deadline) {
+      return res.status(400).json({ message: 'All fields are required' });
+    }
+
+    const team = await Team.findById(req.params.id);
+
+    if (!team) {
+      return res.status(404).json({ message: 'Team not found' });
+    }
+
+    const task = new Task({
+      description,
+      assignedTo,
+      deadline,
+    });
+
+    await task.save();
+
+    team.tasks.push(task._id);
+    await team.save();
+
+    res.status(201).json(task);
+  } catch (error) {
+    console.error('Error adding task:', error);
+    res.status(500).json({ message: 'Internal Server Error' });
+  }
+};
+
 // Add a comment to a team's discussion
 const addComment = async (req, res) => {
   try {
@@ -147,5 +182,6 @@ module.exports = {
   getTeams,
   getTeamById,
   updateTeam,
+  addTask,     // Export the new addTask function
   addComment,
 };

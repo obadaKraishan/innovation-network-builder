@@ -29,13 +29,13 @@ const teamSchema = new Schema({
     type: String,
   },
   tasks: [{
-    task: String,
-    deadline: Date,
-    status: {
-      type: String,
-      enum: ['Pending', 'In Progress', 'Completed'],
-      default: 'Pending',
-    },
+    type: Schema.Types.ObjectId,
+    ref: 'Task',
+  }],
+  discussions: [{
+    user: { type: Schema.Types.ObjectId, ref: 'User' },
+    comment: String,
+    createdAt: { type: Date, default: Date.now },
   }],
   createdAt: {
     type: Date,

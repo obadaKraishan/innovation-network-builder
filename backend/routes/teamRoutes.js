@@ -4,6 +4,7 @@ const {
   getTeams,
   getTeamById,
   updateTeam,
+  addTask,      // Added new route for adding tasks
   addComment,
 } = require('../controllers/teamController');
 const { protect } = require('../middleware/authMiddleware');
@@ -31,9 +32,7 @@ router.put('/:id', protect, (req, res, next) => {
   next();
 }, updateTeam);
 
-router.post('/:id/comment', protect, (req, res, next) => {
-  console.log('Add Comment route hit'); // Add this log for debugging
-  next();
-}, addComment);
+router.post('/:id/task', protect, addTask);       // Added new route for adding tasks
+router.post('/:id/comment', protect, addComment); // Existing route for adding comments
 
 module.exports = router;
