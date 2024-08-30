@@ -54,25 +54,34 @@ const searchUsers = async (req, res) => {
     // If a department is selected, find all sub-departments
     if (department) {
       const subDepartments = await Department.find({ parentDepartment: department }).select('_id');
-      departmentIds = departmentIds.concat(subDepartments.map(subDept => subDept._id));
+      departmentIds = departmentIds.concat(subDepartments.map(subDept => subDept._id.toString()));
     }
+
+    // Validate that departmentIds are valid ObjectId instances
+    const validDepartmentIds = departmentIds.map(id => {
+      return mongoose.Types.ObjectId.isValid(id) ? new mongoose.Types.ObjectId(id) : null;
+    }).filter(id => id !== null);
 
     const query = {};
 
-    if (department) {
-      query.department = { $in: departmentIds.map(id => mongoose.Types.ObjectId(id)) };
+    if (validDepartmentIds.length > 0) {
+      query.department = { $in: validDepartmentIds };
+    } else {
+      console.warn('Invalid department ID:', department);
     }
 
     if (skills) {
       query.skills = { $in: skills.split(',') };
     }
 
+    console.log('Constructed query:', query);
+
     const users = await User.find(query).populate('department');
     console.log('Users found:', users);
     res.json(users);
   } catch (error) {
     console.error('Error searching users:', error.message);
-    res.status(500).json({ message: error.message });
+    res.status(500).json({ message: 'Internal Server Error', error: error.message });
   }
 };
 
