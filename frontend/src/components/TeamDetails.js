@@ -11,6 +11,7 @@ const TeamDetails = () => {
   const [assignedTo, setAssignedTo] = useState('');
   const [deadline, setDeadline] = useState('');
   const [newComment, setNewComment] = useState('');
+  const [parentCommentId, setParentCommentId] = useState(null);
 
   useEffect(() => {
     fetchTeamDetails();
@@ -43,12 +44,25 @@ const TeamDetails = () => {
 
   const addComment = async () => {
     try {
-      await api.post(`/teams/${id}/comment`, { comment: newComment });
+      await api.post(`/teams/${id}/comment`, { comment: newComment, parent: parentCommentId });
       fetchTeamDetails(); // Refresh the team details after adding a comment
       setNewComment('');
+      setParentCommentId(null); // Reset parent comment after replying
     } catch (error) {
       console.error('Error adding comment:', error);
     }
+  };
+
+  const renderComments = (comments, parentId = null, level = 0) => {
+    return comments
+      .filter(comment => comment.parent === parentId)
+      .map(comment => (
+        <div key={comment._id} style={{ marginLeft: level * 20 }}>
+          <p><strong>{comment.user?.name || "Unknown User"}:</strong> {comment.comment}</p>
+          <button onClick={() => setParentCommentId(comment._id)} className="text-sm text-blue-500">Reply</button>
+          {renderComments(comments, comment._id, level + 1)}
+        </div>
+      ));
   };
 
   return (
@@ -115,11 +129,7 @@ const TeamDetails = () => {
             <div className="bg-white p-6 rounded shadow-md">
               <h3 className="text-xl font-semibold mb-4">Team Discussions</h3>
               <ul>
-                {team.discussions?.map(discussion => (
-                  <li key={discussion._id}>
-                    {discussion.user?.name || "Unknown User"}: {discussion.comment} - {new Date(discussion.createdAt).toLocaleString()}
-                  </li>
-                )) || "No discussions available"}
+                {renderComments(team.discussions || [])}
               </ul>
               <div className="mt-4">
                 <h4 className="text-lg font-semibold mb-2">Add New Comment</h4>
@@ -130,7 +140,7 @@ const TeamDetails = () => {
                   className="w-full p-2 border border-gray-300 rounded mb-4"
                 />
                 <button onClick={addComment} className="bg-blue-500 text-white p-2 rounded w-full">
-                  Add Comment
+                  {parentCommentId ? 'Reply' : 'Add Comment'}
                 </button>
               </div>
             </div>

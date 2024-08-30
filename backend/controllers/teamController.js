@@ -76,7 +76,11 @@ const getTeamById = async (req, res) => {
       .populate('members teamLeader')
       .populate({
         path: 'tasks',
-        populate: { path: 'assignedTo', select: 'name' }, // Populate assignedTo with user's name
+        populate: { path: 'assignedTo', select: 'name' },
+      })
+      .populate({
+        path: 'discussions.user', // Populate user in discussions
+        select: 'name',
       });
 
     if (!team) {
@@ -91,6 +95,7 @@ const getTeamById = async (req, res) => {
     res.status(500).json({ message: 'Internal Server Error' });
   }
 };
+
 
 // Update a team
 const updateTeam = async (req, res) => {
@@ -154,11 +159,11 @@ const addTask = async (req, res) => {
   }
 };
 
-// Add a comment to a team's discussion
+// Add a comment to a team's discussion or reply to an existing comment
 const addComment = async (req, res) => {
   try {
     console.log('Adding comment to team:', req.params.id);
-    const { comment } = req.body;
+    const { comment, parent } = req.body;
     const team = await Team.findById(req.params.id);
 
     if (!team) {
@@ -166,12 +171,14 @@ const addComment = async (req, res) => {
       return res.status(404).json({ message: 'Team not found' });
     }
 
-    team.discussions.push({
+    const discussion = {
       user: req.user._id,
       comment,
+      parent: parent || null,
       createdAt: new Date(),
-    });
+    };
 
+    team.discussions.push(discussion);
     await team.save();
 
     console.log('Comment added successfully to team:', team);
