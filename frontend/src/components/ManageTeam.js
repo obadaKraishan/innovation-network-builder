@@ -29,7 +29,7 @@ const ManageTeam = () => {
 
   const fetchAvailableEmployees = async () => {
     try {
-      const response = await api.get('/users');
+      const response = await api.get('/users/department-users'); // Updated API endpoint
       console.log('Available employees fetched:', response.data);
       setAvailableEmployees(response.data);
     } catch (error) {

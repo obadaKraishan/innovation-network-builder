@@ -9,13 +9,15 @@ const {
   getSkills, 
   updateUserInfo, 
   updateUserPassword,
-  getMyTeam
+  getMyTeam,
+  getUsersByDepartment // Add this line
 } = require('../controllers/userController');
 
 const router = express.Router();
 
 // Use the protect middleware for routes that require authentication
 router.route('/my-team').get(protect, getMyTeam); // Add the my-team route
+router.route('/department-users').get(protect, getUsersByDepartment); // Add this new route
 router.route('/').get(protect, admin, getUsers);
 router.route('/search').get(protect, searchUsers); // Add the search route
 router.route('/skills').get(protect, getSkills); // Add the skills route

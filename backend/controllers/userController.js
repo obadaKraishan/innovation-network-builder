@@ -214,6 +214,30 @@ const getMyTeam = async (req, res) => {
   }
 };
 
+// @desc    Get users by department
+// @route   GET /api/users/department-users
+// @access  Private
+const getUsersByDepartment = async (req, res) => {
+  try {
+    const departmentId = req.user.department;
+
+    if (!departmentId) {
+      return res.status(400).json({ message: 'User does not belong to any department' });
+    }
+
+    const users = await User.find({ department: departmentId }).select('name _id');
+
+    if (!users.length) {
+      return res.status(404).json({ message: 'No users found in your department' });
+    }
+
+    res.json(users);
+  } catch (error) {
+    console.error('Error fetching users by department:', error.message);
+    res.status(500).json({ message: error.message });
+  }
+};
+
 module.exports = {
   getUsers,
   getUserById,
@@ -222,4 +246,5 @@ module.exports = {
   updateUserInfo,
   updateUserPassword,
   getMyTeam,
+  getUsersByDepartment,
 };
