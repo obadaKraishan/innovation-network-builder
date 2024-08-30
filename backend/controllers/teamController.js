@@ -1,15 +1,20 @@
+// File: backend/controllers/teamController.js
+
 const Team = require('../models/teamModel');
 const User = require('../models/userModel');
 const Department = require('../models/departmentModel');
 
 // Create a new team
-exports.createTeam = async (req, res) => {
+const createTeam = async (req, res) => {
   try {
     const { name, members, objective, description, tasks } = req.body;
     const teamLeader = req.user._id;
     const department = req.user.department;
 
+    console.log('Creating team with:', { name, members, objective, description, department });
+
     if (!name || !members || !objective) {
+      console.log('Missing required fields:', { name, members, objective });
       return res.status(400).json({ message: 'Name, members, and objective are required' });
     }
 
@@ -25,6 +30,7 @@ exports.createTeam = async (req, res) => {
 
     await team.save();
 
+    console.log('Team created successfully:', team);
     res.status(201).json(team);
   } catch (error) {
     console.error('Error creating team:', error);
@@ -33,14 +39,17 @@ exports.createTeam = async (req, res) => {
 };
 
 // Get teams for a department
-exports.getTeams = async (req, res) => {
+const getTeams = async (req, res) => {
   try {
+    console.log('Fetching teams for user department:', req.user.department);
     const teams = await Team.find({ department: req.user.department }).populate('members teamLeader');
 
     if (!teams.length) {
+      console.log('No teams found for department:', req.user.department);
       return res.status(404).json({ message: 'No teams found' });
     }
 
+    console.log('Teams fetched successfully:', teams);
     res.json(teams);
   } catch (error) {
     console.error('Error fetching teams:', error);
@@ -49,14 +58,17 @@ exports.getTeams = async (req, res) => {
 };
 
 // Get a specific team by ID
-exports.getTeamById = async (req, res) => {
+const getTeamById = async (req, res) => {
   try {
+    console.log('Fetching team by ID:', req.params.id);
     const team = await Team.findById(req.params.id).populate('members teamLeader');
 
     if (!team) {
+      console.log('Team not found:', req.params.id);
       return res.status(404).json({ message: 'Team not found' });
     }
 
+    console.log('Team fetched successfully:', team);
     res.json(team);
   } catch (error) {
     console.error('Error fetching team:', error);
@@ -65,12 +77,14 @@ exports.getTeamById = async (req, res) => {
 };
 
 // Update a team
-exports.updateTeam = async (req, res) => {
+const updateTeam = async (req, res) => {
   try {
+    console.log('Updating team:', req.params.id);
     const { name, members, objective, description, tasks } = req.body;
     const team = await Team.findById(req.params.id);
 
     if (!team) {
+      console.log('Team not found:', req.params.id);
       return res.status(404).json({ message: 'Team not found' });
     }
 
@@ -82,6 +96,7 @@ exports.updateTeam = async (req, res) => {
 
     await team.save();
 
+    console.log('Team updated successfully:', team);
     res.json(team);
   } catch (error) {
     console.error('Error updating team:', error);
@@ -90,12 +105,14 @@ exports.updateTeam = async (req, res) => {
 };
 
 // Add a comment to a team's discussion
-exports.addComment = async (req, res) => {
+const addComment = async (req, res) => {
   try {
+    console.log('Adding comment to team:', req.params.id);
     const { comment } = req.body;
     const team = await Team.findById(req.params.id);
 
     if (!team) {
+      console.log('Team not found:', req.params.id);
       return res.status(404).json({ message: 'Team not found' });
     }
 
@@ -107,9 +124,18 @@ exports.addComment = async (req, res) => {
 
     await team.save();
 
+    console.log('Comment added successfully to team:', team);
     res.json(team);
   } catch (error) {
     console.error('Error adding comment:', error);
     res.status(500).json({ message: 'Internal Server Error' });
   }
+};
+
+module.exports = {
+  createTeam,
+  getTeams,
+  getTeamById,
+  updateTeam,
+  addComment,
 };

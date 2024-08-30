@@ -1,3 +1,5 @@
+// File: backend/controllers/userController.js
+
 const mongoose = require('mongoose');
 const User = require('../models/userModel');
 const Department = require('../models/departmentModel');
@@ -8,9 +10,12 @@ const bcrypt = require('bcryptjs');
 // @access  Private/Admin
 const getUsers = async (req, res) => {
   try {
+    console.log('Fetching all users');
     const users = await User.find();
+    console.log('Users fetched successfully:', users);
     res.json(users);
   } catch (error) {
+    console.error('Error fetching users:', error.message);
     res.status(500).json({ message: error.message });
   }
 };
@@ -20,13 +25,17 @@ const getUsers = async (req, res) => {
 // @access  Private
 const getUserById = async (req, res) => {
   try {
+    console.log('Fetching user by ID:', req.params.id);
     const user = await User.findById(req.params.id);
     if (user) {
+      console.log('User fetched successfully:', user);
       res.json(user);
     } else {
+      console.log('User not found:', req.params.id);
       res.status(404).json({ message: 'User not found' });
     }
   } catch (error) {
+    console.error('Error fetching user by ID:', error.message);
     res.status(500).json({ message: error.message });
   }
 };
@@ -38,6 +47,7 @@ const searchUsers = async (req, res) => {
   const { department, skills } = req.query;
 
   try {
+    console.log('Searching users with department and skills:', { department, skills });
     let departmentIds = [department];
 
     // If a department is selected, find all sub-departments
@@ -57,8 +67,10 @@ const searchUsers = async (req, res) => {
     }
 
     const users = await User.find(query).populate('department');
+    console.log('Users found:', users);
     res.json(users);
   } catch (error) {
+    console.error('Error searching users:', error.message);
     res.status(500).json({ message: error.message });
   }
 };
@@ -68,6 +80,7 @@ const searchUsers = async (req, res) => {
 // @access  Private
 const getSkills = async (req, res) => {
   try {
+    console.log('Fetching all unique skills');
     const users = await User.find();
     const skillsSet = new Set();
 
@@ -76,8 +89,10 @@ const getSkills = async (req, res) => {
     });
 
     const skillsArray = Array.from(skillsSet);
+    console.log('Skills fetched successfully:', skillsArray);
     res.json(skillsArray);
   } catch (error) {
+    console.error('Error fetching skills:', error.message);
     res.status(500).json({ message: error.message });
   }
 };
@@ -86,9 +101,10 @@ const getSkills = async (req, res) => {
 // @route   PUT /api/users/:id
 // @access  Private
 const updateUserInfo = async (req, res) => {
-  const { name, skills } = req.body;  // Only allow name and skills to be updated
+  const { name, skills } = req.body;
 
   try {
+    console.log('Updating user information:', req.params.id);
     const user = await User.findById(req.params.id);
 
     if (user) {
@@ -96,11 +112,14 @@ const updateUserInfo = async (req, res) => {
       user.skills = skills || user.skills;
 
       const updatedUser = await user.save();
+      console.log('User information updated successfully:', updatedUser);
       res.json(updatedUser);
     } else {
+      console.log('User not found:', req.params.id);
       res.status(404).json({ message: 'User not found' });
     }
   } catch (error) {
+    console.error('Error updating user information:', error.message);
     res.status(500).json({ message: error.message });
   }
 };
@@ -112,6 +131,7 @@ const updateUserPassword = async (req, res) => {
   const { password } = req.body;
 
   try {
+    console.log('Updating user password:', req.params.id);
     const user = await User.findById(req.params.id);
 
     if (user) {
@@ -119,18 +139,18 @@ const updateUserPassword = async (req, res) => {
       user.password = await bcrypt.hash(password, salt);
 
       await user.save();
+      console.log('User password updated successfully');
       res.json({ message: 'Password updated successfully' });
     } else {
+      console.log('User not found:', req.params.id);
       res.status(404).json({ message: 'User not found' });
     }
   } catch (error) {
+    console.error('Error updating user password:', error.message);
     res.status(500).json({ message: error.message });
   }
 };
 
-// @desc    Get team members based on the user's department and role
-// @route   GET /api/users/my-team
-// @access  Private
 // @desc    Get team members based on the user's department and role
 // @route   GET /api/users/my-team
 // @access  Private
@@ -139,13 +159,11 @@ const getMyTeam = async (req, res) => {
     console.log('Entering getMyTeam');
     console.log('req.user:', req.user);
 
-    // Validate req.user._id as a valid ObjectId
     if (!mongoose.Types.ObjectId.isValid(req.user._id)) {
       console.log('Invalid User ObjectId:', req.user._id);
       return res.status(400).json({ message: 'Invalid user ID' });
     }
 
-    // Fetch the user from the database and populate the department
     const user = await User.findById(req.user._id).populate('department');
 
     if (!user) {
@@ -155,13 +173,10 @@ const getMyTeam = async (req, res) => {
 
     console.log('User found:', user);
 
-    // Initialize the query
     let query = {};
 
-    // Check the user’s role to build the appropriate query
     if (user.role === 'Employee' || user.role === 'Team Leader') {
       console.log('Role is Employee or Team Leader');
-      // Check if the department exists and is valid
       if (user.department && mongoose.Types.ObjectId.isValid(user.department._id)) {
         query = { department: user.department._id };
       } else {
@@ -184,7 +199,6 @@ const getMyTeam = async (req, res) => {
 
     console.log('Final query before DB operation:', query);
 
-    // Perform the query to find team members
     const teamMembers = await User.find(query).populate('department');
 
     if (!teamMembers.length) {
@@ -199,7 +213,6 @@ const getMyTeam = async (req, res) => {
     res.status(500).json({ message: 'Internal Server Error' });
   }
 };
-
 
 module.exports = {
   getUsers,

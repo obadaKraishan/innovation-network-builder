@@ -2,7 +2,7 @@
 
 const express = require('express');
 const { createTeam, getTeams, getTeamById, updateTeam, addComment } = require('../controllers/teamController');
-const { protect } = require('../middleware/authMiddleware'); // Correct import of protect middleware
+const { protect } = require('../middleware/authMiddleware');
 
 const router = express.Router();
 

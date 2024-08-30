@@ -29,22 +29,24 @@ const protect = asyncHandler(async (req, res, next) => {
 
       next();
     } catch (error) {
-      console.error('Error verifying token:', error);
-      res.status(401).json({ message: 'Not authorized, token failed' });
+      console.error('Error verifying token:', error.message);
+      return res.status(401).json({ message: 'Not authorized, token failed' });
     }
   } else {
-    res.status(401).json({ message: 'Not authorized, no token' });
+    console.warn('No token provided in request.');
+    return res.status(401).json({ message: 'Not authorized, no token' });
   }
 });
 
 const admin = (req, res, next) => {
   if (
     req.user &&
-    ['Executive', 'CEO', 'CTO', 'Director of HR', 'Director of Finance'].includes(req.user.role)
+    ['Executive', 'CEO', 'CTO', 'Director of HR', 'Director of Finance', 'Team Leader', 'Department Manager'].includes(req.user.role)
   ) {
     next();
   } else {
-    res.status(401).json({ message: 'Not authorized as an admin' });
+    console.warn('User is not authorized as an admin:', req.user);
+    return res.status(401).json({ message: 'Not authorized as an admin' });
   }
 };
 

@@ -1,4 +1,6 @@
+require('dotenv').config(); // Load environment variables at the top
 const express = require('express');
+const cors = require('cors'); // Add this line
 const connectDB = require('./config/db');
 
 // Import routes
@@ -15,6 +17,10 @@ connectDB();
 
 // Init Middleware
 app.use(express.json());
+app.use(cors()); // Add this line to enable CORS
+
+// Debugging
+console.log('JWT_SECRET:', process.env.JWT_SECRET); // Ensure this prints correctly
 
 // Define Routes
 app.use('/api/auth', authRoutes);

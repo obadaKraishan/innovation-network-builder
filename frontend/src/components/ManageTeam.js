@@ -1,12 +1,8 @@
-// File: frontend/src/components/ManageTeam.js
-
-import React, { useState, useEffect, useContext } from 'react';
-import AuthContext from '../context/AuthContext';
+import React, { useState, useEffect } from 'react';
 import api from '../utils/api';
 import Sidebar from './Sidebar';
 
 const ManageTeam = () => {
-  const { user } = useContext(AuthContext);
   const [teams, setTeams] = useState([]);
   const [teamName, setTeamName] = useState('');
   const [teamObjective, setTeamObjective] = useState('');
@@ -15,6 +11,7 @@ const ManageTeam = () => {
   const [availableEmployees, setAvailableEmployees] = useState([]);
 
   useEffect(() => {
+    console.log('Fetching teams and available employees...');
     fetchTeams();
     fetchAvailableEmployees();
   }, []);
@@ -22,29 +19,35 @@ const ManageTeam = () => {
   const fetchTeams = async () => {
     try {
       const response = await api.get('/teams');
+      console.log('Teams fetched:', response.data);
       setTeams(response.data);
     } catch (error) {
       console.error('Error fetching teams:', error);
+      setTeams([]); // Ensuring that the teams array is empty if there was an error
     }
   };
 
   const fetchAvailableEmployees = async () => {
     try {
       const response = await api.get('/users');
+      console.log('Available employees fetched:', response.data);
       setAvailableEmployees(response.data);
     } catch (error) {
       console.error('Error fetching employees:', error);
+      setAvailableEmployees([]); // Ensuring that the availableEmployees array is empty if there was an error
     }
   };
 
   const createTeam = async () => {
     try {
+      console.log('Creating team...');
       const response = await api.post('/teams/create', {
         name: teamName,
         members,
         objective: teamObjective,
         description: teamDescription,
       });
+      console.log('Team created:', response.data);
       setTeams([...teams, response.data]);
     } catch (error) {
       console.error('Error creating team:', error);
@@ -111,15 +114,19 @@ const ManageTeam = () => {
         </div>
         <div className="mt-8">
           <h3 className="text-xl font-semibold mb-4">My Teams</h3>
-          {teams.map(team => (
-            <div key={team._id} className="mb-4 p-4 border border-gray-300 rounded shadow-sm">
-              <h4 className="text-lg font-bold">{team.name}</h4>
-              <p>{team.objective}</p>
-              <p>{team.description}</p>
-              <p>Members: {team.members.map(member => member.name).join(', ')}</p>
-              <button className="bg-green-500 text-white p-2 rounded mt-2">View/Edit Team</button>
-            </div>
-          ))}
+          {teams.length > 0 ? (
+            teams.map(team => (
+              <div key={team._id} className="mb-4 p-4 border border-gray-300 rounded shadow-sm">
+                <h4 className="text-lg font-bold">{team.name}</h4>
+                <p>{team.objective}</p>
+                <p>{team.description}</p>
+                <p>Members: {team.members.map(member => member.name).join(', ')}</p>
+                <button className="bg-green-500 text-white p-2 rounded mt-2">View/Edit Team</button>
+              </div>
+            ))
+          ) : (
+            <p>No teams have been created yet.</p>
+          )}
         </div>
       </div>
     </div>

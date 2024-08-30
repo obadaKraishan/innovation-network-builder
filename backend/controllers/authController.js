@@ -1,3 +1,5 @@
+// File: backend/controllers/authController.js
+
 const User = require('../models/userModel');
 const jwt = require('jsonwebtoken');
 
@@ -29,6 +31,7 @@ const authUser = async (req, res) => {
       res.status(401).json({ message: 'Invalid email or password' });
     }
   } catch (error) {
+    console.error('Error during authentication:', error.message);
     res.status(500).json({ message: error.message });
   }
 };
