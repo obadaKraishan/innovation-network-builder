@@ -5,7 +5,6 @@ const Department = require('../models/departmentModel');
 // @access  Private
 const getDepartments = async (req, res) => {
   try {
-    // Find departments that do not have a parentDepartment field set (i.e., they are main departments)
     const departments = await Department.find({ parentDepartment: null });
     res.json(departments);
   } catch (error) {
@@ -13,6 +12,83 @@ const getDepartments = async (req, res) => {
   }
 };
 
+// @desc    Get all departments with their sub-departments
+// @route   GET /api/departments/full
+// @access  Private
+const getTheDepartments = async (req, res) => {
+  try {
+    const departments = await Department.find({ parentDepartment: null }).populate('subDepartments');
+    res.json(departments);
+  } catch (error) {
+    res.status(500).json({ message: error.message });
+  }
+};
+
+// @desc    Add a new department
+// @route   POST /api/departments
+// @access  Private
+const addDepartment = async (req, res) => {
+  try {
+    const { name, parent } = req.body;
+    const department = new Department({ name, parentDepartment: parent || null });
+
+    if (parent) {
+      const parentDepartment = await Department.findById(parent);
+      parentDepartment.subDepartments.push(department._id);
+      await parentDepartment.save();
+    }
+
+    await department.save();
+    res.status(201).json(department);
+  } catch (error) {
+    res.status(500).json({ message: error.message });
+  }
+};
+
+// @desc    Edit a department
+// @route   PUT /api/departments/:id
+// @access  Private
+const editDepartment = async (req, res) => {
+  try {
+    const { name, parent } = req.body;
+    const department = await Department.findById(req.params.id);
+
+    if (department) {
+      department.name = name || department.name;
+      department.parentDepartment = parent || department.parentDepartment;
+
+      await department.save();
+      res.json(department);
+    } else {
+      res.status(404).json({ message: 'Department not found' });
+    }
+  } catch (error) {
+    res.status(500).json({ message: error.message });
+  }
+};
+
+// @desc    Delete a department
+// @route   DELETE /api/departments/:id
+// @access  Private
+const deleteDepartment = async (req, res) => {
+  try {
+    const department = await Department.findById(req.params.id);
+
+    if (department) {
+      await department.remove();
+      res.json({ message: 'Department removed' });
+    } else {
+      res.status(404).json({ message: 'Department not found' });
+    }
+  } catch (error) {
+    res.status(500).json({ message: error.message });
+  }
+};
+
 module.exports = {
   getDepartments,
+  getTheDepartments, // New function added
+  addDepartment,
+  editDepartment,
+  deleteDepartment,
 };

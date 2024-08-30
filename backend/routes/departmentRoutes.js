@@ -1,10 +1,24 @@
 const express = require('express');
-const { protect } = require('../middleware/authMiddleware');
-const { getDepartments } = require('../controllers/departmentController');
+const { protect, admin } = require('../middleware/authMiddleware');
+const {
+  getDepartments,
+  getTheDepartments, // Importing the new function
+  addDepartment,
+  editDepartment,
+  deleteDepartment,
+} = require('../controllers/departmentController');
 
 const router = express.Router();
 
-// Use the protect middleware for routes that require authentication
-router.route('/').get(protect, getDepartments);
+router.route('/')
+  .get(protect, admin, getDepartments)
+  .post(protect, admin, addDepartment);
+
+router.route('/full')
+  .get(protect, admin, getTheDepartments); // Adding a new route for the full department hierarchy
+
+router.route('/:id')
+  .put(protect, admin, editDepartment)
+  .delete(protect, admin, deleteDepartment);
 
 module.exports = router;

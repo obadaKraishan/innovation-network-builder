@@ -10,6 +10,7 @@ import Profile from './components/Profile';
 import MyTeam from './components/MyTeam';
 import ManageTeam from './components/ManageTeam';
 import TeamDetails from './components/TeamDetails'; // Import the new TeamDetails component
+import ManageDepartments from './components/ManageDepartments'; // Import the new ManageDepartments component
 
 const AppRoutes = () => {
   return (
@@ -22,7 +23,8 @@ const AppRoutes = () => {
           <Route path="/profile" element={<Profile />} />
           <Route path="/my-team" element={<MyTeam />} />
           <Route path="/manage-team" element={<ManageTeam />} />
-          <Route path="/team-details/:id" element={<TeamDetails />} /> {/* New route for TeamDetails */}
+          <Route path="/manage-departments" element={<ManageDepartments />} /> {/* New route for ManageDepartments */}
+          <Route path="/team-details/:id" element={<TeamDetails />} />
           <Route path="/" element={<Navigate to="/login" />} />
           <Route path="*" element={<Navigate to="/" />} />
         </Routes>
