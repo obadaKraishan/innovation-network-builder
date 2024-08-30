@@ -1,6 +1,6 @@
 require('dotenv').config(); // Load environment variables at the top
 const express = require('express');
-const cors = require('cors'); // Add this line
+const cors = require('cors');
 const connectDB = require('./config/db');
 
 // Import routes
@@ -8,7 +8,7 @@ const authRoutes = require('./routes/authRoutes');
 const userRoutes = require('./routes/userRoutes');
 const departmentRoutes = require('./routes/departmentRoutes');
 const networkRoutes = require('./routes/networkRoutes');
-const teamRoutes = require('./routes/teamRoutes');  // Import the new team routes
+const teamRoutes = require('./routes/teamRoutes'); // Import the new team routes
 
 const app = express();
 
@@ -17,10 +17,10 @@ connectDB();
 
 // Init Middleware
 app.use(express.json());
-app.use(cors()); // Add this line to enable CORS
+app.use(cors()); // Enable CORS
 
 // Debugging
-console.log('JWT_SECRET:', process.env.JWT_SECRET); // Ensure this prints correctly
+console.log('JWT_SECRET:', process.env.JWT_SECRET);
 
 // Define Routes
 app.use('/api/auth', authRoutes);
@@ -28,13 +28,13 @@ app.use('/api/users', userRoutes);
 app.use('/api/departments', departmentRoutes);
 app.use('/api/network', networkRoutes);
 app.use('/api/teams', (req, res, next) => {
-  console.log('Teams route hit');  // Add this log for debugging
+  console.log('Teams route hit'); // Add this log for debugging
   next();
-}, teamRoutes);  // Add the new team routes here
+}, teamRoutes); // Add the new team routes here
 
-// Error Handling Middleware (optional)
+// Error Handling Middleware
 app.use((err, req, res, next) => {
-  console.error(err.message);
+  console.error('Error:', err.message);
   if (!res.headersSent) {
     res.status(500).json({ message: 'Server Error' });
   }

@@ -41,13 +41,11 @@ const getTeams = async (req, res) => {
   try {
     console.log('Fetching teams for user department:', req.user.department);
 
-    // Verify that the department exists in the request
     if (!req.user.department) {
       console.log('No department found in the user data.');
       return res.status(400).json({ message: 'No department assigned to the user' });
     }
 
-    // Check if department exists in the database
     const departmentExists = await Department.findById(req.user.department);
     if (!departmentExists) {
       console.log('Department does not exist in the database:', req.user.department);
@@ -58,7 +56,7 @@ const getTeams = async (req, res) => {
 
     if (!teams.length) {
       console.log('No teams found for department:', req.user.department);
-      return res.status(404).json({ message: 'No teams found' });
+      return res.json([]); // Return an empty array instead of an error when no teams are found
     }
 
     console.log('Teams fetched successfully:', teams);
