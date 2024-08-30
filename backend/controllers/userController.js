@@ -3,6 +3,7 @@
 const mongoose = require('mongoose');
 const User = require('../models/userModel');
 const Department = require('../models/departmentModel');
+const Team = require('../models/teamModel');
 const bcrypt = require('bcryptjs');
 
 // @desc    Get all users
@@ -199,15 +200,25 @@ const getMyTeam = async (req, res) => {
 
     console.log('Final query before DB operation:', query);
 
+    // Fetch users based on the query
     const teamMembers = await User.find(query).populate('department');
 
-    if (!teamMembers.length) {
-      console.log('No team members found');
-      return res.status(404).json({ message: 'No team members found' });
+    // Fetch teams where the user is a member or team leader
+    const teams = await Team.find({
+      $or: [
+        { teamLeader: user._id },
+        { members: user._id },
+      ]
+    }).populate('members teamLeader department');
+
+    if (!teamMembers.length && !teams.length) {
+      console.log('No team members or teams found');
+      return res.status(404).json({ message: 'No team members or teams found' });
     }
 
     console.log('Team members found:', teamMembers);
-    res.json(teamMembers);
+    console.log('Teams found:', teams);
+    res.json({ teamMembers, teams });
   } catch (error) {
     console.error('Error in getMyTeam:', error.message);
     res.status(500).json({ message: 'Internal Server Error' });

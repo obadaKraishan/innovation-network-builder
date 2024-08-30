@@ -96,7 +96,6 @@ const getTeamById = async (req, res) => {
   }
 };
 
-
 // Update a team
 const updateTeam = async (req, res) => {
   try {
@@ -254,7 +253,6 @@ const deleteComment = async (req, res) => {
     res.status(500).json({ message: 'Internal Server Error' });
   }
 };
-
 
 module.exports = {
   createTeam,

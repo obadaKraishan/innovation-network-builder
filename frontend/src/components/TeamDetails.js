@@ -1,15 +1,17 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useContext } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { FaEdit, FaTrashAlt } from 'react-icons/fa';
-import { ToastContainer, toast } from 'react-toastify'; // Import Toastify for notifications
+import { ToastContainer, toast } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
 import api from '../utils/api';
 import Sidebar from './Sidebar';
-import { formatDistanceToNow, parseISO } from 'date-fns'; // Import date-fns for time formatting
+import AuthContext from '../context/AuthContext'; // Import AuthContext for role checking
+import { formatDistanceToNow, parseISO } from 'date-fns';
 
 const TeamDetails = () => {
   const { id } = useParams();
   const navigate = useNavigate();
+  const { user } = useContext(AuthContext); // Access user from context
   const [team, setTeam] = useState(null);
   const [newTask, setNewTask] = useState('');
   const [assignedTo, setAssignedTo] = useState('');
@@ -39,7 +41,7 @@ const TeamDetails = () => {
         assignedTo,
         deadline,
       });
-      fetchTeamDetails(); // Refresh the team details after adding a task
+      fetchTeamDetails();
       setNewTask('');
       setAssignedTo('');
       setDeadline('');
@@ -59,7 +61,7 @@ const TeamDetails = () => {
         await api.post(`/teams/${id}/comment`, { comment: newComment, parent: parentCommentId });
         toast.success('Comment added successfully!');
       }
-      fetchTeamDetails(); // Refresh the team details after adding or editing a comment
+      fetchTeamDetails();
       setNewComment('');
       setEditCommentId(null);
       setParentCommentId(null);
@@ -160,37 +162,39 @@ const TeamDetails = () => {
                   </div>
                 )) || "No tasks available"}
               </div>
-              <div className="mt-4">
-                <h4 className="text-lg font-semibold mb-2">Add New Task</h4>
-                <input
-                  type="text"
-                  placeholder="Task Description"
-                  value={newTask}
-                  onChange={(e) => setNewTask(e.target.value)}
-                  className="w-full p-2 border border-gray-300 rounded mb-2"
-                />
-                <select
-                  value={assignedTo}
-                  onChange={(e) => setAssignedTo(e.target.value)}
-                  className="w-full p-2 border border-gray-300 rounded mb-2"
-                >
-                  <option value="">Assign to</option>
-                  {team.members?.map(member => (
-                    <option key={member._id} value={member._id}>
-                      {member.name}
-                    </option>
-                  )) || <option disabled>No members available</option>}
-                </select>
-                <input
-                  type="date"
-                  value={deadline}
-                  onChange={(e) => setDeadline(e.target.value)}
-                  className="w-full p-2 border border-gray-300 rounded mb-4"
-                />
-                <button onClick={addTask} className="bg-green-500 text-white p-2 rounded w-full">
-                  Add Task
-                </button>
-              </div>
+              {(user.role === 'Team Leader' || user.role === 'Department Manager') && (
+                <div className="mt-4">
+                  <h4 className="text-lg font-semibold mb-2">Add New Task</h4>
+                  <input
+                    type="text"
+                    placeholder="Task Description"
+                    value={newTask}
+                    onChange={(e) => setNewTask(e.target.value)}
+                    className="w-full p-2 border border-gray-300 rounded mb-2"
+                  />
+                  <select
+                    value={assignedTo}
+                    onChange={(e) => setAssignedTo(e.target.value)}
+                    className="w-full p-2 border border-gray-300 rounded mb-2"
+                  >
+                    <option value="">Assign to</option>
+                    {team.members?.map(member => (
+                      <option key={member._id} value={member._id}>
+                        {member.name}
+                      </option>
+                    )) || <option disabled>No members available</option>}
+                  </select>
+                  <input
+                    type="date"
+                    value={deadline}
+                    onChange={(e) => setDeadline(e.target.value)}
+                    className="w-full p-2 border border-gray-300 rounded mb-4"
+                  />
+                  <button onClick={addTask} className="bg-green-500 text-white p-2 rounded w-full">
+                    Add Task
+                  </button>
+                </div>
+              )}
             </div>
 
             <div className="bg-white p-6 rounded shadow-md">
