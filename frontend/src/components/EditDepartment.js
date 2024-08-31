@@ -19,17 +19,19 @@ const EditDepartment = () => {
   const [selectedUser, setSelectedUser] = useState('');
   const [selectedSubDepartment, setSelectedSubDepartment] = useState('');
 
+  // Fetch the department and its related members and sub-departments on mount
   useEffect(() => {
     fetchDepartment();
     fetchAllUsers();
   }, [id]);
 
+  // Fetch the department details by ID
   const fetchDepartment = async () => {
     try {
       const { data } = await api.get(`/departments/${id}`);
       setDepartment(data);
       setDepartmentName(data.name);
-      setSubDepartments(data.subDepartments);
+      setSubDepartments(data.subDepartments !== 'No sub-departments found.' ? data.subDepartments : []);
       fetchMembers(data._id); // Fetch members related to this department
     } catch (error) {
       console.error('Error fetching department:', error);
@@ -37,6 +39,7 @@ const EditDepartment = () => {
     }
   };
 
+  // Fetch members related to the department by department ID
   const fetchMembers = async (departmentId) => {
     try {
       const { data } = await api.get(`/users/department-users?department=${departmentId}`);
@@ -47,6 +50,7 @@ const EditDepartment = () => {
     }
   };
 
+  // Fetch all users in the system
   const fetchAllUsers = async () => {
     try {
       const { data } = await api.get('/users');
@@ -57,6 +61,7 @@ const EditDepartment = () => {
     }
   };
 
+  // Save changes made to the department name
   const handleSaveChanges = async () => {
     try {
       await api.put(`/departments/${id}`, { name: departmentName });
@@ -68,6 +73,7 @@ const EditDepartment = () => {
     }
   };
 
+  // Add a new sub-department to the current department
   const handleAddSubDepartment = async () => {
     try {
       const { data } = await api.post('/departments', { name: newSubDepartment, parent: id });
@@ -80,6 +86,7 @@ const EditDepartment = () => {
     }
   };
 
+  // Remove a sub-department from the current department
   const handleRemoveSubDepartment = async (subDeptId) => {
     try {
       await api.delete(`/departments/${subDeptId}`);
@@ -91,6 +98,7 @@ const EditDepartment = () => {
     }
   };
 
+  // Add a member to a sub-department
   const handleAddMember = async () => {
     try {
         const user = allUsers.find(user => user._id === selectedUser);
@@ -114,7 +122,7 @@ const EditDepartment = () => {
         console.error('Error updating member in department:', error);
         toast.error('Error updating member in the department.');
     }
-};
+  };
 
   return (
     <div className="flex h-screen">
@@ -157,21 +165,25 @@ const EditDepartment = () => {
                 <FaTasks className="mr-2" /> Sub-Departments
               </h2>
               <div className="space-y-4">
-                {subDepartments.map((subDept) => (
-                  <div
-                    key={subDept._id}
-                    className="bg-white p-4 rounded-lg shadow flex justify-between items-center border border-gray-300"
-                  >
-                    <span className="font-medium text-gray-800">{subDept.name}</span>
-                    <button
-                      className="bg-red-500 text-white p-2 rounded hover:bg-red-600 flex items-center"
-                      onClick={() => handleRemoveSubDepartment(subDept._id)}
+                {subDepartments.length > 0 ? (
+                  subDepartments.map((subDept) => (
+                    <div
+                      key={subDept._id}
+                      className="bg-white p-4 rounded-lg shadow flex justify-between items-center border border-gray-300"
                     >
-                      <FaTrashAlt className="mr-1" />
-                      Remove
-                    </button>
-                  </div>
-                ))}
+                      <span className="font-medium text-gray-800">{subDept.name}</span>
+                      <button
+                        className="bg-red-500 text-white p-2 rounded hover:bg-red-600 flex items-center"
+                        onClick={() => handleRemoveSubDepartment(subDept._id)}
+                      >
+                        <FaTrashAlt className="mr-1" />
+                        Remove
+                      </button>
+                    </div>
+                  ))
+                ) : (
+                  <p className="text-gray-600">No sub-departments found. Add a new one below.</p>
+                )}
                 <div className="flex">
                   <input
                     type="text"
@@ -196,28 +208,32 @@ const EditDepartment = () => {
                 <FaUserTie className="mr-2" /> Members
               </h2>
               <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-                {members.map((member) => (
-                  <div
-                    key={member._id}
-                    className="bg-white p-4 rounded-lg shadow border border-gray-300 flex flex-col justify-between"
-                  >
-                    <div>
-                      <h3 className="text-lg font-bold text-gray-800 mb-2">{member.name}</h3>
-                      <p className="text-sm text-gray-600 mb-1">
-                        <strong>Position:</strong> {member.position}
-                      </p>
-                      <p className="text-sm text-gray-600 mb-1">
-                        <strong>Skills:</strong> {member.skills.join(', ')}
-                      </p>
-                      <p className="text-sm text-gray-600 mb-1">
-                        <strong>Role:</strong> {member.role}
-                      </p>
-                      <p className="text-sm text-gray-600">
-                        <strong>Email:</strong> {member.email}
-                      </p>
+                {members.length > 0 ? (
+                  members.map((member) => (
+                    <div
+                      key={member._id}
+                      className="bg-white p-4 rounded-lg shadow border border-gray-300 flex flex-col justify-between"
+                    >
+                      <div>
+                        <h3 className="text-lg font-bold text-gray-800 mb-2">{member.name}</h3>
+                        <p className="text-sm text-gray-600 mb-1">
+                          <strong>Position:</strong> {member.position}
+                        </p>
+                        <p className="text-sm text-gray-600 mb-1">
+                          <strong>Skills:</strong> {member.skills.join(', ')}
+                        </p>
+                        <p className="text-sm text-gray-600 mb-1">
+                          <strong>Role:</strong> {member.role}
+                        </p>
+                        <p className="text-sm text-gray-600">
+                          <strong>Email:</strong> {member.email}
+                        </p>
+                      </div>
                     </div>
-                  </div>
-                ))}
+                  ))
+                ) : (
+                  <p className="text-gray-600">No members found. Add members below.</p>
+                )}
               </div>
             </div>
 
