@@ -44,8 +44,10 @@ const addDepartment = async (req, res) => {
 
     if (parent) {
       const parentDepartment = await Department.findById(parent);
-      parentDepartment.subDepartments.push(department._id);
-      await parentDepartment.save();
+      if (parentDepartment) {
+        parentDepartment.subDepartments.push(department._id);
+        await parentDepartment.save();
+      }
     }
 
     await department.save();
@@ -126,9 +128,12 @@ const getDepartmentById = async (req, res) => {
 
     if (department) {
       const subDepartments = await Department.find({ parentDepartment: department._id });
+      const members = await User.find({ department: department._id });
+
       res.json({
         ...department.toObject(),
-        subDepartments,
+        subDepartments: subDepartments.length > 0 ? subDepartments : 'No sub-departments found.',
+        members: members.length > 0 ? members : 'No members found.',
       });
     } else {
       res.status(404).json({ message: 'Department not found' });
