@@ -10,14 +10,14 @@ const EditDepartment = () => {
   const { id } = useParams(); // Get the department ID from the URL
   const navigate = useNavigate();
 
-  const [department, setDepartment] = useState(null);
-  const [departmentName, setDepartmentName] = useState('');
-  const [subDepartments, setSubDepartments] = useState([]);
-  const [newSubDepartment, setNewSubDepartment] = useState('');
-  const [members, setMembers] = useState([]);
-  const [allUsers, setAllUsers] = useState([]);
-  const [selectedUser, setSelectedUser] = useState('');
-  const [selectedSubDepartment, setSelectedSubDepartment] = useState('');
+  const [department, setDepartment] = useState(null); // State to hold the department details
+  const [departmentName, setDepartmentName] = useState(''); // State to hold the department name
+  const [subDepartments, setSubDepartments] = useState([]); // State to hold sub-departments
+  const [newSubDepartment, setNewSubDepartment] = useState(''); // State to hold the new sub-department name
+  const [members, setMembers] = useState([]); // State to hold the department members
+  const [allUsers, setAllUsers] = useState([]); // State to hold all users
+  const [selectedUser, setSelectedUser] = useState(''); // State to hold the selected user for adding to a sub-department
+  const [selectedSubDepartment, setSelectedSubDepartment] = useState(''); // State to hold the selected sub-department
 
   // Fetch the department and its related members and sub-departments on mount
   useEffect(() => {
@@ -31,22 +31,11 @@ const EditDepartment = () => {
       const { data } = await api.get(`/departments/${id}`);
       setDepartment(data);
       setDepartmentName(data.name);
-      setSubDepartments(data.subDepartments !== 'No sub-departments found.' ? data.subDepartments : []);
-      fetchMembers(data._id); // Fetch members related to this department
+      setSubDepartments(Array.isArray(data.subDepartments) ? data.subDepartments : []);
+      setMembers(Array.isArray(data.members) ? data.members : []);
     } catch (error) {
-      console.error('Error fetching department:', error);
-      toast.error('Error fetching department details.');
-    }
-  };
-
-  // Fetch members related to the department by department ID
-  const fetchMembers = async (departmentId) => {
-    try {
-      const { data } = await api.get(`/users/department-users?department=${departmentId}`);
-      setMembers(data);
-    } catch (error) {
-      console.error('Error fetching department members:', error);
-      toast.error('Error fetching department members.');
+      console.error('Error fetching department:', error); // Log the error
+      toast.error('Error fetching department details.'); // Show error toast
     }
   };
 
@@ -56,8 +45,8 @@ const EditDepartment = () => {
       const { data } = await api.get('/users');
       setAllUsers(data);
     } catch (error) {
-      console.error('Error fetching all users:', error);
-      toast.error('Error fetching all users.');
+      console.error('Error fetching all users:', error); // Log the error
+      toast.error('Error fetching all users.'); // Show error toast
     }
   };
 
@@ -65,11 +54,11 @@ const EditDepartment = () => {
   const handleSaveChanges = async () => {
     try {
       await api.put(`/departments/${id}`, { name: departmentName });
-      toast.success('Department name updated successfully.');
-      navigate('/manage-departments');
+      toast.success('Department name updated successfully.'); // Show success toast
+      navigate('/manage-departments'); // Redirect to manage departments page
     } catch (error) {
-      console.error('Error saving department changes:', error);
-      toast.error('Error saving department changes.');
+      console.error('Error saving department changes:', error); // Log the error
+      toast.error('Error saving department changes.'); // Show error toast
     }
   };
 
@@ -77,12 +66,12 @@ const EditDepartment = () => {
   const handleAddSubDepartment = async () => {
     try {
       const { data } = await api.post('/departments', { name: newSubDepartment, parent: id });
-      setSubDepartments([...subDepartments, data]);
-      setNewSubDepartment('');
-      toast.success('Sub-department added successfully.');
+      setSubDepartments([...subDepartments, data]); // Update the sub-departments state
+      setNewSubDepartment(''); // Clear the input field
+      toast.success('Sub-department added successfully.'); // Show success toast
     } catch (error) {
-      console.error('Error adding sub-department:', error);
-      toast.error('Error adding sub-department.');
+      console.error('Error adding sub-department:', error); // Log the error
+      toast.error('Error adding sub-department.'); // Show error toast
     }
   };
 
@@ -90,37 +79,37 @@ const EditDepartment = () => {
   const handleRemoveSubDepartment = async (subDeptId) => {
     try {
       await api.delete(`/departments/${subDeptId}`);
-      setSubDepartments(subDepartments.filter((subDept) => subDept._id !== subDeptId));
-      toast.success('Sub-department removed successfully.');
+      setSubDepartments(subDepartments.filter((subDept) => subDept._id !== subDeptId)); // Update the sub-departments state
+      toast.success('Sub-department removed successfully.'); // Show success toast
     } catch (error) {
-      console.error('Error removing sub-department:', error);
-      toast.error('Error removing sub-department.');
+      console.error('Error removing sub-department:', error); // Log the error
+      toast.error('Error removing sub-department.'); // Show error toast
     }
   };
 
   // Add a member to a sub-department
   const handleAddMember = async () => {
     try {
-        const user = allUsers.find(user => user._id === selectedUser);
-        if (user && selectedSubDepartment) {
-            // Update the user's department instead of creating a new user
-            const updatedUser = await api.put(`/users/${selectedUser}`, { department: selectedSubDepartment });
+      const user = allUsers.find(user => user._id === selectedUser); // Find the selected user
+      if (user && selectedSubDepartment) {
+        // Update the user's department instead of creating a new user
+        const updatedUser = await api.put(`/users/${selectedUser}`, { department: selectedSubDepartment });
 
-            // Update the members list by finding and replacing the updated user
-            const updatedMembers = members.map(member => 
-                member._id === updatedUser.data._id ? { ...member, department: selectedSubDepartment } : member
-            );
+        // Update the members list by finding and replacing the updated user
+        const updatedMembers = members.map(member =>
+          member._id === updatedUser.data._id ? { ...member, department: selectedSubDepartment } : member
+        );
 
-            setMembers(updatedMembers);
-            setSelectedUser('');
-            setSelectedSubDepartment('');
-            toast.success('Member updated successfully in the department.');
-        } else {
-            toast.error('Please select both a user and a sub-department.');
-        }
+        setMembers(updatedMembers); // Update the members state
+        setSelectedUser(''); // Clear the selected user
+        setSelectedSubDepartment(''); // Clear the selected sub-department
+        toast.success('Member updated successfully in the department.'); // Show success toast
+      } else {
+        toast.error('Please select both a user and a sub-department.'); // Show error toast
+      }
     } catch (error) {
-        console.error('Error updating member in department:', error);
-        toast.error('Error updating member in the department.');
+      console.error('Error updating member in department:', error); // Log the error
+      toast.error('Error updating member in the department.'); // Show error toast
     }
   };
 

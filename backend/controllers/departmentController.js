@@ -9,7 +9,7 @@ const getDepartments = async (req, res) => {
     const departments = await Department.find({ parentDepartment: null });
     res.json(departments);
   } catch (error) {
-    res.status(500).json({ message: error.message });
+    res.status(500).json({ message: error.message }); // Return the error message
   }
 };
 
@@ -30,7 +30,7 @@ const getTheDepartments = async (req, res) => {
 
     res.json(departmentsWithSubs);
   } catch (error) {
-    res.status(500).json({ message: error.message });
+    res.status(500).json({ message: error.message }); // Return the error message
   }
 };
 
@@ -53,7 +53,7 @@ const addDepartment = async (req, res) => {
     await department.save();
     res.status(201).json(department);
   } catch (error) {
-    res.status(500).json({ message: error.message });
+    res.status(500).json({ message: error.message }); // Return the error message
   }
 };
 
@@ -72,10 +72,10 @@ const editDepartment = async (req, res) => {
       await department.save();
       res.json(department);
     } else {
-      res.status(404).json({ message: 'Department not found' });
+      res.status(404).json({ message: 'Department not found' }); // Return the error message
     }
   } catch (error) {
-    res.status(500).json({ message: error.message });
+    res.status(500).json({ message: error.message }); // Return the error message
   }
 };
 
@@ -87,11 +87,11 @@ const deleteDepartment = async (req, res) => {
     const department = await Department.findById(req.params.id);
 
     if (!department) {
-      console.error(`Department with ID ${req.params.id} not found`);
-      return res.status(404).json({ message: 'Department not found' });
+      console.error(`Department with ID ${req.params.id} not found`); // Log the error
+      return res.status(404).json({ message: 'Department not found' }); // Return the error message
     }
 
-    console.log(`Deleting department: ${department.name}`);
+    console.log(`Deleting department: ${department.name}`); // Log the department being deleted
 
     // Delete all sub-departments recursively
     await deleteSubDepartments(department._id);
@@ -102,10 +102,10 @@ const deleteDepartment = async (req, res) => {
     // Use `findByIdAndDelete` method to delete the department
     await Department.findByIdAndDelete(req.params.id);
 
-    res.json({ message: 'Department removed' });
+    res.json({ message: 'Department removed' }); // Return the success message
   } catch (error) {
-    console.error(`Error deleting department: ${error.message}`);
-    res.status(500).json({ message: error.message });
+    console.error(`Error deleting department: ${error.message}`); // Log the error
+    res.status(500).json({ message: error.message }); // Return the error message
   }
 };
 
@@ -136,10 +136,10 @@ const getDepartmentById = async (req, res) => {
         members: members.length > 0 ? members : 'No members found.',
       });
     } else {
-      res.status(404).json({ message: 'Department not found' });
+      res.status(404).json({ message: 'Department not found' }); // Return the error message
     }
   } catch (error) {
-    res.status(500).json({ message: error.message });
+    res.status(500).json({ message: error.message }); // Return the error message
   }
 };
 
