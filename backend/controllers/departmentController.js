@@ -97,8 +97,9 @@ const deleteDepartment = async (req, res) => {
     // Optionally, remove users associated with this department
     await User.updateMany({ department: department._id }, { $unset: { department: '' } });
 
-    // Finally, remove the department
-    await department.remove();
+    // Use `findByIdAndDelete` method to delete the department
+    await Department.findByIdAndDelete(req.params.id);
+
     res.json({ message: 'Department removed' });
   } catch (error) {
     console.error(`Error deleting department: ${error.message}`);

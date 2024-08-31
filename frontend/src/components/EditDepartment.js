@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import api from '../utils/api';
 import Sidebar from './Sidebar';
-import { FaEdit, FaTrashAlt, FaPlusCircle, FaTasks, FaUserTie } from 'react-icons/fa';
+import { FaArrowLeft, FaEdit, FaTrashAlt, FaPlusCircle, FaTasks, FaUserTie } from 'react-icons/fa'; // Import FaArrowLeft for the back button
 import { ToastContainer, toast } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
 
@@ -121,6 +121,13 @@ const EditDepartment = () => {
       <Sidebar />
       <div className="flex-1 p-6 bg-gray-100 overflow-y-auto">
         <ToastContainer />
+
+        <button
+          className="flex items-center text-blue-500 hover:text-blue-700 mb-6"
+          onClick={() => navigate('/manage-departments')}
+        >
+          <FaArrowLeft className="mr-2" /> Back to Manage Departments
+        </button>
 
         <h1 className="text-3xl font-bold mb-6 text-gray-800">Edit Department</h1>
 
