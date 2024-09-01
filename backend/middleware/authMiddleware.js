@@ -38,20 +38,23 @@ const protect = asyncHandler(async (req, res, next) => {
 
 // Middleware to check if the user has admin privileges
 const admin = (req, res, next) => {
-  if (req.user && ['Executive', 'CEO', 'CTO', 'Director of HR', 'Director of Finance', 'Team Leader', 'Department Manager'].includes(req.user.role)) {
+  if (
+    req.user &&
+    ['Executive', 'CEO', 'CTO', 'Director of HR', 'Director of Finance', 'Team Leader', 'Department Manager'].includes(req.user.role)
+  ) {
     next();
   } else {
-    console.warn('User is not authorized as an admin:', req.user);
-    return res.status(401).json({ message: 'Not authorized as an admin' });
+    console.warn('User is not authorized as an admin:', req.user ? req.user.role : 'No user');
+    return res.status(403).json({ message: 'Not authorized as an admin' });
   }
 };
 
-
+// Middleware to check if the user has CEO or authorized role privileges
 const ceoOrAuthorized = (req, res, next) => {
-  if (req.user && ['CEO', 'Director of HR'].includes(req.user.role)) {
+  if (req.user && ['CEO', 'Director of HR', 'Director of Finance'].includes(req.user.role)) {
     next();
   } else {
-    console.warn('User is not authorized as CEO or authorized role:', req.user);
+    console.warn('User is not authorized as CEO or authorized role:', req.user ? req.user.role : 'No user');
     return res.status(403).json({ message: 'Not authorized as CEO or authorized role' });
   }
 };

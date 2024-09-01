@@ -297,6 +297,41 @@ const manageUsers = async (req, res) => {
   }
 };
 
+// @desc    Add a new user
+// @route   POST /api/users
+// @access  Private/Admin or CEO
+const addUser = async (req, res) => {
+  const { name, email, password, role, department, subDepartment, skills, position } = req.body;
+
+  try {
+    // Check if user with the same email already exists
+    const userExists = await User.findOne({ email });
+
+    if (userExists) {
+      return res.status(400).json({ message: 'User with this email already exists' });
+    }
+
+    // Create a new user
+    const user = new User({
+      name,
+      email,
+      password, // The password will be hashed in the pre-save hook in the User model
+      role,
+      department: subDepartment || department, // Use subDepartment if provided, otherwise department
+      skills: skills.split(',').map(skill => skill.trim()), // Convert comma-separated skills string to an array
+      position,
+    });
+
+    // Save the user to the database
+    const createdUser = await user.save();
+
+    res.status(201).json(createdUser);
+  } catch (error) {
+    console.error('Error adding user:', error.message);
+    res.status(500).json({ message: 'Server Error', error: error.message });
+  }
+};
+
 module.exports = {
   getUsers,
   getUserById,
@@ -307,4 +342,5 @@ module.exports = {
   getMyTeam,
   getUsersByDepartment,
   manageUsers,
+  addUser
 };

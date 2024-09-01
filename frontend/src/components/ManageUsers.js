@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { Link } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 import axios from 'axios';
 import Sidebar from './Sidebar'; // Import Sidebar component
 
@@ -7,6 +7,7 @@ const ManageUsers = () => {
   const [users, setUsers] = useState([]);
   const [departments, setDepartments] = useState([]); // State to store departments
   const [filters, setFilters] = useState({ department: '', search: '' });
+  const navigate = useNavigate();
 
   // Fetch users from the backend
   useEffect(() => {
@@ -54,6 +55,14 @@ const ManageUsers = () => {
       <Sidebar /> {/* Include the Sidebar component */}
       <div className="flex-1 bg-gray-50 p-6 overflow-y-auto">
         <h1 className="text-3xl font-bold text-gray-800 mb-8">Manage Users</h1>
+        <div className="mb-4 flex justify-end">
+          <button
+            onClick={() => navigate('/add-user')}
+            className="bg-green-500 text-white px-4 py-2 rounded-lg hover:bg-green-600 transition"
+          >
+            Add User
+          </button>
+        </div>
         <div className="bg-white p-8 rounded-lg shadow-lg">
           <div className="mb-6 flex items-center space-x-4">
             <input
@@ -70,7 +79,9 @@ const ManageUsers = () => {
             >
               <option value="">All Departments</option>
               {departments.map((dept) => (
-                <option key={dept._id} value={dept._id}>{dept.name}</option>
+                <option key={dept._id} value={dept._id}>
+                  {dept.name}
+                </option>
               ))}
             </select>
           </div>
