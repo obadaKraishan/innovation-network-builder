@@ -268,6 +268,39 @@ const getUsersByDepartment = async (req, res) => {
   }
 };
 
+// @desc    Get users by department for team management
+// @route   GET /api/users/department-users-for-teams
+// @access  Private
+const getUsersByDepartmentForTeams = async (req, res) => {
+  try {
+    const departmentId = req.user.department; // Get department ID from the authenticated user
+
+    if (!departmentId) {
+      console.log('Department ID is missing');
+      return res.status(400).json({ message: 'Department ID is required' });
+    }
+
+    if (!mongoose.Types.ObjectId.isValid(departmentId)) {
+      console.log('Invalid Department ID:', departmentId);
+      return res.status(400).json({ message: 'Invalid Department ID' });
+    }
+
+    const subDepartments = await Department.find({ parentDepartment: departmentId }).select('_id');
+    const departmentIds = [departmentId, ...subDepartments.map(subDept => subDept._id)];
+
+    const users = await User.find({ department: { $in: departmentIds } }).select('name position skills role email');
+
+    if (!users.length) {
+      return res.status(404).json({ message: 'No users found in this department or sub-departments' });
+    }
+
+    res.json(users);
+  } catch (error) {
+    console.error('Error fetching users by department for teams:', error.message);
+    res.status(500).json({ message: error.message });
+  }
+};
+
 // @desc    Get users for management based on role
 // @route   GET /api/users/manage-users
 // @access  Private/CEO or Authorized Roles
@@ -341,6 +374,7 @@ module.exports = {
   updateUserPassword,
   getMyTeam,
   getUsersByDepartment,
+  getUsersByDepartmentForTeams,
   manageUsers,
   addUser
 };

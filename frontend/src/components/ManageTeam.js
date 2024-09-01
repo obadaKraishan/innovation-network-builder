@@ -32,14 +32,14 @@ const ManageTeam = () => {
 
   const fetchAvailableEmployees = async () => {
     try {
-      const response = await api.get('/users/department-users'); // Updated API endpoint
+      const response = await api.get('/users/department-users-for-teams'); // No need to pass the department ID explicitly
       console.log('Available employees fetched:', response.data);
       setAvailableEmployees(response.data);
     } catch (error) {
       console.error('Error fetching employees:', error);
       setAvailableEmployees([]); // Ensuring that the availableEmployees array is empty if there was an error
     }
-  };
+  };  
 
   const createTeam = async () => {
     try {

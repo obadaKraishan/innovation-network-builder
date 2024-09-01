@@ -48,6 +48,62 @@ const updateTeamConnections = async (team) => {
   }
 };
 
+// Utility function to update connections between discussion participants
+const updateDiscussionConnections = async (team, commenterId, parentCommentId) => {
+  const participants = new Set();
+  participants.add(commenterId.toString());
+
+  // Collect all participants in the discussion
+  team.discussions.forEach(discussion => {
+    if (parentCommentId && discussion._id.toString() === parentCommentId.toString()) {
+      participants.add(discussion.user.toString());
+    } else if (!parentCommentId) {
+      participants.add(discussion.user.toString());
+    }
+  });
+
+  const participantsArray = Array.from(participants);
+
+  for (let i = 0; i < participantsArray.length; i++) {
+    for (let j = i + 1; j < participantsArray.length; j++) {
+      const userA = participantsArray[i];
+      const userB = participantsArray[j];
+
+      // Find existing connection or create a new one
+      let connection = await Connection.findOne({
+        userA: { $in: [userA, userB] },
+        userB: { $in: [userA, userB] },
+        context: 'discussion',
+      });
+
+      if (!connection) {
+        connection = new Connection({
+          userA,
+          userB,
+          context: 'discussion',
+          connectionType: 'Weak Tie',
+          interactionCount: 0,
+        });
+      }
+
+      // Update interaction count and last interaction date
+      connection.interactionCount += 1;
+      connection.lastInteractedAt = Date.now();
+
+      // Update connection strength based on interaction count
+      if (connection.interactionCount > 5) {
+        connection.connectionStrength = 'Strong';
+      } else if (connection.interactionCount > 2) {
+        connection.connectionStrength = 'Medium';
+      } else {
+        connection.connectionStrength = 'Weak';
+      }
+
+      await connection.save();
+    }
+  }
+};
+
 // Create a new team
 const createTeam = async (req, res) => {
   try {
@@ -230,6 +286,9 @@ const addComment = async (req, res) => {
 
     team.discussions.push(discussion);
     await team.save();
+
+    // Update connections between the commenter and other participants in the discussion
+    await updateDiscussionConnections(team, req.user._id, parent);
 
     console.log('Comment added successfully to team:', team);
     res.json(team);
