@@ -14,6 +14,7 @@ import ManageDepartments from './components/ManageDepartments';
 import EditDepartment from './components/EditDepartment'; 
 import ManageUsers from './components/ManageUsers'; // Import the ManageUsers component
 import AddUser from './components/AddUser'; // Import the AddUser component
+import UserDetails from './components/UserDetails'; // Import the UserDetails component
 
 const AppRoutes = () => {
   return (
@@ -31,6 +32,7 @@ const AppRoutes = () => {
           <Route path="/manage-users" element={<ManageUsers />} /> {/* Route for Manage Users */}
           <Route path="/add-user" element={<AddUser />} /> {/* New route for Add User */}
           <Route path="/team-details/:id" element={<TeamDetails />} />
+          <Route path="/manage-users/:id" element={<UserDetails />} />
           <Route path="/" element={<Navigate to="/login" />} />
           <Route path="*" element={<Navigate to="/" />} />
         </Routes>
