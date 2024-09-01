@@ -73,7 +73,7 @@ const EditDepartment = () => {
       console.error('Error adding sub-department:', error); // Log the error
       toast.error('Error adding sub-department.'); // Show error toast
     }
-  };  
+  };
 
   // Remove a sub-department from the current department
   const handleRemoveSubDepartment = async (subDeptId) => {
@@ -104,7 +104,7 @@ const EditDepartment = () => {
         setSelectedUser(''); // Clear the selected user
         setSelectedSubDepartment(''); // Clear the selected sub-department
         toast.success('Member updated successfully in the department.'); // Show success toast
-      } else {
+    } else {
         toast.error('Please select both a user and a sub-department.'); // Show error toast
       }
     } catch (error) {
