@@ -16,6 +16,24 @@ const connectionSchema = new mongoose.Schema({
     enum: ['Strong Tie', 'Weak Tie'],
     default: 'Weak Tie',
   },
+  context: {
+    type: String,
+    enum: ['team', 'discussion', 'task'],
+    required: true,
+  },
+  interactionCount: {
+    type: Number,
+    default: 0,
+  },
+  lastInteractedAt: {
+    type: Date,
+    default: Date.now,
+  },
+  connectionStrength: {
+    type: String,
+    enum: ['Strong', 'Medium', 'Weak'],
+    default: 'Weak',
+  },
   createdAt: {
     type: Date,
     default: Date.now,

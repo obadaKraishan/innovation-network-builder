@@ -2,6 +2,51 @@ const Team = require('../models/teamModel');
 const Task = require('../models/taskModel');
 const User = require('../models/userModel');
 const Department = require('../models/departmentModel');
+const Connection = require('../models/connectionModel');
+
+// Utility function to update connections between team members
+const updateTeamConnections = async (team) => {
+  const { members } = team;
+
+  for (let i = 0; i < members.length; i++) {
+    for (let j = i + 1; j < members.length; j++) {
+      const userA = members[i];
+      const userB = members[j];
+
+      // Find existing connection or create a new one
+      let connection = await Connection.findOne({
+        userA: { $in: [userA, userB] },
+        userB: { $in: [userA, userB] },
+        context: 'team',
+      });
+
+      if (!connection) {
+        connection = new Connection({
+          userA,
+          userB,
+          context: 'team',
+          connectionType: 'Strong Tie',
+          interactionCount: 0,
+        });
+      }
+
+      // Update interaction count and last interaction date
+      connection.interactionCount += 1;
+      connection.lastInteractedAt = Date.now();
+
+      // Update connection strength based on interaction count
+      if (connection.interactionCount > 5) {
+        connection.connectionStrength = 'Strong';
+      } else if (connection.interactionCount > 2) {
+        connection.connectionStrength = 'Medium';
+      } else {
+        connection.connectionStrength = 'Weak';
+      }
+
+      await connection.save();
+    }
+  }
+};
 
 // Create a new team
 const createTeam = async (req, res) => {
@@ -28,6 +73,9 @@ const createTeam = async (req, res) => {
     });
 
     await team.save();
+
+    // Update connections for the team members
+    await updateTeamConnections(team);
 
     console.log('Team created successfully:', team);
     res.status(201).json(team);
@@ -115,6 +163,9 @@ const updateTeam = async (req, res) => {
     team.tasks = tasks || team.tasks;
 
     await team.save();
+
+    // Update connections for the team members
+    await updateTeamConnections(team);
 
     console.log('Team updated successfully:', team);
     res.json(team);
@@ -254,6 +305,7 @@ const deleteComment = async (req, res) => {
   }
 };
 
+// Update task status
 const updateTaskStatus = async (req, res) => {
   try {
     console.log('Updating task status:', req.params.taskId);
