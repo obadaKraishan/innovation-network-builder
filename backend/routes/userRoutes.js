@@ -1,7 +1,7 @@
 // File: backend/routes/userRoutes.js
 
 const express = require('express');
-const { protect, admin } = require('../middleware/authMiddleware');
+const { protect, admin, ceoOrAuthorized } = require('../middleware/authMiddleware'); // Added new middleware ceoOrAuthorized
 const { 
   getUsers, 
   getUserById, 
@@ -10,19 +10,21 @@ const {
   updateUserInfo, 
   updateUserPassword,
   getMyTeam,
-  getUsersByDepartment // Add this line
+  getUsersByDepartment,
+  manageUsers, // Added this line
 } = require('../controllers/userController');
 
 const router = express.Router();
 
 // Use the protect middleware for routes that require authentication
-router.route('/my-team').get(protect, getMyTeam); // Add the my-team route
-router.route('/department-users').get(protect, getUsersByDepartment); // Add this new route
+router.route('/my-team').get(protect, getMyTeam);
+router.route('/department-users').get(protect, getUsersByDepartment);
+router.route('/manage-users').get(protect, ceoOrAuthorized, manageUsers); // Added this new route
 router.route('/').get(protect, admin, getUsers);
-router.route('/search').get(protect, searchUsers); // Add the search route
-router.route('/skills').get(protect, getSkills); // Add the skills route
-router.route('/:id').get(protect, getUserById); // Get user by ID
-router.route('/:id').put(protect, updateUserInfo); // Update user information (only name and skills)
-router.route('/:id/password').put(protect, updateUserPassword); // Update user password
+router.route('/search').get(protect, searchUsers);
+router.route('/skills').get(protect, getSkills);
+router.route('/:id').get(protect, getUserById);
+router.route('/:id').put(protect, updateUserInfo);
+router.route('/:id/password').put(protect, updateUserPassword);
 
 module.exports = router;

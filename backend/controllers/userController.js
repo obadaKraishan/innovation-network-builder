@@ -268,6 +268,35 @@ const getUsersByDepartment = async (req, res) => {
   }
 };
 
+// @desc    Get users for management based on role
+// @route   GET /api/users/manage-users
+// @access  Private/CEO or Authorized Roles
+const manageUsers = async (req, res) => {
+  try {
+    const { department, search } = req.query;
+    let query = {};
+
+    if (department) {
+      const subDepartments = await Department.find({ parentDepartment: department }).select('_id');
+      const departmentIds = [department, ...subDepartments.map(subDept => subDept._id)];
+      query.department = { $in: departmentIds };
+    }
+
+    if (search) {
+      query.$or = [
+        { name: { $regex: search, $options: 'i' } },
+        { email: { $regex: search, $options: 'i' } }
+      ];
+    }
+
+    const users = await User.find(query).populate('department').select('name email position role department');
+    res.json(users);
+  } catch (error) {
+    console.error('Error managing users:', error.message);
+    res.status(500).json({ message: error.message });
+  }
+};
+
 module.exports = {
   getUsers,
   getUserById,
@@ -277,4 +306,5 @@ module.exports = {
   updateUserPassword,
   getMyTeam,
   getUsersByDepartment,
+  manageUsers
 };
