@@ -5,10 +5,11 @@ import Sidebar from './Sidebar'; // Import Sidebar component
 
 const ManageUsers = () => {
   const [users, setUsers] = useState([]);
+  const [departments, setDepartments] = useState([]); // State to store departments
   const [filters, setFilters] = useState({ department: '', search: '' });
 
+  // Fetch users from the backend
   useEffect(() => {
-    // Fetch users from the backend
     const fetchUsers = async () => {
       try {
         const token = localStorage.getItem('token'); // Get token from localStorage
@@ -27,6 +28,26 @@ const ManageUsers = () => {
     };
     fetchUsers();
   }, [filters]);
+
+  // Fetch departments from the backend
+  useEffect(() => {
+    const fetchDepartments = async () => {
+      try {
+        const token = localStorage.getItem('token'); // Get token from localStorage
+        const config = {
+          headers: {
+            Authorization: `Bearer ${token}`, // Include the token in the request headers
+          },
+        };
+
+        const response = await axios.get('http://localhost:5001/api/departments', config);
+        setDepartments(response.data);
+      } catch (error) {
+        console.error('Error fetching departments:', error);
+      }
+    };
+    fetchDepartments();
+  }, []);
 
   return (
     <div className="flex h-screen">
@@ -48,7 +69,9 @@ const ManageUsers = () => {
               className="w-full p-3 border border-gray-300 rounded-lg focus:border-blue-500"
             >
               <option value="">All Departments</option>
-              {/* Dynamically populate department options */}
+              {departments.map((dept) => (
+                <option key={dept._id} value={dept._id}>{dept.name}</option>
+              ))}
             </select>
           </div>
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
