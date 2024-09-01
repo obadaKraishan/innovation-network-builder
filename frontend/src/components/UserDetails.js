@@ -5,7 +5,7 @@ import { FaUserEdit, FaTrashAlt, FaSave, FaArrowLeft, FaKey, FaEye, FaEyeSlash, 
 import { ToastContainer, toast } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
 import Swal from 'sweetalert2';
-import Sidebar from './Sidebar'; // Import Sidebar component
+import Sidebar from './Sidebar';
 
 const UserDetails = () => {
   const { id } = useParams();
@@ -18,9 +18,9 @@ const UserDetails = () => {
   const [isPasswordVisible, setIsPasswordVisible] = useState(false);
   const [isConfirmPasswordVisible, setIsConfirmPasswordVisible] = useState(false);
   const [isEditing, setIsEditing] = useState(false);
+  const [newSkill, setNewSkill] = useState('');
 
   useEffect(() => {
-    // Fetch user details
     const fetchUser = async () => {
       try {
         const token = localStorage.getItem('token');
@@ -37,7 +37,6 @@ const UserDetails = () => {
       }
     };
 
-    // Fetch departments
     const fetchDepartments = async () => {
       try {
         const token = localStorage.getItem('token');
@@ -59,7 +58,6 @@ const UserDetails = () => {
   }, [id]);
 
   useEffect(() => {
-    // Fetch sub-departments based on selected department
     const fetchSubDepartments = async () => {
       if (user.department) {
         try {
@@ -77,7 +75,7 @@ const UserDetails = () => {
           toast.error('Error fetching sub-departments');
         }
       } else {
-        setSubDepartments([]); // Clear sub-departments if no parent department is selected
+        setSubDepartments([]);
       }
     };
     fetchSubDepartments();
@@ -88,6 +86,22 @@ const UserDetails = () => {
       ...user,
       [e.target.name]: e.target.value,
     });
+  };
+
+  const handleSkillChange = (e) => {
+    setNewSkill(e.target.value);
+  };
+
+  const handleSkillKeyPress = (e) => {
+    if (e.key === 'Enter' && newSkill.trim() !== '') {
+      // Add the new skill to the user's skills list
+      setUser({
+        ...user,
+        skills: [...new Set([...user.skills, newSkill.trim()])],
+      });
+      setNewSkill(''); // Clear the input field after adding the skill
+      e.preventDefault(); // Prevent the form from submitting on Enter
+    }
   };
 
   const handlePasswordChange = (e) => {
@@ -156,7 +170,7 @@ const UserDetails = () => {
 
   return (
     <div className="flex h-screen">
-      <Sidebar /> {/* Include the Sidebar component */}
+      <Sidebar />
       <div className="flex-1 bg-gray-50 p-6 overflow-y-auto">
         <ToastContainer />
         <button
@@ -262,12 +276,24 @@ const UserDetails = () => {
             <input
               type="text"
               name="skills"
-              value={user.skills?.join(', ') || ''}
-              onChange={handleInputChange}
+              value={newSkill}
+              onChange={handleSkillChange}
+              onKeyPress={handleSkillKeyPress}
               className="w-full p-3 border border-gray-300 rounded-lg focus:border-blue-500"
-              readOnly={!isEditing}
-              placeholder="Comma-separated skills"
+              placeholder="Add a skill and press Enter"
             />
+            {user.skills && (
+              <div className="mt-2">
+                {user.skills.map((skill, index) => (
+                  <span
+                    key={index}
+                    className="inline-block bg-blue-200 text-blue-800 text-xs px-2 py-1 rounded-full mr-2 mb-2"
+                  >
+                    {skill}
+                  </span>
+                ))}
+              </div>
+            )}
           </div>
           <div className="mb-6">
             <label className="block text-gray-700 font-bold mb-2 flex items-center">
