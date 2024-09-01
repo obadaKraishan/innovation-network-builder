@@ -44,7 +44,12 @@ const ManageDepartments = () => {
         }
       }
 
-      await api.post('/departments', { name, parent: parentId });
+      if (parentId) {
+        await api.post('/departments/sub', { name, parent: parentId });
+      } else {
+        await api.post('/departments/parent', { name });
+      }
+
       setNewDepartment({ name: '', parent: null });
       fetchDepartments();
     } catch (error) {
