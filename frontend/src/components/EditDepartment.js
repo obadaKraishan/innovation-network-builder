@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import api from '../utils/api';
 import Sidebar from './Sidebar';
@@ -19,14 +19,8 @@ const EditDepartment = () => {
   const [selectedUser, setSelectedUser] = useState(''); // State to hold the selected user for adding to a sub-department
   const [selectedSubDepartment, setSelectedSubDepartment] = useState(''); // State to hold the selected sub-department
 
-  // Fetch the department and its related members and sub-departments on mount
-  useEffect(() => {
-    fetchDepartment();
-    fetchAllUsers();
-  }, [id]);
-
   // Fetch the department details by ID
-  const fetchDepartment = async () => {
+  const fetchDepartment = useCallback(async () => {
     try {
       const { data } = await api.get(`/departments/${id}`);
       setDepartment(data);
@@ -37,7 +31,7 @@ const EditDepartment = () => {
       console.error('Error fetching department:', error); // Log the error
       toast.error('Error fetching department details.'); // Show error toast
     }
-  };
+  }, [id]);
 
   // Fetch all users in the system
   const fetchAllUsers = async () => {
@@ -49,6 +43,12 @@ const EditDepartment = () => {
       toast.error('Error fetching all users.'); // Show error toast
     }
   };
+
+  // Fetch the department and its related members and sub-departments on mount
+  useEffect(() => {
+    fetchDepartment();
+    fetchAllUsers();
+  }, [fetchDepartment]);
 
   // Save changes made to the department name
   const handleSaveChanges = async () => {
@@ -104,7 +104,7 @@ const EditDepartment = () => {
         setSelectedUser(''); // Clear the selected user
         setSelectedSubDepartment(''); // Clear the selected sub-department
         toast.success('Member updated successfully in the department.'); // Show success toast
-    } else {
+      } else {
         toast.error('Please select both a user and a sub-department.'); // Show error toast
       }
     } catch (error) {
