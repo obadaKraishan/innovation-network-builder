@@ -13,17 +13,17 @@ const connectionSchema = new mongoose.Schema({
   },
   connectionType: {
     type: String,
-    enum: ['Strong Tie', 'Weak Tie'],
+    enum: ['Strong Tie', 'Weak Tie'], // Ensure these are the correct intended values
     default: 'Weak Tie',
   },
   context: {
     type: String,
-    enum: ['team', 'discussion', 'task'],
+    enum: ['team', 'discussion', 'task'], // Ensure these match the values you intend to use
     required: true,
   },
   interactionCount: {
     type: Number,
-    default: 0,
+    default: 1, // Default to 1 instead of 0 since it represents an interaction
   },
   lastInteractedAt: {
     type: Date,

@@ -4,54 +4,63 @@ const User = require('../models/userModel');
 const Department = require('../models/departmentModel');
 const Connection = require('../models/connectionModel');
 
-// Utility function to update connections between team members
-const updateTeamConnections = async (team) => {
-  const { members } = team;
+// Utility function to create a new connection between two users
+const createConnection = async (userA, userB, context) => {
+  try {
+    console.log(`Creating connection between ${userA} and ${userB} with context: ${context}`);
 
+    let connectionType;
+    if (context === 'team') {
+      connectionType = 'Strong Tie';
+    } else {
+      connectionType = 'Weak Tie'; // Default to 'Weak Tie' for other interactions
+    }
+
+    const connection = new Connection({
+      userA,
+      userB,
+      context,
+      connectionType,
+      interactionCount: 1,
+      connectionStrength: 'Weak', 
+      lastInteractedAt: Date.now(),
+    });
+
+    await connection.save();
+    console.log(`Connection created between ${userA} and ${userB} for context: ${context}`);
+  } catch (error) {
+    console.error(`Error creating connection between ${userA} and ${userB} for context: ${context}:`, error.message);
+  }
+};
+
+// Utility function to create connections between team members
+const updateTeamConnections = async (team) => {
+  const { members, teamLeader } = team;
+
+  console.log(`Updating team connections for team leader ${teamLeader} and members`);
+
+  // Create connections between the team leader and each member
+  for (let member of members) {
+    await createConnection(teamLeader, member, 'work together');
+  }
+
+  // Create connections among the team members themselves
   for (let i = 0; i < members.length; i++) {
     for (let j = i + 1; j < members.length; j++) {
       const userA = members[i];
       const userB = members[j];
-
-      // Find existing connection or create a new one
-      let connection = await Connection.findOne({
-        userA: { $in: [userA, userB] },
-        userB: { $in: [userA, userB] },
-        context: 'team',
-      });
-
-      if (!connection) {
-        connection = new Connection({
-          userA,
-          userB,
-          context: 'team',
-          connectionType: 'Strong Tie',
-          interactionCount: 0,
-        });
-      }
-
-      // Update interaction count and last interaction date
-      connection.interactionCount += 1;
-      connection.lastInteractedAt = Date.now();
-
-      // Update connection strength based on interaction count
-      if (connection.interactionCount > 5) {
-        connection.connectionStrength = 'Strong';
-      } else if (connection.interactionCount > 2) {
-        connection.connectionStrength = 'Medium';
-      } else {
-        connection.connectionStrength = 'Weak';
-      }
-
-      await connection.save();
+      await createConnection(userA, userB, 'work together');
     }
   }
+  console.log(`Team connections updated for ${team.name}`);
 };
 
-// Utility function to update connections between discussion participants
+// Utility function to create connections between discussion participants
 const updateDiscussionConnections = async (team, commenterId, parentCommentId) => {
   const participants = new Set();
   participants.add(commenterId.toString());
+
+  console.log(`Updating discussion connections for commenter ${commenterId}`);
 
   // Collect all participants in the discussion
   team.discussions.forEach(discussion => {
@@ -68,78 +77,10 @@ const updateDiscussionConnections = async (team, commenterId, parentCommentId) =
     for (let j = i + 1; j < participantsArray.length; j++) {
       const userA = participantsArray[i];
       const userB = participantsArray[j];
-
-      // Find existing connection or create a new one
-      let connection = await Connection.findOne({
-        userA: { $in: [userA, userB] },
-        userB: { $in: [userA, userB] },
-        context: 'discussion',
-      });
-
-      if (!connection) {
-        connection = new Connection({
-          userA,
-          userB,
-          context: 'discussion',
-          connectionType: 'Weak Tie',
-          interactionCount: 0,
-        });
-      }
-
-      // Update interaction count and last interaction date
-      connection.interactionCount += 1;
-      connection.lastInteractedAt = Date.now();
-
-      // Update connection strength based on interaction count
-      if (connection.interactionCount > 5) {
-        connection.connectionStrength = 'Strong';
-      } else if (connection.interactionCount > 2) {
-        connection.connectionStrength = 'Medium';
-      } else {
-        connection.connectionStrength = 'Weak';
-      }
-
-      await connection.save();
+      await createConnection(userA, userB, 'discussion');
     }
   }
-};
-
-
-const updateConnection = async (userA, userB, context) => {
-  try {
-    let connection = await Connection.findOne({
-      userA: { $in: [userA, userB] },
-      userB: { $in: [userA, userB] },
-      context,
-    });
-
-    if (!connection) {
-      connection = new Connection({
-        userA,
-        userB,
-        context,
-        connectionType: 'Task Interaction',
-        interactionCount: 0,
-      });
-    }
-
-    // Update interaction count and last interaction date
-    connection.interactionCount += 1;
-    connection.lastInteractedAt = Date.now();
-
-    // Update connection strength based on interaction count
-    if (connection.interactionCount > 5) {
-      connection.connectionStrength = 'Strong';
-    } else if (connection.interactionCount > 2) {
-      connection.connectionStrength = 'Medium';
-    } else {
-      connection.connectionStrength = 'Weak';
-    }
-
-    await connection.save();
-  } catch (error) {
-    console.error('Error updating connection:', error.message);
-  }
+  console.log(`Discussion connections updated for team ${team.name}`);
 };
 
 // Create a new team
@@ -168,7 +109,7 @@ const createTeam = async (req, res) => {
 
     await team.save();
 
-    // Update connections for the team members
+    // Create connections for the team members
     await updateTeamConnections(team);
 
     console.log('Team created successfully:', team);
@@ -269,6 +210,7 @@ const updateTeam = async (req, res) => {
   }
 };
 
+// Add a task to a team
 const addTask = async (req, res) => {
   try {
     console.log('Adding task to team:', req.params.id);
@@ -295,8 +237,8 @@ const addTask = async (req, res) => {
     team.tasks.push(task._id);
     await team.save();
 
-    // Create or update the connection between the task creator (manager/team leader) and the assignee
-    await updateConnection(req.user._id, assignedTo, 'task');
+    // Create a new connection for task assignment
+    await createConnection(req.user._id, assignedTo, 'task assign');
 
     res.status(201).json(task);
   } catch (error) {
@@ -327,7 +269,7 @@ const addComment = async (req, res) => {
     team.discussions.push(discussion);
     await team.save();
 
-    // Update connections between the commenter and other participants in the discussion
+    // Create connections between the commenter and other participants in the discussion
     await updateDiscussionConnections(team, req.user._id, parent);
 
     console.log('Comment added successfully to team:', team);
@@ -422,9 +364,9 @@ const updateTaskStatus = async (req, res) => {
 
     await task.save();
 
-    // Create or update the connection between the user who updated the task and the task assigner (manager/team leader)
+    // Create a new connection for task status update
     const team = await Team.findById(req.params.id).populate('teamLeader');
-    await updateConnection(req.user._id, team.teamLeader._id, 'task');
+    await createConnection(req.user._id, team.teamLeader._id, 'task status update');
 
     console.log('Task status updated successfully:', task);
     res.json(task);
