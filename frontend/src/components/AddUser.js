@@ -20,7 +20,7 @@ const AddUser = () => {
   const navigate = useNavigate();
 
   useEffect(() => {
-    // Fetch departments from the backend
+    // Fetch main departments from the backend
     const fetchDepartments = async () => {
       try {
         const token = localStorage.getItem('token');
@@ -29,7 +29,7 @@ const AddUser = () => {
             Authorization: `Bearer ${token}`,
           },
         };
-        const response = await axios.get('http://localhost:5001/api/departments', config);
+        const response = await axios.get('http://localhost:5001/api/departments/main', config);
         setDepartments(response.data);
       } catch (error) {
         console.error('Error fetching departments:', error);
@@ -50,11 +50,13 @@ const AddUser = () => {
             },
             params: { parentDepartment: formData.department },
           };
-          const response = await axios.get('http://localhost:5001/api/departments', config);
+          const response = await axios.get('http://localhost:5001/api/departments/sub-departments', config);
           setSubDepartments(response.data);
         } catch (error) {
           console.error('Error fetching sub-departments:', error);
         }
+      } else {
+        setSubDepartments([]); // Clear sub-departments if no parent department is selected
       }
     };
     fetchSubDepartments();

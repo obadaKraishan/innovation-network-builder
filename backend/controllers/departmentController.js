@@ -34,6 +34,31 @@ const getTheDepartments = async (req, res) => {
   }
 };
 
+// @desc    Get all main departments (excluding sub-departments)
+// @route   GET /api/departments/main
+// @access  Private
+const getMainDepartmentsOnly = async (req, res) => {
+  try {
+    const departments = await Department.find({ parentDepartment: null });
+    res.json(departments);
+  } catch (error) {
+    res.status(500).json({ message: error.message });
+  }
+};
+
+// @desc    Get sub-departments based on parent department
+// @route   GET /api/departments/sub-departments
+// @access  Private
+const getSubDepartmentsOnly = async (req, res) => {
+  try {
+    const { parentDepartment } = req.query;
+    const subDepartments = await Department.find({ parentDepartment });
+    res.json(subDepartments);
+  } catch (error) {
+    res.status(500).json({ message: error.message });
+  }
+};
+
 // @desc    Add a new parent department
 // @route   POST /api/departments/parent
 // @access  Private
@@ -170,4 +195,6 @@ module.exports = {
   editDepartment,
   deleteDepartment,
   getDepartmentById,
+  getMainDepartmentsOnly,
+  getSubDepartmentsOnly,
 };
