@@ -2,6 +2,9 @@ import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import axios from 'axios';
 import Sidebar from './Sidebar'; // Import Sidebar component
+import { FaArrowLeft, FaUserPlus, FaRegEnvelope, FaKey, FaBriefcase, FaCogs, FaStar } from 'react-icons/fa';
+import { ToastContainer, toast } from 'react-toastify';
+import 'react-toastify/dist/ReactToastify.css';
 
 const AddUser = () => {
   const [departments, setDepartments] = useState([]);
@@ -33,6 +36,7 @@ const AddUser = () => {
         setDepartments(response.data);
       } catch (error) {
         console.error('Error fetching departments:', error);
+        toast.error('Error fetching departments');
       }
     };
     fetchDepartments();
@@ -54,6 +58,7 @@ const AddUser = () => {
           setSubDepartments(response.data);
         } catch (error) {
           console.error('Error fetching sub-departments:', error);
+          toast.error('Error fetching sub-departments');
         }
       } else {
         setSubDepartments([]); // Clear sub-departments if no parent department is selected
@@ -79,58 +84,82 @@ const AddUser = () => {
         },
       };
       await axios.post('http://localhost:5001/api/users', formData, config);
-      navigate('/manage-users');
+      toast.success('User added successfully!');
+      setTimeout(() => navigate('/manage-users'), 2000);
     } catch (error) {
       console.error('Error adding user:', error);
+      toast.error('Error adding user');
     }
+  };
+
+  const handleBackButtonClick = () => {
+    navigate('/manage-users');
   };
 
   return (
     <div className="flex h-screen">
       <Sidebar /> {/* Include the Sidebar component */}
       <div className="flex-1 bg-gray-50 p-6 overflow-y-auto">
-        <h1 className="text-3xl font-bold text-gray-800 mb-8">Add New User</h1>
+        <ToastContainer />
+        <button
+          onClick={handleBackButtonClick}
+          className="mb-4 bg-blue-500 text-white py-2 px-4 rounded inline-flex items-center shadow-md hover:bg-blue-600 transition"
+        >
+          <FaArrowLeft className="mr-2" />
+          Back to Manage Users
+        </button>
+        <h1 className="text-3xl font-bold text-gray-800 mb-8 flex items-center">
+          <FaUserPlus className="mr-2 text-blue-500" /> Add New User
+        </h1>
         <form onSubmit={handleSubmit} className="bg-white p-8 rounded-lg shadow-lg">
           <div className="mb-4">
-            <label className="block text-gray-700 font-bold mb-2">Name</label>
+            <label className="block text-gray-700 font-bold mb-2 flex items-center">
+              <FaUserPlus className="mr-2 text-gray-500" /> Name
+            </label>
             <input
               type="text"
               name="name"
               value={formData.name}
               onChange={handleChange}
-              className="w-full p-3 border border-gray-300 rounded-lg"
+              className="w-full p-3 border border-gray-300 rounded-lg focus:outline-none focus:border-blue-500"
               required
             />
           </div>
           <div className="mb-4">
-            <label className="block text-gray-700 font-bold mb-2">Email</label>
+            <label className="block text-gray-700 font-bold mb-2 flex items-center">
+              <FaRegEnvelope className="mr-2 text-gray-500" /> Email
+            </label>
             <input
               type="email"
               name="email"
               value={formData.email}
               onChange={handleChange}
-              className="w-full p-3 border border-gray-300 rounded-lg"
+              className="w-full p-3 border border-gray-300 rounded-lg focus:outline-none focus:border-blue-500"
               required
             />
           </div>
           <div className="mb-4">
-            <label className="block text-gray-700 font-bold mb-2">Password</label>
+            <label className="block text-gray-700 font-bold mb-2 flex items-center">
+              <FaKey className="mr-2 text-gray-500" /> Password
+            </label>
             <input
               type="password"
               name="password"
               value={formData.password}
               onChange={handleChange}
-              className="w-full p-3 border border-gray-300 rounded-lg"
+              className="w-full p-3 border border-gray-300 rounded-lg focus:outline-none focus:border-blue-500"
               required
             />
           </div>
           <div className="mb-4">
-            <label className="block text-gray-700 font-bold mb-2">Role</label>
+            <label className="block text-gray-700 font-bold mb-2 flex items-center">
+              <FaBriefcase className="mr-2 text-gray-500" /> Role
+            </label>
             <select
               name="role"
               value={formData.role}
               onChange={handleChange}
-              className="w-full p-3 border border-gray-300 rounded-lg"
+              className="w-full p-3 border border-gray-300 rounded-lg focus:outline-none focus:border-blue-500"
               required
             >
               <option value="Employee">Employee</option>
@@ -143,12 +172,14 @@ const AddUser = () => {
             </select>
           </div>
           <div className="mb-4">
-            <label className="block text-gray-700 font-bold mb-2">Department</label>
+            <label className="block text-gray-700 font-bold mb-2 flex items-center">
+              <FaCogs className="mr-2 text-gray-500" /> Department
+            </label>
             <select
               name="department"
               value={formData.department}
               onChange={handleChange}
-              className="w-full p-3 border border-gray-300 rounded-lg"
+              className="w-full p-3 border border-gray-300 rounded-lg focus:outline-none focus:border-blue-500"
               required
             >
               <option value="">Select Department</option>
@@ -161,12 +192,14 @@ const AddUser = () => {
           </div>
           {subDepartments.length > 0 && (
             <div className="mb-4">
-              <label className="block text-gray-700 font-bold mb-2">Sub-Department</label>
+              <label className="block text-gray-700 font-bold mb-2 flex items-center">
+                <FaCogs className="mr-2 text-gray-500" /> Sub-Department
+              </label>
               <select
                 name="subDepartment"
                 value={formData.subDepartment}
                 onChange={handleChange}
-                className="w-full p-3 border border-gray-300 rounded-lg"
+                className="w-full p-3 border border-gray-300 rounded-lg focus:outline-none focus:border-blue-500"
               >
                 <option value="">Select Sub-Department</option>
                 {subDepartments.map((subDept) => (
@@ -178,32 +211,36 @@ const AddUser = () => {
             </div>
           )}
           <div className="mb-4">
-            <label className="block text-gray-700 font-bold mb-2">Skills</label>
+            <label className="block text-gray-700 font-bold mb-2 flex items-center">
+              <FaStar className="mr-2 text-gray-500" /> Skills
+            </label>
             <input
               type="text"
               name="skills"
               value={formData.skills}
               onChange={handleChange}
-              className="w-full p-3 border border-gray-300 rounded-lg"
+              className="w-full p-3 border border-gray-300 rounded-lg focus:outline-none focus:border-blue-500"
               placeholder="Comma-separated skills (e.g., JavaScript, React)"
             />
           </div>
           <div className="mb-4">
-            <label className="block text-gray-700 font-bold mb-2">Position</label>
+            <label className="block text-gray-700 font-bold mb-2 flex items-center">
+              <FaBriefcase className="mr-2 text-gray-500" /> Position
+            </label>
             <input
               type="text"
               name="position"
               value={formData.position}
               onChange={handleChange}
-              className="w-full p-3 border border-gray-300 rounded-lg"
+              className="w-full p-3 border border-gray-300 rounded-lg focus:outline-none focus:border-blue-500"
               required
             />
           </div>
           <button
             type="submit"
-            className="w-full bg-blue-500 text-white p-3 rounded-lg font-semibold hover:bg-blue-600 transition"
+            className="w-full bg-blue-500 text-white p-3 rounded-lg font-semibold hover:bg-blue-600 transition flex items-center justify-center"
           >
-            Add User
+            <FaUserPlus className="mr-2" /> Add User
           </button>
         </form>
       </div>
