@@ -306,5 +306,5 @@ module.exports = {
   updateUserPassword,
   getMyTeam,
   getUsersByDepartment,
-  manageUsers
+  manageUsers,
 };

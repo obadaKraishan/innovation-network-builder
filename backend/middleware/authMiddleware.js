@@ -4,13 +4,11 @@ const jwt = require('jsonwebtoken');
 const asyncHandler = require('express-async-handler');
 const User = require('../models/userModel');
 
+// Middleware to protect routes with JWT authentication
 const protect = asyncHandler(async (req, res, next) => {
   let token;
 
-  if (
-    req.headers.authorization &&
-    req.headers.authorization.startsWith('Bearer')
-  ) {
+  if (req.headers.authorization && req.headers.authorization.startsWith('Bearer')) {
     try {
       // Get token from header
       token = req.headers.authorization.split(' ')[1];
@@ -38,11 +36,9 @@ const protect = asyncHandler(async (req, res, next) => {
   }
 });
 
+// Middleware to check if the user has admin privileges
 const admin = (req, res, next) => {
-  if (
-    req.user &&
-    ['Executive', 'CEO', 'CTO', 'Director of HR', 'Director of Finance', 'Team Leader', 'Department Manager'].includes(req.user.role)
-  ) {
+  if (req.user && ['Executive', 'CEO', 'CTO', 'Director of HR', 'Director of Finance', 'Team Leader', 'Department Manager'].includes(req.user.role)) {
     next();
   } else {
     console.warn('User is not authorized as an admin:', req.user);
@@ -50,4 +46,14 @@ const admin = (req, res, next) => {
   }
 };
 
-module.exports = { protect, admin };
+// Middleware to check if the user is a CEO or an authorized role
+const ceoOrAuthorized = (req, res, next) => {
+  if (req.user && ['CEO', 'Director of HR'].includes(req.user.role)) {
+    next();
+  } else {
+    console.warn('User is not authorized as CEO or authorized role:', req.user);
+    return res.status(403).json({ message: 'Not authorized as CEO or authorized role' });
+  }
+};
+
+module.exports = { protect, admin, ceoOrAuthorized };

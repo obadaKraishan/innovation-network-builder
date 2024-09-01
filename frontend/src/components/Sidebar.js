@@ -1,6 +1,6 @@
 import React, { useContext } from 'react';
 import { Link, useLocation } from 'react-router-dom';
-import { FaUser, FaSignOutAlt, FaTachometerAlt, FaUsers, FaChartLine, FaBuilding, FaCogs } from 'react-icons/fa';
+import { FaUser, FaSignOutAlt, FaTachometerAlt, FaUsers, FaChartLine, FaBuilding, FaCogs, FaUserShield } from 'react-icons/fa'; // Added FaUserShield for Manage Users
 import AuthContext from '../context/AuthContext';
 
 const Sidebar = () => {
@@ -35,6 +35,7 @@ const Sidebar = () => {
       { name: 'Overview', icon: <FaTachometerAlt />, path: '/overview' },
       { name: 'Company Reports', icon: <FaChartLine />, path: '/company-reports' },
       { name: 'Manage Departments', icon: <FaBuilding />, path: '/manage-departments' },
+      { name: 'Manage Users', icon: <FaUserShield />, path: '/manage-users' }, // Added Manage Users
       { name: 'Collaborator Finder', icon: <FaCogs />, path: '/collaborator-finder' },
     ],
     CTO: [
@@ -47,6 +48,7 @@ const Sidebar = () => {
       { name: 'Profile', icon: <FaUser />, path: '/profile' },
       { name: 'HR Overview', icon: <FaTachometerAlt />, path: '/hr-overview' },
       { name: 'Manage Recruitment', icon: <FaUsers />, path: '/manage-recruitment' },
+      { name: 'Manage Users', icon: <FaUserShield />, path: '/manage-users' }, // Added Manage Users
       { name: 'Collaborator Finder', icon: <FaCogs />, path: '/collaborator-finder' },
     ],
     'Director of Finance': [

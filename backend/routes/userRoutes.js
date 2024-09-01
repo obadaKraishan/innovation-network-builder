@@ -1,7 +1,7 @@
 // File: backend/routes/userRoutes.js
 
 const express = require('express');
-const { protect, admin, ceoOrAuthorized } = require('../middleware/authMiddleware'); // Added new middleware ceoOrAuthorized
+const { protect, admin, ceoOrAuthorized } = require('../middleware/authMiddleware'); 
 const { 
   getUsers, 
   getUserById, 
@@ -11,15 +11,15 @@ const {
   updateUserPassword,
   getMyTeam,
   getUsersByDepartment,
-  manageUsers, // Added this line
+  manageUsers,
 } = require('../controllers/userController');
 
 const router = express.Router();
 
-// Use the protect middleware for routes that require authentication
+// Define routes
 router.route('/my-team').get(protect, getMyTeam);
 router.route('/department-users').get(protect, getUsersByDepartment);
-router.route('/manage-users').get(protect, ceoOrAuthorized, manageUsers); // Added this new route
+router.route('/manage-users').get(protect, ceoOrAuthorized, manageUsers);
 router.route('/').get(protect, admin, getUsers);
 router.route('/search').get(protect, searchUsers);
 router.route('/skills').get(protect, getSkills);
