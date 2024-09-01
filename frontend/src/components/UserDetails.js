@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import axios from 'axios';
-import { FaUserEdit, FaTrashAlt, FaSave, FaArrowLeft } from 'react-icons/fa';
+import { FaUserEdit, FaTrashAlt, FaSave, FaArrowLeft, FaKey, FaEye, FaEyeSlash, FaBriefcase, FaRegEnvelope, FaStar, FaCogs } from 'react-icons/fa';
 import { ToastContainer, toast } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
 import Swal from 'sweetalert2';
@@ -12,6 +12,11 @@ const UserDetails = () => {
   const navigate = useNavigate();
   const [user, setUser] = useState({});
   const [departments, setDepartments] = useState([]);
+  const [subDepartments, setSubDepartments] = useState([]);
+  const [password, setPassword] = useState('');
+  const [confirmPassword, setConfirmPassword] = useState('');
+  const [isPasswordVisible, setIsPasswordVisible] = useState(false);
+  const [isConfirmPasswordVisible, setIsConfirmPasswordVisible] = useState(false);
   const [isEditing, setIsEditing] = useState(false);
 
   useEffect(() => {
@@ -53,6 +58,31 @@ const UserDetails = () => {
     fetchDepartments();
   }, [id]);
 
+  useEffect(() => {
+    // Fetch sub-departments based on selected department
+    const fetchSubDepartments = async () => {
+      if (user.department) {
+        try {
+          const token = localStorage.getItem('token');
+          const config = {
+            headers: {
+              Authorization: `Bearer ${token}`,
+            },
+            params: { parentDepartment: user.department },
+          };
+          const response = await axios.get('http://localhost:5001/api/departments/sub-departments', config);
+          setSubDepartments(response.data);
+        } catch (error) {
+          console.error('Error fetching sub-departments:', error);
+          toast.error('Error fetching sub-departments');
+        }
+      } else {
+        setSubDepartments([]); // Clear sub-departments if no parent department is selected
+      }
+    };
+    fetchSubDepartments();
+  }, [user.department]);
+
   const handleInputChange = (e) => {
     setUser({
       ...user,
@@ -60,7 +90,20 @@ const UserDetails = () => {
     });
   };
 
+  const handlePasswordChange = (e) => {
+    setPassword(e.target.value);
+  };
+
+  const handleConfirmPasswordChange = (e) => {
+    setConfirmPassword(e.target.value);
+  };
+
   const handleUpdateUser = async () => {
+    if (password && password !== confirmPassword) {
+      toast.error('Passwords do not match');
+      return;
+    }
+
     try {
       const token = localStorage.getItem('token');
       const config = {
@@ -68,6 +111,11 @@ const UserDetails = () => {
           Authorization: `Bearer ${token}`,
         },
       };
+
+      if (password) {
+        await axios.put(`http://localhost:5001/api/users/${id}/password`, { password }, config);
+      }
+
       await axios.put(`http://localhost:5001/api/users/${id}`, user, config);
       toast.success('User updated successfully');
       setIsEditing(false);
@@ -121,7 +169,9 @@ const UserDetails = () => {
         <h1 className="text-3xl font-bold text-gray-800 mb-8">User Details</h1>
         <div className="bg-white p-8 rounded-lg shadow-lg">
           <div className="mb-6">
-            <label className="block text-gray-700 font-bold mb-2">Name</label>
+            <label className="block text-gray-700 font-bold mb-2 flex items-center">
+              <FaUserEdit className="mr-2 text-gray-500" /> Name
+            </label>
             <input
               type="text"
               name="name"
@@ -132,7 +182,9 @@ const UserDetails = () => {
             />
           </div>
           <div className="mb-6">
-            <label className="block text-gray-700 font-bold mb-2">Email</label>
+            <label className="block text-gray-700 font-bold mb-2 flex items-center">
+              <FaRegEnvelope className="mr-2 text-gray-500" /> Email
+            </label>
             <input
               type="email"
               name="email"
@@ -142,8 +194,85 @@ const UserDetails = () => {
               readOnly={!isEditing}
             />
           </div>
+          {isEditing && (
+            <>
+              <div className="mb-6">
+                <label className="block text-gray-700 font-bold mb-2 flex items-center">
+                  <FaKey className="mr-2 text-gray-500" /> Password
+                </label>
+                <div className="relative">
+                  <input
+                    type={isPasswordVisible ? 'text' : 'password'}
+                    name="password"
+                    value={password}
+                    onChange={handlePasswordChange}
+                    className="w-full p-3 border border-gray-300 rounded-lg focus:border-blue-500"
+                    placeholder="Enter new password"
+                  />
+                  <button
+                    type="button"
+                    onClick={() => setIsPasswordVisible(!isPasswordVisible)}
+                    className="absolute inset-y-0 right-0 px-3 flex items-center"
+                  >
+                    {isPasswordVisible ? <FaEyeSlash /> : <FaEye />}
+                  </button>
+                </div>
+              </div>
+              <div className="mb-6">
+                <label className="block text-gray-700 font-bold mb-2 flex items-center">
+                  <FaKey className="mr-2 text-gray-500" /> Confirm Password
+                </label>
+                <div className="relative">
+                  <input
+                    type={isConfirmPasswordVisible ? 'text' : 'password'}
+                    name="confirmPassword"
+                    value={confirmPassword}
+                    onChange={handleConfirmPasswordChange}
+                    className="w-full p-3 border border-gray-300 rounded-lg focus:border-blue-500"
+                    placeholder="Confirm new password"
+                  />
+                  <button
+                    type="button"
+                    onClick={() => setIsConfirmPasswordVisible(!isConfirmPasswordVisible)}
+                    className="absolute inset-y-0 right-0 px-3 flex items-center"
+                  >
+                    {isConfirmPasswordVisible ? <FaEyeSlash /> : <FaEye />}
+                  </button>
+                </div>
+              </div>
+            </>
+          )}
           <div className="mb-6">
-            <label className="block text-gray-700 font-bold mb-2">Role</label>
+            <label className="block text-gray-700 font-bold mb-2 flex items-center">
+              <FaBriefcase className="mr-2 text-gray-500" /> Position
+            </label>
+            <input
+              type="text"
+              name="position"
+              value={user.position || ''}
+              onChange={handleInputChange}
+              className="w-full p-3 border border-gray-300 rounded-lg focus:border-blue-500"
+              readOnly={!isEditing}
+            />
+          </div>
+          <div className="mb-6">
+            <label className="block text-gray-700 font-bold mb-2 flex items-center">
+              <FaCogs className="mr-2 text-gray-500" /> Skills
+            </label>
+            <input
+              type="text"
+              name="skills"
+              value={user.skills?.join(', ') || ''}
+              onChange={handleInputChange}
+              className="w-full p-3 border border-gray-300 rounded-lg focus:border-blue-500"
+              readOnly={!isEditing}
+              placeholder="Comma-separated skills"
+            />
+          </div>
+          <div className="mb-6">
+            <label className="block text-gray-700 font-bold mb-2 flex items-center">
+              <FaBriefcase className="mr-2 text-gray-500" /> Role
+            </label>
             <select
               name="role"
               value={user.role || ''}
@@ -161,7 +290,9 @@ const UserDetails = () => {
             </select>
           </div>
           <div className="mb-6">
-            <label className="block text-gray-700 font-bold mb-2">Department</label>
+            <label className="block text-gray-700 font-bold mb-2 flex items-center">
+              <FaCogs className="mr-2 text-gray-500" /> Department
+            </label>
             <select
               name="department"
               value={user.department || ''}
@@ -176,6 +307,26 @@ const UserDetails = () => {
               ))}
             </select>
           </div>
+          {subDepartments.length > 0 && (
+            <div className="mb-6">
+              <label className="block text-gray-700 font-bold mb-2 flex items-center">
+                <FaCogs className="mr-2 text-gray-500" /> Sub-Department
+              </label>
+              <select
+                name="subDepartment"
+                value={user.subDepartment || ''}
+                onChange={handleInputChange}
+                className="w-full p-3 border border-gray-300 rounded-lg focus:border-blue-500"
+                disabled={!isEditing}
+              >
+                {subDepartments.map((subDept) => (
+                  <option key={subDept._id} value={subDept._id}>
+                    {subDept.name}
+                  </option>
+                ))}
+              </select>
+            </div>
+          )}
           <div className="flex justify-end space-x-4">
             {isEditing ? (
               <button
