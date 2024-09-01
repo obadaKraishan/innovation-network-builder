@@ -2,6 +2,9 @@ import React, { useState, useEffect } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import axios from 'axios';
 import Sidebar from './Sidebar'; // Import Sidebar component
+import { FaPlus, FaSearch, FaUserEdit, FaUsers } from 'react-icons/fa';
+import { ToastContainer, toast } from 'react-toastify';
+import 'react-toastify/dist/ReactToastify.css';
 
 const ManageUsers = () => {
   const [users, setUsers] = useState([]);
@@ -25,6 +28,7 @@ const ManageUsers = () => {
         setUsers(response.data);
       } catch (error) {
         console.error('Error fetching users:', error);
+        toast.error('Error fetching users');
       }
     };
     fetchUsers();
@@ -45,6 +49,7 @@ const ManageUsers = () => {
         setDepartments(response.data);
       } catch (error) {
         console.error('Error fetching departments:', error);
+        toast.error('Error fetching departments');
       }
     };
     fetchDepartments();
@@ -54,24 +59,30 @@ const ManageUsers = () => {
     <div className="flex h-screen">
       <Sidebar /> {/* Include the Sidebar component */}
       <div className="flex-1 bg-gray-50 p-6 overflow-y-auto">
-        <h1 className="text-3xl font-bold text-gray-800 mb-8">Manage Users</h1>
+        <ToastContainer />
+        <h1 className="text-3xl font-bold text-gray-800 mb-8 flex items-center">
+          <FaUsers className="mr-2 text-blue-500" /> Manage Users
+        </h1>
         <div className="mb-4 flex justify-end">
           <button
             onClick={() => navigate('/add-user')}
-            className="bg-green-500 text-white px-4 py-2 rounded-lg hover:bg-green-600 transition"
+            className="bg-green-500 text-white px-4 py-2 rounded-lg flex items-center shadow-md hover:bg-green-600 transition"
           >
-            Add User
+            <FaPlus className="mr-2" /> Add User
           </button>
         </div>
         <div className="bg-white p-8 rounded-lg shadow-lg">
           <div className="mb-6 flex items-center space-x-4">
-            <input
-              type="text"
-              placeholder="Search by name or email"
-              value={filters.search}
-              onChange={(e) => setFilters({ ...filters, search: e.target.value })}
-              className="w-full p-3 border border-gray-300 rounded-lg focus:border-blue-500"
-            />
+            <div className="flex items-center w-full">
+              <FaSearch className="absolute ml-3 text-gray-400" />
+              <input
+                type="text"
+                placeholder="Search by name or email"
+                value={filters.search}
+                onChange={(e) => setFilters({ ...filters, search: e.target.value })}
+                className="w-full p-3 pl-10 border border-gray-300 rounded-lg focus:border-blue-500"
+              />
+            </div>
             <select
               value={filters.department}
               onChange={(e) => setFilters({ ...filters, department: e.target.value })}
@@ -92,9 +103,9 @@ const ManageUsers = () => {
                 <p className="text-gray-600 mb-4"><strong>Position:</strong> {user.position}</p>
                 <Link
                   to={`/manage-users/${user._id}`}
-                  className="block w-full bg-blue-500 text-white p-3 rounded-lg font-semibold text-center hover:bg-blue-600 transition"
+                  className="block w-full bg-blue-500 text-white p-3 rounded-lg font-semibold text-center flex items-center justify-center hover:bg-blue-600 transition"
                 >
-                  View / Edit
+                  <FaUserEdit className="mr-2" /> View / Edit
                 </Link>
               </div>
             ))}
