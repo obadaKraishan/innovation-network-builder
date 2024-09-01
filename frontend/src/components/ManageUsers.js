@@ -1,5 +1,3 @@
-// File: frontend/src/components/ManageUsers.js
-
 import React, { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import axios from 'axios';
@@ -13,7 +11,15 @@ const ManageUsers = () => {
     // Fetch users from the backend
     const fetchUsers = async () => {
       try {
-        const response = await axios.get('/api/users/manage-users', { params: filters });
+        const token = localStorage.getItem('token'); // Get token from localStorage
+        const config = {
+          headers: {
+            Authorization: `Bearer ${token}`, // Include the token in the request headers
+          },
+          params: filters,
+        };
+
+        const response = await axios.get('http://localhost:5001/api/users/manage-users', config);
         setUsers(response.data);
       } catch (error) {
         console.error('Error fetching users:', error);

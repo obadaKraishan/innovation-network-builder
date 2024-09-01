@@ -46,7 +46,7 @@ const admin = (req, res, next) => {
   }
 };
 
-// Middleware to check if the user is a CEO or an authorized role
+
 const ceoOrAuthorized = (req, res, next) => {
   if (req.user && ['CEO', 'Director of HR'].includes(req.user.role)) {
     next();
