@@ -4,7 +4,8 @@ const {
   getDepartments,
   getTheDepartments,
   getDepartmentById,
-  addDepartment,
+  addParentDepartment,
+  addSubDepartment,
   editDepartment,
   deleteDepartment,
 } = require('../controllers/departmentController');
@@ -12,8 +13,13 @@ const {
 const router = express.Router();
 
 router.route('/')
-  .get(protect, admin, getDepartments)
-  .post(protect, admin, addDepartment);
+  .get(protect, admin, getDepartments);
+
+router.route('/parent')
+  .post(protect, admin, addParentDepartment);
+
+router.route('/sub')
+  .post(protect, admin, addSubDepartment);
 
 router.route('/full')
   .get(protect, admin, getTheDepartments);

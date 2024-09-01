@@ -65,7 +65,7 @@ const EditDepartment = () => {
   // Add a new sub-department to the current department
   const handleAddSubDepartment = async () => {
     try {
-      const { data } = await api.post('/departments', { name: newSubDepartment, parent: id });
+      const { data } = await api.post('/departments/sub', { name: newSubDepartment, parent: id });
       setSubDepartments([...subDepartments, data]); // Update the sub-departments state
       setNewSubDepartment(''); // Clear the input field
       toast.success('Sub-department added successfully.'); // Show success toast
@@ -73,7 +73,7 @@ const EditDepartment = () => {
       console.error('Error adding sub-department:', error); // Log the error
       toast.error('Error adding sub-department.'); // Show error toast
     }
-  };
+  };  
 
   // Remove a sub-department from the current department
   const handleRemoveSubDepartment = async (subDeptId) => {

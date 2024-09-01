@@ -34,28 +34,47 @@ const getTheDepartments = async (req, res) => {
   }
 };
 
-// @desc    Add a new department
-// @route   POST /api/departments
+// @desc    Add a new parent department
+// @route   POST /api/departments/parent
 // @access  Private
-const addDepartment = async (req, res) => {
+const addParentDepartment = async (req, res) => {
   try {
-    const { name, parent } = req.body;
-    const department = new Department({ name, parentDepartment: parent || null });
-
-    if (parent) {
-      const parentDepartment = await Department.findById(parent);
-      if (parentDepartment) {
-        parentDepartment.subDepartments.push(department._id);
-        await parentDepartment.save();
-      }
-    }
-
+    const { name } = req.body;
+    const department = new Department({ name });
     await department.save();
     res.status(201).json(department);
   } catch (error) {
     res.status(500).json({ message: error.message }); // Return the error message
   }
 };
+
+// @desc    Add a new sub-department
+// @route   POST /api/departments/sub
+// @access  Private
+const addSubDepartment = async (req, res) => {
+  try {
+    const { name, parent } = req.body;
+    if (!parent) {
+      return res.status(400).json({ message: 'Parent department is required for sub-department.' });
+    }
+
+    const parentDepartment = await Department.findById(parent);
+    if (!parentDepartment) {
+      return res.status(404).json({ message: 'Parent department not found.' });
+    }
+
+    const department = new Department({ name, parentDepartment: parent });
+    await department.save();
+
+    parentDepartment.subDepartments.push(department._id);
+    await parentDepartment.save();
+
+    res.status(201).json(department);
+  } catch (error) {
+    res.status(500).json({ message: error.message }); // Return the error message
+  }
+};
+
 
 // @desc    Edit a department
 // @route   PUT /api/departments/:id
@@ -146,7 +165,8 @@ const getDepartmentById = async (req, res) => {
 module.exports = {
   getDepartments,
   getTheDepartments,
-  addDepartment,
+  addParentDepartment,
+  addSubDepartment,
   editDepartment,
   deleteDepartment,
   getDepartmentById,
