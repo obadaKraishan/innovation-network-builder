@@ -104,6 +104,44 @@ const updateDiscussionConnections = async (team, commenterId, parentCommentId) =
   }
 };
 
+
+const updateConnection = async (userA, userB, context) => {
+  try {
+    let connection = await Connection.findOne({
+      userA: { $in: [userA, userB] },
+      userB: { $in: [userA, userB] },
+      context,
+    });
+
+    if (!connection) {
+      connection = new Connection({
+        userA,
+        userB,
+        context,
+        connectionType: 'Task Interaction',
+        interactionCount: 0,
+      });
+    }
+
+    // Update interaction count and last interaction date
+    connection.interactionCount += 1;
+    connection.lastInteractedAt = Date.now();
+
+    // Update connection strength based on interaction count
+    if (connection.interactionCount > 5) {
+      connection.connectionStrength = 'Strong';
+    } else if (connection.interactionCount > 2) {
+      connection.connectionStrength = 'Medium';
+    } else {
+      connection.connectionStrength = 'Weak';
+    }
+
+    await connection.save();
+  } catch (error) {
+    console.error('Error updating connection:', error.message);
+  }
+};
+
 // Create a new team
 const createTeam = async (req, res) => {
   try {
@@ -231,7 +269,6 @@ const updateTeam = async (req, res) => {
   }
 };
 
-// Add a task to a team
 const addTask = async (req, res) => {
   try {
     console.log('Adding task to team:', req.params.id);
@@ -257,6 +294,9 @@ const addTask = async (req, res) => {
 
     team.tasks.push(task._id);
     await team.save();
+
+    // Create or update the connection between the task creator (manager/team leader) and the assignee
+    await updateConnection(req.user._id, assignedTo, 'task');
 
     res.status(201).json(task);
   } catch (error) {
@@ -381,6 +421,10 @@ const updateTaskStatus = async (req, res) => {
     task.status = req.body.status || task.status;
 
     await task.save();
+
+    // Create or update the connection between the user who updated the task and the task assigner (manager/team leader)
+    const team = await Team.findById(req.params.id).populate('teamLeader');
+    await updateConnection(req.user._id, team.teamLeader._id, 'task');
 
     console.log('Task status updated successfully:', task);
     res.json(task);
