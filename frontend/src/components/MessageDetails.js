@@ -17,6 +17,7 @@ const MessageDetails = () => {
   const [recipients, setRecipients] = useState([]);
   const [cc, setCc] = useState([]);
   const [users, setUsers] = useState([]);
+  const [replyingTo, setReplyingTo] = useState(null); // Store the message being replied to
   const navigate = useNavigate();
 
   useEffect(() => {
@@ -43,17 +44,20 @@ const MessageDetails = () => {
     fetchUsers();
   }, [id]);
 
-  const handleReply = (mode) => {
+  const handleReply = (mode, messageToReply = message) => {
     setReplyMode(mode);
-    setReplyBody(`<p></p><blockquote>${message.body}</blockquote>`); // Include original message
-    setSubject(`Re: ${message.subject}`);
+    setReplyingTo(messageToReply);
+    setReplyBody(`<p></p><blockquote>${messageToReply.body}</blockquote>`); // Include original message
+    setSubject(`Re: ${messageToReply.subject}`);
+    setRecipients([{ value: messageToReply.sender._id, label: messageToReply.sender.name }]);
     if (mode === 'replyAll') {
-      setCc(message.cc.map(c => ({ value: c._id, label: c.name })));
+      setCc(messageToReply.cc.map(c => ({ value: c._id, label: c.name })));
     }
   };
 
   const handleForward = () => {
     setReplyMode('forward');
+    setReplyingTo(message);
     setReplyBody(`<p></p><blockquote>${message.body}</blockquote>`);
     setSubject(`Fwd: ${message.subject}`);
   };
@@ -64,7 +68,7 @@ const MessageDetails = () => {
       cc: cc.map((c) => c.value),
       subject,
       body: replyBody,
-      parentMessage: message._id, // Link the new message to the current one as its parent
+      parentMessage: replyingTo._id, // Link the new message to the current one as its parent
     };
 
     try {
@@ -94,6 +98,7 @@ const MessageDetails = () => {
     setSubject('');
     setRecipients([]);
     setCc([]);
+    setReplyingTo(null);
   };
 
   return (
@@ -160,6 +165,20 @@ const MessageDetails = () => {
                         <p className="text-sm text-gray-500">CC: {childMessage.cc.map(c => c.name).join(', ')}</p>
                       )}
                       <div className="mt-2 text-gray-700" dangerouslySetInnerHTML={{ __html: childMessage.body }} />
+                      <div className="flex space-x-2 mt-4">
+                        <button
+                          onClick={() => handleReply('reply', childMessage)}
+                          className="bg-blue-500 text-white px-4 py-2 rounded-lg flex items-center hover:bg-blue-600 transition"
+                        >
+                          <FaReply className="mr-2" /> Reply
+                        </button>
+                        <button
+                          onClick={() => handleReply('replyAll', childMessage)}
+                          className="bg-green-500 text-white px-4 py-2 rounded-lg flex items-center hover:bg-green-600 transition"
+                        >
+                          <FaReplyAll className="mr-2" /> Reply All
+                        </button>
+                      </div>
                     </div>
                   ))}
                 </div>
@@ -191,8 +210,8 @@ const MessageDetails = () => {
             {replyMode && (
               <div className="mt-6">
                 <h2 className="text-xl font-semibold mb-4">
-                  {replyMode === 'reply' && 'Replying to Message'}
-                  {replyMode === 'replyAll' && 'Replying to All'}
+                  {replyMode === 'reply' && `Replying to ${replyingTo.sender.name}`}
+                  {replyMode === 'replyAll' && `Replying to All from ${replyingTo.sender.name}`}
                   {replyMode === 'forward' && 'Forwarding Message'}
                 </h2>
                 <div className="bg-white p-4 rounded-lg shadow-lg">
