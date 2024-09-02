@@ -150,7 +150,11 @@ const getMessageDetails = async (req, res) => {
       return res.status(404).json({ message: 'Message not found' });
     }
 
+    // Recursively populate child messages
+    message.childMessages = await fetchChildMessages(message._id);
+
     console.log(`Message details fetched successfully for messageId: ${req.params.id}`);
+    console.log('Populated Message:', message);
 
     res.json(message);
   } catch (error) {
