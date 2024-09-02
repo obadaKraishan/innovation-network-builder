@@ -4,7 +4,7 @@ const Connection = require('../models/connectionModel');
 // Utility function to create a new connection between two users
 const createConnection = async (userA, userB, context) => {
   try {
-    console.log(`Creating connection between ${userA} and ${userB} with context: ${context}`);
+    console.log(`Attempting to create connection between ${userA} and ${userB} with context: ${context}`);
 
     const newConnection = new Connection({
       userA,
@@ -14,8 +14,11 @@ const createConnection = async (userA, userB, context) => {
       lastInteractedAt: Date.now(),
     });
 
-    await newConnection.save();
-    console.log(`Connection created between ${userA} and ${userB} for context: ${context}`);
+    const savedConnection = await newConnection.save();
+    console.log(`Connection successfully created:`, savedConnection);
+
+    // Return the saved connection to avoid querying again
+    return savedConnection;
   } catch (error) {
     console.error(`Error creating connection between ${userA} and ${userB} for context: ${context}:`, error.message);
   }
@@ -49,17 +52,13 @@ const sendMessage = async (req, res) => {
 
     // Create new connections based on this message
     for (const recipientId of recipients) {
-      await createConnection(req.user._id, recipientId, 'message');
-      // Log the saved connection
-      const savedConnection = await Connection.findOne({ userA: req.user._id, userB: recipientId });
+      const savedConnection = await createConnection(req.user._id, recipientId, 'message');
       console.log('Saved Connection:', savedConnection);
     }
 
     if (cc && cc.length > 0) {
       for (const ccId of cc) {
-        await createConnection(req.user._id, ccId, 'message');
-        // Log the saved connection
-        const savedConnection = await Connection.findOne({ userA: req.user._id, userB: ccId });
+        const savedConnection = await createConnection(req.user._id, ccId, 'message');
         console.log('Saved Connection:', savedConnection);
       }
     }
@@ -251,17 +250,13 @@ const replyToMessage = async (req, res) => {
 
     // Create new connections for reply
     for (const recipientId of recipients) {
-      await createConnection(req.user._id, recipientId, 'message reply');
-      // Log the saved connection
-      const savedConnection = await Connection.findOne({ userA: req.user._id, userB: recipientId });
+      const savedConnection = await createConnection(req.user._id, recipientId, 'message reply');
       console.log('Saved Connection:', savedConnection);
     }
 
     if (cc && cc.length > 0) {
       for (const ccId of cc) {
-        await createConnection(req.user._id, ccId, 'message reply');
-        // Log the saved connection
-        const savedConnection = await Connection.findOne({ userA: req.user._id, userB: ccId });
+        const savedConnection = await createConnection(req.user._id, ccId, 'message reply');
         console.log('Saved Connection:', savedConnection);
       }
     }
