@@ -1,6 +1,26 @@
 const Message = require('../models/messageModel');
 const Connection = require('../models/connectionModel');
 
+// Utility function to create a new connection between two users
+const createConnection = async (userA, userB, context) => {
+  try {
+    console.log(`Creating connection between ${userA} and ${userB} with context: ${context}`);
+
+    const newConnection = new Connection({
+      userA,
+      userB,
+      context,
+      interactionCount: 1,
+      lastInteractedAt: Date.now(),
+    });
+
+    await newConnection.save();
+    console.log(`Connection created between ${userA} and ${userB} for context: ${context}`);
+  } catch (error) {
+    console.error(`Error creating connection between ${userA} and ${userB} for context: ${context}:`, error.message);
+  }
+};
+
 // @desc    Send a new message
 // @route   POST /api/messages
 // @access  Private
@@ -29,26 +49,18 @@ const sendMessage = async (req, res) => {
 
     // Create new connections based on this message
     for (const recipientId of recipients) {
-      const newConnection = new Connection({
-        userA: req.user._id,
-        userB: recipientId,
-        context: 'message',
-        interactionCount: 1,
-        lastInteractedAt: Date.now(),
-      });
-      await newConnection.save();
+      await createConnection(req.user._id, recipientId, 'message');
+      // Log the saved connection
+      const savedConnection = await Connection.findOne({ userA: req.user._id, userB: recipientId });
+      console.log('Saved Connection:', savedConnection);
     }
 
     if (cc && cc.length > 0) {
       for (const ccId of cc) {
-        const newConnection = new Connection({
-          userA: req.user._id,
-          userB: ccId,
-          context: 'message',
-          interactionCount: 1,
-          lastInteractedAt: Date.now(),
-        });
-        await newConnection.save();
+        await createConnection(req.user._id, ccId, 'message');
+        // Log the saved connection
+        const savedConnection = await Connection.findOne({ userA: req.user._id, userB: ccId });
+        console.log('Saved Connection:', savedConnection);
       }
     }
 
@@ -239,26 +251,18 @@ const replyToMessage = async (req, res) => {
 
     // Create new connections for reply
     for (const recipientId of recipients) {
-      const newConnection = new Connection({
-        userA: req.user._id,
-        userB: recipientId,
-        context: 'message',
-        interactionCount: 1,
-        lastInteractedAt: Date.now(),
-      });
-      await newConnection.save();
+      await createConnection(req.user._id, recipientId, 'message reply');
+      // Log the saved connection
+      const savedConnection = await Connection.findOne({ userA: req.user._id, userB: recipientId });
+      console.log('Saved Connection:', savedConnection);
     }
 
     if (cc && cc.length > 0) {
       for (const ccId of cc) {
-        const newConnection = new Connection({
-          userA: req.user._id,
-          userB: ccId,
-          context: 'message',
-          interactionCount: 1,
-          lastInteractedAt: Date.now(),
-        });
-        await newConnection.save();
+        await createConnection(req.user._id, ccId, 'message reply');
+        // Log the saved connection
+        const savedConnection = await Connection.findOne({ userA: req.user._id, userB: ccId });
+        console.log('Saved Connection:', savedConnection);
       }
     }
 
