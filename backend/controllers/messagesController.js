@@ -1,5 +1,3 @@
-// File: backend/controllers/messagesController.js
-
 const Message = require('../models/messageModel');
 const Connection = require('../models/connectionModel');
 
@@ -59,6 +57,19 @@ const getSentMessages = async (req, res) => {
     res.json(messages);
   } catch (error) {
     console.error('Error fetching sent messages:', error.message);
+    res.status(500).json({ message: 'Server Error' });
+  }
+};
+
+// @desc    Get important messages for the logged-in user
+// @route   GET /api/messages/important
+// @access  Private
+const getImportantMessages = async (req, res) => {
+  try {
+    const messages = await Message.find({ recipients: req.user._id, isImportant: true }).sort({ createdAt: -1 });
+    res.json(messages);
+  } catch (error) {
+    console.error('Error fetching important messages:', error.message);
     res.status(500).json({ message: 'Server Error' });
   }
 };
@@ -147,6 +158,7 @@ module.exports = {
   getInboxMessages,
   getSentMessages,
   markMessageAsImportant,
+  getImportantMessages,
   getMessageDetails,
   replyToMessage,
 };

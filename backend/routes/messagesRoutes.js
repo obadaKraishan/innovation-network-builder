@@ -7,6 +7,7 @@ const {
   getInboxMessages,
   getSentMessages,
   markMessageAsImportant,
+  getImportantMessages,
   getMessageDetails,
   replyToMessage,
 } = require('../controllers/messagesController');
@@ -21,6 +22,9 @@ router.get('/inbox', protect, getInboxMessages);
 
 // Route to get sent messages
 router.get('/sent', protect, getSentMessages);
+
+// Add this route before the existing routes
+router.get('/important', protect, getImportantMessages);
 
 // Route to mark a message as important
 router.put('/:id/important', protect, markMessageAsImportant);
