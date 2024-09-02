@@ -25,8 +25,8 @@ const MessagesSystem = () => {
   return (
     <div className="flex h-screen">
       <Sidebar />
-      <div className="flex-1 p-6 bg-gray-50">
-        <h1 className="text-3xl font-bold text-gray-800 mb-6">Messages System</h1>
+      <div className="flex-1 p-6 bg-gray-50 relative">
+        <h1 className="text-3xl font-bold text-gray-800 mb-6">Communications Hub</h1>
         <div className="space-y-6">
           <Link to="/messages/inbox" className="block bg-white p-6 rounded-lg shadow-md hover:shadow-lg transition-shadow duration-300">
             <div className="flex justify-between items-center">
@@ -84,17 +84,16 @@ const MessagesSystem = () => {
               <p className="mt-4 text-gray-500">No important messages</p>
             )}
           </Link>
-
-          <Link to="/messages/create" className="block bg-white p-6 rounded-lg shadow-md hover:shadow-lg transition-shadow duration-300">
-            <div className="flex justify-between items-center">
-              <div className="flex items-center space-x-4">
-                <FaPlus className="text-2xl text-red-500" />
-                <span className="text-xl font-semibold text-gray-800">Create Message</span>
-              </div>
-              <FaChevronRight className="text-xl text-gray-400" />
-            </div>
-          </Link>
         </div>
+
+        <Link
+          to="/messages/create"
+          className="absolute top-6 right-6 bg-blue-500 text-white p-3 rounded-full shadow-lg hover:bg-blue-600 transition duration-300 flex items-center space-x-2"
+          title="Create Message"
+        >
+          <FaPlus className="text-xl" />
+          <span className="text-lg font-medium">New Message</span>
+        </Link>
       </div>
     </div>
   );
