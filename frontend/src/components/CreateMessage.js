@@ -3,7 +3,9 @@ import Sidebar from './Sidebar';
 import api from '../utils/api';
 import { FaPaperPlane } from 'react-icons/fa';
 import { ToastContainer, toast } from 'react-toastify';
+import Select from 'react-select';
 import 'react-toastify/dist/ReactToastify.css';
+import SunEditorComponent from './SunEditorComponent';
 
 const CreateMessage = () => {
   const [recipients, setRecipients] = useState([]);
@@ -17,7 +19,11 @@ const CreateMessage = () => {
     const fetchUsers = async () => {
       try {
         const { data } = await api.get('/users/message-recipients');
-        setUsers(data);
+        const formattedUsers = data.map(user => ({
+          value: user._id,
+          label: `${user.name} (${user.email})`,
+        }));
+        setUsers(formattedUsers);
       } catch (error) {
         console.error('Error fetching users:', error);
         toast.error('Failed to fetch users. Please check your permissions.');
@@ -29,7 +35,13 @@ const CreateMessage = () => {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    const messageData = { recipients, cc, subject, body, attachments };
+    const messageData = { 
+      recipients: recipients.map(recipient => recipient.value), 
+      cc: cc.map(c => c.value), 
+      subject, 
+      body, 
+      attachments 
+    };
 
     try {
       await api.post('/messages', messageData);
@@ -49,29 +61,23 @@ const CreateMessage = () => {
         <form onSubmit={handleSubmit} className="bg-white p-6 rounded-lg shadow-lg">
           <div className="mb-4">
             <label className="block text-gray-700 text-sm font-bold mb-2">To:</label>
-            <select
-              multiple
+            <Select
+              isMulti
               value={recipients}
-              onChange={(e) => setRecipients([...e.target.selectedOptions].map(option => option.value))}
-              className="w-full p-3 border border-gray-300 rounded-lg"
-            >
-              {users.map((user) => (
-                <option key={user._id} value={user._id}>{user.name}</option>
-              ))}
-            </select>
+              onChange={setRecipients}
+              options={users}
+              className="w-full"
+            />
           </div>
           <div className="mb-4">
             <label className="block text-gray-700 text-sm font-bold mb-2">CC:</label>
-            <select
-              multiple
+            <Select
+              isMulti
               value={cc}
-              onChange={(e) => setCc([...e.target.selectedOptions].map(option => option.value))}
-              className="w-full p-3 border border-gray-300 rounded-lg"
-            >
-              {users.map((user) => (
-                <option key={user._id} value={user._id}>{user.name}</option>
-              ))}
-            </select>
+              onChange={setCc}
+              options={users}
+              className="w-full"
+            />
           </div>
           <div className="mb-4">
             <label className="block text-gray-700 text-sm font-bold mb-2">Subject:</label>
@@ -84,10 +90,9 @@ const CreateMessage = () => {
           </div>
           <div className="mb-4">
             <label className="block text-gray-700 text-sm font-bold mb-2">Message:</label>
-            <textarea
+            <SunEditorComponent 
               value={body}
-              onChange={(e) => setBody(e.target.value)}
-              className="w-full p-3 border border-gray-300 rounded-lg"
+              onChange={setBody}
             />
           </div>
           <div className="mb-4">
