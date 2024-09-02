@@ -48,7 +48,23 @@ const sendMessage = async (req, res) => {
 // @access  Private
 const getInboxMessages = async (req, res) => {
   try {
-    const messages = await Message.find({ recipients: req.user._id }).sort({ createdAt: -1 });
+    const messages = await Message.find({
+      recipients: req.user._id,
+      parentMessage: null,  // Fetch only parent messages
+    })
+      .sort({ createdAt: -1 })
+      .populate('sender', 'name email')
+      .populate('recipients', 'name email')
+      .populate('cc', 'name email')
+      .populate({
+        path: 'childMessages',
+        populate: [
+          { path: 'sender', select: 'name email' },
+          { path: 'recipients', select: 'name email' },
+          { path: 'cc', select: 'name email' },
+        ],
+      });
+
     res.json(messages);
   } catch (error) {
     console.error('Error fetching inbox messages:', error.message);
@@ -61,10 +77,22 @@ const getInboxMessages = async (req, res) => {
 // @access  Private
 const getSentMessages = async (req, res) => {
   try {
-    const messages = await Message.find({ sender: req.user._id })
+    const messages = await Message.find({
+      sender: req.user._id,
+      parentMessage: null,  // Fetch only parent messages
+    })
       .populate('recipients', 'name email')
       .populate('cc', 'name email')
-      .sort({ createdAt: -1 });
+      .sort({ createdAt: -1 })
+      .populate({
+        path: 'childMessages',
+        populate: [
+          { path: 'sender', select: 'name email' },
+          { path: 'recipients', select: 'name email' },
+          { path: 'cc', select: 'name email' },
+        ],
+      });
+
     res.json(messages);
   } catch (error) {
     console.error('Error fetching sent messages:', error.message);
