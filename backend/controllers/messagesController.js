@@ -27,14 +27,30 @@ const sendMessage = async (req, res) => {
       });
     }
 
-    // Update connections based on this message
-    recipients.forEach(async (recipientId) => {
-      await Connection.updateOne(
-        { userA: req.user._id, userB: recipientId },
-        { $set: { lastInteractedAt: Date.now() }, $inc: { interactionCount: 1 } },
-        { upsert: true }
-      );
-    });
+    // Create new connections based on this message
+    for (const recipientId of recipients) {
+      const newConnection = new Connection({
+        userA: req.user._id,
+        userB: recipientId,
+        context: 'message',
+        interactionCount: 1,
+        lastInteractedAt: Date.now(),
+      });
+      await newConnection.save();
+    }
+
+    if (cc && cc.length > 0) {
+      for (const ccId of cc) {
+        const newConnection = new Connection({
+          userA: req.user._id,
+          userB: ccId,
+          context: 'message',
+          interactionCount: 1,
+          lastInteractedAt: Date.now(),
+        });
+        await newConnection.save();
+      }
+    }
 
     res.status(201).json(newMessage);
   } catch (error) {
@@ -221,12 +237,30 @@ const replyToMessage = async (req, res) => {
       $push: { childMessages: newMessage._id },
     });
 
-    // Update connection for reply
-    await Connection.updateOne(
-      { userA: req.user._id, userB: originalMessage.sender },
-      { $set: { lastInteractedAt: Date.now() }, $inc: { interactionCount: 1 } },
-      { upsert: true }
-    );
+    // Create new connections for reply
+    for (const recipientId of recipients) {
+      const newConnection = new Connection({
+        userA: req.user._id,
+        userB: recipientId,
+        context: 'message',
+        interactionCount: 1,
+        lastInteractedAt: Date.now(),
+      });
+      await newConnection.save();
+    }
+
+    if (cc && cc.length > 0) {
+      for (const ccId of cc) {
+        const newConnection = new Connection({
+          userA: req.user._id,
+          userB: ccId,
+          context: 'message',
+          interactionCount: 1,
+          lastInteractedAt: Date.now(),
+        });
+        await newConnection.save();
+      }
+    }
 
     res.status(201).json(newMessage);
   } catch (error) {
