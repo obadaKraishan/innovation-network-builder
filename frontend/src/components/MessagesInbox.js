@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import Sidebar from './Sidebar';
 import api from '../utils/api';
-import { FaStar, FaTrash } from 'react-icons/fa';
+import { FaStar, FaTrash, FaArrowLeft } from 'react-icons/fa'; // Import the back arrow icon
 import { ToastContainer, toast } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
 
@@ -47,10 +47,10 @@ const MessagesInbox = () => {
       <div className="flex-1 p-6 bg-gray-100">
         <ToastContainer />
         <button
-          onClick={() => navigate(-1)}
-          className="bg-gray-500 text-white px-4 py-2 rounded-lg mb-6 hover:bg-gray-600 transition"
+          onClick={() => navigate(-1)} // Navigate to the previous page
+          className="flex items-center bg-gray-500 text-white px-4 py-2 rounded-lg mb-6 hover:bg-gray-600 transition"
         >
-          Back
+          <FaArrowLeft className="mr-2" /> Back
         </button>
         <h1 className="text-3xl font-bold text-gray-800 mb-6">Inbox</h1>
         <div className="bg-white p-6 rounded-lg shadow-lg">
