@@ -1,6 +1,6 @@
 import React, { useContext } from 'react';
 import { Link, useLocation } from 'react-router-dom';
-import { FaUser, FaSignOutAlt, FaTachometerAlt, FaUsers, FaChartLine, FaBuilding, FaCogs, FaUserShield } from 'react-icons/fa'; // Added FaUserShield for Manage Users
+import { FaUser, FaSignOutAlt, FaTachometerAlt, FaUsers, FaChartLine, FaBuilding, FaCogs, FaUserShield, FaEnvelope } from 'react-icons/fa'; // Added FaUserShield for Manage Users
 import AuthContext from '../context/AuthContext';
 
 const Sidebar = () => {
@@ -16,6 +16,7 @@ const Sidebar = () => {
       { name: 'Profile', icon: <FaUser />, path: '/profile' },
       { name: 'My Team', icon: <FaUsers />, path: '/my-team' },
       { name: 'Collaborator Finder', icon: <FaCogs />, path: '/collaborator-finder' },
+      { name: 'Messages', icon: <FaEnvelope />, path: '/messages' },
     ],
     'Team Leader': [
       { name: 'Profile', icon: <FaUser />, path: '/profile' },
@@ -23,12 +24,14 @@ const Sidebar = () => {
       { name: 'Manage Team', icon: <FaUsers />, path: '/manage-team' },
       { name: 'Team Overview', icon: <FaChartLine />, path: '/team-overview' },
       { name: 'Collaborator Finder', icon: <FaCogs />, path: '/collaborator-finder' },
+      { name: 'Messages', icon: <FaEnvelope />, path: '/messages' },
     ],
     'Department Manager': [
       { name: 'Profile', icon: <FaUser />, path: '/profile' },
       { name: 'Manage Team', icon: <FaUsers />, path: '/manage-team' },
       { name: 'Reports', icon: <FaChartLine />, path: '/reports' },
       { name: 'Collaborator Finder', icon: <FaCogs />, path: '/collaborator-finder' },
+      { name: 'Messages', icon: <FaEnvelope />, path: '/messages' },
     ],
     CEO: [
       { name: 'Profile', icon: <FaUser />, path: '/profile' },
@@ -37,12 +40,14 @@ const Sidebar = () => {
       { name: 'Manage Departments', icon: <FaBuilding />, path: '/manage-departments' },
       { name: 'Manage Users', icon: <FaUserShield />, path: '/manage-users' }, // Added Manage Users
       { name: 'Collaborator Finder', icon: <FaCogs />, path: '/collaborator-finder' },
+      { name: 'Messages', icon: <FaEnvelope />, path: '/messages' },
     ],
     CTO: [
       { name: 'Profile', icon: <FaUser />, path: '/profile' },
       { name: 'Technology Overview', icon: <FaTachometerAlt />, path: '/technology-overview' },
       { name: 'Manage IT', icon: <FaCogs />, path: '/manage-it' },
       { name: 'Collaborator Finder', icon: <FaCogs />, path: '/collaborator-finder' },
+      { name: 'Messages', icon: <FaEnvelope />, path: '/messages' },
     ],
     'Director of HR': [
       { name: 'Profile', icon: <FaUser />, path: '/profile' },
@@ -50,22 +55,26 @@ const Sidebar = () => {
       { name: 'Manage Recruitment', icon: <FaUsers />, path: '/manage-recruitment' },
       { name: 'Manage Users', icon: <FaUserShield />, path: '/manage-users' }, // Added Manage Users
       { name: 'Collaborator Finder', icon: <FaCogs />, path: '/collaborator-finder' },
+      { name: 'Messages', icon: <FaEnvelope />, path: '/messages' },
     ],
     'Director of Finance': [
       { name: 'Profile', icon: <FaUser />, path: '/profile' },
       { name: 'Finance Overview', icon: <FaChartLine />, path: '/finance-overview' },
       { name: 'Budget Reports', icon: <FaChartLine />, path: '/budget-reports' },
       { name: 'Collaborator Finder', icon: <FaCogs />, path: '/collaborator-finder' },
+      { name: 'Messages', icon: <FaEnvelope />, path: '/messages' },
     ],
     'Research Scientist': [
       { name: 'Profile', icon: <FaUser />, path: '/profile' },
       { name: 'Research Projects', icon: <FaChartLine />, path: '/research-projects' },
       { name: 'Collaborator Finder', icon: <FaCogs />, path: '/collaborator-finder' },
+      { name: 'Messages', icon: <FaEnvelope />, path: '/messages' },
     ],
     'Customer Support Specialist': [
       { name: 'Profile', icon: <FaUser />, path: '/profile' },
       { name: 'Customer Cases', icon: <FaUsers />, path: '/customer-cases' },
       { name: 'Collaborator Finder', icon: <FaCogs />, path: '/collaborator-finder' },
+      { name: 'Messages', icon: <FaEnvelope />, path: '/messages' },
     ],
   };
 
