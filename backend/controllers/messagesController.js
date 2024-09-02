@@ -20,6 +20,13 @@ const sendMessage = async (req, res) => {
 
     await newMessage.save();
 
+    // If this is a reply, update the original message to include this as a child
+    if (parentMessage) {
+      await Message.findByIdAndUpdate(parentMessage, {
+        $push: { childMessages: newMessage._id },
+      });
+    }
+
     // Update connections based on this message
     recipients.forEach(async (recipientId) => {
       await Connection.updateOne(
@@ -115,24 +122,29 @@ const fetchChildMessages = async (parentMessageId) => {
   return childMessages;
 };
 
-// @desc Get message details
-// @route GET /api/messages/:id
-// @access Private
+// @desc    Get message details
+// @route   GET /api/messages/:id
+// @access  Private
 const getMessageDetails = async (req, res) => {
   try {
     const message = await Message.findById(req.params.id)
       .populate('sender', 'name email')
       .populate('recipients', 'name email')
       .populate('cc', 'name email')
-      .populate('parentMessage', 'subject sender recipients cc body createdAt') // Parent message details
+      .populate({
+        path: 'childMessages',
+        populate: [
+          { path: 'sender', select: 'name email' },
+          { path: 'recipients', select: 'name email' },
+          { path: 'cc', select: 'name email' },
+        ],
+        options: { sort: { createdAt: 1 } },
+      })
       .lean(); // Converts Mongoose document to plain JS object for easy manipulation
 
     if (!message) {
       return res.status(404).json({ message: 'Message not found' });
     }
-
-    // Fetch all child messages recursively
-    message.childMessages = await fetchChildMessages(req.params.id);
 
     res.json(message);
   } catch (error) {
@@ -165,6 +177,11 @@ const replyToMessage = async (req, res) => {
     });
 
     await newMessage.save();
+
+    // Update the original message to include this reply
+    await Message.findByIdAndUpdate(originalMessage._id, {
+      $push: { childMessages: newMessage._id },
+    });
 
     // Update connection for reply
     await Connection.updateOne(

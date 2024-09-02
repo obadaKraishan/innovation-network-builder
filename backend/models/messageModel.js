@@ -41,7 +41,11 @@ const messageSchema = new Schema({
   parentMessage: {
     type: Schema.Types.ObjectId,
     ref: 'Message',
-  }, // Add a reference to the parent message
+  },
+  childMessages: [{
+    type: Schema.Types.ObjectId,
+    ref: 'Message',
+  }],
   createdAt: {
     type: Date,
     default: Date.now,
