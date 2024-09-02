@@ -2,6 +2,8 @@ import React, { useState, useEffect } from 'react';
 import Sidebar from './Sidebar';
 import api from '../utils/api';
 import { FaPaperPlane } from 'react-icons/fa';
+import { ToastContainer, toast } from 'react-toastify';
+import 'react-toastify/dist/ReactToastify.css';
 
 const CreateMessage = () => {
   const [recipients, setRecipients] = useState([]);
@@ -26,10 +28,10 @@ const CreateMessage = () => {
 
     try {
       await api.post('/messages', messageData);
-      // Handle success (e.g., redirect to inbox or show a success message)
+      toast.success('Message sent successfully!');
     } catch (error) {
       console.error('Error sending message:', error);
-      // Handle error (e.g., show error message)
+      toast.error('Failed to send message.');
     }
   };
 
@@ -37,8 +39,10 @@ const CreateMessage = () => {
     <div className="flex h-screen">
       <Sidebar />
       <div className="flex-1 p-6 bg-gray-100">
+        <ToastContainer />
         <h1 className="text-3xl font-bold text-gray-800 mb-6">Create New Message</h1>
         <form onSubmit={handleSubmit} className="bg-white p-6 rounded-lg shadow-lg">
+          {/* Form fields for recipients, CC, subject, body, and attachments */}
           <div className="mb-4">
             <label className="block text-gray-700 text-sm font-bold mb-2">To:</label>
             <select
@@ -52,7 +56,6 @@ const CreateMessage = () => {
               ))}
             </select>
           </div>
-
           <div className="mb-4">
             <label className="block text-gray-700 text-sm font-bold mb-2">CC:</label>
             <select
@@ -66,7 +69,6 @@ const CreateMessage = () => {
               ))}
             </select>
           </div>
-
           <div className="mb-4">
             <label className="block text-gray-700 text-sm font-bold mb-2">Subject:</label>
             <input
@@ -76,7 +78,6 @@ const CreateMessage = () => {
               className="w-full p-3 border border-gray-300 rounded-lg"
             />
           </div>
-
           <div className="mb-4">
             <label className="block text-gray-700 text-sm font-bold mb-2">Message:</label>
             <textarea
@@ -85,7 +86,6 @@ const CreateMessage = () => {
               className="w-full p-3 border border-gray-300 rounded-lg"
             />
           </div>
-
           <div className="mb-4">
             <label className="block text-gray-700 text-sm font-bold mb-2">Attachments:</label>
             <input
@@ -95,7 +95,6 @@ const CreateMessage = () => {
               className="w-full p-3 border border-gray-300 rounded-lg"
             />
           </div>
-
           <button
             type="submit"
             className="bg-blue-500 text-white px-4 py-2 rounded-lg flex items-center hover:bg-blue-600 transition"
