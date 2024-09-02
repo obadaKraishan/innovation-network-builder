@@ -1,8 +1,8 @@
 import React, { useState, useEffect } from 'react';
-import { useNavigate } from 'react-router-dom'; // Import useNavigate
+import { useNavigate } from 'react-router-dom';
 import Sidebar from './Sidebar';
 import api from '../utils/api';
-import { FaPaperPlane, FaArrowLeft } from 'react-icons/fa'; // Import the back arrow icon
+import { FaPaperPlane, FaArrowLeft } from 'react-icons/fa';
 import { ToastContainer, toast } from 'react-toastify';
 import Select from 'react-select';
 import 'react-toastify/dist/ReactToastify.css';
@@ -15,7 +15,7 @@ const CreateMessage = () => {
   const [body, setBody] = useState('');
   const [attachments, setAttachments] = useState([]);
   const [users, setUsers] = useState([]);
-  const navigate = useNavigate(); // Initialize navigate
+  const navigate = useNavigate();
 
   useEffect(() => {
     const fetchUsers = async () => {
@@ -60,7 +60,7 @@ const CreateMessage = () => {
       <div className="flex-1 p-6 bg-gray-100">
         <ToastContainer />
         <button
-          onClick={() => navigate(-1)} // Navigate to the previous page
+          onClick={() => navigate(-1)}
           className="flex items-center bg-gray-500 text-white px-4 py-2 rounded-lg mb-6 hover:bg-gray-600 transition"
         >
           <FaArrowLeft className="mr-2" /> Back

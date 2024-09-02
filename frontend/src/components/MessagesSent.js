@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import Sidebar from './Sidebar';
 import api from '../utils/api';
-import { FaTrash } from 'react-icons/fa';
+import { FaTrash, FaArrowLeft } from 'react-icons/fa';
 import { ToastContainer, toast } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
 
@@ -39,7 +39,7 @@ const MessagesSent = () => {
           onClick={() => navigate(-1)}
           className="bg-gray-500 text-white px-4 py-2 rounded-lg mb-6 hover:bg-gray-600 transition"
         >
-          Back
+          <FaArrowLeft className="mr-2" /> Back
         </button>
         <h1 className="text-3xl font-bold text-gray-800 mb-6">Sent Messages</h1>
         <div className="bg-white p-6 rounded-lg shadow-lg">
@@ -54,6 +54,7 @@ const MessagesSent = () => {
                   </Link>
                   <p className="text-gray-600">{message.body.slice(0, 50)}...</p>
                   <p className="text-sm text-gray-500">To: {message.recipients.map(r => r.name).join(', ')}</p>
+                  <p className="text-sm text-gray-500">CC: {message.cc.map(c => c.name).join(', ')}</p>
                 </div>
                 <button
                   onClick={() => handleDeleteMessage(message._id)}
