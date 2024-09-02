@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, useLocation } from 'react-router-dom';
 import Sidebar from './Sidebar';
 import api from '../utils/api';
 import { FaPaperPlane, FaArrowLeft } from 'react-icons/fa';
@@ -16,6 +16,9 @@ const CreateMessage = () => {
   const [attachments, setAttachments] = useState([]);
   const [users, setUsers] = useState([]);
   const navigate = useNavigate();
+  const location = useLocation();
+
+  const parentMessage = location.state?.parentMessage || null; // Get parentMessage from location state if replying/forwarding
 
   useEffect(() => {
     const fetchUsers = async () => {
@@ -42,12 +45,21 @@ const CreateMessage = () => {
       cc: cc.map(c => c.value), 
       subject, 
       body, 
-      attachments 
+      attachments,
+      parentMessage, // Include parentMessage if available
     };
 
     try {
       await api.post('/messages', messageData);
       toast.success('Message sent successfully!');
+      // Reset form fields
+      setRecipients([]);
+      setCc([]);
+      setSubject('');
+      setBody('');
+      setAttachments([]);
+      // Redirect to the MessagesSent component
+      navigate('/messages/sent');
     } catch (error) {
       console.error('Error sending message:', error);
       toast.error('Failed to send message.');

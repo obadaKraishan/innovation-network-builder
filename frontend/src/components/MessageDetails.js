@@ -64,6 +64,7 @@ const MessageDetails = () => {
       cc: cc.map((c) => c.value),
       subject,
       body: replyBody,
+      parentMessage: message._id, // Link the new message to the current one as its parent
     };
 
     try {
@@ -143,8 +144,30 @@ const MessageDetails = () => {
                 </div>
               )}
             </div>
+
+            {/* Show child messages (replies, forwards) */}
+            {message.childMessages && message.childMessages.length > 0 && (
+              <div className="mt-6">
+                <h3 className="text-xl font-semibold mb-4">Replies</h3>
+                <div className="space-y-4">
+                  {message.childMessages.map((childMessage) => (
+                    <div key={childMessage._id} className="bg-gray-50 p-4 rounded-lg shadow">
+                      <p className="text-sm text-gray-500">
+                        From: {childMessage.sender.name} | {new Date(childMessage.createdAt).toLocaleString()}
+                      </p>
+                      <p className="text-sm text-gray-500">To: {childMessage.recipients.map(r => r.name).join(', ')}</p>
+                      {childMessage.cc.length > 0 && (
+                        <p className="text-sm text-gray-500">CC: {childMessage.cc.map(c => c.name).join(', ')}</p>
+                      )}
+                      <div className="mt-2 text-gray-700" dangerouslySetInnerHTML={{ __html: childMessage.body }} />
+                    </div>
+                  ))}
+                </div>
+              </div>
+            )}
+
             {!replyMode && (
-              <div className="flex space-x-4">
+              <div className="flex space-x-4 mt-6">
                 <button
                   onClick={() => handleReply('reply')}
                   className="bg-blue-500 text-white px-4 py-2 rounded-lg flex items-center hover:bg-blue-600 transition"
