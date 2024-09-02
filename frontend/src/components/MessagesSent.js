@@ -37,7 +37,7 @@ const MessagesSent = () => {
         <ToastContainer />
         <button
           onClick={() => navigate(-1)}
-          className="bg-gray-500 text-white px-4 py-2 rounded-lg mb-6 hover:bg-gray-600 transition"
+          className="flex items-center bg-gray-500 text-white px-4 py-2 rounded-lg mb-6 hover:bg-gray-600 transition-all duration-300 ease-in-out shadow-md"
         >
           <FaArrowLeft className="mr-2" /> Back
         </button>
@@ -52,9 +52,16 @@ const MessagesSent = () => {
                   <Link to={`/messages/${message._id}`} className="text-xl font-semibold text-gray-700 hover:underline">
                     {message.subject}
                   </Link>
-                  <p className="text-gray-600">{message.body.slice(0, 50)}...</p>
-                  <p className="text-sm text-gray-500">To: {message.recipients.map(r => r.name).join(', ')}</p>
-                  <p className="text-sm text-gray-500">CC: {message.cc.map(c => c.name).join(', ')}</p>
+                  <div
+                    className="text-gray-600"
+                    dangerouslySetInnerHTML={{ __html: message.body.slice(0, 50) + '...' }}
+                  />
+                  <p className="text-sm text-gray-500">
+                    To: {message.recipients.map(r => r?.name ?? 'Unknown').join(', ')}
+                  </p>
+                  <p className="text-sm text-gray-500">
+                    CC: {message.cc && message.cc.length > 0 ? message.cc.map(c => c?.name ?? 'Unknown').join(', ') : 'None'}
+                  </p>
                 </div>
                 <button
                   onClick={() => handleDeleteMessage(message._id)}

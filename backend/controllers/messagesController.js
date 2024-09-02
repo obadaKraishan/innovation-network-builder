@@ -53,7 +53,10 @@ const getInboxMessages = async (req, res) => {
 // @access  Private
 const getSentMessages = async (req, res) => {
   try {
-    const messages = await Message.find({ sender: req.user._id }).sort({ createdAt: -1 });
+    const messages = await Message.find({ sender: req.user._id })
+      .populate('recipients', 'name email')
+      .populate('cc', 'name email')
+      .sort({ createdAt: -1 });
     res.json(messages);
   } catch (error) {
     console.error('Error fetching sent messages:', error.message);
