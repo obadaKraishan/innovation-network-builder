@@ -9,20 +9,12 @@ const createConnection = async (userA, userB, context) => {
   try {
     console.log(`Creating connection between ${userA} and ${userB} with context: ${context}`);
 
-    let connectionType;
-    if (context === 'team') {
-      connectionType = 'Strong Tie';
-    } else {
-      connectionType = 'Weak Tie'; // Default to 'Weak Tie' for other interactions
-    }
-
     const connection = new Connection({
       userA,
       userB,
       context,
-      connectionType,
+      connectionType: context === 'team' ? 'Strong Tie' : 'Weak Tie',
       interactionCount: 1,
-      connectionStrength: 'Weak', 
       lastInteractedAt: Date.now(),
     });
 
@@ -41,7 +33,7 @@ const updateTeamConnections = async (team) => {
 
   // Create connections between the team leader and each member
   for (let member of members) {
-    await createConnection(teamLeader, member, 'work together');
+    await createConnection(teamLeader, member, 'team');
   }
 
   // Create connections among the team members themselves
@@ -49,7 +41,7 @@ const updateTeamConnections = async (team) => {
     for (let j = i + 1; j < members.length; j++) {
       const userA = members[i];
       const userB = members[j];
-      await createConnection(userA, userB, 'work together');
+      await createConnection(userA, userB, 'team');
     }
   }
   console.log(`Team connections updated for ${team.name}`);
@@ -57,30 +49,33 @@ const updateTeamConnections = async (team) => {
 
 // Utility function to create connections between discussion participants
 const updateDiscussionConnections = async (team, commenterId, parentCommentId) => {
-  const participants = new Set();
-  participants.add(commenterId.toString());
+  try {
+    const participants = new Set();
+    participants.add(commenterId.toString());
 
-  console.log(`Updating discussion connections for commenter ${commenterId}`);
+    console.log(`Updating discussion connections for commenter ${commenterId}`);
 
-  // Collect all participants in the discussion
-  team.discussions.forEach(discussion => {
-    if (parentCommentId && discussion._id.toString() === parentCommentId.toString()) {
-      participants.add(discussion.user.toString());
-    } else if (!parentCommentId) {
-      participants.add(discussion.user.toString());
+    // Collect all participants in the discussion
+    team.discussions.forEach(discussion => {
+      if (discussion._id.toString() === parentCommentId?.toString()) {
+        participants.add(discussion.user.toString()); // Add the parent comment author
+      }
+      participants.add(discussion.user.toString()); // Add all users who commented
+    });
+
+    const participantsArray = Array.from(participants);
+
+    for (let i = 0; i < participantsArray.length; i++) {
+      for (let j = i + 1; j < participantsArray.length; j++) {
+        const userA = participantsArray[i];
+        const userB = participantsArray[j];
+        await createConnection(userA, userB, 'discussion');
+      }
     }
-  });
-
-  const participantsArray = Array.from(participants);
-
-  for (let i = 0; i < participantsArray.length; i++) {
-    for (let j = i + 1; j < participantsArray.length; j++) {
-      const userA = participantsArray[i];
-      const userB = participantsArray[j];
-      await createConnection(userA, userB, 'discussion');
-    }
+    console.log(`Discussion connections updated for team ${team.name}`);
+  } catch (error) {
+    console.error('Error updating discussion connections:', error.message);
   }
-  console.log(`Discussion connections updated for team ${team.name}`);
 };
 
 // Create a new team
