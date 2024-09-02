@@ -108,11 +108,22 @@ const getMessageDetails = async (req, res) => {
       .populate('sender', 'name email')
       .populate('recipients', 'name email')
       .populate('cc', 'name email')
-      .populate('parentMessage', 'subject sender recipients cc body createdAt'); // Populate parent message details
+      .populate('parentMessage', 'subject sender recipients cc body createdAt') // Parent message details
+      .lean(); // Converts Mongoose document to plain JS object for easy manipulation
 
     if (!message) {
       return res.status(404).json({ message: 'Message not found' });
     }
+
+    // Find any child messages (replies or forwards) of this message
+    const childMessages = await Message.find({ parentMessage: req.params.id })
+      .populate('sender', 'name email')
+      .populate('recipients', 'name email')
+      .populate('cc', 'name email')
+      .sort({ createdAt: 1 }); // Sort by creation date (oldest first)
+
+    // Add the child messages to the parent message
+    message.childMessages = childMessages;
 
     res.json(message);
   } catch (error) {

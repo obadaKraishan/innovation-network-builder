@@ -2,8 +2,9 @@ import React, { useState, useEffect } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
 import Sidebar from './Sidebar';
 import api from '../utils/api';
-import { FaReply, FaReplyAll, FaForward, FaArrowLeft, FaStar } from 'react-icons/fa';
+import { FaReply, FaReplyAll, FaForward, FaArrowLeft, FaStar, FaTimes } from 'react-icons/fa';
 import SunEditorComponent from './SunEditorComponent';
+import Select from 'react-select';
 import { ToastContainer, toast } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
 
@@ -13,7 +14,9 @@ const MessageDetails = () => {
   const [replyMode, setReplyMode] = useState(null); // null, 'reply', 'replyAll', 'forward'
   const [replyBody, setReplyBody] = useState('');
   const [subject, setSubject] = useState('');
+  const [recipients, setRecipients] = useState([]);
   const [cc, setCc] = useState([]);
+  const [users, setUsers] = useState([]);
   const navigate = useNavigate();
 
   useEffect(() => {
@@ -22,7 +25,22 @@ const MessageDetails = () => {
       setMessage(data);
     };
 
+    const fetchUsers = async () => {
+      try {
+        const { data } = await api.get('/users/message-recipients');
+        const formattedUsers = data.map(user => ({
+          value: user._id,
+          label: `${user.name} (${user.email})`,
+        }));
+        setUsers(formattedUsers);
+      } catch (error) {
+        console.error('Error fetching users:', error);
+        toast.error('Failed to fetch users.');
+      }
+    };
+
     fetchMessage();
+    fetchUsers();
   }, [id]);
 
   const handleReply = (mode) => {
@@ -30,7 +48,7 @@ const MessageDetails = () => {
     setReplyBody(`<p></p><blockquote>${message.body}</blockquote>`); // Include original message
     setSubject(`Re: ${message.subject}`);
     if (mode === 'replyAll') {
-      setCc(message.cc);
+      setCc(message.cc.map(c => ({ value: c._id, label: c.name })));
     }
   };
 
@@ -42,8 +60,8 @@ const MessageDetails = () => {
 
   const handleSend = async () => {
     const messageData = {
-      recipients: message.recipients.map((recipient) => recipient._id),
-      cc: cc.map((c) => c._id),
+      recipients: recipients.map((recipient) => recipient.value),
+      cc: cc.map((c) => c.value),
       subject,
       body: replyBody,
     };
@@ -67,6 +85,14 @@ const MessageDetails = () => {
       console.error('Error toggling importance:', error);
       toast.error('Failed to update message importance.');
     }
+  };
+
+  const handleDiscard = () => {
+    setReplyMode(null);
+    setReplyBody('');
+    setSubject('');
+    setRecipients([]);
+    setCc([]);
   };
 
   return (
@@ -147,6 +173,30 @@ const MessageDetails = () => {
                   {replyMode === 'forward' && 'Forwarding Message'}
                 </h2>
                 <div className="bg-white p-4 rounded-lg shadow-lg">
+                  {replyMode === 'forward' && (
+                    <>
+                      <div className="mb-4">
+                        <label className="block text-gray-700 text-sm font-bold mb-2">To:</label>
+                        <Select
+                          isMulti
+                          value={recipients}
+                          onChange={setRecipients}
+                          options={users}
+                          className="w-full"
+                        />
+                      </div>
+                      <div className="mb-4">
+                        <label className="block text-gray-700 text-sm font-bold mb-2">CC:</label>
+                        <Select
+                          isMulti
+                          value={cc}
+                          onChange={setCc}
+                          options={users}
+                          className="w-full"
+                        />
+                      </div>
+                    </>
+                  )}
                   <div className="mb-4">
                     <label className="block text-gray-700 text-sm font-bold mb-2">Subject:</label>
                     <input
@@ -163,12 +213,20 @@ const MessageDetails = () => {
                       onChange={setReplyBody}
                     />
                   </div>
-                  <button
-                    onClick={handleSend}
-                    className="bg-blue-500 text-white px-4 py-2 rounded-lg flex items-center hover:bg-blue-600 transition"
-                  >
-                    Send
-                  </button>
+                  <div className="flex space-x-4">
+                    <button
+                      onClick={handleSend}
+                      className="bg-blue-500 text-white px-4 py-2 rounded-lg flex items-center hover:bg-blue-600 transition"
+                    >
+                      Send
+                    </button>
+                    <button
+                      onClick={handleDiscard}
+                      className="bg-gray-500 text-white px-4 py-2 rounded-lg flex items-center hover:bg-gray-600 transition"
+                    >
+                      <FaTimes className="mr-2" /> Discard
+                    </button>
+                  </div>
                 </div>
               </div>
             )}
