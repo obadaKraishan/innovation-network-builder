@@ -8,7 +8,8 @@ const authRoutes = require('./routes/authRoutes');
 const userRoutes = require('./routes/userRoutes');
 const departmentRoutes = require('./routes/departmentRoutes');
 const networkRoutes = require('./routes/networkRoutes');
-const teamRoutes = require('./routes/teamRoutes'); // Import the new team routes
+const teamRoutes = require('./routes/teamRoutes');
+const messageRoutes = require('./routes/messagesRoutes'); // Import the new message routes
 
 const app = express();
 
@@ -28,9 +29,10 @@ app.use('/api/users', userRoutes);
 app.use('/api/departments', departmentRoutes);
 app.use('/api/network', networkRoutes);
 app.use('/api/teams', (req, res, next) => {
-  console.log('Teams route hit'); // Add this log for debugging
+  console.log('Teams route hit');
   next();
-}, teamRoutes); // Add the new team routes here
+}, teamRoutes);
+app.use('/api/messages', messageRoutes); // Add the new message routes here
 
 // Error Handling Middleware
 app.use((err, req, res, next) => {
