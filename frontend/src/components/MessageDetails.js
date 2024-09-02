@@ -1,3 +1,5 @@
+// File: frontend/src/components/MessageDetails.js
+
 import React, { useState, useEffect } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
 import Sidebar from './Sidebar';
@@ -7,6 +9,7 @@ import SunEditorComponent from './SunEditorComponent';
 import Select from 'react-select';
 import { ToastContainer, toast } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
+
 
 const MessageDetails = () => {
   const { id } = useParams();
@@ -75,6 +78,9 @@ const MessageDetails = () => {
       await api.post('/messages', messageData);
       toast.success('Message sent successfully!');
       setReplyMode(null); // Reset mode after sending
+      // Refetch the message data to include the new reply
+      const { data } = await api.get(`/messages/${id}`);
+      setMessage(data);
     } catch (error) {
       console.error('Error sending message:', error);
       toast.error('Failed to send message.');
@@ -99,6 +105,37 @@ const MessageDetails = () => {
     setRecipients([]);
     setCc([]);
     setReplyingTo(null);
+  };
+
+  const renderChildMessages = (childMessages) => {
+    return childMessages.map((childMessage) => (
+      <div key={childMessage._id} className="bg-gray-50 p-4 rounded-lg shadow mt-4 ml-8">
+        <p className="text-sm text-gray-500">
+          From: {childMessage.sender.name} | {new Date(childMessage.createdAt).toLocaleString()}
+        </p>
+        <p className="text-sm text-gray-500">To: {childMessage.recipients.map(r => r.name).join(', ')}</p>
+        {childMessage.cc.length > 0 && (
+          <p className="text-sm text-gray-500">CC: {childMessage.cc.map(c => c.name).join(', ')}</p>
+        )}
+        <div className="mt-2 text-gray-700" dangerouslySetInnerHTML={{ __html: childMessage.body }} />
+        <div className="flex space-x-2 mt-4">
+          <button
+            onClick={() => handleReply('reply', childMessage)}
+            className="bg-blue-500 text-white px-4 py-2 rounded-lg flex items-center hover:bg-blue-600 transition"
+          >
+            <FaReply className="mr-2" /> Reply
+          </button>
+          <button
+            onClick={() => handleReply('replyAll', childMessage)}
+            className="bg-green-500 text-white px-4 py-2 rounded-lg flex items-center hover:bg-green-600 transition"
+          >
+            <FaReplyAll className="mr-2" /> Reply All
+          </button>
+        </div>
+        {/* Recursively render child replies */}
+        {childMessage.childMessages && renderChildMessages(childMessage.childMessages)}
+      </div>
+    ));
   };
 
   return (
@@ -155,32 +192,7 @@ const MessageDetails = () => {
               <div className="mt-6">
                 <h3 className="text-xl font-semibold mb-4">Replies</h3>
                 <div className="space-y-4">
-                  {message.childMessages.map((childMessage) => (
-                    <div key={childMessage._id} className="bg-gray-50 p-4 rounded-lg shadow">
-                      <p className="text-sm text-gray-500">
-                        From: {childMessage.sender.name} | {new Date(childMessage.createdAt).toLocaleString()}
-                      </p>
-                      <p className="text-sm text-gray-500">To: {childMessage.recipients.map(r => r.name).join(', ')}</p>
-                      {childMessage.cc.length > 0 && (
-                        <p className="text-sm text-gray-500">CC: {childMessage.cc.map(c => c.name).join(', ')}</p>
-                      )}
-                      <div className="mt-2 text-gray-700" dangerouslySetInnerHTML={{ __html: childMessage.body }} />
-                      <div className="flex space-x-2 mt-4">
-                        <button
-                          onClick={() => handleReply('reply', childMessage)}
-                          className="bg-blue-500 text-white px-4 py-2 rounded-lg flex items-center hover:bg-blue-600 transition"
-                        >
-                          <FaReply className="mr-2" /> Reply
-                        </button>
-                        <button
-                          onClick={() => handleReply('replyAll', childMessage)}
-                          className="bg-green-500 text-white px-4 py-2 rounded-lg flex items-center hover:bg-green-600 transition"
-                        >
-                          <FaReplyAll className="mr-2" /> Reply All
-                        </button>
-                      </div>
-                    </div>
-                  ))}
+                  {renderChildMessages(message.childMessages)}
                 </div>
               </div>
             )}

@@ -99,9 +99,25 @@ const markMessageAsImportant = async (req, res) => {
   }
 };
 
-// @desc    Get message details
-// @route   GET /api/messages/:id
-// @access  Private
+// Helper function to recursively fetch child messages
+const fetchChildMessages = async (parentMessageId) => {
+  const childMessages = await Message.find({ parentMessage: parentMessageId })
+    .populate('sender', 'name email')
+    .populate('recipients', 'name email')
+    .populate('cc', 'name email')
+    .sort({ createdAt: 1 });
+
+  // Recursively fetch replies to the child messages
+  for (let childMessage of childMessages) {
+    childMessage.childMessages = await fetchChildMessages(childMessage._id);
+  }
+
+  return childMessages;
+};
+
+// @desc Get message details
+// @route GET /api/messages/:id
+// @access Private
 const getMessageDetails = async (req, res) => {
   try {
     const message = await Message.findById(req.params.id)
@@ -115,15 +131,8 @@ const getMessageDetails = async (req, res) => {
       return res.status(404).json({ message: 'Message not found' });
     }
 
-    // Find any child messages (replies or forwards) of this message
-    const childMessages = await Message.find({ parentMessage: req.params.id })
-      .populate('sender', 'name email')
-      .populate('recipients', 'name email')
-      .populate('cc', 'name email')
-      .sort({ createdAt: 1 }); // Sort by creation date (oldest first)
-
-    // Add the child messages to the parent message
-    message.childMessages = childMessages;
+    // Fetch all child messages recursively
+    message.childMessages = await fetchChildMessages(req.params.id);
 
     res.json(message);
   } catch (error) {
