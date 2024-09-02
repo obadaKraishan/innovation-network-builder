@@ -108,35 +108,40 @@ const MessageDetails = () => {
   };
 
   const renderChildMessages = (childMessages) => {
-    return childMessages.map((childMessage) => (
-      <div key={childMessage._id} className="bg-gray-50 p-4 rounded-lg shadow mt-4 ml-8">
-        <p className="text-sm text-gray-500">
-          From: {childMessage.sender.name} | {new Date(childMessage.createdAt).toLocaleString()}
-        </p>
-        <p className="text-sm text-gray-500">To: {childMessage.recipients.map(r => r.name).join(', ')}</p>
-        {childMessage.cc.length > 0 && (
-          <p className="text-sm text-gray-500">CC: {childMessage.cc.map(c => c.name).join(', ')}</p>
-        )}
-        <div className="mt-2 text-gray-700" dangerouslySetInnerHTML={{ __html: childMessage.body }} />
-        <div className="flex space-x-2 mt-4">
-          <button
-            onClick={() => handleReply('reply', childMessage)}
-            className="bg-blue-500 text-white px-4 py-2 rounded-lg flex items-center hover:bg-blue-600 transition"
-          >
-            <FaReply className="mr-2" /> Reply
-          </button>
-          <button
-            onClick={() => handleReply('replyAll', childMessage)}
-            className="bg-green-500 text-white px-4 py-2 rounded-lg flex items-center hover:bg-green-600 transition"
-          >
-            <FaReplyAll className="mr-2" /> Reply All
-          </button>
+    return childMessages.map((childMessage) => {
+      console.log("Child Message: ", childMessage);
+      return (
+        <div key={childMessage._id || 'unknown'} className="bg-gray-50 p-4 rounded-lg shadow mt-4 ml-8">
+          <p className="text-sm text-gray-500">
+            From: {childMessage.sender?.name || 'Unknown Sender'} | {new Date(childMessage.createdAt).toLocaleString()}
+          </p>
+          <p className="text-sm text-gray-500">
+            To: {childMessage.recipients?.map(r => r.name).join(', ') || 'Unknown Recipients'}
+          </p>
+          {childMessage.cc?.length > 0 && (
+            <p className="text-sm text-gray-500">CC: {childMessage.cc?.map(c => c.name).join(', ')}</p>
+          )}
+          <div className="mt-2 text-gray-700" dangerouslySetInnerHTML={{ __html: childMessage.body }} />
+          <div className="flex space-x-2 mt-4">
+            <button
+              onClick={() => handleReply('reply', childMessage)}
+              className="bg-blue-500 text-white px-4 py-2 rounded-lg flex items-center hover:bg-blue-600 transition"
+            >
+              <FaReply className="mr-2" /> Reply
+            </button>
+            <button
+              onClick={() => handleReply('replyAll', childMessage)}
+              className="bg-green-500 text-white px-4 py-2 rounded-lg flex items-center hover:bg-green-600 transition"
+            >
+              <FaReplyAll className="mr-2" /> Reply All
+            </button>
+          </div>
+          {/* Recursively render child replies */}
+          {childMessage.childMessages && renderChildMessages(childMessage.childMessages)}
         </div>
-        {/* Recursively render child replies */}
-        {childMessage.childMessages && renderChildMessages(childMessage.childMessages)}
-      </div>
-    ));
-  };
+      );
+    });
+  };  
 
   return (
     <div className="flex h-screen">
