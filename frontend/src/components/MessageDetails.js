@@ -108,8 +108,21 @@ const MessageDetails = () => {
   };
 
   const renderChildMessages = (childMessages) => {
+    console.log("Rendering child messages: ", childMessages);
+    
+    if (!childMessages || !Array.isArray(childMessages)) {
+      console.error("Child messages are not in the expected format or are undefined:", childMessages);
+      return null;
+    }
+  
     return childMessages.map((childMessage) => {
-      console.log("Child Message: ", childMessage);
+      console.log("Rendering child message: ", childMessage);
+  
+      if (!childMessage || !childMessage._id) {
+        console.error("Child message is undefined or missing an _id:", childMessage);
+        return null;
+      }
+  
       return (
         <div key={childMessage._id || 'unknown'} className="bg-gray-50 p-4 rounded-lg shadow mt-4 ml-8">
           <p className="text-sm text-gray-500">
@@ -141,7 +154,7 @@ const MessageDetails = () => {
         </div>
       );
     });
-  };  
+  };   
 
   return (
     <div className="flex h-screen">

@@ -108,11 +108,14 @@ const markMessageAsImportant = async (req, res) => {
 
 // Helper function to recursively fetch child messages
 const fetchChildMessages = async (parentMessageId) => {
+  console.log(`Fetching child messages for parentMessageId: ${parentMessageId}`);
   const childMessages = await Message.find({ parentMessage: parentMessageId })
     .populate('sender', 'name email')
     .populate('recipients', 'name email')
     .populate('cc', 'name email')
     .sort({ createdAt: 1 });
+
+  console.log(`Found ${childMessages.length} child messages for parentMessageId: ${parentMessageId}`);
 
   // Recursively fetch replies to the child messages
   for (let childMessage of childMessages) {
@@ -127,6 +130,7 @@ const fetchChildMessages = async (parentMessageId) => {
 // @access  Private
 const getMessageDetails = async (req, res) => {
   try {
+    console.log(`Fetching message details for messageId: ${req.params.id}`);
     const message = await Message.findById(req.params.id)
       .populate('sender', 'name email')
       .populate('recipients', 'name email')
@@ -145,6 +149,8 @@ const getMessageDetails = async (req, res) => {
     if (!message) {
       return res.status(404).json({ message: 'Message not found' });
     }
+
+    console.log(`Message details fetched successfully for messageId: ${req.params.id}`);
 
     res.json(message);
   } catch (error) {
