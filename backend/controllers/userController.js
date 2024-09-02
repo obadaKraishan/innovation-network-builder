@@ -21,6 +21,19 @@ const getUsers = async (req, res) => {
   }
 };
 
+// @desc    Get all users for message creation
+// @route   GET /api/users/message-recipients
+// @access  Private
+const getUsersForMessageRecipients = async (req, res) => {
+  try {
+    const users = await User.find().select('name email _id');
+    res.json(users);
+  } catch (error) {
+    console.error('Error fetching users for message recipients:', error.message);
+    res.status(500).json({ message: 'Server Error' });
+  }
+};
+
 // @desc    Get user by ID
 // @route   GET /api/users/:id
 // @access  Private
@@ -375,6 +388,7 @@ module.exports = {
   getMyTeam,
   getUsersByDepartment,
   getUsersByDepartmentForTeams,
+  getUsersForMessageRecipients,
   manageUsers,
   addUser
 };

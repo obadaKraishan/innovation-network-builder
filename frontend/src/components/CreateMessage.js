@@ -15,8 +15,13 @@ const CreateMessage = () => {
 
   useEffect(() => {
     const fetchUsers = async () => {
-      const { data } = await api.get('/users');
-      setUsers(data);
+      try {
+        const { data } = await api.get('/users/message-recipients');
+        setUsers(data);
+      } catch (error) {
+        console.error('Error fetching users:', error);
+        toast.error('Failed to fetch users. Please check your permissions.');
+      }
     };
 
     fetchUsers();
@@ -42,7 +47,6 @@ const CreateMessage = () => {
         <ToastContainer />
         <h1 className="text-3xl font-bold text-gray-800 mb-6">Create New Message</h1>
         <form onSubmit={handleSubmit} className="bg-white p-6 rounded-lg shadow-lg">
-          {/* Form fields for recipients, CC, subject, body, and attachments */}
           <div className="mb-4">
             <label className="block text-gray-700 text-sm font-bold mb-2">To:</label>
             <select

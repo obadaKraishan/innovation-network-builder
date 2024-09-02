@@ -25,14 +25,11 @@ console.log('JWT_SECRET:', process.env.JWT_SECRET);
 
 // Define Routes
 app.use('/api/auth', authRoutes);
-app.use('/api/users', userRoutes);
+app.use('/api/users', userRoutes); // This now includes the new route
 app.use('/api/departments', departmentRoutes);
 app.use('/api/network', networkRoutes);
-app.use('/api/teams', (req, res, next) => {
-  console.log('Teams route hit');
-  next();
-}, teamRoutes);
-app.use('/api/messages', messageRoutes); // Add the new message routes here
+app.use('/api/teams', teamRoutes);
+app.use('/api/messages', messageRoutes);
 
 // Error Handling Middleware
 app.use((err, req, res, next) => {

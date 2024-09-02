@@ -23,7 +23,7 @@ router.get('/inbox', protect, getInboxMessages);
 // Route to get sent messages
 router.get('/sent', protect, getSentMessages);
 
-// Add this route before the existing routes
+// Route to get important messages
 router.get('/important', protect, getImportantMessages);
 
 // Route to mark a message as important
