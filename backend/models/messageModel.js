@@ -38,6 +38,10 @@ const messageSchema = new Schema({
     type: Boolean,
     default: false,
   },
+  parentMessage: {
+    type: Schema.Types.ObjectId,
+    ref: 'Message',
+  }, // Add a reference to the parent message
   createdAt: {
     type: Date,
     default: Date.now,

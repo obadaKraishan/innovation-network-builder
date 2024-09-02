@@ -5,7 +5,7 @@ const Connection = require('../models/connectionModel');
 // @route   POST /api/messages
 // @access  Private
 const sendMessage = async (req, res) => {
-  const { recipients, cc, subject, body, attachments } = req.body;
+  const { recipients, cc, subject, body, attachments, parentMessage } = req.body;
 
   try {
     const newMessage = new Message({
@@ -15,6 +15,7 @@ const sendMessage = async (req, res) => {
       subject,
       body,
       attachments,
+      parentMessage, // Store reference to the parent message
     });
 
     await newMessage.save();
@@ -106,7 +107,8 @@ const getMessageDetails = async (req, res) => {
     const message = await Message.findById(req.params.id)
       .populate('sender', 'name email')
       .populate('recipients', 'name email')
-      .populate('cc', 'name email');
+      .populate('cc', 'name email')
+      .populate('parentMessage', 'subject sender recipients cc body createdAt'); // Populate parent message details
 
     if (!message) {
       return res.status(404).json({ message: 'Message not found' });
@@ -123,7 +125,7 @@ const getMessageDetails = async (req, res) => {
 // @route   POST /api/messages/:id/reply
 // @access  Private
 const replyToMessage = async (req, res) => {
-  const { body } = req.body;
+  const { body, recipients, cc, subject, attachments } = req.body;
 
   try {
     const originalMessage = await Message.findById(req.params.id);
@@ -134,10 +136,12 @@ const replyToMessage = async (req, res) => {
 
     const newMessage = new Message({
       sender: req.user._id,
-      recipients: originalMessage.sender,
-      subject: `Re: ${originalMessage.subject}`,
+      recipients,
+      cc,
+      subject,
       body,
-      attachments: [],
+      attachments,
+      parentMessage: originalMessage._id, // Set the parentMessage reference
     });
 
     await newMessage.save();
