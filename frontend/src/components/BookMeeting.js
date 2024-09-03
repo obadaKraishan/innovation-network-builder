@@ -2,13 +2,14 @@ import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import Sidebar from './Sidebar';
 import api from '../utils/api';
-import { FaArrowRight, FaArrowLeft } from 'react-icons/fa';
+import { FaArrowRight, FaArrowLeft, FaCopy, FaShareAlt } from 'react-icons/fa';
 import { ToastContainer, toast } from 'react-toastify';
 import Select from 'react-select';
 import 'react-toastify/dist/ReactToastify.css';
 import DatePicker from 'react-datepicker';
 import 'react-datepicker/dist/react-datepicker.css';
 import moment from 'moment'; 
+import { saveAs } from 'file-saver';
 
 const BookMeeting = () => {
   const [step, setStep] = useState(1);
@@ -23,6 +24,7 @@ const BookMeeting = () => {
   const [duration, setDuration] = useState('30 minutes');
   const [phoneNumber, setPhoneNumber] = useState('');
   const [agenda, setAgenda] = useState('');
+  const [bookingDetails, setBookingDetails] = useState(null);
   const navigate = useNavigate();
 
   useEffect(() => {
@@ -65,18 +67,15 @@ const BookMeeting = () => {
 
   const handleBooking = async () => {
     try {
-      // Retrieve the user information from localStorage
       const user = JSON.parse(localStorage.getItem('userInfo'));
       const userId = user?._id;
   
       if (!userId) {
         throw new Error("User ID is missing.");
       }
-  
-      console.log('User ID:', userId); // Debugging statement
-  
+
       const bookingData = {
-        userId, // Use the retrieved userId
+        userId,
         selectedUser: selectedUser.value,
         date: selectedDate,
         time: selectedTime,
@@ -86,13 +85,55 @@ const BookMeeting = () => {
         agenda,
       };
   
-      await api.post('/booking', bookingData); // Send the booking data
+      const response = await api.post('/booking', bookingData);
       toast.success('Meeting booked successfully!');
-      navigate('/dashboard');
+      setBookingDetails(response.data);  // Set booking details to display confirmation
+      setStep(5);  // Move to the confirmation step
     } catch (error) {
       toast.error(error.message || 'Failed to book meeting.');
     }
   };  
+
+  const copyToClipboard = () => {
+    const text = `Meeting with ${selectedUser.label} on ${selectedDate.toLocaleDateString()} at ${selectedTime}. Duration: ${duration}. Type: ${meetingType}. Agenda: ${agenda}`;
+    navigator.clipboard.writeText(text);
+    toast.success('Meeting details copied to clipboard!');
+  };
+
+  const shareMeeting = () => {
+    const shareText = `Meeting with ${selectedUser.label} on ${selectedDate.toLocaleDateString()} at ${selectedTime}. Duration: ${duration}. Type: ${meetingType}. Agenda: ${agenda}`;
+    if (navigator.share) {
+      navigator.share({
+        title: 'Meeting Details',
+        text: shareText,
+      }).then(() => {
+        toast.success('Meeting details shared successfully!');
+      }).catch((error) => {
+        toast.error('Error sharing meeting details.');
+      });
+    } else {
+      copyToClipboard(); // Fallback to copy if the Web Share API is not available
+    }
+  };
+
+  const exportToCalendar = () => {
+    const icsData = `
+BEGIN:VCALENDAR
+VERSION:2.0
+BEGIN:VEVENT
+SUMMARY:${agenda}
+DTSTART:${moment(selectedDate).format('YYYYMMDD')}T${moment(selectedTime, 'h:mm A').format('HHmm00')}Z
+DTEND:${moment(selectedDate).format('YYYYMMDD')}T${moment(selectedTime, 'h:mm A').add(duration === '30 minutes' ? 30 : 60, 'minutes').format('HHmm00')}Z
+DESCRIPTION:Meeting with ${selectedUser.label}
+LOCATION:${meetingType === 'Zoom' ? 'Zoom' : 'Phone: ' + phoneNumber}
+END:VEVENT
+END:VCALENDAR
+    `.trim();
+
+    const blob = new Blob([icsData], { type: 'text/calendar' });
+    saveAs(blob, 'meeting.ics');
+    toast.success('Meeting exported to calendar!');
+  };
 
   const generateAvailableTimes = (startTime, endTime, duration) => {
     const times = [];
@@ -109,7 +150,7 @@ const BookMeeting = () => {
       const bookingTime = moment(time, 'h:mm A');
       return !existingBookings.some(booking => {
         const bookingStart = moment(booking.time, 'h:mm A');
-        const bookingEnd = bookingStart.clone().add(booking.duration, 'minutes');
+        const bookingEnd = bookingStart.clone().add(booking.duration === '30 minutes' ? 30 : 60, 'minutes');
         const endTime = bookingTime.clone().add(duration, 'minutes');
         return bookingTime.isBetween(bookingStart, bookingEnd, null, '[)') ||
                endTime.isBetween(bookingStart, bookingEnd, null, '(]');
@@ -320,6 +361,46 @@ const BookMeeting = () => {
                 className="bg-green-500 text-white px-4 py-2 rounded-lg flex items-center hover:bg-green-600 transition"
               >
                 Confirm Booking
+              </button>
+            </div>
+          </div>
+        )}
+
+        {step === 5 && bookingDetails && (
+          <div className="bg-white p-6 rounded-lg shadow-lg">
+            <h2 className="text-2xl font-semibold mb-6">Meeting Confirmation</h2>
+            <p><strong>With:</strong> {bookingDetails.user.name}</p>
+            <p><strong>Date:</strong> {moment(bookingDetails.date).format('MMMM Do YYYY')}</p>
+            <p><strong>Time:</strong> {bookingDetails.time}</p>
+            <p><strong>Duration:</strong> {bookingDetails.duration}</p>
+            <p><strong>Type:</strong> {bookingDetails.type}</p>
+            <p><strong>Agenda:</strong> {bookingDetails.agenda}</p>
+            <p><strong>Phone Number:</strong> {bookingDetails.phoneNumber || 'N/A'}</p>
+            
+            <div className="mt-4">
+              <button onClick={copyToClipboard} className="bg-blue-500 text-white px-4 py-2 rounded-lg flex items-center hover:bg-blue-600 transition mr-2">
+                <FaCopy className="mr-2" /> Copy Details
+              </button>
+              <button onClick={shareMeeting} className="bg-green-500 text-white px-4 py-2 rounded-lg flex items-center hover:bg-green-600 transition mr-2">
+                <FaShareAlt className="mr-2" /> Share
+              </button>
+              <button onClick={exportToCalendar} className="bg-purple-500 text-white px-4 py-2 rounded-lg flex items-center hover:bg-purple-600 transition">
+                Export to Calendar
+              </button>
+            </div>
+
+            <div className="flex justify-between mt-4">
+              <button
+                onClick={() => setStep(1)}
+                className="bg-gray-500 text-white px-4 py-2 rounded-lg flex items-center hover:bg-gray-600 transition"
+              >
+                Book Another Meeting
+              </button>
+              <button
+                onClick={() => navigate('/dashboard')}
+                className="bg-blue-500 text-white px-4 py-2 rounded-lg flex items-center hover:bg-blue-600 transition"
+              >
+                Go to Dashboard
               </button>
             </div>
           </div>
