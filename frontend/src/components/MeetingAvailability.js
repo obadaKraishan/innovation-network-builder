@@ -6,13 +6,14 @@ import 'react-toastify/dist/ReactToastify.css';
 import DatePicker from 'react-datepicker';
 import 'react-datepicker/dist/react-datepicker.css';
 import { useNavigate } from 'react-router-dom';
+import moment from 'moment';
 
 const MeetingAvailability = () => {
   const [datesToDisable, setDatesToDisable] = useState([]);
   const [rangeStart, setRangeStart] = useState(null);
   const [rangeEnd, setRangeEnd] = useState(null);
   const [timeRanges, setTimeRanges] = useState([]);
-  const [disableTimeRange, setDisableTimeRange] = useState(false);
+  const [existingBookings, setExistingBookings] = useState([]);
   const navigate = useNavigate();
 
   useEffect(() => {
@@ -23,6 +24,7 @@ const MeetingAvailability = () => {
         const { data } = await api.get(`/booking/availability?userId=${userId}`);
         setDatesToDisable(data.datesToDisable || []);
         setTimeRanges(data.timeRanges || []);
+        setExistingBookings(data.bookedTimes || []);
       } catch (error) {
         console.error('Error fetching availability:', error);
         toast.error('Failed to fetch availability.');
@@ -43,9 +45,23 @@ const MeetingAvailability = () => {
 
   const handleAddTimeRange = () => {
     if (rangeStart && rangeEnd) {
-      setTimeRanges([...timeRanges, { start: rangeStart, end: rangeEnd }]);
-      setRangeStart(null);
-      setRangeEnd(null);
+      const isOverlapping = existingBookings.some(booking => {
+        const bookingStart = moment(booking.time, 'h:mm A');
+        const bookingEnd = bookingStart.clone().add(booking.duration, 'minutes');
+        return (
+          (moment(rangeStart).isBetween(bookingStart, bookingEnd, null, '[)') ||
+            moment(rangeEnd).isBetween(bookingStart, bookingEnd, null, '(]')) ||
+          (moment(rangeStart).isSameOrBefore(bookingStart) && moment(rangeEnd).isSameOrAfter(bookingEnd))
+        );
+      });
+
+      if (isOverlapping) {
+        toast.error('Selected time range overlaps with existing bookings.');
+      } else {
+        setTimeRanges([...timeRanges, { start: rangeStart, end: rangeEnd }]);
+        setRangeStart(null);
+        setRangeEnd(null);
+      }
     } else {
       toast.error('Please select a valid time range.');
     }
@@ -81,6 +97,7 @@ const MeetingAvailability = () => {
 
         <div className="bg-white p-6 rounded-lg shadow-lg">
           <h2 className="text-2xl font-semibold mb-6">Update Your Availability</h2>
+
           <div className="mb-4">
             <label className="block text-gray-700 text-sm font-bold mb-2">Select Dates to Disable:</label>
             <DatePicker
@@ -90,8 +107,10 @@ const MeetingAvailability = () => {
               className="w-full p-3 border border-gray-300 rounded-lg"
               inline
               highlightDates={datesToDisable}
+              filterDate={(date) => date.getDay() !== 6 && date.getDay() !== 0} // Disable weekends
             />
           </div>
+
           <div className="mb-4">
             <label className="block text-gray-700 text-sm font-bold mb-2">Select Time Range to Disable:</label>
             <DatePicker
@@ -100,6 +119,16 @@ const MeetingAvailability = () => {
               startDate={rangeStart}
               endDate={rangeEnd}
               selectsRange
+              showTimeSelect
+              timeFormat="HH:mm"
+              timeIntervals={30}
+              dateFormat="MMMM d, yyyy h:mm aa"
+              minDate={new Date()}
+              filterDate={(date) => date.getDay() !== 6 && date.getDay() !== 0} // Disable weekends
+              filterTime={(time) => {
+                const selectedHour = time.getHours();
+                return selectedHour >= 9 && selectedHour < 17; // Allow time selection only between 9 AM and 5 PM
+              }}
               inline
             />
             <button
@@ -109,13 +138,20 @@ const MeetingAvailability = () => {
               Add Time Range
             </button>
           </div>
-          <div>
-            {timeRanges.map((range, index) => (
-              <p key={index}>
-                {range.start.toLocaleDateString()} - {range.end.toLocaleDateString()}
-              </p>
-            ))}
+
+          <div className="mb-4">
+            <h3 className="text-lg font-semibold">Current Disabled Time Ranges:</h3>
+            {timeRanges.length > 0 ? (
+              timeRanges.map((range, index) => (
+                <p key={index} className="bg-gray-200 p-2 rounded-lg mb-2">
+                  {moment(range.start).format('MMMM Do YYYY, h:mm a')} - {moment(range.end).format('MMMM Do YYYY, h:mm a')}
+                </p>
+              ))
+            ) : (
+              <p>No time ranges set.</p>
+            )}
           </div>
+
           <div className="flex justify-between">
             <button
               onClick={handleUpdateAvailability}
