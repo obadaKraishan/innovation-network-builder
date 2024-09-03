@@ -27,6 +27,8 @@ const BookMeeting = () => {
   const [bookingDetails, setBookingDetails] = useState(null);
   const navigate = useNavigate();
 
+  console.log(moment('2024-09-05T15:00:00.000Z').format('h:mm A'));
+
   useEffect(() => {
     const fetchDepartmentsAndUsers = async () => {
       try {
@@ -75,32 +77,35 @@ const BookMeeting = () => {
 
   const handleBooking = async () => {
     try {
-      const user = JSON.parse(localStorage.getItem('userInfo'));
-      const userId = user?._id;
-  
-      if (!userId) {
-        throw new Error("User ID is missing.");
-      }
+        const user = JSON.parse(localStorage.getItem('userInfo'));
+        const userId = user?._id;
 
-      const bookingData = {
-        userId,
-        selectedUser: selectedUser.value,
-        date: selectedDate,
-        time: selectedTime,
-        duration,
-        type: meetingType,
-        phoneNumber,
-        agenda,
-      };
-  
-      const response = await api.post('/booking', bookingData);
-      toast.success('Meeting booked successfully!');
-      setBookingDetails(response.data);  // Set booking details to display confirmation
-      setStep(5);  // Move to the confirmation step
+        if (!userId) {
+            throw new Error("User ID is missing.");
+        }
+
+        const bookingData = {
+            userId,
+            selectedUser: selectedUser.value,
+            date: moment(selectedDate).format("YYYY-MM-DD"), // Format date correctly
+            time: moment.utc(selectedTime, 'h:mm A').format('h:mm A'), // Ensure the format is correct
+            duration,
+            type: meetingType,
+            phoneNumber,
+            agenda,
+        };
+
+        console.log("Booking Data being sent:", bookingData); // Debugging line
+
+        const response = await api.post('/booking', bookingData);
+        toast.success('Meeting booked successfully!');
+        setBookingDetails(response.data);
+        setStep(5);
     } catch (error) {
-      toast.error(error.message || 'Failed to book meeting.');
+        console.error("Error booking the meeting:", error); // More detailed error logging
+        toast.error(error.message || 'Failed to book meeting.');
     }
-  };  
+};
 
   const copyToClipboard = () => {
     const text = `Meeting with ${selectedUser.label} on ${selectedDate.toLocaleDateString()} at ${selectedTime}. Duration: ${duration}. Type: ${meetingType}. Agenda: ${agenda}`;
@@ -253,7 +258,7 @@ END:VCALENDAR
                       selectedTime === time ? 'bg-blue-500 text-white' : 'bg-white text-black'
                     } rounded-lg`}
                   >
-                    {time}
+                    {moment(time).format('h:mm A')} 
                   </button>
                 ))
               ) : (

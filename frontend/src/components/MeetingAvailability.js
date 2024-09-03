@@ -87,15 +87,15 @@ const MeetingAvailability = () => {
     try {
       const user = JSON.parse(localStorage.getItem('userInfo'));
       const userId = user?._id;
-
+  
       const disableRange = {
         datesToDisable: selectedDate ? [selectedDate] : [],
         timeRanges: [...disabledTimes, ...selectedTimes.map(time => ({
-          start: time.toDate(),
-          end: time.clone().add(30, 'minutes').toDate()
+          start: time.toDate(),  // Ensure the start time is a valid Date object
+          end: time.clone().add(30, 'minutes').toDate()  // Ensure the end time is a valid Date object
         }))]
       };
-
+  
       await api.put('/booking/availability', { userId, disableRange });
       toast.success('Availability updated successfully!');
       setDisabledTimes(disableRange.timeRanges);  // Update the state to reflect the changes
@@ -105,7 +105,7 @@ const MeetingAvailability = () => {
       console.error('Error updating availability:', error);
       toast.error('Failed to update availability.');
     }
-  };
+  };  
 
   return (
     <div className="flex h-screen">

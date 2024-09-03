@@ -42,6 +42,8 @@ const getDepartmentsAndUsers = async (req, res) => {
 // @access  Private
 const createBooking = async (req, res) => {
   try {
+    console.log("Received Booking Request Body:", req.body);
+    
     const {
       userId,
       selectedUser,
@@ -57,10 +59,13 @@ const createBooking = async (req, res) => {
       return res.status(400).json({ message: "User ID (bookedBy) is required" });
     }
 
+    // Format time to 12-hour with AM/PM
+    const formattedTime = moment(time, 'h:mm A').format('h:mm A');
+
     const existingBooking = await MeetingBooking.findOne({
       user: selectedUser,
       date: moment(date).format("YYYY-MM-DD"),
-      time,
+      time: formattedTime, // Use the formatted time
     });
 
     if (existingBooking) {
@@ -71,7 +76,7 @@ const createBooking = async (req, res) => {
       user: selectedUser,
       bookedBy: userId,
       date: moment(date).format("YYYY-MM-DD"),
-      time,
+      time: formattedTime, // Store the formatted time
       duration,
       type,
       phoneNumber,
@@ -148,7 +153,7 @@ const getUserAvailability = async (req, res) => {
       duration: booking.duration === '30 minutes' ? 30 : 60,
     }));
 
-    const allTimes = generateAvailableTimes(moment('09:00 AM', 'h:mm A'), moment('05:00 PM', 'h:mm A'), parseInt(duration, 10));
+    const allTimes = generateAvailableTimes(date, parseInt(duration, 10), bookedTimes, timeRanges);
 
     console.log("Generated All Times:", allTimes);
 
@@ -163,14 +168,26 @@ const getUserAvailability = async (req, res) => {
   }
 };
 
-// Helper function to generate available times
-const generateAvailableTimes = (startTime, endTime, duration) => {
+// Updated generateAvailableTimes function to accept existingBookings and disabledTimes as parameters
+const generateAvailableTimes = (date, duration, existingBookings, disabledTimes) => {
   const times = [];
-  let currentTime = startTime.clone();
+  let currentTime = moment(date).hour(9).minute(0); // Start at 9 AM
+  const endTime = moment(date).hour(17).minute(0);  // End at 5 PM
+
   while (currentTime.isBefore(endTime)) {
-    times.push(currentTime.format('h:mm A'));
-    currentTime.add(duration, 'minutes');
+    const isBookedOrDisabled = existingBookings.some(booking => {
+      const bookingTime = moment(`${booking.date} ${booking.time}`, 'YYYY-MM-DD h:mm A');
+      return currentTime.isSame(bookingTime, 'minute');
+    }) || disabledTimes.some(disabled => {
+      return currentTime.isBetween(moment(disabled.start, 'h:mm A'), moment(disabled.end, 'h:mm A'), null, '[)');
+    });
+
+    if (!isBookedOrDisabled) {
+      times.push(currentTime.clone());
+    }
+    currentTime.add(30, 'minutes');
   }
+
   return times;
 };
 
@@ -230,6 +247,7 @@ const updateUserAvailability = async (req, res) => {
     console.log("Updating availability for User ID:", userId);
     console.log("Disable Range Provided:", disableRange);
 
+    // Assuming disableRange.timeRanges is an array of date objects or valid date strings
     user.availability = disableRange.datesToDisable || [];
     user.timeRanges = disableRange.timeRanges || [];
     await user.save();
@@ -242,6 +260,7 @@ const updateUserAvailability = async (req, res) => {
     res.status(500).json({ message: error.message });
   }
 };
+
 
 module.exports = {
   getDepartmentsAndUsers,
