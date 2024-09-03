@@ -29,12 +29,18 @@ const MeetingBooking = () => {
       <div className="flex-1 p-6 bg-gray-100">
         <ToastContainer />
 
-        <h2 className="text-2xl font-semibold mb-6">My Meetings</h2>
-        <div className="mb-6">
-          <button onClick={() => navigate('/book-meeting')} className="bg-blue-500 text-white px-4 py-2 rounded-lg mr-4 flex items-center hover:bg-blue-600 transition">
+        <h2 className="text-3xl font-semibold mb-6">My Meetings</h2>
+        <div className="flex justify-between mb-6">
+          <button
+            onClick={() => navigate('/book-meeting')}
+            className="bg-blue-500 text-white px-6 py-3 rounded-lg flex items-center hover:bg-blue-600 transition"
+          >
             <FaPlus className="mr-2" /> Create New Meeting
           </button>
-          <button onClick={() => navigate('/meeting-availability')} className="bg-gray-500 text-white px-4 py-2 rounded-lg flex items-center hover:bg-gray-600 transition">
+          <button
+            onClick={() => navigate('/meeting-availability')}
+            className="bg-gray-500 text-white px-6 py-3 rounded-lg flex items-center hover:bg-gray-600 transition"
+          >
             <FaCog className="mr-2" /> Update Availability
           </button>
         </div>
