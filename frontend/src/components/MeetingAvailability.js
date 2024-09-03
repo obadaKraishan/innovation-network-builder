@@ -14,6 +14,7 @@ const MeetingAvailability = () => {
   const [selectedTimes, setSelectedTimes] = useState([]);
   const [existingBookings, setExistingBookings] = useState([]);
   const [disabledTimes, setDisabledTimes] = useState([]);
+  const [duration, setDuration] = useState('30 minutes');  // Initialize duration with a default value
   const navigate = useNavigate();
 
   useEffect(() => {
@@ -21,7 +22,16 @@ const MeetingAvailability = () => {
       try {
         const user = JSON.parse(localStorage.getItem('userInfo'));
         const userId = user?._id;
-        const { data } = await api.get(`/booking/availability?userId=${userId}`);
+        
+        if (!userId || !selectedDate) {
+          // Handle the case where userId or selectedDate is missing
+          toast.error('User ID and Date are required.');
+          return;
+        }
+        
+        const formattedDate = selectedDate.toISOString().split('T')[0];  // Format date as YYYY-MM-DD
+        const { data } = await api.get(`/booking/availability?userId=${userId}&date=${formattedDate}&duration=${duration === '30 minutes' ? 30 : 60}`);
+        
         setExistingBookings(data.bookedTimes || []);
         setDisabledTimes(data.timeRanges || []);
       } catch (error) {
@@ -29,8 +39,9 @@ const MeetingAvailability = () => {
         toast.error('Failed to fetch availability.');
       }
     };
+    
     fetchAvailability();
-  }, []);
+  }, [selectedDate, duration]);
 
   const handleDateChange = async (date) => {
     setSelectedDate(date);

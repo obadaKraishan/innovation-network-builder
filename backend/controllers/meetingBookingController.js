@@ -112,7 +112,7 @@ const getBookingsForUser = async (req, res) => {
 // @access  Private
 const getUserAvailability = async (req, res) => {
   try {
-    const { userId, date, duration } = req.query; // Make sure to retrieve 'duration' here
+    const { userId, date, duration } = req.query; // Retrieve 'duration' from query parameters
 
     if (!duration) {
       return res.status(400).json({ message: "Duration is required." });
@@ -123,31 +123,25 @@ const getUserAvailability = async (req, res) => {
       return res.status(404).json({ message: "User not found" });
     }
 
-    // Check if the date is disabled or within any disabled time ranges
-    const isDateDisabled = user.availability.some(disabledDate => {
-      return moment(disabledDate).isSame(moment(date), 'day');
-    });
+    const isDateDisabled = user.availability.some(disabledDate => 
+      moment(disabledDate).isSame(moment(date), 'day')
+    );
 
     const timeRanges = user.timeRanges || [];
 
-    // If the date is disabled, return early with no available times
     if (isDateDisabled) {
       return res.status(200).json({ availableTimes: [], bookedTimes: [], timeRanges });
     }
 
-    // Get existing bookings for this user on the selected date
     const existingBookings = await MeetingBooking.find({ user: userId, date });
 
-    // Map booked times to an array
     const bookedTimes = existingBookings.map(booking => ({
       time: booking.time,
       duration: booking.duration === '30 minutes' ? 30 : 60,
     }));
 
-    // Create an array of all available times between 09:00 AM and 05:00 PM
     const allTimes = generateAvailableTimes(moment('09:00 AM', 'h:mm A'), moment('05:00 PM', 'h:mm A'), parseInt(duration, 10));
 
-    // Filter out times that are already booked or disabled
     const availableTimes = filterAvailableTimes(allTimes, bookedTimes, timeRanges, parseInt(duration, 10));
 
     res.status(200).json({ availableTimes, bookedTimes, timeRanges });
@@ -174,6 +168,11 @@ const filterAvailableTimes = (allTimes, bookedTimes, disabledRanges, duration) =
     const bookingTime = moment(time, 'h:mm A');
     const endTime = bookingTime.clone().add(duration, 'minutes');
 
+    // Debugging logs
+    console.log("Checking time:", time);
+    console.log("Booked Times:", bookedTimes);
+    console.log("Disabled Ranges:", disabledRanges);
+
     const isBooked = bookedTimes.some(booking => {
       const bookingStart = moment(booking.time, 'h:mm A');
       const bookingEnd = bookingStart.clone().add(booking.duration, 'minutes');
@@ -188,6 +187,7 @@ const filterAvailableTimes = (allTimes, bookedTimes, disabledRanges, duration) =
              endTime.isBetween(disabledStart, disabledEnd, null, '(]');
     });
 
+    // Only return the time if it is not booked or disabled
     return !isBooked && !isDisabled;
   });
 };

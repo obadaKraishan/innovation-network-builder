@@ -52,9 +52,8 @@ const BookMeeting = () => {
         if (selectedUser && selectedDate) {
           const userId = selectedUser.value;
           const formattedDate = selectedDate.toISOString().split('T')[0];
-          const { data } = await api.get(`/booking/availability?userId=${userId}&date=${formattedDate}&duration=${duration === '30 minutes' ? 30 : 60}`); // Pass duration here
-    
-          // Set availableTimes directly from the response data
+          const { data } = await api.get(`/booking/availability?userId=${userId}&date=${formattedDate}&duration=${duration === '30 minutes' ? 30 : 60}`);
+          
           setAvailableTimes(data.availableTimes);
         }
       } catch (error) {
@@ -65,7 +64,7 @@ const BookMeeting = () => {
     if (selectedDate && selectedUser) {
       fetchUserAvailability();
     }
-  }, [selectedDate, selectedUser, duration]);   
+  }, [selectedDate, selectedUser, duration]);  
 
   const handleBooking = async () => {
     try {
