@@ -8,12 +8,29 @@ const moment = require("moment");
 // @access  Private
 const getDepartmentsAndUsers = async (req, res) => {
   try {
-    const departments = await Department.find();
-    const departmentIds = departments.map(dept => dept._id);
+    // Fetch all departments, including sub-departments
+    const departments = await Department.find().lean();
 
-    // Fetch users that belong to the selected department and its sub-departments
-    const users = await User.find({ department: { $in: departmentIds } }).select("name department position email zoomLink");
-    res.json({ departments, users });
+    // Get all department IDs, including sub-departments
+    const departmentMap = departments.reduce((map, dept) => {
+      map[dept._id] = dept;
+      return map;
+    }, {});
+
+    // Fetch users associated with these departments
+    const users = await User.find({ department: { $in: Object.keys(departmentMap) } })
+      .select("name email department role position zoomLink skills availability")
+      .populate('department', 'name');  // Populate department name
+
+    // Structure departments into main departments with sub-departments nested
+    const structuredDepartments = departments
+      .filter(dept => !dept.parentDepartment)
+      .map(mainDept => ({
+        ...mainDept,
+        subDepartments: departments.filter(subDept => String(subDept.parentDepartment) === String(mainDept._id))
+      }));
+
+    res.json({ departments: structuredDepartments, users });
   } catch (error) {
     console.error("Error fetching departments and users:", error.message);
     res.status(500).json({ message: error.message });

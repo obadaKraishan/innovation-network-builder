@@ -60,7 +60,7 @@ const BookMeeting = () => {
   const handleBooking = async () => {
     try {
       const bookingData = {
-        userId: localStorage.getItem('userId'),
+        userId: localStorage.getItem('userId'), // Ensure this is populated
         selectedUser: selectedUser.value,
         date: selectedDate,
         time: selectedTime,
@@ -69,14 +69,14 @@ const BookMeeting = () => {
         phoneNumber,
         agenda,
       };
-
+  
       await api.post('/booking', bookingData);
       toast.success('Meeting booked successfully!');
       navigate('/dashboard');
     } catch (error) {
       toast.error('Failed to book meeting.');
     }
-  };
+  };  
 
   const generateAvailableTimes = (startTime, endTime, duration) => {
     const times = [];
@@ -144,7 +144,10 @@ const BookMeeting = () => {
               <label className="block text-gray-700 text-sm font-bold mb-2">User:</label>
               <Select
                 value={selectedUser}
-                onChange={setSelectedUser}
+                onChange={(option) => {
+                  const user = users.find(u => u._id === option.value);
+                  setSelectedUser({ value: user._id, label: user.name, ...user });
+                }}
                 options={users
                   .filter(user => selectedDepartment && user.department && user.department.startsWith(selectedDepartment.value))
                   .map(user => ({ value: user._id, label: user.name }))}
@@ -158,7 +161,7 @@ const BookMeeting = () => {
                 <p>Email: {selectedUser.email}</p>
                 <p>Role: {selectedUser.role}</p>
                 <p>Position: {selectedUser.position}</p>
-                <p>Department: {selectedUser.department}</p>
+                <p>Department: {selectedUser.department.name}</p>
               </div>
             )}
             <div className="flex justify-between">
