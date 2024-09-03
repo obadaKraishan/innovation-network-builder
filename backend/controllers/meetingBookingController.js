@@ -189,9 +189,13 @@ const filterAvailableTimes = (allTimes, bookedTimes, disabledRanges, duration) =
       console.log("Booking Start:", bookingStart.format('h:mm A'), "Booking End:", bookingEnd.format('h:mm A'));
 
       // Check if the time slot overlaps with any existing booking
-      return (bookingTime.isSameOrAfter(bookingStart) && bookingTime.isBefore(bookingEnd)) ||
-             (endTime.isAfter(bookingStart) && endTime.isSameOrBefore(bookingEnd)) ||
-             (bookingTime.isSameOrBefore(bookingStart) && endTime.isSameOrAfter(bookingEnd));
+      const overlapCondition = 
+        (bookingTime.isSameOrAfter(bookingStart) && bookingTime.isBefore(bookingEnd)) ||
+        (endTime.isAfter(bookingStart) && endTime.isSameOrBefore(bookingEnd)) ||
+        (bookingTime.isSameOrBefore(bookingStart) && endTime.isSameOrAfter(bookingEnd));
+
+      console.log("Overlap condition met:", overlapCondition);
+      return overlapCondition;
     });
 
     const isDisabled = disabledRanges.some(range => {
@@ -201,9 +205,13 @@ const filterAvailableTimes = (allTimes, bookedTimes, disabledRanges, duration) =
       console.log("Disabled Start:", disabledStart.format('h:mm A'), "Disabled End:", disabledEnd.format('h:mm A'));
 
       // Check if the time slot overlaps with any disabled range
-      return (bookingTime.isSameOrAfter(disabledStart) && bookingTime.isBefore(disabledEnd)) ||
-             (endTime.isAfter(disabledStart) && endTime.isSameOrBefore(disabledEnd)) ||
-             (bookingTime.isSameOrBefore(disabledStart) && endTime.isSameOrAfter(disabledEnd));
+      const disabledCondition = 
+        (bookingTime.isSameOrAfter(disabledStart) && bookingTime.isBefore(disabledEnd)) ||
+        (endTime.isAfter(disabledStart) && endTime.isSameOrBefore(disabledEnd)) ||
+        (bookingTime.isSameOrBefore(disabledStart) && endTime.isSameOrAfter(disabledEnd));
+
+      console.log("Disabled condition met:", disabledCondition);
+      return disabledCondition;
     });
 
     console.log("Is Booked:", isBooked, "Is Disabled:", isDisabled);

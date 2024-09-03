@@ -57,6 +57,9 @@ const BookMeeting = () => {
           const { data } = await api.get(`/booking/availability?userId=${userId}&date=${formattedDate}&duration=${duration === '30 minutes' ? 30 : 60}`);
   
           console.log("Available Times from API:", data.availableTimes);
+          console.log("Booked Times from API:", data.bookedTimes);
+          console.log("User's Time Ranges from API:", data.timeRanges);
+          
           setAvailableTimes(data.availableTimes);
         }
       } catch (error) {
@@ -68,7 +71,7 @@ const BookMeeting = () => {
     if (selectedDate && selectedUser) {
       fetchUserAvailability();
     }
-  }, [selectedDate, selectedUser, duration]);    
+  }, [selectedDate, selectedUser, duration]); 
 
   const handleBooking = async () => {
     try {
