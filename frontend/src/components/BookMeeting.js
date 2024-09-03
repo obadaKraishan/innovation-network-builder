@@ -27,8 +27,6 @@ const BookMeeting = () => {
   const [bookingDetails, setBookingDetails] = useState(null);
   const navigate = useNavigate();
 
-  console.log(moment('2024-09-05T15:00:00.000Z').format('h:mm A'));
-
   useEffect(() => {
     const fetchDepartmentsAndUsers = async () => {
       try {
@@ -85,15 +83,15 @@ const BookMeeting = () => {
         }
 
         const bookingData = {
-            userId,
-            selectedUser: selectedUser.value,
-            date: moment(selectedDate).format("YYYY-MM-DD"), // Format date correctly
-            time: moment.utc(selectedTime, 'h:mm A').format('h:mm A'), // Ensure the format is correct
-            duration,
-            type: meetingType,
-            phoneNumber,
-            agenda,
-        };
+          userId,
+          selectedUser: selectedUser.value,
+          date: moment(selectedDate).format("YYYY-MM-DD"),
+          time: moment(selectedTime).utcOffset(0, true).format('h:mm A'), // Ensure time is in UTC before formatting
+          duration,
+          type: meetingType,
+          phoneNumber,
+          agenda,
+      };      
 
         console.log("Booking Data being sent:", bookingData); // Debugging line
 
