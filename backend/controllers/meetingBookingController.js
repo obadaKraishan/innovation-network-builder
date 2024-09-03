@@ -9,11 +9,13 @@ const moment = require("moment");
 const getDepartmentsAndUsers = async (req, res) => {
   try {
     const departments = await Department.find();
-    const users = await User.find().select(
-      "name department position email zoomLink"
-    );
+    const departmentIds = departments.map(dept => dept._id);
+
+    // Fetch users that belong to the selected department and its sub-departments
+    const users = await User.find({ department: { $in: departmentIds } }).select("name department position email zoomLink");
     res.json({ departments, users });
   } catch (error) {
+    console.error("Error fetching departments and users:", error.message);
     res.status(500).json({ message: error.message });
   }
 };
@@ -41,9 +43,7 @@ const createBooking = async (req, res) => {
     });
 
     if (existingBooking) {
-      return res
-        .status(400)
-        .json({ message: "This time slot is already booked." });
+      return res.status(400).json({ message: "This time slot is already booked." });
     }
 
     const booking = new MeetingBooking({
@@ -60,6 +60,7 @@ const createBooking = async (req, res) => {
     await booking.save();
     res.status(201).json(booking);
   } catch (error) {
+    console.error("Error creating booking:", error.message);
     res.status(500).json({ message: error.message });
   }
 };
@@ -80,6 +81,7 @@ const getBookingsForUser = async (req, res) => {
 
     res.json({ bookedWithOthers, bookedByOthers });
   } catch (error) {
+    console.error("Error fetching bookings for user:", error.message);
     res.status(500).json({ message: error.message });
   }
 };
@@ -95,8 +97,8 @@ const getUserAvailability = async (req, res) => {
       return res.status(404).json({ message: "User not found" });
     }
 
-    const isDateDisabled = user.availability.some((disabledDate) => {
-      return moment(disabledDate).isSame(moment(date), "day");
+    const isDateDisabled = user.availability.some(disabledDate => {
+      return moment(disabledDate).isSame(moment(date), 'day');
     });
 
     if (isDateDisabled) {
@@ -105,13 +107,14 @@ const getUserAvailability = async (req, res) => {
 
     const existingBookings = await MeetingBooking.find({ user: userId, date });
 
-    const bookedTimes = existingBookings.map((booking) => ({
+    const bookedTimes = existingBookings.map(booking => ({
       time: booking.time,
-      duration: booking.duration === "30 minutes" ? 30 : 60,
+      duration: booking.duration === '30 minutes' ? 30 : 60,
     }));
 
     res.status(200).json({ availableTimes: [], bookedTimes });
   } catch (error) {
+    console.error("Error fetching user availability:", error.message);
     res.status(500).json({ message: error.message });
   }
 };
@@ -132,6 +135,7 @@ const updateUserAvailability = async (req, res) => {
 
     res.json({ message: "User availability updated successfully" });
   } catch (error) {
+    console.error("Error updating user availability:", error.message);
     res.status(500).json({ message: error.message });
   }
 };

@@ -32,7 +32,6 @@ const BookMeeting = () => {
         setDepartments(data.departments);
         setUsers(data.users);
       } catch (error) {
-        console.error('Error fetching departments and users:', error);
         toast.error('Failed to fetch departments and users.');
       }
     };
@@ -43,13 +42,12 @@ const BookMeeting = () => {
     const fetchUserAvailability = async () => {
       try {
         if (selectedUser && selectedDate) {
-          const userId = selectedUser._id;
-          const formattedDate = selectedDate.toISOString().split('T')[0]; // Format the date for the API
+          const userId = selectedUser.value;
+          const formattedDate = selectedDate.toISOString().split('T')[0];
           const { data } = await api.get(`/booking/availability?userId=${userId}&date=${formattedDate}`);
           setAvailableTimes(data.availableTimes);
         }
       } catch (error) {
-        console.error('Error fetching user availability:', error);
         toast.error('Failed to fetch user availability.');
       }
     };
@@ -63,7 +61,7 @@ const BookMeeting = () => {
     try {
       const bookingData = {
         userId: localStorage.getItem('userId'),
-        selectedUser: selectedUser._id,
+        selectedUser: selectedUser.value,
         date: selectedDate,
         time: selectedTime,
         duration,
@@ -76,7 +74,6 @@ const BookMeeting = () => {
       toast.success('Meeting booked successfully!');
       navigate('/dashboard');
     } catch (error) {
-      console.error('Error booking meeting:', error);
       toast.error('Failed to book meeting.');
     }
   };
@@ -107,7 +104,7 @@ const BookMeeting = () => {
   useEffect(() => {
     if (selectedUser && selectedDate) {
       const fetchAndFilterTimes = async () => {
-        const userId = selectedUser._id;
+        const userId = selectedUser.value;
         const formattedDate = selectedDate.toISOString().split('T')[0];
 
         try {
@@ -118,7 +115,6 @@ const BookMeeting = () => {
 
           setAvailableTimes(filteredTimes);
         } catch (error) {
-          console.error('Error fetching and filtering times:', error);
           toast.error('Failed to fetch available times.');
         }
       };
@@ -148,10 +144,7 @@ const BookMeeting = () => {
               <label className="block text-gray-700 text-sm font-bold mb-2">User:</label>
               <Select
                 value={selectedUser}
-                onChange={(selectedOption) => {
-                  const user = users.find(u => u._id === selectedOption.value);
-                  setSelectedUser(user);
-                }}
+                onChange={setSelectedUser}
                 options={users
                   .filter(user => selectedDepartment && user.department && user.department.startsWith(selectedDepartment.value))
                   .map(user => ({ value: user._id, label: user.name }))}
@@ -161,11 +154,11 @@ const BookMeeting = () => {
             {selectedUser && (
               <div className="mb-4">
                 <h3 className="text-lg font-semibold">User Details:</h3>
-                <p>Name: {selectedUser.name}</p>
+                <p>Name: {selectedUser.label}</p>
                 <p>Email: {selectedUser.email}</p>
                 <p>Role: {selectedUser.role}</p>
                 <p>Position: {selectedUser.position}</p>
-                <p>Department: {selectedUser.department.name}</p>
+                <p>Department: {selectedUser.department}</p>
               </div>
             )}
             <div className="flex justify-between">
@@ -204,7 +197,7 @@ const BookMeeting = () => {
               selected={selectedDate}
               onChange={(date) => setSelectedDate(date)}
               minDate={new Date()}
-              filterDate={(date) => date.getDay() !== 6 && date.getDay() !== 0} // Disable Saturdays and Sundays
+              filterDate={(date) => date.getDay() !== 6 && date.getDay() !== 0}
               className="w-full p-3 border border-gray-300 rounded-lg"
               inline
             />
