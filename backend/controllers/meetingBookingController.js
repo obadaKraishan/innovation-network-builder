@@ -112,7 +112,12 @@ const getBookingsForUser = async (req, res) => {
 // @access  Private
 const getUserAvailability = async (req, res) => {
   try {
-    const { userId, date } = req.query;
+    const { userId, date, duration } = req.query; // Make sure to retrieve 'duration' here
+
+    if (!duration) {
+      return res.status(400).json({ message: "Duration is required." });
+    }
+
     const user = await User.findById(userId);
     if (!user) {
       return res.status(404).json({ message: "User not found" });
@@ -125,23 +130,68 @@ const getUserAvailability = async (req, res) => {
 
     const timeRanges = user.timeRanges || [];
 
+    // If the date is disabled, return early with no available times
     if (isDateDisabled) {
       return res.status(200).json({ availableTimes: [], bookedTimes: [], timeRanges });
     }
 
+    // Get existing bookings for this user on the selected date
     const existingBookings = await MeetingBooking.find({ user: userId, date });
 
+    // Map booked times to an array
     const bookedTimes = existingBookings.map(booking => ({
       time: booking.time,
       duration: booking.duration === '30 minutes' ? 30 : 60,
     }));
 
-    res.status(200).json({ availableTimes: [], bookedTimes, timeRanges });
+    // Create an array of all available times between 09:00 AM and 05:00 PM
+    const allTimes = generateAvailableTimes(moment('09:00 AM', 'h:mm A'), moment('05:00 PM', 'h:mm A'), parseInt(duration, 10));
+
+    // Filter out times that are already booked or disabled
+    const availableTimes = filterAvailableTimes(allTimes, bookedTimes, timeRanges, parseInt(duration, 10));
+
+    res.status(200).json({ availableTimes, bookedTimes, timeRanges });
   } catch (error) {
     console.error("Error fetching user availability:", error.message);
     res.status(500).json({ message: error.message });
   }
 };
+
+// Helper function to generate available times
+const generateAvailableTimes = (startTime, endTime, duration) => {
+  const times = [];
+  let currentTime = startTime.clone();
+  while (currentTime.isBefore(endTime)) {
+    times.push(currentTime.format('h:mm A'));
+    currentTime.add(duration, 'minutes');
+  }
+  return times;
+};
+
+// Helper function to filter available times based on booked and disabled slots
+const filterAvailableTimes = (allTimes, bookedTimes, disabledRanges, duration) => {
+  return allTimes.filter(time => {
+    const bookingTime = moment(time, 'h:mm A');
+    const endTime = bookingTime.clone().add(duration, 'minutes');
+
+    const isBooked = bookedTimes.some(booking => {
+      const bookingStart = moment(booking.time, 'h:mm A');
+      const bookingEnd = bookingStart.clone().add(booking.duration, 'minutes');
+      return bookingTime.isBetween(bookingStart, bookingEnd, null, '[)') ||
+             endTime.isBetween(bookingStart, bookingEnd, null, '(]');
+    });
+
+    const isDisabled = disabledRanges.some(range => {
+      const disabledStart = moment(range.start);
+      const disabledEnd = moment(range.end);
+      return bookingTime.isBetween(disabledStart, disabledEnd, null, '[)') ||
+             endTime.isBetween(disabledStart, disabledEnd, null, '(]');
+    });
+
+    return !isBooked && !isDisabled;
+  });
+};
+
 
 // @desc    Update user availability
 // @route   PUT /api/booking/availability
