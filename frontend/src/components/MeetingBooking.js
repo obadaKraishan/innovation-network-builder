@@ -12,7 +12,15 @@ const MeetingBooking = () => {
   useEffect(() => {
     const fetchBookings = async () => {
       try {
-        const userId = localStorage.getItem('userId'); 
+        // Retrieve user ID from local storage (if you have saved it as 'userInfo' earlier)
+        const user = JSON.parse(localStorage.getItem('userInfo'));
+        const userId = user?._id;
+
+        if (!userId) {
+          throw new Error('User ID not found.');
+        }
+
+        // Fetch bookings related to the user
         const { data } = await api.get('/booking', { params: { userId } });
         setBookings(data);
       } catch (error) {
@@ -53,7 +61,7 @@ const MeetingBooking = () => {
                 <p><strong>Date:</strong> {booking.date}</p>
                 <p><strong>Time:</strong> {booking.time}</p>
                 <p><strong>With:</strong> {booking.user.name}</p>
-                <p><strong>Department:</strong> {booking.user.department}</p>
+                <p><strong>Department:</strong> {booking.user.department.name}</p>
                 <p><strong>Position:</strong> {booking.user.position}</p>
                 <p><strong>Zoom Link:</strong> {booking.user.zoomLink}</p>
               </li>
@@ -71,7 +79,7 @@ const MeetingBooking = () => {
                 <p><strong>Date:</strong> {booking.date}</p>
                 <p><strong>Time:</strong> {booking.time}</p>
                 <p><strong>Booked By:</strong> {booking.bookedBy.name}</p>
-                <p><strong>Department:</strong> {booking.bookedBy.department}</p>
+                <p><strong>Department:</strong> {booking.bookedBy.department.name}</p>
                 <p><strong>Position:</strong> {booking.bookedBy.position}</p>
                 <p><strong>Zoom Link:</strong> {booking.bookedBy.zoomLink}</p>
               </li>
