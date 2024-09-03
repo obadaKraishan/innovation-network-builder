@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import Sidebar from './Sidebar';
 import api from '../utils/api';
-import { FaArrowRight, FaArrowLeft, FaCopy, FaShareAlt } from 'react-icons/fa';
+import { FaArrowRight, FaArrowLeft, FaCopy, FaShareAlt, FaCalendarAlt } from 'react-icons/fa';
 import { ToastContainer, toast } from 'react-toastify';
 import Select from 'react-select';
 import 'react-toastify/dist/ReactToastify.css';
@@ -122,10 +122,10 @@ BEGIN:VCALENDAR
 VERSION:2.0
 BEGIN:VEVENT
 SUMMARY:${agenda}
-DTSTART:${moment(selectedDate).format('YYYYMMDD')}T${moment(selectedTime, 'h:mm A').format('HHmm00')}Z
-DTEND:${moment(selectedDate).format('YYYYMMDD')}T${moment(selectedTime, 'h:mm A').add(duration === '30 minutes' ? 30 : 60, 'minutes').format('HHmm00')}Z
-DESCRIPTION:Meeting with ${selectedUser.label}
-LOCATION:${meetingType === 'Zoom' ? 'Zoom' : 'Phone: ' + phoneNumber}
+DTSTART:${moment(bookingDetails.date).format('YYYYMMDD')}T${moment(bookingDetails.time, 'h:mm A').format('HHmm00')}Z
+DTEND:${moment(bookingDetails.date).format('YYYYMMDD')}T${moment(bookingDetails.time, 'h:mm A').add(bookingDetails.duration === '30 minutes' ? 30 : 60, 'minutes').format('HHmm00')}Z
+DESCRIPTION:Meeting with ${bookingDetails.user.name}
+LOCATION:${meetingType === 'Zoom' ? 'Zoom' : 'Phone: ' + bookingDetails.phoneNumber}
 END:VEVENT
 END:VCALENDAR
     `.trim();
@@ -369,23 +369,25 @@ END:VCALENDAR
         {step === 5 && bookingDetails && (
           <div className="bg-white p-6 rounded-lg shadow-lg">
             <h2 className="text-2xl font-semibold mb-6">Meeting Confirmation</h2>
-            <p><strong>With:</strong> {bookingDetails.user.name}</p>
-            <p><strong>Date:</strong> {moment(bookingDetails.date).format('MMMM Do YYYY')}</p>
-            <p><strong>Time:</strong> {bookingDetails.time}</p>
-            <p><strong>Duration:</strong> {bookingDetails.duration}</p>
-            <p><strong>Type:</strong> {bookingDetails.type}</p>
-            <p><strong>Agenda:</strong> {bookingDetails.agenda}</p>
-            <p><strong>Phone Number:</strong> {bookingDetails.phoneNumber || 'N/A'}</p>
+            <div className="bg-gray-100 p-4 rounded-lg mb-4">
+              <p><strong>With:</strong> {bookingDetails.user.name}</p>
+              <p><strong>Date:</strong> {moment(bookingDetails.date).format('MMMM Do YYYY')}</p>
+              <p><strong>Time:</strong> {bookingDetails.time}</p>
+              <p><strong>Duration:</strong> {bookingDetails.duration}</p>
+              <p><strong>Type:</strong> {bookingDetails.type}</p>
+              <p><strong>Agenda:</strong> {bookingDetails.agenda}</p>
+              <p><strong>Phone Number:</strong> {bookingDetails.phoneNumber || 'N/A'}</p>
+            </div>
             
-            <div className="mt-4">
-              <button onClick={copyToClipboard} className="bg-blue-500 text-white px-4 py-2 rounded-lg flex items-center hover:bg-blue-600 transition mr-2">
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-2">
+              <button onClick={copyToClipboard} className="bg-blue-500 text-white px-4 py-2 rounded-lg flex items-center hover:bg-blue-600 transition">
                 <FaCopy className="mr-2" /> Copy Details
               </button>
-              <button onClick={shareMeeting} className="bg-green-500 text-white px-4 py-2 rounded-lg flex items-center hover:bg-green-600 transition mr-2">
+              <button onClick={shareMeeting} className="bg-green-500 text-white px-4 py-2 rounded-lg flex items-center hover:bg-green-600 transition">
                 <FaShareAlt className="mr-2" /> Share
               </button>
               <button onClick={exportToCalendar} className="bg-purple-500 text-white px-4 py-2 rounded-lg flex items-center hover:bg-purple-600 transition">
-                Export to Calendar
+                <FaCalendarAlt className="mr-2" /> Export to Calendar
               </button>
             </div>
 
@@ -397,10 +399,10 @@ END:VCALENDAR
                 Book Another Meeting
               </button>
               <button
-                onClick={() => navigate('/dashboard')}
+                onClick={() => navigate('/meeting-booking')}
                 className="bg-blue-500 text-white px-4 py-2 rounded-lg flex items-center hover:bg-blue-600 transition"
               >
-                Go to Dashboard
+                Go to Meeting Booking
               </button>
             </div>
           </div>
