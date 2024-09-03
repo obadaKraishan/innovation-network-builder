@@ -6,8 +6,11 @@ import { FaArrowRight, FaArrowLeft } from 'react-icons/fa';
 import { ToastContainer, toast } from 'react-toastify';
 import Select from 'react-select';
 import 'react-toastify/dist/ReactToastify.css';
-import DatePicker from 'react-datepicker';
-import 'react-datepicker/dist/react-datepicker.css';
+import { Calendar, momentLocalizer } from 'react-big-calendar';
+import moment from 'moment';
+import 'react-big-calendar/lib/css/react-big-calendar.css';
+
+const localizer = momentLocalizer(moment);
 
 const BookMeeting = () => {
   const [step, setStep] = useState(1);
@@ -21,6 +24,7 @@ const BookMeeting = () => {
   const [meetingType, setMeetingType] = useState('Zoom');
   const [phoneNumber, setPhoneNumber] = useState('');
   const [agenda, setAgenda] = useState('');
+  const [events, setEvents] = useState([]);
   const navigate = useNavigate();
 
   useEffect(() => {
@@ -36,6 +40,31 @@ const BookMeeting = () => {
     };
     fetchDepartmentsAndUsers();
   }, []);
+
+  useEffect(() => {
+    const fetchUserAvailability = async () => {
+      try {
+        const userId = selectedUser?.value;
+        if (userId) {
+          const { data } = await api.get(`/booking/availability?userId=${userId}`);
+          const unavailableDates = data.map((date) => ({
+            title: 'Unavailable',
+            start: new Date(date.start),
+            end: new Date(date.end),
+            allDay: true,
+          }));
+          setEvents(unavailableDates);
+        }
+      } catch (error) {
+        console.error('Error fetching availability:', error);
+        toast.error('Failed to fetch user availability.');
+      }
+    };
+
+    if (selectedUser) {
+      fetchUserAvailability();
+    }
+  }, [selectedUser]);
 
   const handleBooking = async () => {
     try {
@@ -57,6 +86,11 @@ const BookMeeting = () => {
       console.error('Error booking meeting:', error);
       toast.error('Failed to book meeting.');
     }
+  };
+
+  const handleDateSelect = (slotInfo) => {
+    setSelectedDate(slotInfo.start);
+    setSelectedTime(moment(slotInfo.start).format('h:mm A'));
   };
 
   return (
@@ -83,61 +117,42 @@ const BookMeeting = () => {
                 value={selectedUser}
                 onChange={setSelectedUser}
                 options={users
-                  .filter(user => user.department === selectedDepartment?.value)
+                  .filter(user => user.department.startsWith(selectedDepartment?.value))
                   .map(user => ({ value: user._id, label: user.name }))}
                 className="w-full"
               />
             </div>
-            <button
-              onClick={() => setStep(2)}
-              disabled={!selectedDepartment || !selectedUser}
-              className="bg-blue-500 text-white px-4 py-2 rounded-lg flex items-center hover:bg-blue-600 transition"
-            >
-              <FaArrowRight className="mr-2" /> Next
-            </button>
+            <div className="flex justify-between">
+              <button
+                onClick={() => navigate('/meeting-booking')}
+                className="bg-gray-500 text-white px-4 py-2 rounded-lg flex items-center hover:bg-gray-600 transition"
+              >
+                <FaArrowLeft className="mr-2" /> Back
+              </button>
+              <button
+                onClick={() => setStep(2)}
+                disabled={!selectedDepartment || !selectedUser}
+                className="bg-blue-500 text-white px-4 py-2 rounded-lg flex items-center hover:bg-blue-600 transition"
+              >
+                <FaArrowRight className="mr-2" /> Next
+              </button>
+            </div>
           </div>
         )}
 
         {step === 2 && (
           <div className="bg-white p-6 rounded-lg shadow-lg">
             <h2 className="text-2xl font-semibold mb-6">Step 2: Select Date and Time</h2>
-            <div className="mb-4">
-              <label className="block text-gray-700 text-sm font-bold mb-2">Date:</label>
-              <DatePicker
-                selected={selectedDate}
-                onChange={(date) => setSelectedDate(date)}
-                minDate={new Date()}
-                className="w-full p-3 border border-gray-300 rounded-lg"
-              />
-            </div>
-            <div className="mb-4">
-              <label className="block text-gray-700 text-sm font-bold mb-2">Time:</label>
-              <select
-                value={selectedTime}
-                onChange={(e) => setSelectedTime(e.target.value)}
-                className="w-full p-3 border border-gray-300 rounded-lg"
-              >
-                <option value="" disabled>Select Time</option>
-                {[...Array(8).keys()].map(i => (
-                  <option key={i} value={`${9 + i}:00 AM`}>{`${9 + i}:00 AM`}</option>
-                ))}
-                {[...Array(8).keys()].map(i => (
-                  <option key={i + 8} value={`${1 + i}:00 PM`}>{`${1 + i}:00 PM`}</option>
-                ))}
-              </select>
-            </div>
-            <div className="mb-4">
-              <label className="block text-gray-700 text-sm font-bold mb-2">Duration:</label>
-              <select
-                value={duration}
-                onChange={(e) => setDuration(e.target.value)}
-                className="w-full p-3 border border-gray-300 rounded-lg"
-              >
-                <option value="30 minutes">30 minutes</option>
-                <option value="1 hour">1 hour</option>
-              </select>
-            </div>
-            <div className="flex justify-between">
+            <Calendar
+              localizer={localizer}
+              events={events}
+              startAccessor="start"
+              endAccessor="end"
+              style={{ height: 400 }}
+              selectable
+              onSelectSlot={handleDateSelect}
+            />
+            <div className="flex justify-between mt-4">
               <button
                 onClick={() => setStep(1)}
                 className="bg-gray-500 text-white px-4 py-2 rounded-lg flex items-center hover:bg-gray-600 transition"

@@ -5,18 +5,30 @@ import { ToastContainer, toast } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
 import DatePicker from 'react-datepicker';
 import 'react-datepicker/dist/react-datepicker.css';
+import { useNavigate } from 'react-router-dom';
 
 const MeetingAvailability = () => {
   const [datesToDisable, setDatesToDisable] = useState([]);
-  
+  const [rangeStart, setRangeStart] = useState(null);
+  const [rangeEnd, setRangeEnd] = useState(null);
+  const [disableTimeRange, setDisableTimeRange] = useState(false);
+  const navigate = useNavigate(); // Add this line
+
   const handleDateChange = (date) => {
     setDatesToDisable([...datesToDisable, date]);
   };
 
+  const handleRangeChange = (dates) => {
+    const [start, end] = dates;
+    setRangeStart(start);
+    setRangeEnd(end);
+  };
+
   const handleUpdateAvailability = async () => {
     try {
-      const userId = localStorage.getItem('userId'); 
-      await api.put('/booking/availability', { userId, datesToDisable });
+      const userId = localStorage.getItem('userId');
+      const disableRange = disableTimeRange ? { start: rangeStart, end: rangeEnd } : datesToDisable;
+      await api.put('/booking/availability', { userId, disableRange });
       toast.success('Availability updated successfully!');
     } catch (error) {
       console.error('Error updating availability:', error);
@@ -43,9 +55,31 @@ const MeetingAvailability = () => {
               highlightDates={datesToDisable}
             />
           </div>
-          <button onClick={handleUpdateAvailability} className="bg-blue-500 text-white px-4 py-2 rounded-lg flex items-center hover:bg-blue-600 transition">
-            Update Availability
-          </button>
+          <div className="mb-4">
+            <label className="block text-gray-700 text-sm font-bold mb-2">Or Select Date Range to Disable:</label>
+            <DatePicker
+              selected={rangeStart}
+              onChange={handleRangeChange}
+              startDate={rangeStart}
+              endDate={rangeEnd}
+              selectsRange
+              inline
+            />
+          </div>
+          <div className="flex justify-between">
+            <button
+              onClick={() => handleUpdateAvailability()}
+              className="bg-blue-500 text-white px-4 py-2 rounded-lg flex items-center hover:bg-blue-600 transition"
+            >
+              Update Availability
+            </button>
+            <button
+              onClick={() => navigate('/meeting-booking')}
+              className="bg-gray-500 text-white px-4 py-2 rounded-lg flex items-center hover:bg-gray-600 transition"
+            >
+              Back to Dashboard
+            </button>
+          </div>
         </div>
       </div>
     </div>
