@@ -42,7 +42,8 @@ const BookMeeting = () => {
       try {
         if (selectedUser && selectedDate) {
           const userId = selectedUser.value;
-          const { data } = await api.get(`/booking/availability?userId=${userId}&date=${selectedDate}`);
+          const formattedDate = selectedDate.toISOString().split('T')[0]; // Format the date for the API
+          const { data } = await api.get(`/booking/availability?userId=${userId}&date=${formattedDate}`);
           setAvailableTimes(data.availableTimes);
         }
       } catch (error) {
@@ -131,6 +132,7 @@ const BookMeeting = () => {
               selected={selectedDate}
               onChange={(date) => setSelectedDate(date)}
               minDate={new Date()}
+              filterDate={(date) => date.getDay() !== 6 && date.getDay() !== 0} // Disable Saturdays and Sundays
               className="w-full p-3 border border-gray-300 rounded-lg"
               inline
             />

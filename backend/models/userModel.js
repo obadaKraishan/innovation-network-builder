@@ -45,6 +45,10 @@ const userSchema = new mongoose.Schema({
     type: [String],
     required: true,
   },
+  availability: {
+    type: [Date], // Array of dates when the user is unavailable
+    default: [], // Default to an empty array
+  },
   createdAt: {
     type: Date,
     default: Date.now,
@@ -62,7 +66,7 @@ userSchema.pre('save', async function (next) {
   next();
 });
 
-// Method to match user entered password with hashed password
+// Method to match user-entered password with hashed password
 userSchema.methods.matchPassword = async function (enteredPassword) {
   return await bcrypt.compare(enteredPassword, this.password);
 };

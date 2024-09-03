@@ -84,6 +84,44 @@ const getBookingsForUser = async (req, res) => {
   }
 };
 
+// @desc    Get availability of a user for a specific date
+// @route   GET /api/booking/availability
+// @access  Private
+const getUserAvailability = async (req, res) => {
+    try {
+      const { userId, date } = req.query;
+      console.log(`Received userId: ${userId}, date: ${date}`);
+  
+      // Find the user and their availability
+      const user = await User.findById(userId);
+      if (!user) {
+        console.error("User not found");
+        return res.status(404).json({ message: "User not found" });
+      }
+  
+      console.log("User found:", user);
+  
+      // Check if the date is in the user's disabled dates
+      const isDateDisabled = user.availability.some(disabledDate => {
+        return moment(disabledDate).isSame(moment(date), 'day');
+      });
+  
+      if (isDateDisabled) {
+        console.log("Date is disabled for this user");
+        return res.status(200).json({ availableTimes: [] });
+      }
+  
+      // Return available times (dummy data for example)
+      const availableTimes = ["10:00 AM", "11:00 AM", "2:00 PM", "4:00 PM"];
+      console.log("Available times:", availableTimes);
+      
+      res.status(200).json({ availableTimes });
+    } catch (error) {
+      console.error("Error fetching user availability:", error.message);
+      res.status(500).json({ message: error.message });
+    }
+  };  
+
 // @desc    Update user availability
 // @route   PUT /api/booking/availability
 // @access  Private
@@ -110,4 +148,5 @@ module.exports = {
   createBooking,
   getBookingsForUser,
   updateUserAvailability,
+  getUserAvailability
 };
