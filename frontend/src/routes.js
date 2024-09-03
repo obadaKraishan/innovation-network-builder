@@ -22,7 +22,8 @@ import MessagesSent from './components/MessagesSent';
 import MessagesImportant from './components/MessagesImportant';
 import MessageDetails from './components/MessageDetails';
 import MeetingBooking from './components/MeetingBooking';
-
+import BookMeeting from './components/BookMeeting';
+import MeetingAvailability from './components/MeetingAvailability';
 
 const AppRoutes = () => {
   return (
@@ -41,13 +42,15 @@ const AppRoutes = () => {
           <Route path="/add-user" element={<AddUser />} />
           <Route path="/team-details/:id" element={<TeamDetails />} />
           <Route path="/manage-users/:id" element={<UserDetails />} />
-          <Route path="/messages" element={<MessagesSystem />} /> {/* New Messages System Route */}
-          <Route path="/messages/create" element={<CreateMessage />} /> {/* Create Message Route */}
-          <Route path="/messages/inbox" element={<MessagesInbox />} /> {/* Inbox Route */}
-          <Route path="/messages/sent" element={<MessagesSent />} /> {/* Sent Messages Route */}
-          <Route path="/messages/important" element={<MessagesImportant />} /> {/* Important Messages Route */}
-          <Route path="/messages/:id" element={<MessageDetails />} /> {/* Message Details Route */}
-          <Route path="/meeting-booking" element={<MeetingBooking />} />
+          <Route path="/messages" element={<MessagesSystem />} />
+          <Route path="/messages/create" element={<CreateMessage />} />
+          <Route path="/messages/inbox" element={<MessagesInbox />} />
+          <Route path="/messages/sent" element={<MessagesSent />} />
+          <Route path="/messages/important" element={<MessagesImportant />} />
+          <Route path="/messages/:id" element={<MessageDetails />} />
+          <Route path="/meeting-booking" element={<MeetingBooking />} />\
+          <Route path="/book-meeting" element={<BookMeeting />} />
+          <Route path="/meeting-availability" element={<MeetingAvailability />} />
           <Route path="/" element={<Navigate to="/login" />} />
           <Route path="*" element={<Navigate to="/" />} />
         </Routes>
