@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import Sidebar from './Sidebar';
 import api from '../utils/api';
-import { FaPlus, FaCog, FaSearch, FaEdit, FaTrashAlt } from 'react-icons/fa';
+import { FaPlus, FaCog, FaSearch, FaEdit, FaTrashAlt, FaClipboardList, FaCalendarAlt, FaClock, FaUser, FaBuilding, FaUserTie, FaHourglassHalf, FaChalkboardTeacher, FaInfoCircle } from 'react-icons/fa';
 import { ToastContainer, toast } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
 import Select from 'react-select';
@@ -238,142 +238,195 @@ const MeetingBooking = () => {
               className="w-full"
             />
           </div>
-          </div>
-
-<h3 className="text-xl font-semibold mb-4">Meetings I Have Booked with Others</h3>
-{visibleBookedWithOthers.length > 0 ? (
-  <ul>
-    {visibleBookedWithOthers.map((booking) => (
-      <li key={booking._id} className="mb-4 p-4 bg-white rounded-lg shadow-lg relative">
-        <p><strong>Date:</strong> {booking.date}</p>
-        <p><strong>Time:</strong> {booking.time}</p>
-        <p><strong>With:</strong> {booking.user.name}</p>
-        <p><strong>Department:</strong> {booking.user?.department?.name || 'N/A'}</p>
-        <p><strong>Position:</strong> {booking.user.position}</p>
-        <p><strong>Duration:</strong> {booking.duration}</p>
-        <p><strong>Type:</strong> {booking.type}</p>
-        <p><strong>Agenda:</strong> {booking.agenda}</p>
-        <p><strong>Status:</strong> {booking.status}</p>
-        <div className="absolute top-2 right-2 flex space-x-2">
-          <button
-            onClick={() => openModal(booking)}
-            className="bg-yellow-500 text-white p-2 rounded-full hover:bg-yellow-600 transition"
-          >
-            <FaEdit />
-          </button>
-          <button
-            onClick={() => handleCancelMeeting(booking._id)}
-            className="bg-red-500 text-white p-2 rounded-full hover:bg-red-600 transition"
-          >
-            <FaTrashAlt />
-          </button>
         </div>
-      </li>
-    ))}
-  </ul>
-) : (
-  <p>No meetings booked with others.</p>
-)}
-{filteredBookedWithOthers.length > 5 && !showMoreWithOthers && (
-  <button
-    onClick={() => setShowMoreWithOthers(true)}
-    className="text-blue-500 hover:underline mt-4"
-  >
-    See More
-  </button>
-)}
 
-<h3 className="text-xl font-semibold mt-8 mb-4">Meetings Others Have Booked with Me</h3>
-{visibleBookedByOthers.length > 0 ? (
-  <ul>
-    {visibleBookedByOthers.map((booking) => (
-      <li key={booking._id} className="mb-4 p-4 bg-white rounded-lg shadow-lg relative">
-        <p><strong>Date:</strong> {booking.date}</p>
-        <p><strong>Time:</strong> {booking.time}</p>
-        <p><strong>Booked By:</strong> {booking.bookedBy.name}</p>
-        <p><strong>Department:</strong> {booking.bookedBy?.department?.name || 'N/A'}</p>
-        <p><strong>Position:</strong> {booking.bookedBy.position}</p>
-        <p><strong>Duration:</strong> {booking.duration}</p>
-        <p><strong>Type:</strong> {booking.type}</p>
-        <p><strong>Agenda:</strong> {booking.agenda}</p>
-        <p><strong>Status:</strong> {booking.status}</p>
-        <div className="absolute top-2 right-2 flex space-x-2">
+        <h3 className="text-xl font-semibold mb-4">Meetings I Have Booked with Others</h3>
+        {visibleBookedWithOthers.length > 0 ? (
+          <ul className="grid grid-cols-1 md:grid-cols-2 gap-6">
+            {visibleBookedWithOthers.map((booking) => (
+              <li key={booking._id} className="p-6 bg-white rounded-lg shadow-lg relative flex flex-col">
+                <div className="flex items-center text-lg font-semibold text-blue-700">
+                  <FaClipboardList className="mr-2" />
+                  <span>{booking.agenda}</span>
+                </div>
+                <div className="flex items-center text-gray-600 mt-2">
+                  <FaCalendarAlt className="mr-2" />
+                  <span>{moment(booking.date).format('MMMM Do YYYY')}</span>
+                </div>
+                <div className="flex items-center text-gray-600 mt-2">
+                  <FaClock className="mr-2" />
+                  <span>{booking.time}</span>
+                </div>
+                <div className="flex items-center text-gray-600 mt-2">
+                  <FaUser className="mr-2" />
+                  <span>{booking.user.name}</span>
+                </div>
+                <div className="flex items-center text-gray-600 mt-2">
+                  <FaBuilding className="mr-2" />
+                  <span>{booking.user?.department?.name || 'N/A'}</span>
+                </div>
+                <div className="flex items-center text-gray-600 mt-2">
+                  <FaUserTie className="mr-2" />
+                  <span>{booking.user.position}</span>
+                </div>
+                <div className="flex items-center text-gray-600 mt-2">
+                  <FaHourglassHalf className="mr-2" />
+                  <span>{booking.duration}</span>
+                </div>
+                <div className="flex items-center text-gray-600 mt-2">
+                  <FaChalkboardTeacher className="mr-2" />
+                  <span>{booking.type}</span>
+                </div>
+                <div className="flex items-center text-gray-600 mt-2">
+                  <FaInfoCircle className="mr-2" />
+                  <span>{booking.status}</span>
+                </div>
+                <div className="absolute top-2 right-2 flex space-x-2">
+                  <button
+                    onClick={() => openModal(booking)}
+                    className="bg-yellow-500 text-white p-2 rounded-full hover:bg-yellow-600 transition"
+                  >
+                    <FaEdit />
+                  </button>
+                  <button
+                    onClick={() => handleCancelMeeting(booking._id)}
+                    className="bg-red-500 text-white p-2 rounded-full hover:bg-red-600 transition"
+                  >
+                    <FaTrashAlt />
+                  </button>
+                </div>
+              </li>
+            ))}
+          </ul>
+        ) : (
+          <p>No meetings booked with others.</p>
+        )}
+        {filteredBookedWithOthers.length > 5 && !showMoreWithOthers && (
           <button
-            onClick={() => openModal(booking)}
-            className="bg-yellow-500 text-white p-2 rounded-full hover:bg-yellow-600 transition"
+            onClick={() => setShowMoreWithOthers(true)}
+            className="text-blue-500 hover:underline mt-4"
           >
-            <FaEdit />
+            See More
           </button>
-          <button
-            onClick={() => handleCancelMeeting(booking._id)}
-            className="bg-red-500 text-white p-2 rounded-full hover:bg-red-600 transition"
-          >
-            <FaTrashAlt />
-          </button>
-        </div>
-      </li>
-    ))}
-  </ul>
-) : (
-  <p>No meetings booked by others.</p>
-)}
-{filteredBookedByOthers.length > 5 && !showMoreByOthers && (
-  <button
-    onClick={() => setShowMoreByOthers(true)}
-    className="text-blue-500 hover:underline mt-4"
-  >
-    See More
-  </button>
-)}
+        )}
 
-{/* Edit Meeting Modal */}
-{currentBooking && (
-  <Modal
-    isOpen={isModalOpen}
-    onRequestClose={closeModal}
-    contentLabel="Edit Meeting"
-    className="bg-white p-6 rounded-lg shadow-lg max-w-lg mx-auto my-20"
-  >
-    <h2 className="text-xl font-semibold mb-4">Edit Meeting</h2>
-    <form>
-      <div className="mb-4">
-        <label className="block text-gray-700 text-sm font-bold mb-2">Agenda:</label>
-        <input
-          type="text"
-          value={currentBooking.agenda}
-          onChange={(e) => setCurrentBooking({ ...currentBooking, agenda: e.target.value })}
-          className="w-full p-3 border border-gray-300 rounded-lg"
-        />
+        <h3 className="text-xl font-semibold mt-8 mb-4">Meetings Others Have Booked with Me</h3>
+        {visibleBookedByOthers.length > 0 ? (
+          <ul className="grid grid-cols-1 md:grid-cols-2 gap-6">
+            {visibleBookedByOthers.map((booking) => (
+              <li key={booking._id} className="p-6 bg-white rounded-lg shadow-lg relative flex flex-col">
+                <div className="flex items-center text-lg font-semibold text-blue-700">
+                  <FaClipboardList className="mr-2" />
+                  <span>{booking.agenda}</span>
+                </div>
+                <div className="flex items-center text-gray-600 mt-2">
+                  <FaCalendarAlt className="mr-2" />
+                  <span>{moment(booking.date).format('MMMM Do YYYY')}</span>
+                </div>
+                <div className="flex items-center text-gray-600 mt-2">
+                  <FaClock className="mr-2" />
+                  <span>{booking.time}</span>
+                </div>
+                <div className="flex items-center text-gray-600 mt-2">
+                  <FaUser className="mr-2" />
+                  <span>{booking.bookedBy.name}</span>
+                </div>
+                <div className="flex items-center text-gray-600 mt-2">
+                  <FaBuilding className="mr-2" />
+                  <span>{booking.bookedBy?.department?.name || 'N/A'}</span>
+                </div>
+                <div className="flex items-center text-gray-600 mt-2">
+                  <FaUserTie className="mr-2" />
+                  <span>{booking.bookedBy.position}</span>
+                </div>
+                <div className="flex items-center text-gray-600 mt-2">
+                  <FaHourglassHalf className="mr-2" />
+                  <span>{booking.duration}</span>
+                </div>
+                <div className="flex items-center text-gray-600 mt-2">
+                  <FaChalkboardTeacher className="mr-2" />
+                  <span>{booking.type}</span>
+                </div>
+                <div className="flex items-center text-gray-600 mt-2">
+                  <FaInfoCircle className="mr-2" />
+                  <span>{booking.status}</span>
+                </div>
+                <div className="absolute top-2 right-2 flex space-x-2">
+                  <button
+                    onClick={() => openModal(booking)}
+                    className="bg-yellow-500 text-white p-2 rounded-full hover:bg-yellow-600 transition"
+                  >
+                    <FaEdit />
+                  </button>
+                  <button
+                    onClick={() => handleCancelMeeting(booking._id)}
+                    className="bg-red-500 text-white p-2 rounded-full hover:bg-red-600 transition"
+                  >
+                    <FaTrashAlt />
+                  </button>
+                </div>
+              </li>
+            ))}
+          </ul>
+        ) : (
+          <p>No meetings booked by others.</p>
+        )}
+        {filteredBookedByOthers.length > 5 && !showMoreByOthers && (
+          <button
+            onClick={() => setShowMoreByOthers(true)}
+            className="text-blue-500 hover:underline mt-4"
+          >
+            See More
+          </button>
+        )}
+
+        {/* Edit Meeting Modal */}
+        {currentBooking && (
+          <Modal
+            isOpen={isModalOpen}
+            onRequestClose={closeModal}
+            contentLabel="Edit Meeting"
+            className="bg-white p-6 rounded-lg shadow-lg max-w-lg mx-auto my-20"
+          >
+            <h2 className="text-xl font-semibold mb-4">Edit Meeting</h2>
+            <form>
+              <div className="mb-4">
+                <label className="block text-gray-700 text-sm font-bold mb-2">Agenda:</label>
+                <input
+                  type="text"
+                  value={currentBooking.agenda}
+                  onChange={(e) => setCurrentBooking({ ...currentBooking, agenda: e.target.value })}
+                  className="w-full p-3 border border-gray-300 rounded-lg"
+                />
+              </div>
+              <div className="mb-4">
+                <label className="block text-gray-700 text-sm font-bold mb-2">Status:</label>
+                <Select
+                  options={statusOptions}
+                  value={statusOptions.find(option => option.value === currentBooking.status)}
+                  onChange={(option) => setCurrentBooking({ ...currentBooking, status: option.value })}
+                />
+              </div>
+              <div className="flex justify-end">
+                <button
+                  onClick={() => handleStatusChange(currentBooking._id, currentBooking.status)}
+                  className="bg-green-500 text-white px-4 py-2 rounded-lg hover:bg-green-600 transition"
+                >
+                  Save Changes
+                </button>
+                <button
+                  onClick={closeModal}
+                  className="bg-gray-500 text-white px-4 py-2 ml-4 rounded-lg hover:bg-gray-600 transition"
+                >
+                  Cancel
+                </button>
+              </div>
+            </form>
+          </Modal>
+        )}
       </div>
-      <div className="mb-4">
-        <label className="block text-gray-700 text-sm font-bold mb-2">Status:</label>
-        <Select
-          options={statusOptions}
-          value={statusOptions.find(option => option.value === currentBooking.status)}
-          onChange={(option) => setCurrentBooking({ ...currentBooking, status: option.value })}
-        />
-      </div>
-      <div className="flex justify-end">
-        <button
-          onClick={() => handleStatusChange(currentBooking._id, currentBooking.status)}
-          className="bg-green-500 text-white px-4 py-2 rounded-lg hover:bg-green-600 transition"
-        >
-          Save Changes
-        </button>
-        <button
-          onClick={closeModal}
-          className="bg-gray-500 text-white px-4 py-2 ml-4 rounded-lg hover:bg-gray-600 transition"
-        >
-          Cancel
-        </button>
-      </div>
-    </form>
-  </Modal>
-)}
-</div>
-</div>
-);
+    </div>
+  );
 };
 
 export default MeetingBooking;
-
