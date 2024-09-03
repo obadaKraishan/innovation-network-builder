@@ -1,6 +1,6 @@
 const Department = require('../models/departmentModel');
 const User = require('../models/userModel');
-const MeetingBooking = require('../models/meetingBookingModel'); // Assuming you have created this model
+const MeetingBooking = require('../models/meetingBookingModel');
 const moment = require('moment');
 
 // @desc    Get departments and users for booking
@@ -9,8 +9,8 @@ const moment = require('moment');
 const getDepartmentsAndUsers = async (req, res) => {
   try {
     const departments = await Department.find();
-    const users = await User.find().select('name department position email');
-    
+    const users = await User.find().select('name department position email zoomLink');
+
     res.json({ departments, users });
   } catch (error) {
     res.status(500).json({ message: error.message });
@@ -23,7 +23,7 @@ const getDepartmentsAndUsers = async (req, res) => {
 const createBooking = async (req, res) => {
   try {
     const { userId, selectedUser, date, time, duration, type, phoneNumber, agenda } = req.body;
-    
+
     const existingBooking = await MeetingBooking.findOne({
       user: selectedUser,
       date: moment(date).format('YYYY-MM-DD'),
@@ -52,15 +52,16 @@ const createBooking = async (req, res) => {
   }
 };
 
-// @desc    Get bookings for a user
+// @desc    Get bookings for a user (both booked by and booked with)
 // @route   GET /api/booking
 // @access  Private
 const getBookingsForUser = async (req, res) => {
   try {
     const { userId } = req.query;
-    const bookings = await MeetingBooking.find({ user: userId });
+    const bookedWithOthers = await MeetingBooking.find({ bookedBy: userId }).populate('user', 'name department position zoomLink');
+    const bookedByOthers = await MeetingBooking.find({ user: userId }).populate('bookedBy', 'name department position zoomLink');
 
-    res.json(bookings);
+    res.json({ bookedWithOthers, bookedByOthers });
   } catch (error) {
     res.status(500).json({ message: error.message });
   }

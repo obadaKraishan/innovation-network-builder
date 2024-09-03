@@ -9,7 +9,7 @@ const userRoutes = require('./routes/userRoutes');
 const departmentRoutes = require('./routes/departmentRoutes');
 const networkRoutes = require('./routes/networkRoutes');
 const teamRoutes = require('./routes/teamRoutes');
-const messageRoutes = require('./routes/messagesRoutes'); // Import the new message routes
+const messageRoutes = require('./routes/messagesRoutes'); 
 const bookingRoutes = require('./routes/bookingRoutes');
 
 const app = express();
@@ -26,7 +26,7 @@ console.log('JWT_SECRET:', process.env.JWT_SECRET);
 
 // Define Routes
 app.use('/api/auth', authRoutes);
-app.use('/api/users', userRoutes); // This now includes the new route
+app.use('/api/users', userRoutes); 
 app.use('/api/departments', departmentRoutes);
 app.use('/api/network', networkRoutes);
 app.use('/api/teams', teamRoutes);
