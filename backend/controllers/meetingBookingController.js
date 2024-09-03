@@ -3,6 +3,27 @@ const User = require("../models/userModel");
 const MeetingBooking = require("../models/meetingBookingModel");
 const moment = require("moment");
 
+const createConnection = async (userA, userB, context) => {
+  try {
+    console.log(`Attempting to create connection between ${userA} and ${userB} with context: ${context}`);
+
+    const newConnection = new Connection({
+      userA,
+      userB,
+      context,
+      interactionCount: 1,
+      lastInteractedAt: Date.now(),
+    });
+
+    const savedConnection = await newConnection.save();
+    console.log(`Connection successfully created:`, savedConnection);
+
+    return savedConnection;
+  } catch (error) {
+    console.error(`Error creating connection between ${userA} and ${userB} for context: ${context}:`, error.message);
+  }
+};
+
 // @desc    Get departments and users for booking
 // @route   GET /api/booking/departments
 // @access  Private
@@ -84,6 +105,10 @@ const createBooking = async (req, res) => {
     });
 
     await booking.save();
+
+    // Always create a new connection regardless of existing connections
+    await createConnection(userId, selectedUser, 'meeting booking');
+
     res.status(201).json(booking);
   } catch (error) {
     console.error("Error creating booking:", error.message);
