@@ -21,6 +21,8 @@ import MessagesInbox from './components/MessagesInbox';
 import MessagesSent from './components/MessagesSent';
 import MessagesImportant from './components/MessagesImportant';
 import MessageDetails from './components/MessageDetails';
+import MeetingBooking from './components/MeetingBooking';
+
 
 const AppRoutes = () => {
   return (
@@ -45,6 +47,7 @@ const AppRoutes = () => {
           <Route path="/messages/sent" element={<MessagesSent />} /> {/* Sent Messages Route */}
           <Route path="/messages/important" element={<MessagesImportant />} /> {/* Important Messages Route */}
           <Route path="/messages/:id" element={<MessageDetails />} /> {/* Message Details Route */}
+          <Route path="/meeting-booking" element={<MeetingBooking />} />
           <Route path="/" element={<Navigate to="/login" />} />
           <Route path="*" element={<Navigate to="/" />} />
         </Routes>
