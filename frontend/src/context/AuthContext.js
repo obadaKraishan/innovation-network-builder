@@ -12,18 +12,23 @@ export const AuthProvider = ({ children }) => {
 
   const login = async (email, password) => {
     try {
-      localStorage.removeItem('token'); // Clear any old tokens
-      localStorage.removeItem('userInfo'); // Clear any old user info
-
+      // Clear any previous data
+      localStorage.removeItem('token');
+      localStorage.removeItem('userInfo');
+  
+      // Perform the login
       const { data } = await axios.post('http://localhost:5001/api/auth/login', { email, password });
-      setUser(data);
+      
+      // Store the user data in localStorage
       localStorage.setItem('userInfo', JSON.stringify(data));
-      localStorage.setItem('token', data.token); // Store the new token
-      navigate('/dashboard');
+      localStorage.setItem('token', data.token); // Store the JWT token
+      
+      setUser(data); // Update the user state
+      navigate('/dashboard'); // Navigate to the dashboard
     } catch (error) {
       console.error('Login failed', error.response?.data?.message || error.message);
     }
-  };
+  };  
 
   const logout = () => {
     setUser(null);

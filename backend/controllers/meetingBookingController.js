@@ -53,6 +53,10 @@ const createBooking = async (req, res) => {
       agenda,
     } = req.body;
 
+    if (!userId) {
+      return res.status(400).json({ message: "User ID (bookedBy) is required" });
+    }
+
     const existingBooking = await MeetingBooking.findOne({
       user: selectedUser,
       date: moment(date).format("YYYY-MM-DD"),

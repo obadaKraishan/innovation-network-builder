@@ -38,6 +38,12 @@ const BookMeeting = () => {
     fetchDepartmentsAndUsers();
   }, []);
 
+  const filterUsersByDepartment = (deptId) => {
+    const departmentIds = [deptId];
+    const subDeptIds = departments.find(dept => dept._id === deptId)?.subDepartments.map(subDept => subDept._id) || [];
+    return users.filter(user => departmentIds.includes(String(user.department._id)) || subDeptIds.includes(String(user.department._id)));
+  };
+
   useEffect(() => {
     const fetchUserAvailability = async () => {
       try {
@@ -59,8 +65,18 @@ const BookMeeting = () => {
 
   const handleBooking = async () => {
     try {
+      // Retrieve the user information from localStorage
+      const user = JSON.parse(localStorage.getItem('userInfo'));
+      const userId = user?._id;
+  
+      if (!userId) {
+        throw new Error("User ID is missing.");
+      }
+  
+      console.log('User ID:', userId); // Debugging statement
+  
       const bookingData = {
-        userId: localStorage.getItem('userId'), // Ensure this is populated
+        userId, // Use the retrieved userId
         selectedUser: selectedUser.value,
         date: selectedDate,
         time: selectedTime,
@@ -70,11 +86,11 @@ const BookMeeting = () => {
         agenda,
       };
   
-      await api.post('/booking', bookingData);
+      await api.post('/booking', bookingData); // Send the booking data
       toast.success('Meeting booked successfully!');
       navigate('/dashboard');
     } catch (error) {
-      toast.error('Failed to book meeting.');
+      toast.error(error.message || 'Failed to book meeting.');
     }
   };  
 
@@ -148,9 +164,7 @@ const BookMeeting = () => {
                   const user = users.find(u => u._id === option.value);
                   setSelectedUser({ value: user._id, label: user.name, ...user });
                 }}
-                options={users
-                  .filter(user => selectedDepartment && user.department && user.department.startsWith(selectedDepartment.value))
-                  .map(user => ({ value: user._id, label: user.name }))}
+                options={selectedDepartment ? filterUsersByDepartment(selectedDepartment.value).map(user => ({ value: user._id, label: user.name })) : []}
                 className="w-full"
               />
             </div>
