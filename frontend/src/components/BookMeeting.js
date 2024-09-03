@@ -53,6 +53,8 @@ const BookMeeting = () => {
           const userId = selectedUser.value;
           const formattedDate = selectedDate.toISOString().split('T')[0];
           const { data } = await api.get(`/booking/availability?userId=${userId}&date=${formattedDate}&duration=${duration === '30 minutes' ? 30 : 60}`);
+  
+          console.log("Available Times from API:", data.availableTimes);
           
           setAvailableTimes(data.availableTimes);
         }

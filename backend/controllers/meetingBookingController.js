@@ -112,7 +112,7 @@ const getBookingsForUser = async (req, res) => {
 // @access  Private
 const getUserAvailability = async (req, res) => {
   try {
-    const { userId, date, duration } = req.query; // Retrieve 'duration' from query parameters
+    const { userId, date, duration } = req.query;
 
     if (!duration) {
       return res.status(400).json({ message: "Duration is required." });
@@ -168,24 +168,34 @@ const filterAvailableTimes = (allTimes, bookedTimes, disabledRanges, duration) =
     const bookingTime = moment(time, 'h:mm A');
     const endTime = bookingTime.clone().add(duration, 'minutes');
 
-    // Debugging logs
+    // Log the times being checked
     console.log("Checking time:", time);
-    console.log("Booked Times:", bookedTimes);
-    console.log("Disabled Ranges:", disabledRanges);
 
     const isBooked = bookedTimes.some(booking => {
       const bookingStart = moment(booking.time, 'h:mm A');
       const bookingEnd = bookingStart.clone().add(booking.duration, 'minutes');
-      return bookingTime.isBetween(bookingStart, bookingEnd, null, '[)') ||
-             endTime.isBetween(bookingStart, bookingEnd, null, '(]');
+      
+      console.log("Booking Start:", bookingStart.format('h:mm A'), "Booking End:", bookingEnd.format('h:mm A'));
+
+      // Check if the time slot overlaps with any existing booking
+      return (bookingTime.isSameOrAfter(bookingStart) && bookingTime.isBefore(bookingEnd)) ||
+             (endTime.isAfter(bookingStart) && endTime.isSameOrBefore(bookingEnd)) ||
+             (bookingTime.isSameOrBefore(bookingStart) && endTime.isSameOrAfter(bookingEnd));
     });
 
     const isDisabled = disabledRanges.some(range => {
       const disabledStart = moment(range.start);
       const disabledEnd = moment(range.end);
-      return bookingTime.isBetween(disabledStart, disabledEnd, null, '[)') ||
-             endTime.isBetween(disabledStart, disabledEnd, null, '(]');
+
+      console.log("Disabled Start:", disabledStart.format('h:mm A'), "Disabled End:", disabledEnd.format('h:mm A'));
+
+      // Check if the time slot overlaps with any disabled range
+      return (bookingTime.isSameOrAfter(disabledStart) && bookingTime.isBefore(disabledEnd)) ||
+             (endTime.isAfter(disabledStart) && endTime.isSameOrBefore(disabledEnd)) ||
+             (bookingTime.isSameOrBefore(disabledStart) && endTime.isSameOrAfter(disabledEnd));
     });
+
+    console.log("Is Booked:", isBooked, "Is Disabled:", isDisabled);
 
     // Only return the time if it is not booked or disabled
     return !isBooked && !isDisabled;

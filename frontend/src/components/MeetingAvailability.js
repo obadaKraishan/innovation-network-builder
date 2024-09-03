@@ -9,7 +9,7 @@ import { useNavigate } from 'react-router-dom';
 import moment from 'moment';
 
 const MeetingAvailability = () => {
-  const [selectedDate, setSelectedDate] = useState(null);
+  const [selectedDate, setSelectedDate] = useState(new Date()); // Initialize with today's date
   const [availableTimes, setAvailableTimes] = useState([]);
   const [selectedTimes, setSelectedTimes] = useState([]);
   const [existingBookings, setExistingBookings] = useState([]);
@@ -99,7 +99,7 @@ const MeetingAvailability = () => {
       await api.put('/booking/availability', { userId, disableRange });
       toast.success('Availability updated successfully!');
       setDisabledTimes(disableRange.timeRanges);  // Update the state to reflect the changes
-      setSelectedDate(null);
+      setSelectedDate(new Date()); // Reset to today's date after update
       setSelectedTimes([]);
     } catch (error) {
       console.error('Error updating availability:', error);
@@ -180,7 +180,7 @@ const MeetingAvailability = () => {
             <button
               onClick={handleUpdateAvailability}
               className="bg-blue-500 text-white px-4 py-2 rounded-lg flex items-center hover:bg-blue-600 transition"
-              disabled={!selectedDate || selectedTimes.length === 0}
+              disabled={selectedTimes.length === 0}
             >
               Update Availability
             </button>
