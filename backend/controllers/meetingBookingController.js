@@ -123,6 +123,11 @@ const getUserAvailability = async (req, res) => {
       return res.status(404).json({ message: "User not found" });
     }
 
+    console.log("Fetching availability for User ID:", userId);
+    console.log("Selected Date:", date, "Duration:", duration);
+    console.log("User's Disabled Dates:", user.availability);
+    console.log("User's Time Ranges:", user.timeRanges);
+
     const isDateDisabled = user.availability.some(disabledDate => 
       moment(disabledDate).isSame(moment(date), 'day')
     );
@@ -130,10 +135,12 @@ const getUserAvailability = async (req, res) => {
     const timeRanges = user.timeRanges || [];
 
     if (isDateDisabled) {
+      console.log("The selected date is disabled for this user.");
       return res.status(200).json({ availableTimes: [], bookedTimes: [], timeRanges });
     }
 
     const existingBookings = await MeetingBooking.find({ user: userId, date });
+    console.log("Existing bookings on this date:", existingBookings);
 
     const bookedTimes = existingBookings.map(booking => ({
       time: booking.time,
@@ -142,7 +149,11 @@ const getUserAvailability = async (req, res) => {
 
     const allTimes = generateAvailableTimes(moment('09:00 AM', 'h:mm A'), moment('05:00 PM', 'h:mm A'), parseInt(duration, 10));
 
+    console.log("Generated All Times:", allTimes);
+
     const availableTimes = filterAvailableTimes(allTimes, bookedTimes, timeRanges, parseInt(duration, 10));
+
+    console.log("Final Available Times:", availableTimes);
 
     res.status(200).json({ availableTimes, bookedTimes, timeRanges });
   } catch (error) {
@@ -202,7 +213,6 @@ const filterAvailableTimes = (allTimes, bookedTimes, disabledRanges, duration) =
   });
 };
 
-
 // @desc    Update user availability
 // @route   PUT /api/booking/availability
 // @access  Private
@@ -214,9 +224,14 @@ const updateUserAvailability = async (req, res) => {
       return res.status(404).json({ message: "User not found" });
     }
 
+    console.log("Updating availability for User ID:", userId);
+    console.log("Disable Range Provided:", disableRange);
+
     user.availability = disableRange.datesToDisable || [];
     user.timeRanges = disableRange.timeRanges || [];
     await user.save();
+
+    console.log("User availability updated successfully");
 
     res.json({ message: "User availability updated successfully" });
   } catch (error) {

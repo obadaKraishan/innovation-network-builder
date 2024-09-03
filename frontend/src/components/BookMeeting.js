@@ -52,13 +52,15 @@ const BookMeeting = () => {
         if (selectedUser && selectedDate) {
           const userId = selectedUser.value;
           const formattedDate = selectedDate.toISOString().split('T')[0];
+          console.log("Fetching availability for User ID:", userId, "on Date:", formattedDate, "with Duration:", duration);
+          
           const { data } = await api.get(`/booking/availability?userId=${userId}&date=${formattedDate}&duration=${duration === '30 minutes' ? 30 : 60}`);
   
           console.log("Available Times from API:", data.availableTimes);
-          
           setAvailableTimes(data.availableTimes);
         }
       } catch (error) {
+        console.error('Failed to fetch user availability:', error);
         toast.error('Failed to fetch user availability.');
       }
     };
@@ -66,7 +68,7 @@ const BookMeeting = () => {
     if (selectedDate && selectedUser) {
       fetchUserAvailability();
     }
-  }, [selectedDate, selectedUser, duration]);  
+  }, [selectedDate, selectedUser, duration]);    
 
   const handleBooking = async () => {
     try {
