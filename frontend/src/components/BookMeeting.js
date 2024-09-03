@@ -53,7 +53,11 @@ const BookMeeting = () => {
           const userId = selectedUser.value;
           const formattedDate = selectedDate.toISOString().split('T')[0];
           const { data } = await api.get(`/booking/availability?userId=${userId}&date=${formattedDate}`);
-          setAvailableTimes(data.availableTimes);
+          
+          const allTimes = generateAvailableTimes(moment('09:00 AM', 'h:mm A'), moment('05:00 PM', 'h:mm A'), duration === '30 minutes' ? 30 : 60);
+          const filteredTimes = filterAvailableTimes(allTimes, data.bookedTimes, data.timeRanges, duration === '30 minutes' ? 30 : 60);
+          
+          setAvailableTimes(filteredTimes);
         }
       } catch (error) {
         toast.error('Failed to fetch user availability.');
@@ -64,6 +68,34 @@ const BookMeeting = () => {
       fetchUserAvailability();
     }
   }, [selectedDate, selectedUser, duration]);
+
+  const generateAvailableTimes = (startTime, endTime, duration) => {
+    const times = [];
+    let currentTime = startTime.clone();
+    while (currentTime.isBefore(endTime)) {
+      times.push(currentTime.format('h:mm A'));
+      currentTime.add(duration, 'minutes');
+    }
+    return times;
+  };
+
+  const filterAvailableTimes = (allTimes, existingBookings, disabledRanges, duration) => {
+    return allTimes.filter(time => {
+      const bookingTime = moment(time, 'h:mm A');
+      return !existingBookings.some(booking => {
+        const bookingStart = moment(booking.time, 'h:mm A');
+        const bookingEnd = bookingStart.clone().add(booking.duration === '30 minutes' ? 30 : 60, 'minutes');
+        const endTime = bookingTime.clone().add(duration, 'minutes');
+        return bookingTime.isBetween(bookingStart, bookingEnd, null, '[)') ||
+               endTime.isBetween(bookingStart, bookingEnd, null, '(]');
+      }) && !disabledRanges.some(range => {
+        const disabledStart = moment(range.start);
+        const disabledEnd = moment(range.end);
+        return bookingTime.isBetween(disabledStart, disabledEnd, null, '[)') ||
+               bookingTime.clone().add(duration, 'minutes').isBetween(disabledStart, disabledEnd, null, '(]');
+      });
+    });
+  };
 
   const handleBooking = async () => {
     try {
@@ -134,51 +166,6 @@ END:VCALENDAR
     saveAs(blob, 'meeting.ics');
     toast.success('Meeting exported to calendar!');
   };
-
-  const generateAvailableTimes = (startTime, endTime, duration) => {
-    const times = [];
-    let currentTime = startTime.clone();
-    while (currentTime.isBefore(endTime)) {
-      times.push(currentTime.format('h:mm A'));
-      currentTime.add(duration, 'minutes');
-    }
-    return times;
-  };
-
-  const filterAvailableTimes = (allTimes, existingBookings, duration) => {
-    return allTimes.filter(time => {
-      const bookingTime = moment(time, 'h:mm A');
-      return !existingBookings.some(booking => {
-        const bookingStart = moment(booking.time, 'h:mm A');
-        const bookingEnd = bookingStart.clone().add(booking.duration === '30 minutes' ? 30 : 60, 'minutes');
-        const endTime = bookingTime.clone().add(duration, 'minutes');
-        return bookingTime.isBetween(bookingStart, bookingEnd, null, '[)') ||
-               endTime.isBetween(bookingStart, bookingEnd, null, '(]');
-      });
-    });
-  };
-
-  useEffect(() => {
-    if (selectedUser && selectedDate) {
-      const fetchAndFilterTimes = async () => {
-        const userId = selectedUser.value;
-        const formattedDate = selectedDate.toISOString().split('T')[0];
-
-        try {
-          const { data: { availableTimes, bookedTimes } } = await api.get(`/booking/availability?userId=${userId}&date=${formattedDate}`);
-
-          const allTimes = generateAvailableTimes(moment('09:00 AM', 'h:mm A'), moment('04:00 PM', 'h:mm A'), duration === '30 minutes' ? 30 : 60);
-          const filteredTimes = filterAvailableTimes(allTimes, bookedTimes, duration === '30 minutes' ? 30 : 60);
-
-          setAvailableTimes(filteredTimes);
-        } catch (error) {
-          toast.error('Failed to fetch available times.');
-        }
-      };
-
-      fetchAndFilterTimes();
-    }
-  }, [selectedUser, selectedDate, duration]);
 
   return (
     <div className="flex h-screen">
