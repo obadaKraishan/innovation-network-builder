@@ -268,6 +268,29 @@ const updateUserAvailability = async (req, res) => {
   }
 };
 
+// @desc    Update meeting status
+// @route   PUT /api/booking/status/:id
+// @access  Private
+const updateMeetingStatus = async (req, res) => {
+  try {
+    const { id } = req.params;
+    const { status } = req.body;
+
+    const booking = await MeetingBooking.findById(id);
+    if (!booking) {
+      return res.status(404).json({ message: "Booking not found" });
+    }
+
+    booking.status = status;
+    await booking.save();
+
+    res.status(200).json({ message: "Meeting status updated successfully" });
+  } catch (error) {
+    console.error("Error updating meeting status:", error.message);
+    res.status(500).json({ message: error.message });
+  }
+};
+
 
 module.exports = {
   getDepartmentsAndUsers,
@@ -275,4 +298,5 @@ module.exports = {
   getBookingsForUser,
   updateUserAvailability,
   getUserAvailability,
+  updateMeetingStatus,
 };

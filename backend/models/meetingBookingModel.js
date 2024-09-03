@@ -35,6 +35,11 @@ const meetingBookingSchema = new mongoose.Schema({
     type: String,
     required: true,
   },
+  status: {
+    type: String,
+    enum: ['requested', 'approved', 'done', 'canceled'],
+    default: 'requested',
+  },
   createdAt: {
     type: Date,
     default: Date.now,
