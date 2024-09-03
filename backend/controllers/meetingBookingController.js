@@ -97,13 +97,20 @@ const createBooking = async (req, res) => {
 const getBookingsForUser = async (req, res) => {
   try {
     const { userId } = req.query;
+
     const bookedWithOthers = await MeetingBooking.find({
       bookedBy: userId,
-    }).populate("user", "name department position zoomLink");
-    const bookedByOthers = await MeetingBooking.find({ user: userId }).populate(
-      "bookedBy",
-      "name department position zoomLink"
-    );
+    }).populate({
+      path: 'user',
+      select: 'name department position zoomLink',
+      populate: { path: 'department', select: 'name' }  // Ensure department is populated
+    });
+
+    const bookedByOthers = await MeetingBooking.find({ user: userId }).populate({
+      path: 'bookedBy',
+      select: 'name department position zoomLink',
+      populate: { path: 'department', select: 'name' }  // Ensure department is populated
+    });
 
     res.json({ bookedWithOthers, bookedByOthers });
   } catch (error) {

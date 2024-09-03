@@ -248,7 +248,7 @@ const MeetingBooking = () => {
         <p><strong>Date:</strong> {booking.date}</p>
         <p><strong>Time:</strong> {booking.time}</p>
         <p><strong>With:</strong> {booking.user.name}</p>
-        <p><strong>Department:</strong> {booking.user.department.name || 'N/A'}</p>
+        <p><strong>Department:</strong> {booking.user?.department?.name || 'N/A'}</p>
         <p><strong>Position:</strong> {booking.user.position}</p>
         <p><strong>Duration:</strong> {booking.duration}</p>
         <p><strong>Type:</strong> {booking.type}</p>
@@ -291,7 +291,7 @@ const MeetingBooking = () => {
         <p><strong>Date:</strong> {booking.date}</p>
         <p><strong>Time:</strong> {booking.time}</p>
         <p><strong>Booked By:</strong> {booking.bookedBy.name}</p>
-        <p><strong>Department:</strong> {booking.bookedBy.department.name || 'N/A'}</p>
+        <p><strong>Department:</strong> {booking.bookedBy?.department?.name || 'N/A'}</p>
         <p><strong>Position:</strong> {booking.bookedBy.position}</p>
         <p><strong>Duration:</strong> {booking.duration}</p>
         <p><strong>Type:</strong> {booking.type}</p>
