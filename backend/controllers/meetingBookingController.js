@@ -134,8 +134,9 @@ const getUserAvailability = async (req, res) => {
 
     const timeRanges = user.timeRanges || [];
 
-    if (isDateDisabled) {
-      console.log("The selected date is disabled for this user.");
+    // If the date is disabled and no specific time ranges are available, return no available times
+    if (isDateDisabled && !timeRanges.length) {
+      console.log("The selected date is fully disabled for this user.");
       return res.status(200).json({ availableTimes: [], bookedTimes: [], timeRanges });
     }
 
@@ -176,47 +177,41 @@ const generateAvailableTimes = (startTime, endTime, duration) => {
 // Helper function to filter available times based on booked and disabled slots
 const filterAvailableTimes = (allTimes, bookedTimes, disabledRanges, duration) => {
   return allTimes.filter(time => {
-    const bookingTime = moment(time, 'h:mm A');
-    const endTime = bookingTime.clone().add(duration, 'minutes');
+    const startTime = moment(time, 'h:mm A');
+    const endTime = startTime.clone().add(duration, 'minutes');
 
     // Log the times being checked
     console.log("Checking time:", time);
 
+    // Check if the time slot overlaps with any booked time
     const isBooked = bookedTimes.some(booking => {
       const bookingStart = moment(booking.time, 'h:mm A');
       const bookingEnd = bookingStart.clone().add(booking.duration, 'minutes');
-      
+
       console.log("Booking Start:", bookingStart.format('h:mm A'), "Booking End:", bookingEnd.format('h:mm A'));
 
-      // Check if the time slot overlaps with any existing booking
-      const overlapCondition = 
-        (bookingTime.isSameOrAfter(bookingStart) && bookingTime.isBefore(bookingEnd)) ||
-        (endTime.isAfter(bookingStart) && endTime.isSameOrBefore(bookingEnd)) ||
-        (bookingTime.isSameOrBefore(bookingStart) && endTime.isSameOrAfter(bookingEnd));
-
-      console.log("Overlap condition met:", overlapCondition);
-      return overlapCondition;
+      // Check for overlap with booked times
+      const overlap = (startTime.isBefore(bookingEnd) && endTime.isAfter(bookingStart));
+      console.log("Booked overlap condition met:", overlap);
+      return overlap;
     });
 
+    // Check if the time slot overlaps with any disabled range
     const isDisabled = disabledRanges.some(range => {
       const disabledStart = moment(range.start);
       const disabledEnd = moment(range.end);
 
       console.log("Disabled Start:", disabledStart.format('h:mm A'), "Disabled End:", disabledEnd.format('h:mm A'));
 
-      // Check if the time slot overlaps with any disabled range
-      const disabledCondition = 
-        (bookingTime.isSameOrAfter(disabledStart) && bookingTime.isBefore(disabledEnd)) ||
-        (endTime.isAfter(disabledStart) && endTime.isSameOrBefore(disabledEnd)) ||
-        (bookingTime.isSameOrBefore(disabledStart) && endTime.isSameOrAfter(disabledEnd));
-
-      console.log("Disabled condition met:", disabledCondition);
-      return disabledCondition;
+      // Check for overlap with disabled times
+      const overlap = (startTime.isBefore(disabledEnd) && endTime.isAfter(disabledStart));
+      console.log("Disabled overlap condition met:", overlap);
+      return overlap;
     });
 
     console.log("Is Booked:", isBooked, "Is Disabled:", isDisabled);
 
-    // Only return the time if it is not booked or disabled
+    // Only return the time if it is neither booked nor disabled
     return !isBooked && !isDisabled;
   });
 };
