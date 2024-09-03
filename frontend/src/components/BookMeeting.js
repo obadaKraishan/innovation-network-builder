@@ -8,6 +8,7 @@ import Select from 'react-select';
 import 'react-toastify/dist/ReactToastify.css';
 import DatePicker from 'react-datepicker';
 import 'react-datepicker/dist/react-datepicker.css';
+import moment from 'moment'; 
 
 const BookMeeting = () => {
   const [step, setStep] = useState(1);
@@ -19,6 +20,7 @@ const BookMeeting = () => {
   const [availableTimes, setAvailableTimes] = useState([]);
   const [selectedTime, setSelectedTime] = useState('');
   const [meetingType, setMeetingType] = useState('Zoom');
+  const [duration, setDuration] = useState('30 minutes');
   const [phoneNumber, setPhoneNumber] = useState('');
   const [agenda, setAgenda] = useState('');
   const navigate = useNavigate();
@@ -41,7 +43,7 @@ const BookMeeting = () => {
     const fetchUserAvailability = async () => {
       try {
         if (selectedUser && selectedDate) {
-          const userId = selectedUser.value;
+          const userId = selectedUser._id;
           const formattedDate = selectedDate.toISOString().split('T')[0]; // Format the date for the API
           const { data } = await api.get(`/booking/availability?userId=${userId}&date=${formattedDate}`);
           setAvailableTimes(data.availableTimes);
@@ -55,16 +57,16 @@ const BookMeeting = () => {
     if (selectedDate && selectedUser) {
       fetchUserAvailability();
     }
-  }, [selectedDate, selectedUser]);
+  }, [selectedDate, selectedUser, duration]);
 
   const handleBooking = async () => {
     try {
       const bookingData = {
         userId: localStorage.getItem('userId'),
-        selectedUser: selectedUser.value,
+        selectedUser: selectedUser._id,
         date: selectedDate,
         time: selectedTime,
-        duration: '30 minutes',
+        duration,
         type: meetingType,
         phoneNumber,
         agenda,
@@ -78,6 +80,52 @@ const BookMeeting = () => {
       toast.error('Failed to book meeting.');
     }
   };
+
+  const generateAvailableTimes = (startTime, endTime, duration) => {
+    const times = [];
+    let currentTime = startTime.clone();
+    while (currentTime.isBefore(endTime)) {
+      times.push(currentTime.format('h:mm A'));
+      currentTime.add(duration, 'minutes');
+    }
+    return times;
+  };
+
+  const filterAvailableTimes = (allTimes, existingBookings, duration) => {
+    return allTimes.filter(time => {
+      const bookingTime = moment(time, 'h:mm A');
+      return !existingBookings.some(booking => {
+        const bookingStart = moment(booking.time, 'h:mm A');
+        const bookingEnd = bookingStart.clone().add(booking.duration, 'minutes');
+        const endTime = bookingTime.clone().add(duration, 'minutes');
+        return bookingTime.isBetween(bookingStart, bookingEnd, null, '[)') ||
+               endTime.isBetween(bookingStart, bookingEnd, null, '(]');
+      });
+    });
+  };
+
+  useEffect(() => {
+    if (selectedUser && selectedDate) {
+      const fetchAndFilterTimes = async () => {
+        const userId = selectedUser._id;
+        const formattedDate = selectedDate.toISOString().split('T')[0];
+
+        try {
+          const { data: { availableTimes, bookedTimes } } = await api.get(`/booking/availability?userId=${userId}&date=${formattedDate}`);
+
+          const allTimes = generateAvailableTimes(moment('09:00 AM', 'h:mm A'), moment('04:00 PM', 'h:mm A'), duration === '30 minutes' ? 30 : 60);
+          const filteredTimes = filterAvailableTimes(allTimes, bookedTimes, duration === '30 minutes' ? 30 : 60);
+
+          setAvailableTimes(filteredTimes);
+        } catch (error) {
+          console.error('Error fetching and filtering times:', error);
+          toast.error('Failed to fetch available times.');
+        }
+      };
+
+      fetchAndFilterTimes();
+    }
+  }, [selectedUser, selectedDate, duration]);
 
   return (
     <div className="flex h-screen">
@@ -100,13 +148,26 @@ const BookMeeting = () => {
               <label className="block text-gray-700 text-sm font-bold mb-2">User:</label>
               <Select
                 value={selectedUser}
-                onChange={setSelectedUser}
+                onChange={(selectedOption) => {
+                  const user = users.find(u => u._id === selectedOption.value);
+                  setSelectedUser(user);
+                }}
                 options={users
                   .filter(user => selectedDepartment && user.department && user.department.startsWith(selectedDepartment.value))
                   .map(user => ({ value: user._id, label: user.name }))}
                 className="w-full"
               />
             </div>
+            {selectedUser && (
+              <div className="mb-4">
+                <h3 className="text-lg font-semibold">User Details:</h3>
+                <p>Name: {selectedUser.name}</p>
+                <p>Email: {selectedUser.email}</p>
+                <p>Role: {selectedUser.role}</p>
+                <p>Position: {selectedUser.position}</p>
+                <p>Department: {selectedUser.department.name}</p>
+              </div>
+            )}
             <div className="flex justify-between">
               <button
                 onClick={() => navigate('/meeting-booking')}
@@ -127,7 +188,18 @@ const BookMeeting = () => {
 
         {step === 2 && (
           <div className="bg-white p-6 rounded-lg shadow-lg">
-            <h2 className="text-2xl font-semibold mb-6">Step 2: Select Date</h2>
+            <h2 className="text-2xl font-semibold mb-6">Step 2: Select Date and Duration</h2>
+            <div className="mb-4">
+              <label className="block text-gray-700 text-sm font-bold mb-2">Duration:</label>
+              <select
+                value={duration}
+                onChange={(e) => setDuration(e.target.value)}
+                className="w-full p-3 border border-gray-300 rounded-lg"
+              >
+                <option value="30 minutes">30 minutes</option>
+                <option value="1 hour">1 hour</option>
+              </select>
+            </div>
             <DatePicker
               selected={selectedDate}
               onChange={(date) => setSelectedDate(date)}
