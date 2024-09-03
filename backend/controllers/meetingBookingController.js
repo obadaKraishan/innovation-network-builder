@@ -118,12 +118,15 @@ const getUserAvailability = async (req, res) => {
       return res.status(404).json({ message: "User not found" });
     }
 
+    // Check if the date is disabled or within any disabled time ranges
     const isDateDisabled = user.availability.some(disabledDate => {
       return moment(disabledDate).isSame(moment(date), 'day');
     });
 
+    const timeRanges = user.timeRanges || [];
+
     if (isDateDisabled) {
-      return res.status(200).json({ availableTimes: [], bookedTimes: [] });
+      return res.status(200).json({ availableTimes: [], bookedTimes: [], timeRanges });
     }
 
     const existingBookings = await MeetingBooking.find({ user: userId, date });
@@ -133,7 +136,7 @@ const getUserAvailability = async (req, res) => {
       duration: booking.duration === '30 minutes' ? 30 : 60,
     }));
 
-    res.status(200).json({ availableTimes: [], bookedTimes });
+    res.status(200).json({ availableTimes: [], bookedTimes, timeRanges });
   } catch (error) {
     console.error("Error fetching user availability:", error.message);
     res.status(500).json({ message: error.message });
@@ -145,13 +148,14 @@ const getUserAvailability = async (req, res) => {
 // @access  Private
 const updateUserAvailability = async (req, res) => {
   try {
-    const { userId, datesToDisable } = req.body;
+    const { userId, disableRange } = req.body;
     const user = await User.findById(userId);
     if (!user) {
       return res.status(404).json({ message: "User not found" });
     }
 
-    user.availability = datesToDisable;
+    user.availability = disableRange.datesToDisable || [];
+    user.timeRanges = disableRange.timeRanges || [];
     await user.save();
 
     res.json({ message: "User availability updated successfully" });

@@ -49,6 +49,18 @@ const userSchema = new mongoose.Schema({
     type: [Date], // Array of dates when the user is unavailable
     default: [], // Default to an empty array
   },
+  timeRanges: [
+    {
+      start: {
+        type: Date,
+        required: true,
+      },
+      end: {
+        type: Date,
+        required: true,
+      },
+    },
+  ],
   createdAt: {
     type: Date,
     default: Date.now,
