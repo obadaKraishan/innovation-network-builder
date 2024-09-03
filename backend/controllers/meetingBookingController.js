@@ -153,6 +153,7 @@ const getUserAvailability = async (req, res) => {
       duration: booking.duration === '30 minutes' ? 30 : 60,
     }));
 
+    // Pass the necessary parameters to generateAvailableTimes
     const allTimes = generateAvailableTimes(date, parseInt(duration, 10), bookedTimes, timeRanges);
 
     console.log("Generated All Times:", allTimes);
@@ -175,17 +176,23 @@ const generateAvailableTimes = (date, duration, existingBookings, disabledTimes)
   const endTime = moment(date).hour(17).minute(0);  // End at 5 PM
 
   while (currentTime.isBefore(endTime)) {
-    const isBookedOrDisabled = existingBookings.some(booking => {
-      const bookingTime = moment(`${booking.date} ${booking.time}`, 'YYYY-MM-DD h:mm A');
-      return currentTime.isSame(bookingTime, 'minute');
-    }) || disabledTimes.some(disabled => {
-      return currentTime.isBetween(moment(disabled.start, 'h:mm A'), moment(disabled.end, 'h:mm A'), null, '[)');
-    });
+      const isBooked = existingBookings.some(booking => {
+          const bookingStart = moment(`${booking.date} ${booking.time}`, 'YYYY-MM-DD h:mm A');
+          const bookingEnd = bookingStart.clone().add(booking.duration, 'minutes');
+          return currentTime.isBetween(bookingStart, bookingEnd, null, '[)');
+      });
 
-    if (!isBookedOrDisabled) {
-      times.push(currentTime.clone());
-    }
-    currentTime.add(30, 'minutes');
+      const isDisabled = disabledTimes.some(disabled => {
+          const disabledStart = moment(disabled.start);
+          const disabledEnd = moment(disabled.end);
+          return currentTime.isBetween(disabledStart, disabledEnd, null, '[)');
+      });
+
+      if (!isBooked && !isDisabled) {
+          times.push(currentTime.clone());
+      }
+
+      currentTime.add(30, 'minutes');
   }
 
   return times;
