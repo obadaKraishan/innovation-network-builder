@@ -10,6 +10,7 @@ const departmentRoutes = require('./routes/departmentRoutes');
 const networkRoutes = require('./routes/networkRoutes');
 const teamRoutes = require('./routes/teamRoutes');
 const messageRoutes = require('./routes/messagesRoutes'); // Import the new message routes
+const bookingRoutes = require('./routes/bookingRoutes');
 
 const app = express();
 
@@ -30,6 +31,7 @@ app.use('/api/departments', departmentRoutes);
 app.use('/api/network', networkRoutes);
 app.use('/api/teams', teamRoutes);
 app.use('/api/messages', messageRoutes);
+app.use('/api/booking', bookingRoutes);
 
 // Error Handling Middleware
 app.use((err, req, res, next) => {

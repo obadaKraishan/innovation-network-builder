@@ -1,6 +1,6 @@
 import React, { useContext } from 'react';
 import { Link, useLocation } from 'react-router-dom';
-import { FaUser, FaSignOutAlt, FaTachometerAlt, FaUsers, FaChartLine, FaBuilding, FaCogs, FaUserShield, FaEnvelope } from 'react-icons/fa'; // Added FaUserShield for Manage Users
+import { FaUser, FaSignOutAlt, FaTachometerAlt, FaUsers, FaChartLine, FaBuilding, FaCogs, FaUserShield, FaEnvelope, FaCalendarAlt } from 'react-icons/fa'; // Added FaUserShield for Manage Users
 import AuthContext from '../context/AuthContext';
 
 const Sidebar = () => {
@@ -15,6 +15,7 @@ const Sidebar = () => {
     Employee: [
       { name: 'Profile', icon: <FaUser />, path: '/profile' },
       { name: 'My Team', icon: <FaUsers />, path: '/my-team' },
+      { name: 'Meeting Booking', icon: <FaCalendarAlt />, path: '/meeting-booking' },
       { name: 'Collaborator Finder', icon: <FaCogs />, path: '/collaborator-finder' },
       { name: 'Messages', icon: <FaEnvelope />, path: '/messages' },
     ],
@@ -23,6 +24,7 @@ const Sidebar = () => {
       { name: 'My Team', icon: <FaUsers />, path: '/my-team' },
       { name: 'Manage Team', icon: <FaUsers />, path: '/manage-team' },
       { name: 'Team Overview', icon: <FaChartLine />, path: '/team-overview' },
+      { name: 'Meeting Booking', icon: <FaCalendarAlt />, path: '/meeting-booking' },
       { name: 'Collaborator Finder', icon: <FaCogs />, path: '/collaborator-finder' },
       { name: 'Messages', icon: <FaEnvelope />, path: '/messages' },
     ],
@@ -30,6 +32,7 @@ const Sidebar = () => {
       { name: 'Profile', icon: <FaUser />, path: '/profile' },
       { name: 'Manage Team', icon: <FaUsers />, path: '/manage-team' },
       { name: 'Reports', icon: <FaChartLine />, path: '/reports' },
+      { name: 'Meeting Booking', icon: <FaCalendarAlt />, path: '/meeting-booking' },
       { name: 'Collaborator Finder', icon: <FaCogs />, path: '/collaborator-finder' },
       { name: 'Messages', icon: <FaEnvelope />, path: '/messages' },
     ],
@@ -39,6 +42,7 @@ const Sidebar = () => {
       { name: 'Company Reports', icon: <FaChartLine />, path: '/company-reports' },
       { name: 'Manage Departments', icon: <FaBuilding />, path: '/manage-departments' },
       { name: 'Manage Users', icon: <FaUserShield />, path: '/manage-users' }, // Added Manage Users
+      { name: 'Meeting Booking', icon: <FaCalendarAlt />, path: '/meeting-booking' },
       { name: 'Collaborator Finder', icon: <FaCogs />, path: '/collaborator-finder' },
       { name: 'Messages', icon: <FaEnvelope />, path: '/messages' },
     ],
@@ -46,6 +50,7 @@ const Sidebar = () => {
       { name: 'Profile', icon: <FaUser />, path: '/profile' },
       { name: 'Technology Overview', icon: <FaTachometerAlt />, path: '/technology-overview' },
       { name: 'Manage IT', icon: <FaCogs />, path: '/manage-it' },
+      { name: 'Meeting Booking', icon: <FaCalendarAlt />, path: '/meeting-booking' },
       { name: 'Collaborator Finder', icon: <FaCogs />, path: '/collaborator-finder' },
       { name: 'Messages', icon: <FaEnvelope />, path: '/messages' },
     ],
@@ -54,6 +59,7 @@ const Sidebar = () => {
       { name: 'HR Overview', icon: <FaTachometerAlt />, path: '/hr-overview' },
       { name: 'Manage Recruitment', icon: <FaUsers />, path: '/manage-recruitment' },
       { name: 'Manage Users', icon: <FaUserShield />, path: '/manage-users' }, // Added Manage Users
+      { name: 'Meeting Booking', icon: <FaCalendarAlt />, path: '/meeting-booking' },
       { name: 'Collaborator Finder', icon: <FaCogs />, path: '/collaborator-finder' },
       { name: 'Messages', icon: <FaEnvelope />, path: '/messages' },
     ],
@@ -61,18 +67,21 @@ const Sidebar = () => {
       { name: 'Profile', icon: <FaUser />, path: '/profile' },
       { name: 'Finance Overview', icon: <FaChartLine />, path: '/finance-overview' },
       { name: 'Budget Reports', icon: <FaChartLine />, path: '/budget-reports' },
+      { name: 'Meeting Booking', icon: <FaCalendarAlt />, path: '/meeting-booking' },
       { name: 'Collaborator Finder', icon: <FaCogs />, path: '/collaborator-finder' },
       { name: 'Messages', icon: <FaEnvelope />, path: '/messages' },
     ],
     'Research Scientist': [
       { name: 'Profile', icon: <FaUser />, path: '/profile' },
       { name: 'Research Projects', icon: <FaChartLine />, path: '/research-projects' },
+      { name: 'Meeting Booking', icon: <FaCalendarAlt />, path: '/meeting-booking' },
       { name: 'Collaborator Finder', icon: <FaCogs />, path: '/collaborator-finder' },
       { name: 'Messages', icon: <FaEnvelope />, path: '/messages' },
     ],
     'Customer Support Specialist': [
       { name: 'Profile', icon: <FaUser />, path: '/profile' },
       { name: 'Customer Cases', icon: <FaUsers />, path: '/customer-cases' },
+      { name: 'Meeting Booking', icon: <FaCalendarAlt />, path: '/meeting-booking' },
       { name: 'Collaborator Finder', icon: <FaCogs />, path: '/collaborator-finder' },
       { name: 'Messages', icon: <FaEnvelope />, path: '/messages' },
     ],
