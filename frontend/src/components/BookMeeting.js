@@ -6,11 +6,8 @@ import { FaArrowRight, FaArrowLeft } from 'react-icons/fa';
 import { ToastContainer, toast } from 'react-toastify';
 import Select from 'react-select';
 import 'react-toastify/dist/ReactToastify.css';
-import { Calendar, momentLocalizer } from 'react-big-calendar';
-import moment from 'moment';
-import 'react-big-calendar/lib/css/react-big-calendar.css';
-
-const localizer = momentLocalizer(moment);
+import DatePicker from 'react-datepicker';
+import 'react-datepicker/dist/react-datepicker.css';
 
 const BookMeeting = () => {
   const [step, setStep] = useState(1);
@@ -19,12 +16,11 @@ const BookMeeting = () => {
   const [selectedDepartment, setSelectedDepartment] = useState(null);
   const [selectedUser, setSelectedUser] = useState(null);
   const [selectedDate, setSelectedDate] = useState(null);
+  const [availableTimes, setAvailableTimes] = useState([]);
   const [selectedTime, setSelectedTime] = useState('');
-  const [duration, setDuration] = useState('30 minutes');
   const [meetingType, setMeetingType] = useState('Zoom');
   const [phoneNumber, setPhoneNumber] = useState('');
   const [agenda, setAgenda] = useState('');
-  const [events, setEvents] = useState([]);
   const navigate = useNavigate();
 
   useEffect(() => {
@@ -44,27 +40,21 @@ const BookMeeting = () => {
   useEffect(() => {
     const fetchUserAvailability = async () => {
       try {
-        const userId = selectedUser?.value;
-        if (userId) {
-          const { data } = await api.get(`/booking/availability?userId=${userId}`);
-          const unavailableDates = data.map((date) => ({
-            title: 'Unavailable',
-            start: new Date(date.start),
-            end: new Date(date.end),
-            allDay: true,
-          }));
-          setEvents(unavailableDates);
+        if (selectedUser && selectedDate) {
+          const userId = selectedUser.value;
+          const { data } = await api.get(`/booking/availability?userId=${userId}&date=${selectedDate}`);
+          setAvailableTimes(data.availableTimes);
         }
       } catch (error) {
-        console.error('Error fetching availability:', error);
+        console.error('Error fetching user availability:', error);
         toast.error('Failed to fetch user availability.');
       }
     };
 
-    if (selectedUser) {
+    if (selectedDate && selectedUser) {
       fetchUserAvailability();
     }
-  }, [selectedUser]);
+  }, [selectedDate, selectedUser]);
 
   const handleBooking = async () => {
     try {
@@ -73,7 +63,7 @@ const BookMeeting = () => {
         selectedUser: selectedUser.value,
         date: selectedDate,
         time: selectedTime,
-        duration,
+        duration: '30 minutes',
         type: meetingType,
         phoneNumber,
         agenda,
@@ -88,17 +78,11 @@ const BookMeeting = () => {
     }
   };
 
-  const handleDateSelect = (slotInfo) => {
-    setSelectedDate(slotInfo.start);
-    setSelectedTime(moment(slotInfo.start).format('h:mm A'));
-  };
-
   return (
     <div className="flex h-screen">
       <Sidebar />
       <div className="flex-1 p-6 bg-gray-100">
         <ToastContainer />
-
         {step === 1 && (
           <div className="bg-white p-6 rounded-lg shadow-lg">
             <h2 className="text-2xl font-semibold mb-6">Step 1: Select Department and User</h2>
@@ -117,7 +101,7 @@ const BookMeeting = () => {
                 value={selectedUser}
                 onChange={setSelectedUser}
                 options={users
-                  .filter(user => user.department.startsWith(selectedDepartment?.value))
+                  .filter(user => selectedDepartment && user.department && user.department.startsWith(selectedDepartment.value))
                   .map(user => ({ value: user._id, label: user.name }))}
                 className="w-full"
               />
@@ -142,15 +126,13 @@ const BookMeeting = () => {
 
         {step === 2 && (
           <div className="bg-white p-6 rounded-lg shadow-lg">
-            <h2 className="text-2xl font-semibold mb-6">Step 2: Select Date and Time</h2>
-            <Calendar
-              localizer={localizer}
-              events={events}
-              startAccessor="start"
-              endAccessor="end"
-              style={{ height: 400 }}
-              selectable
-              onSelectSlot={handleDateSelect}
+            <h2 className="text-2xl font-semibold mb-6">Step 2: Select Date</h2>
+            <DatePicker
+              selected={selectedDate}
+              onChange={(date) => setSelectedDate(date)}
+              minDate={new Date()}
+              className="w-full p-3 border border-gray-300 rounded-lg"
+              inline
             />
             <div className="flex justify-between mt-4">
               <button
@@ -161,7 +143,7 @@ const BookMeeting = () => {
               </button>
               <button
                 onClick={() => setStep(3)}
-                disabled={!selectedDate || !selectedTime}
+                disabled={!selectedDate}
                 className="bg-blue-500 text-white px-4 py-2 rounded-lg flex items-center hover:bg-blue-600 transition"
               >
                 <FaArrowRight className="mr-2" /> Next
@@ -172,7 +154,45 @@ const BookMeeting = () => {
 
         {step === 3 && (
           <div className="bg-white p-6 rounded-lg shadow-lg">
-            <h2 className="text-2xl font-semibold mb-6">Step 3: Confirm Booking</h2>
+            <h2 className="text-2xl font-semibold mb-6">Step 3: Select Time</h2>
+            <div className="mb-4">
+              {availableTimes.length > 0 ? (
+                availableTimes.map((time, index) => (
+                  <button
+                    key={index}
+                    onClick={() => setSelectedTime(time)}
+                    className={`w-full mb-2 p-3 border ${
+                      selectedTime === time ? 'bg-blue-500 text-white' : 'bg-white text-black'
+                    } rounded-lg`}
+                  >
+                    {time}
+                  </button>
+                ))
+              ) : (
+                <p>No available times for this date. Please select another date.</p>
+              )}
+            </div>
+            <div className="flex justify-between mt-4">
+              <button
+                onClick={() => setStep(2)}
+                className="bg-gray-500 text-white px-4 py-2 rounded-lg flex items-center hover:bg-gray-600 transition"
+              >
+                <FaArrowLeft className="mr-2" /> Back
+              </button>
+              <button
+                onClick={() => setStep(4)}
+                disabled={!selectedTime}
+                className="bg-blue-500 text-white px-4 py-2 rounded-lg flex items-center hover:bg-blue-600 transition"
+              >
+                <FaArrowRight className="mr-2" /> Next
+              </button>
+            </div>
+          </div>
+        )}
+
+        {step === 4 && (
+          <div className="bg-white p-6 rounded-lg shadow-lg">
+            <h2 className="text-2xl font-semibold mb-6">Step 4: Confirm Booking</h2>
             <div className="mb-4">
               <label className="block text-gray-700 text-sm font-bold mb-2">Meeting Type:</label>
               <select
@@ -206,7 +226,7 @@ const BookMeeting = () => {
             </div>
             <div className="flex justify-between">
               <button
-                onClick={() => setStep(2)}
+                onClick={() => setStep(3)}
                 className="bg-gray-500 text-white px-4 py-2 rounded-lg flex items-center hover:bg-gray-600 transition"
               >
                 <FaArrowLeft className="mr-2" /> Back
