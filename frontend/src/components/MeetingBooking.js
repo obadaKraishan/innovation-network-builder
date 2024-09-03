@@ -23,6 +23,8 @@ const MeetingBooking = () => {
   const [selectedStatus, setSelectedStatus] = useState(null);
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [currentBooking, setCurrentBooking] = useState(null);
+  const [showMoreWithOthers, setShowMoreWithOthers] = useState(false);
+  const [showMoreByOthers, setShowMoreByOthers] = useState(false);
   const navigate = useNavigate();
 
   useEffect(() => {
@@ -53,7 +55,7 @@ const MeetingBooking = () => {
         item?.time?.includes(searchTerm) ||
         item?.agenda?.toLowerCase()?.includes(searchTerm.toLowerCase())
     );
-  };  
+  };
 
   const handleStatusChange = async (bookingId, newStatus) => {
     try {
@@ -91,10 +93,18 @@ const MeetingBooking = () => {
   const filteredBookedWithOthers = handleSearch(bookings.bookedWithOthers);
   const filteredBookedByOthers = handleSearch(bookings.bookedByOthers);
 
+  // Slice to show only top 5 and conditionally expand
+  const visibleBookedWithOthers = showMoreWithOthers
+    ? filteredBookedWithOthers
+    : filteredBookedWithOthers.slice(0, 5);
+  const visibleBookedByOthers = showMoreByOthers
+    ? filteredBookedByOthers
+    : filteredBookedByOthers.slice(0, 5);
+
   return (
-    <div className="flex h-screen">
+    <div className="flex h-screen overflow-hidden">
       <Sidebar />
-      <div className="flex-1 p-6 bg-gray-100">
+      <div className="flex-1 p-6 bg-gray-100 overflow-y-auto">
         <ToastContainer />
 
         <h2 className="text-3xl font-semibold mb-6">My Meetings</h2>
@@ -132,9 +142,9 @@ const MeetingBooking = () => {
           placeholder="Filter by status"
           className="mb-4"
         />
-        {filteredBookedWithOthers.length > 0 ? (
+        {visibleBookedWithOthers.length > 0 ? (
           <ul>
-            {filteredBookedWithOthers.map((booking) => (
+            {visibleBookedWithOthers.map((booking) => (
               <li key={booking._id} className="mb-4 p-4 bg-white rounded-lg shadow-lg relative">
                 <p><strong>Date:</strong> {booking.date}</p>
                 <p><strong>Time:</strong> {booking.time}</p>
@@ -165,6 +175,14 @@ const MeetingBooking = () => {
         ) : (
           <p>No meetings booked with others.</p>
         )}
+        {filteredBookedWithOthers.length > 5 && !showMoreWithOthers && (
+          <button
+            onClick={() => setShowMoreWithOthers(true)}
+            className="text-blue-500 hover:underline mt-4"
+          >
+            See More
+          </button>
+        )}
 
         <h3 className="text-xl font-semibold mt-8 mb-4">Meetings Others Have Booked with Me</h3>
         <Select
@@ -174,9 +192,9 @@ const MeetingBooking = () => {
           placeholder="Filter by status"
           className="mb-4"
         />
-        {filteredBookedByOthers.length > 0 ? (
+        {visibleBookedByOthers.length > 0 ? (
           <ul>
-            {filteredBookedByOthers.map((booking) => (
+            {visibleBookedByOthers.map((booking) => (
               <li key={booking._id} className="mb-4 p-4 bg-white rounded-lg shadow-lg relative">
                 <p><strong>Date:</strong> {booking.date}</p>
                 <p><strong>Time:</strong> {booking.time}</p>
@@ -206,6 +224,14 @@ const MeetingBooking = () => {
           </ul>
         ) : (
           <p>No meetings booked by others.</p>
+        )}
+        {filteredBookedByOthers.length > 5 && !showMoreByOthers && (
+          <button
+            onClick={() => setShowMoreByOthers(true)}
+            className="text-blue-500 hover:underline mt-4"
+          >
+            See More
+          </button>
         )}
 
         {/* Edit Meeting Modal */}
