@@ -13,6 +13,7 @@ const MeetingAvailability = () => {
   const [availableTimes, setAvailableTimes] = useState([]);
   const [selectedTimes, setSelectedTimes] = useState([]);
   const [existingBookings, setExistingBookings] = useState([]);
+  const [disabledTimes, setDisabledTimes] = useState([]);
   const navigate = useNavigate();
 
   useEffect(() => {
@@ -22,6 +23,7 @@ const MeetingAvailability = () => {
         const userId = user?._id;
         const { data } = await api.get(`/booking/availability?userId=${userId}`);
         setExistingBookings(data.bookedTimes || []);
+        setDisabledTimes(data.timeRanges || []);
       } catch (error) {
         console.error('Error fetching availability:', error);
         toast.error('Failed to fetch availability.');
@@ -33,6 +35,7 @@ const MeetingAvailability = () => {
   const handleDateChange = async (date) => {
     setSelectedDate(date);
     setAvailableTimes(generateAvailableTimes(date));
+    setSelectedTimes([]);
   };
 
   const generateAvailableTimes = (date) => {
@@ -41,12 +44,14 @@ const MeetingAvailability = () => {
     const endTime = moment(date).hour(17).minute(0);  // End at 5 PM
 
     while (currentTime.isBefore(endTime)) {
-      const isBooked = existingBookings.some(booking => {
+      const isBookedOrDisabled = existingBookings.some(booking => {
         const bookingTime = moment(`${booking.date} ${booking.time}`, 'YYYY-MM-DD h:mm A');
         return currentTime.isSame(bookingTime, 'minute');
+      }) || disabledTimes.some(disabled => {
+        return currentTime.isBetween(moment(disabled.start), moment(disabled.end), null, '[)');
       });
 
-      if (!isBooked) {
+      if (!isBookedOrDisabled) {
         times.push(currentTime.clone());
       }
       currentTime.add(30, 'minutes');
@@ -63,6 +68,10 @@ const MeetingAvailability = () => {
     );
   };
 
+  const handleRemoveDisabledTime = (time) => {
+    setDisabledTimes(disabledTimes.filter(disabled => !moment(disabled.start).isSame(time, 'minute')));
+  };
+
   const handleUpdateAvailability = async () => {
     try {
       const user = JSON.parse(localStorage.getItem('userInfo'));
@@ -70,14 +79,15 @@ const MeetingAvailability = () => {
 
       const disableRange = {
         datesToDisable: selectedDate ? [selectedDate] : [],
-        timeRanges: selectedTimes.map(time => ({
+        timeRanges: [...disabledTimes, ...selectedTimes.map(time => ({
           start: time.toDate(),
           end: time.clone().add(30, 'minutes').toDate()
-        }))
+        }))]
       };
 
       await api.put('/booking/availability', { userId, disableRange });
       toast.success('Availability updated successfully!');
+      setDisabledTimes(disableRange.timeRanges);  // Update the state to reflect the changes
       setSelectedDate(null);
       setSelectedTimes([]);
     } catch (error) {
@@ -135,6 +145,25 @@ const MeetingAvailability = () => {
               </div>
             </div>
           )}
+
+          <div className="mb-4">
+            <h3 className="text-lg font-semibold">Currently Disabled Time Slots:</h3>
+            {disabledTimes.length > 0 ? (
+              disabledTimes.map((time, index) => (
+                <div key={index} className="flex justify-between items-center bg-gray-200 p-2 rounded-lg mb-2">
+                  <span>{moment(time.start).format('MMMM Do YYYY, h:mm A')} - {moment(time.end).format('h:mm A')}</span>
+                  <button
+                    onClick={() => handleRemoveDisabledTime(moment(time.start))}
+                    className="text-red-500 hover:text-red-700"
+                  >
+                    Enable
+                  </button>
+                </div>
+              ))
+            ) : (
+              <p>No time slots disabled.</p>
+            )}
+          </div>
 
           <div className="flex justify-between">
             <button
