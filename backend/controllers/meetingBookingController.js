@@ -1,8 +1,11 @@
 const Department = require("../models/departmentModel");
 const User = require("../models/userModel");
 const MeetingBooking = require("../models/meetingBookingModel");
+const Connection = require('../models/connectionModel');
 const moment = require("moment");
 
+
+// Utility function to create a new connection between two users
 const createConnection = async (userA, userB, context) => {
   try {
     console.log(`Attempting to create connection between ${userA} and ${userB} with context: ${context}`);
