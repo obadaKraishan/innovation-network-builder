@@ -158,6 +158,11 @@ const InterestGroupDetails = () => {
 
             <div className="bg-white p-6 rounded-lg shadow-lg">
               <h3 className="text-2xl font-semibold mb-4">Comments</h3>
+
+              <div className="mt-6">
+                {renderComments(comments)}
+              </div>
+
               <textarea
                 value={comment}
                 onChange={(e) => setComment(e.target.value)}
@@ -170,10 +175,6 @@ const InterestGroupDetails = () => {
               >
                 {editCommentId ? 'Update Comment' : 'Add Comment'}
               </button>
-
-              <div className="mt-6">
-                {renderComments(comments)}
-              </div>
             </div>
           </>
         )}
