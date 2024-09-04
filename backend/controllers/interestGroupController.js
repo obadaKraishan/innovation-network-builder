@@ -234,32 +234,80 @@ const getReceivedInvitations = async (req, res) => {
 // @route   POST /api/groups/:id/invite
 // @access  Private
 const sendInvitation = async (req, res) => {
-  try {
-    const group = await InterestGroup.findById(req.params.id);
-
-    if (!group) {
-      return res.status(404).json({ message: 'Group not found' });
+    try {
+      console.log('Request to send invitation received');
+      const group = await InterestGroup.findById(req.params.id);
+  
+      if (!group) {
+        console.error('Group not found with ID:', req.params.id);
+        return res.status(404).json({ message: 'Group not found' });
+      }
+  
+      console.log('Group found:', group.name);
+  
+      if (group.createdBy.toString() !== req.user._id.toString()) {
+        console.warn('Unauthorized access attempt by user:', req.user._id);
+        return res.status(401).json({ message: 'Not authorized' });
+      }
+  
+      const { userId } = req.body;
+      console.log('User to invite:', userId);
+  
+      if (group.members.includes(userId)) {
+        console.warn('User is already a member:', userId);
+        return res.status(400).json({ message: 'User is already a member' });
+      }
+  
+      group.invitations.push({ userId, status: 'pending' });
+      await group.save();
+      console.log('Invitation sent successfully to:', userId);
+  
+      res.status(200).json(group);
+    } catch (error) {
+      console.error('Error sending invitation:', error.message);
+      res.status(500).json({ message: 'Server Error' });
     }
+  };
 
-    if (group.createdBy.toString() !== req.user._id.toString()) {
-      return res.status(401).json({ message: 'Not authorized' });
+// @desc    Request to join the group or send invitations to users
+// @route   POST /api/groups/:id/join
+// @access  Private
+const requestToJoinGroup = async (req, res) => {
+    try {
+      const group = await InterestGroup.findById(req.params.id);
+  
+      if (!group) {
+        return res.status(404).json({ message: 'Group not found' });
+      }
+  
+      // If the user is the group creator, handle invitation logic
+      if (group.createdBy.toString() === req.user._id.toString()) {
+        const { userId } = req.body;
+        if (group.members.includes(userId)) {
+          return res.status(400).json({ message: 'User is already a member' });
+        }
+  
+        group.invitations.push({ userId, status: 'pending' });
+        await group.save();
+  
+        return res.status(200).json({ message: 'Invitation sent successfully' });
+      }
+  
+      // If the user is not the group creator, handle join request logic
+      if (!group.invitations.some(inv => inv.userId.toString() === req.user._id.toString() && inv.status === 'pending')) {
+        group.invitations.push({ userId: req.user._id, status: 'pending' });
+        await group.save();
+  
+        return res.status(200).json({ message: 'Join request sent successfully' });
+      } else {
+        return res.status(400).json({ message: 'Join request already sent' });
+      }
+  
+    } catch (error) {
+      console.error('Error handling join request or invitation:', error.message);
+      res.status(500).json({ message: 'Server Error' });
     }
-
-    const { userId } = req.body;
-
-    if (group.members.includes(userId)) {
-      return res.status(400).json({ message: 'User is already a member' });
-    }
-
-    group.invitations.push({ userId, status: 'pending' });
-    await group.save();
-
-    res.status(200).json(group);
-  } catch (error) {
-    console.error('Error sending invitation:', error.message);
-    res.status(500).json({ message: 'Server Error' });
-  }
-};
+  };
 
 // @desc    Accept or decline invitations
 // @route   PUT /api/groups/invitation/:invitationId
@@ -403,6 +451,7 @@ module.exports = {
   getReceivedInvitations,
   getSentInvitations,
   sendInvitation,
+  requestToJoinGroup,
   manageInvitation,
   addInterestGroupComment,    
   updateInterestGroupComment, 

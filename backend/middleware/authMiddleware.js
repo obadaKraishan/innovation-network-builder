@@ -12,7 +12,7 @@ const protect = asyncHandler(async (req, res, next) => {
     try {
       // Get token from header
       token = req.headers.authorization.split(' ')[1];
-      console.log('Token received in middleware:', token); // Add this log
+      console.log('Token received in middleware:', token);
 
       // Verify token
       const decoded = jwt.verify(token, process.env.JWT_SECRET);
@@ -23,9 +23,11 @@ const protect = asyncHandler(async (req, res, next) => {
       console.log('User retrieved in middleware:', req.user);
 
       if (!req.user) {
+        console.error('User not found for the given token');
         return res.status(404).json({ message: 'User not found' });
       }
 
+      console.log('User authenticated successfully');
       next();
     } catch (error) {
       console.error('Error verifying token:', error.message);

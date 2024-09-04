@@ -98,9 +98,10 @@ const InterestGroupDetails = () => {
   };
 
   // Request to join the group
-  const handleRequestToJoin = async () => {
+const handleRequestToJoin = async () => {
     try {
-      await api.post(`/groups/${id}/invite`, { userId: user._id }, {
+      console.log('Token being sent:', user.token);
+      await api.post(`/groups/${id}/join`, {}, {
         headers: {
           Authorization: `Bearer ${user.token}` // Ensure the token is included
         }

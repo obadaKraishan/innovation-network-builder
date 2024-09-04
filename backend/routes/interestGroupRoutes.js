@@ -10,6 +10,7 @@ const {
   getReceivedInvitations,
   getSentInvitations,
   sendInvitation,
+  requestToJoinGroup,
   manageInvitation,
   addInterestGroupComment,     
   updateInterestGroupComment,  
@@ -42,6 +43,7 @@ router.route('/invitation/:invitationId').put(protect, manageInvitation);
 // Routes to fetch received and sent invitations
 router.get('/invitations/received', protect, getReceivedInvitations);
 router.get('/invitations/sent', protect, getSentInvitations);
+router.route('/:id/join').post(protect, requestToJoinGroup);
 
 // Route to leave a group
 router.route('/:id/leave').put(protect, leaveGroup);
