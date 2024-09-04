@@ -1,25 +1,20 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { useFormik } from 'formik';
 import Sidebar from './Sidebar';
-import * as yup from 'yup';
 import api from '../utils/api';
 import Select from 'react-select';
 import { FaSave, FaTimes } from 'react-icons/fa';
+import { ToastContainer, toast } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
-
-const validationSchema = yup.object({
-  name: yup.string().required('Group name is required'),
-  description: yup.string().required('Description is required'),
-  objectives: yup.string(),
-  hobbies: yup.array().of(yup.string()),
-  members: yup.array().of(yup.string()),
-});
 
 const CreateInterestGroups = () => {
   const navigate = useNavigate();
-  const [userOptions, setUserOptions] = useState([]);
+  const [name, setName] = useState('');
+  const [description, setDescription] = useState('');
+  const [objectives, setObjectives] = useState('');
+  const [hobbies, setHobbies] = useState([]);
   const [selectedMembers, setSelectedMembers] = useState([]);
+  const [userOptions, setUserOptions] = useState([]);
 
   useEffect(() => {
     const fetchUsers = async () => {
@@ -32,75 +27,98 @@ const CreateInterestGroups = () => {
         setUserOptions(options);
       } catch (error) {
         console.error('Error fetching users:', error);
+        toast.error('Error fetching users.');
       }
     };
 
     fetchUsers();
   }, []);
 
-  const formik = useFormik({
-    initialValues: {
-      name: '',
-      description: '',
-      objectives: '',
-      hobbies: [],
-      members: [],
-    },
-    validationSchema,
-    onSubmit: async (values) => {
-      try {
-        values.members = selectedMembers.map(member => member.value);
-        await api.post('/groups/create', values);
-        navigate('/interest-groups');
-      } catch (error) {
-        console.error('Error creating group:', error);
-      }
-    },
-  });
+  const validateForm = () => {
+    if (!name) {
+      toast.error('Group name is required');
+      return false;
+    }
+    if (!description) {
+      toast.error('Description is required');
+      return false;
+    }
+    if (!objectives) {
+      toast.error('Objectives are required');
+      return false;
+    }
+    if (hobbies.length === 0) {
+      toast.error('At least one hobby is required');
+      return false;
+    }
+    if (selectedMembers.length === 0) {
+      toast.error('At least one member must be selected');
+      return false;
+    }
+    return true;
+  };
+
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+
+    if (!validateForm()) {
+      return;
+    }
+
+    const groupData = {
+      name,
+      description,
+      objectives,
+      hobbies: hobbies.map(hobby => hobby.value),
+      members: selectedMembers.map(member => member.value),
+    };
+
+    try {
+      const response = await api.post('/groups/create', groupData);
+      console.log('Group Created:', response.data);
+      toast.success('Group created successfully!');
+      navigate('/interest-groups');
+    } catch (error) {
+      console.error('Error creating group:', error);
+      toast.error('Error creating group.');
+    }
+  };
 
   return (
     <div className="flex h-screen overflow-hidden">
       <Sidebar />
       <div className="flex-1 p-6 bg-gray-100 overflow-y-auto">
+        <ToastContainer />
         <h2 className="text-3xl font-semibold mb-6">Create New Interest Group</h2>
-        <form onSubmit={formik.handleSubmit}>
+        <form onSubmit={handleSubmit}>
           <div className="mb-4">
             <label className="block text-gray-700 text-sm font-bold mb-2">Group Name</label>
             <input
               type="text"
-              name="name"
-              value={formik.values.name}
-              onChange={formik.handleChange}
-              onBlur={formik.handleBlur}
+              value={name}
+              onChange={(e) => setName(e.target.value)}
               className="w-full p-3 border border-gray-300 rounded-lg"
+              required
             />
-            {formik.touched.name && formik.errors.name && (
-              <p className="text-red-500 text-sm mt-1">{formik.errors.name}</p>
-            )}
           </div>
 
           <div className="mb-4">
             <label className="block text-gray-700 text-sm font-bold mb-2">Description</label>
             <textarea
-              name="description"
-              value={formik.values.description}
-              onChange={formik.handleChange}
-              onBlur={formik.handleBlur}
+              value={description}
+              onChange={(e) => setDescription(e.target.value)}
               className="w-full p-3 border border-gray-300 rounded-lg"
+              required
             ></textarea>
-            {formik.touched.description && formik.errors.description && (
-              <p className="text-red-500 text-sm mt-1">{formik.errors.description}</p>
-            )}
           </div>
 
           <div className="mb-4">
             <label className="block text-gray-700 text-sm font-bold mb-2">Objectives</label>
             <textarea
-              name="objectives"
-              value={formik.values.objectives}
-              onChange={formik.handleChange}
-              onBlur={formik.handleBlur}
+              value={objectives}
+              onChange={(e) => setObjectives(e.target.value)}
               className="w-full p-3 border border-gray-300 rounded-lg"
+              required
             ></textarea>
           </div>
 
@@ -108,16 +126,16 @@ const CreateInterestGroups = () => {
             <label className="block text-gray-700 text-sm font-bold mb-2">Hobbies</label>
             <Select
               isMulti
-              name="hobbies"
+              value={hobbies}
+              onChange={setHobbies}
               options={[
                 { value: 'reading', label: 'Reading' },
                 { value: 'gaming', label: 'Gaming' },
                 { value: 'coding', label: 'Coding' },
                 { value: 'sports', label: 'Sports' },
               ]}
-              value={formik.values.hobbies}
-              onChange={(value) => formik.setFieldValue('hobbies', value)}
               className="w-full"
+              required
             />
           </div>
 
@@ -125,10 +143,11 @@ const CreateInterestGroups = () => {
             <label className="block text-gray-700 text-sm font-bold mb-2">Invite Members</label>
             <Select
               isMulti
-              options={userOptions}
               value={selectedMembers}
               onChange={setSelectedMembers}
+              options={userOptions}
               className="w-full"
+              required
             />
           </div>
 
