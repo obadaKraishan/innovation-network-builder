@@ -1,9 +1,10 @@
 import React, { useState, useEffect } from 'react';
 import Sidebar from './Sidebar';
 import { useNavigate } from 'react-router-dom';
-import { FaSearch, FaPlus, FaEnvelopeOpenText } from 'react-icons/fa';
+import { FaSearch, FaPlus, FaEnvelopeOpenText, FaEye, FaEdit, FaTrash } from 'react-icons/fa';
 import Select from 'react-select';
 import { toast } from 'react-toastify';
+import Swal from 'sweetalert2'; // Importing SweetAlert2
 import api from '../utils/api';
 import 'react-toastify/dist/ReactToastify.css';
 
@@ -35,6 +36,7 @@ const InterestGroups = () => {
         setHobbiesOptions(hobbies.map(hobby => ({ value: hobby, label: hobby })));
       } catch (error) {
         console.error('Error fetching groups:', error);
+        toast.error('Error fetching groups.');
       }
     };
 
@@ -77,14 +79,26 @@ const InterestGroups = () => {
   };
 
   const handleDeleteGroup = async (groupId) => {
-    try {
-      await api.delete(`/groups/${groupId}`);
-      setCreatedGroups(createdGroups.filter(group => group._id !== groupId));
-      toast.success('Group deleted successfully.');
-    } catch (error) {
-      console.error('Error deleting group:', error);
-      toast.error('Failed to delete the group.');
-    }
+    Swal.fire({
+      title: 'Are you sure?',
+      text: "You won't be able to revert this!",
+      icon: 'warning',
+      showCancelButton: true,
+      confirmButtonColor: '#3085d6',
+      cancelButtonColor: '#d33',
+      confirmButtonText: 'Yes, delete it!'
+    }).then(async (result) => {
+      if (result.isConfirmed) {
+        try {
+          await api.delete(`/groups/${groupId}`);
+          setCreatedGroups(createdGroups.filter(group => group._id !== groupId));
+          toast.success('Group deleted successfully.');
+        } catch (error) {
+          console.error('Error deleting group:', error);
+          toast.error('Failed to delete the group.');
+        }
+      }
+    });
   };
 
   return (
@@ -92,42 +106,41 @@ const InterestGroups = () => {
       <Sidebar />
       <div className="flex-1 p-6 bg-gray-100 overflow-y-auto">
         <h2 className="text-3xl font-semibold mb-6">Interest Groups</h2>
-        <div className="flex justify-between mb-6">
-          <div className="flex items-center w-1/3">
+        <div className="mb-6">
+          <div className="flex items-center mb-4">
             <FaSearch className="text-gray-500 mr-2" />
             <input
               type="text"
               placeholder="Search groups..."
               value={searchTerm}
               onChange={(e) => setSearchTerm(e.target.value)}
-              className="w-full p-2 border border-gray-300 rounded-lg"
+              className="w-2/3 p-2 border border-gray-300 rounded-lg mr-4"
             />
+            <div className="w-1/3">
+              <Select
+                isMulti
+                options={hobbiesOptions}
+                value={selectedHobbies}
+                onChange={setSelectedHobbies}
+                placeholder="Filter by hobbies"
+                className="w-full"
+              />
+            </div>
           </div>
-          <div className="w-1/3">
-            <Select
-              isMulti
-              options={hobbiesOptions}
-              value={selectedHobbies}
-              onChange={setSelectedHobbies}
-              placeholder="Filter by hobbies"
-              className="w-full"
-            />
+          <div className="flex justify-between">
+            <button
+              onClick={() => navigate('/create-interest-group')}
+              className="bg-blue-500 text-white px-6 py-3 rounded-lg flex items-center hover:bg-blue-600 transition"
+            >
+              <FaPlus className="mr-2" /> Create New Group
+            </button>
+            <button
+              onClick={() => navigate('/group-invitations')}
+              className="bg-green-500 text-white px-6 py-3 rounded-lg flex items-center hover:bg-green-600 transition"
+            >
+              <FaEnvelopeOpenText className="mr-2" /> Invitations
+            </button>
           </div>
-          <button
-            onClick={() => navigate('/create-interest-group')}
-            className="bg-blue-500 text-white px-6 py-3 rounded-lg flex items-center hover:bg-blue-600 transition"
-          >
-            <FaPlus className="mr-2" /> Create New Group
-          </button>
-        </div>
-
-        <div className="flex justify-between mb-6">
-          <button
-            onClick={() => navigate('/group-invitations')}
-            className="bg-green-500 text-white px-6 py-3 rounded-lg flex items-center hover:bg-green-600 transition"
-          >
-            <FaEnvelopeOpenText className="mr-2" /> Invitations
-          </button>
         </div>
 
         <h3 className="text-xl font-semibold mb-4">Available Groups</h3>
@@ -145,12 +158,15 @@ const InterestGroups = () => {
                   <p className="text-sm text-gray-500">Members: {group.members.map(member => member.name).join(', ')}</p>
                   <p className="text-sm text-gray-500">Created by: {group.createdBy.name}</p>
                 </div>
-                <button
-                  onClick={() => navigate(`/interest-groups/${group._id}`)}
-                  className="text-blue-500 hover:underline"
-                >
-                  View Details
-                </button>
+                <div className="flex space-x-4">
+                  <button
+                    onClick={() => navigate(`/interest-groups/${group._id}`)}
+                    className="text-blue-500 hover:text-blue-700"
+                    title="View Details"
+                  >
+                    <FaEye size={20} />
+                  </button>
+                </div>
               </li>
             ))}
           </ul>
@@ -184,15 +200,17 @@ const InterestGroups = () => {
                 <div className="flex space-x-4">
                   <button
                     onClick={() => navigate(`/interest-groups/${group._id}`)}
-                    className="text-blue-500 hover:underline"
+                    className="text-blue-500 hover:text-blue-700"
+                    title="View Details"
                   >
-                    View Details
+                    <FaEye size={20} />
                   </button>
                   <button
                     onClick={() => handleLeaveGroup(group._id)}
-                    className="text-red-500 hover:underline"
+                    className="text-red-500 hover:text-red-700"
+                    title="Leave Group"
                   >
-                    Leave Group
+                    <FaTrash size={20} />
                   </button>
                 </div>
               </li>
@@ -228,21 +246,24 @@ const InterestGroups = () => {
                 <div className="flex space-x-4">
                   <button
                     onClick={() => navigate(`/interest-groups/${group._id}`)}
-                    className="text-blue-500 hover:underline"
+                    className="text-blue-500 hover:text-blue-700"
+                    title="View Details"
                   >
-                    View Details
+                    <FaEye size={20} />
                   </button>
                   <button
                     onClick={() => navigate(`/edit-interest-group/${group._id}`)}
-                    className="text-yellow-500 hover:underline"
+                    className="text-yellow-500 hover:text-yellow-700"
+                    title="Edit Group"
                   >
-                    Edit
+                    <FaEdit size={20} />
                   </button>
                   <button
                     onClick={() => handleDeleteGroup(group._id)}
-                    className="text-red-500 hover:underline"
+                    className="text-red-500 hover:text-red-700"
+                    title="Delete Group"
                   >
-                    Delete
+                    <FaTrash size={20} />
                   </button>
                 </div>
               </li>
