@@ -190,6 +190,46 @@ const leaveGroup = async (req, res) => {
     }
 };
 
+// @desc    Get received invitations for the logged-in user
+// @route   GET /api/groups/invitations/received
+// @access  Private
+const getReceivedInvitations = async (req, res) => {
+    try {
+      const groups = await InterestGroup.find({ 'invitations.userId': req.user._id })
+        .populate('createdBy', 'name')
+        .populate('invitations.userId', 'name');
+  
+      const receivedInvitations = groups
+        .map(group => group.invitations.filter(inv => inv.userId.toString() === req.user._id.toString() && inv.status === 'pending'))
+        .flat();
+  
+      res.status(200).json(receivedInvitations);
+    } catch (error) {
+      console.error('Error fetching received invitations:', error.message);
+      res.status(500).json({ message: 'Server Error' });
+    }
+  };
+  
+  // @desc    Get sent invitations by the logged-in user
+  // @route   GET /api/groups/invitations/sent
+  // @access  Private
+  const getSentInvitations = async (req, res) => {
+    try {
+      const groups = await InterestGroup.find({ createdBy: req.user._id })
+        .populate('createdBy', 'name')
+        .populate('invitations.userId', 'name');
+  
+      const sentInvitations = groups
+        .map(group => group.invitations.filter(inv => inv.status === 'pending'))
+        .flat();
+  
+      res.status(200).json(sentInvitations);
+    } catch (error) {
+      console.error('Error fetching sent invitations:', error.message);
+      res.status(500).json({ message: 'Server Error' });
+    }
+  };  
+
 // @desc    Invite members to the group
 // @route   POST /api/groups/:id/invite
 // @access  Private
@@ -360,6 +400,8 @@ module.exports = {
   updateGroup,
   deleteGroup,
   leaveGroup,
+  getReceivedInvitations,
+  getSentInvitations,
   sendInvitation,
   manageInvitation,
   addInterestGroupComment,    

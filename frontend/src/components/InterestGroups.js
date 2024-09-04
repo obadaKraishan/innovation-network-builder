@@ -178,16 +178,6 @@ const InterestGroups = () => {
                   >
                     <FaEye size={20} />
                   </button>
-                  {/* Show Leave Group button if user is a member but not the creator */}
-                  {group.createdBy._id !== JSON.parse(localStorage.getItem('userInfo'))._id && (
-                    <button
-                      onClick={() => handleLeaveGroup(group._id)}  // Pass the group's ID here
-                      className="text-red-500 hover:text-red-700"
-                      title="Leave Group"
-                    >
-                    <FaSignOutAlt size={20} />
-                  </button>                  
-                  )}
                 </div>
               </li>
             ))}
