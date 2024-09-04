@@ -20,14 +20,14 @@ const InterestGroupDetails = () => {
       try {
         const { data } = await api.get(`/groups/${id}`);
         setGroup(data);
-        setComments(data.comments || []);
+        setComments(data.interestGroupDiscussions || []);
       } catch (error) {
         console.error('Error fetching group details:', error);
       }
     };
-
+  
     fetchGroupDetails();
-  }, [id]);
+  }, [id]);  
 
   const handleAddComment = async () => {
     try {
@@ -104,10 +104,10 @@ const InterestGroupDetails = () => {
               <FaTrashAlt className="text-red-500 cursor-pointer" onClick={() => handleDeleteComment(comment._id)} />
             </div>
           </div>
-          {renderComments(comments, comment._id, level + 1)}
+          {comments.some(child => child.parent === comment._id) && renderComments(comments, comment._id, level + 1)}
         </div>
       ));
-  };
+  };  
 
   return (
     <div className="flex h-screen">
