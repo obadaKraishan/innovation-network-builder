@@ -8,6 +8,9 @@ const {
   deleteGroup,
   sendInvitation,
   manageInvitation,
+  addInterestGroupComment,     
+  updateInterestGroupComment,  
+  deleteInterestGroupComment,  
 } = require('../controllers/interestGroupController');
 
 const router = express.Router();
@@ -32,5 +35,10 @@ router.route('/:id/invite').post(protect, sendInvitation);
 
 // Route to manage invitations (accept/decline)
 router.route('/invitation/:invitationId').put(protect, manageInvitation);
+
+// Routes for handling comments in interest group discussions
+router.post('/:id/comments', protect, addInterestGroupComment);          // Route to add a comment/reply
+router.put('/:id/comments/:commentId', protect, updateInterestGroupComment); // Route to update a comment
+router.delete('/:id/comments/:commentId', protect, deleteInterestGroupComment); // Route to delete a comment
 
 module.exports = router;

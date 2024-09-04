@@ -1,5 +1,15 @@
 const mongoose = require("mongoose");
+const Schema = mongoose.Schema;
 
+// Define a schema for nested comments (interest group discussions)
+const interestGroupDiscussionSchema = new Schema({
+  user: { type: Schema.Types.ObjectId, ref: 'User' },
+  comment: { type: String, required: true },
+  parent: { type: Schema.Types.ObjectId, ref: 'interestGroupDiscussion', default: null }, // Added for replies
+  createdAt: { type: Date, default: Date.now },
+});
+
+// Update the InterestGroup schema to include the new discussion schema
 const interestGroupSchema = new mongoose.Schema({
   name: { type: String, required: true },
   description: { type: String, required: true },
@@ -25,6 +35,7 @@ const interestGroupSchema = new mongoose.Schema({
       },
     },
   ],
+  interestGroupDiscussions: [interestGroupDiscussionSchema], // Add the discussions array
 });
 
 module.exports = mongoose.model("InterestGroup", interestGroupSchema);

@@ -8,6 +8,30 @@ const addMemberToGroup = async (group, userId) => {
   }
 };
 
+// Utility function to create connections between discussion participants
+const createDiscussionConnections = async (group, commenterId, parentCommentId) => {
+  const participants = new Set();
+  participants.add(commenterId.toString());
+
+  // Collect all participants in the discussion
+  group.interestGroupDiscussions.forEach(discussion => {
+    if (discussion._id.toString() === parentCommentId?.toString()) {
+      participants.add(discussion.user.toString()); // Add the parent comment author
+    }
+    participants.add(discussion.user.toString()); // Add all users who commented
+  });
+
+  const participantsArray = Array.from(participants);
+
+  for (let i = 0; i < participantsArray.length; i++) {
+    for (let j = i + 1; j < participantsArray.length; j++) {
+      const userA = participantsArray[i];
+      const userB = participantsArray[j];
+      // Implement your logic to create or update connections between userA and userB
+    }
+  }
+};
+
 // @desc    Create a new interest group
 // @route   POST /api/groups/create
 // @access  Private
@@ -65,21 +89,25 @@ const getGroups = async (req, res) => {
 // @route   GET /api/groups/:id
 // @access  Private
 const getGroupById = async (req, res) => {
-try {
-    const group = await InterestGroup.findById(req.params.id)
-    .populate('members', 'name')
-    .populate('createdBy', 'name'); // Populate createdBy field
-
-    if (!group) {
-    return res.status(404).json({ message: 'Group not found' });
+    try {
+      const group = await InterestGroup.findById(req.params.id)
+        .populate('members', 'name')
+        .populate('createdBy', 'name')
+        .populate({
+          path: 'interestGroupDiscussions',
+          populate: { path: 'user', select: 'name' }
+        });
+  
+      if (!group) {
+        return res.status(404).json({ message: 'Group not found' });
+      }
+  
+      res.status(200).json(group);
+    } catch (error) {
+      console.error('Error fetching group details:', error.message);
+      res.status(500).json({ message: 'Server Error' });
     }
-
-    res.status(200).json(group);
-} catch (error) {
-    console.error('Error fetching group details:', error.message);
-    res.status(500).json({ message: 'Server Error' });
-}
-};
+  };  
 
 // @desc    Update group details (for group owners)
 // @route   PUT /api/groups/:id
@@ -202,6 +230,99 @@ const manageInvitation = async (req, res) => {
   }
 };
 
+// @desc    Add a comment or reply to an interest group discussion
+// @route   POST /api/groups/:id/comments
+// @access  Private
+const addInterestGroupComment = async (req, res) => {
+  try {
+    const { comment, parent } = req.body;
+    const group = await InterestGroup.findById(req.params.id);
+
+    if (!group) {
+      return res.status(404).json({ message: 'Group not found' });
+    }
+
+    const newComment = {
+      user: req.user._id,
+      comment,
+      parent: parent || null,
+      createdAt: new Date(),
+    };
+
+    group.interestGroupDiscussions.push(newComment);
+    await group.save();
+
+    // Create connections between participants
+    await createDiscussionConnections(group, req.user._id, parent);
+
+    res.status(201).json(newComment);
+  } catch (error) {
+    console.error('Error adding comment:', error.message);
+    res.status(500).json({ message: 'Server Error' });
+  }
+};
+
+// @desc    Update a comment in an interest group discussion
+// @route   PUT /api/groups/:id/comments/:commentId
+// @access  Private
+const updateInterestGroupComment = async (req, res) => {
+  try {
+    const { comment } = req.body;
+    const group = await InterestGroup.findById(req.params.id);
+
+    if (!group) {
+      return res.status(404).json({ message: 'Group not found' });
+    }
+
+    const discussion = group.interestGroupDiscussions.id(req.params.commentId);
+    if (!discussion) {
+      return res.status(404).json({ message: 'Comment not found' });
+    }
+
+    if (discussion.user.toString() !== req.user._id.toString()) {
+      return res.status(403).json({ message: 'Not authorized to update this comment' });
+    }
+
+    discussion.comment = comment;
+    await group.save();
+
+    res.status(200).json(discussion);
+  } catch (error) {
+    console.error('Error updating comment:', error.message);
+    res.status(500).json({ message: 'Server Error' });
+  }
+};
+
+// @desc    Delete a comment from an interest group discussion
+// @route   DELETE /api/groups/:id/comments/:commentId
+// @access  Private
+const deleteInterestGroupComment = async (req, res) => {
+  try {
+    const group = await InterestGroup.findById(req.params.id);
+
+    if (!group) {
+      return res.status(404).json({ message: 'Group not found' });
+    }
+
+    const discussion = group.interestGroupDiscussions.id(req.params.commentId);
+    if (!discussion) {
+      return res.status(404).json({ message: 'Comment not found' });
+    }
+
+    if (discussion.user.toString() !== req.user._id.toString()) {
+      return res.status(403).json({ message: 'Not authorized to delete this comment' });
+    }
+
+    group.interestGroupDiscussions.pull(discussion._id);
+    await group.save();
+
+    res.status(200).json({ message: 'Comment deleted successfully' });
+  } catch (error) {
+    console.error('Error deleting comment:', error.message);
+    res.status(500).json({ message: 'Server Error' });
+  }
+};
+
 module.exports = {
   createGroup,
   getGroups,
@@ -210,4 +331,7 @@ module.exports = {
   deleteGroup,
   sendInvitation,
   manageInvitation,
+  addInterestGroupComment,    
+  updateInterestGroupComment, 
+  deleteInterestGroupComment, 
 };
