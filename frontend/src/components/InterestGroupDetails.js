@@ -18,9 +18,22 @@ const customStyles = {
     marginRight: '-50%',
     transform: 'translate(-50%, -50%)',
     width: '50%',
+    minHeight: '40%',
     maxHeight: '80%',
     overflowY: 'auto',
   },
+};
+
+const selectStyles = {
+  control: (provided) => ({
+    ...provided,
+    minHeight: '50px', // Adjust the height
+    fontSize: '16px',  // Adjust the font size
+  }),
+  menu: (provided) => ({
+    ...provided,
+    zIndex: 9999, // Ensure the dropdown appears above other elements
+  }),
 };
 
 Modal.setAppElement('#root');
@@ -341,6 +354,7 @@ const InterestGroupDetails = () => {
           value={selectedUsers}
           onChange={setSelectedUsers}
           options={allUsers}
+          styles={selectStyles} // Apply the custom styles here
         />
         <div className="mt-6 flex justify-end">
           <button
