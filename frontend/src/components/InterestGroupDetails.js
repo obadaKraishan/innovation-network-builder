@@ -79,7 +79,7 @@ const InterestGroupDetails = () => {
       .filter(comment => comment.parent === parentId)
       .map(comment => (
         <div
-          key={comment._id}
+          key={comment._id} // Ensure each comment has a unique key
           className={`mb-4 p-4 rounded-lg shadow-sm ${level === 0 ? 'bg-gray-100' : 'bg-gray-200 border-l-4 border-blue-300'}`}
           style={{ marginLeft: level * 20 }}
         >
@@ -104,7 +104,7 @@ const InterestGroupDetails = () => {
               <FaTrashAlt className="text-red-500 cursor-pointer" onClick={() => handleDeleteComment(comment._id)} />
             </div>
           </div>
-          {comments.some(child => child.parent === comment._id) && renderComments(comments, comment._id, level + 1)}
+          {renderComments(comments, comment._id, level + 1)}
         </div>
       ));
   };  
@@ -173,7 +173,7 @@ const InterestGroupDetails = () => {
                 onClick={handleAddComment}
                 className="bg-blue-500 text-white py-2 px-4 rounded hover:bg-blue-600 transition"
               >
-                {editCommentId ? 'Update Comment' : 'Add Comment'}
+                {parentCommentId ? 'Reply' : editCommentId ? 'Update Comment' : 'Add Comment'}
               </button>
             </div>
           </>
