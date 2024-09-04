@@ -61,6 +61,25 @@ const userSchema = new mongoose.Schema({
       },
     },
   ],
+  groups: [
+    {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: 'InterestGroup',
+    },
+  ],
+  invitations: [
+    {
+      groupId: {
+        type: mongoose.Schema.Types.ObjectId,
+        ref: 'InterestGroup',
+      },
+      status: {
+        type: String,
+        enum: ['pending', 'accepted', 'declined'],
+        default: 'pending',
+      },
+    },
+  ],
   createdAt: {
     type: Date,
     default: Date.now,
