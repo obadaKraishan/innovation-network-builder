@@ -39,13 +39,14 @@ const InterestGroupDetails = () => {
       } else {
         const { data } = await api.post(`/groups/${id}/comments`, { comment, parent: parentCommentId });
         setComments([...comments, data]);
-        toast.success('Comment added successfully!');
+        toast.success(parentCommentId ? 'Reply added successfully!' : 'Comment added successfully!');
       }
       setComment('');
       setEditCommentId(null);
       setParentCommentId(null);
     } catch (error) {
       console.error('Error adding/editing comment:', error);
+      toast.error('Failed to add/update comment.');
     }
   };
 
@@ -85,10 +86,15 @@ const InterestGroupDetails = () => {
       toast.success('Comment deleted successfully!');
     } catch (error) {
       console.error('Error deleting comment:', error);
+      toast.error('Error deleting comment.');
     }
   };
 
   const renderComments = (comments, parentId = null, level = 0) => {
+    if (level > 5) {  // Prevents infinite recursion by limiting nesting levels
+      return null;
+    }
+  
     const filteredComments = comments.filter(comment => comment.parent === parentId);
   
     return filteredComments.map(comment => (
@@ -122,7 +128,7 @@ const InterestGroupDetails = () => {
         {renderComments(comments, comment._id, level + 1)}
       </div>
     ));
-  };  
+  };    
 
   return (
     <div className="flex h-screen">
@@ -147,11 +153,11 @@ const InterestGroupDetails = () => {
               {group.createdBy._id === JSON.parse(localStorage.getItem('userInfo'))._id && (
                 <div className="flex space-x-4 mb-6">
                   <button
-                    onClick={() => navigate(`/edit-interest-group/${id}`)} // Update this route
+                    onClick={() => navigate(`/edit-interest-group/${id}`)}
                     className="bg-yellow-500 text-white py-2 px-4 rounded hover:bg-yellow-600 transition"
-                    >
+                  >
                     <FaEdit className="mr-2" /> Edit Group
-                    </button>
+                  </button>
                   <button
                     onClick={handleDeleteGroup}
                     className="bg-red-500 text-white py-2 px-4 rounded hover:bg-red-600 transition"
