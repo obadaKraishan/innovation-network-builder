@@ -3,7 +3,7 @@ import React, { useState, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import Sidebar from './Sidebar';
 import api from '../utils/api';
-import { FaEdit, FaTrashAlt, FaArrowLeft, FaSignOutAlt } from 'react-icons/fa';
+import { FaEdit, FaTrashAlt, FaArrowLeft, FaSignOutAlt, FaUserPlus } from 'react-icons/fa';
 import { toast } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
 
@@ -82,12 +82,23 @@ const InterestGroupDetails = () => {
   // Leave the group (available to all members except the creator)
   const handleLeaveGroup = async () => {
     try {
-      await api.put(`/groups/leave/${id}`);
+      await api.put(`/groups/${id}/leave`);
       toast.success('You have left the group.');
       navigate('/interest-groups');
     } catch (error) {
       console.error('Error leaving group:', error);
       toast.error('Failed to leave the group.');
+    }
+  };
+
+  // Request to join the group
+  const handleRequestToJoin = async () => {
+    try {
+      await api.post(`/groups/${id}/invite`, { userId: user._id });
+      toast.success('Join request sent successfully!');
+    } catch (error) {
+      console.error('Error requesting to join group:', error);
+      toast.error('Failed to send join request.');
     }
   };
 
@@ -188,13 +199,26 @@ const InterestGroupDetails = () => {
                   >
                     <FaTrashAlt className="mr-2" /> Delete Group
                   </button>
+                  <button
+                    onClick={() => navigate(`/invite-to-group/${id}`)}
+                    className="bg-green-500 text-white py-2 px-4 rounded hover:bg-green-600 transition"
+                  >
+                    <FaUserPlus className="mr-2" /> Send Invitations
+                  </button>
                 </div>
-              ) : (
+              ) : group.members.some(member => member._id === user._id) ? (
                 <button
                   onClick={handleLeaveGroup}
                   className="bg-red-500 text-white py-2 px-4 rounded hover:bg-red-600 transition mb-6"
                 >
                   <FaSignOutAlt className="mr-2" /> Leave Group
+                </button>
+              ) : (
+                <button
+                  onClick={handleRequestToJoin}
+                  className="bg-green-500 text-white py-2 px-4 rounded hover:bg-green-600 transition mb-6"
+                >
+                  <FaUserPlus className="mr-2" /> Request to Join
                 </button>
               )}
             </div>
@@ -208,26 +232,30 @@ const InterestGroupDetails = () => {
               </ul>
             </div>
 
-            <div className="bg-white p-6 rounded-lg shadow-lg">
-              <h3 className="text-2xl font-semibold mb-4">Comments</h3>
+            {group.members.some(member => member._id === user._id) || group.createdBy._id === user._id ? (
+              <div className="bg-white p-6 rounded-lg shadow-lg">
+                <h3 className="text-2xl font-semibold mb-4">Comments</h3>
 
-              <div className="mt-6">
-                {renderComments(comments)}
+                <div className="mt-6">
+                  {renderComments(comments)}
+                </div>
+
+                <textarea
+                  value={comment}
+                  onChange={(e) => setComment(e.target.value)}
+                  placeholder="Add your comment..."
+                  className="w-full p-3 border border-gray-300 rounded mb-4"
+                />
+                <button
+                  onClick={handleAddComment}
+                  className="bg-blue-500 text-white py-2 px-4 rounded hover:bg-blue-600 transition"
+                >
+                  {parentCommentId ? 'Reply' : editCommentId ? 'Update Comment' : 'Add Comment'}
+                </button>
               </div>
-
-              <textarea
-                value={comment}
-                onChange={(e) => setComment(e.target.value)}
-                placeholder="Add your comment..."
-                className="w-full p-3 border border-gray-300 rounded mb-4"
-              />
-              <button
-                onClick={handleAddComment}
-                className="bg-blue-500 text-white py-2 px-4 rounded hover:bg-blue-600 transition"
-              >
-                {parentCommentId ? 'Reply' : editCommentId ? 'Update Comment' : 'Add Comment'}
-              </button>
-            </div>
+            ) : (
+              <p className="text-gray-500">Only members can view and participate in the discussion.</p>
+            )}
           </>
         )}
       </div>
