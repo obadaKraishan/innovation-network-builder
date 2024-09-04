@@ -90,24 +90,24 @@ const getGroups = async (req, res) => {
 // @access  Private
 const getGroupById = async (req, res) => {
     try {
-      const group = await InterestGroup.findById(req.params.id)
-        .populate('members', 'name')
+        const group = await InterestGroup.findById(req.params.id)
+        .populate('members', 'name email') // Populate both name and email
         .populate('createdBy', 'name')
         .populate({
-          path: 'interestGroupDiscussions',
-          populate: { path: 'user', select: 'name' }
+            path: 'interestGroupDiscussions',
+            populate: { path: 'user', select: 'name' }
         });
-  
-      if (!group) {
+
+        if (!group) {
         return res.status(404).json({ message: 'Group not found' });
-      }
-  
-      res.status(200).json(group);
+        }
+
+        res.status(200).json(group);
     } catch (error) {
-      console.error('Error fetching group details:', error.message);
-      res.status(500).json({ message: 'Server Error' });
+        console.error('Error fetching group details:', error.message);
+        res.status(500).json({ message: 'Server Error' });
     }
-  };  
+};  
 
 // @desc    Update group details (for group owners)
 // @route   PUT /api/groups/:id
@@ -141,24 +141,25 @@ const updateGroup = async (req, res) => {
 // @route   DELETE /api/groups/:id
 // @access  Private
 const deleteGroup = async (req, res) => {
-  try {
-    const group = await InterestGroup.findById(req.params.id);
+    try {
+        const group = await InterestGroup.findById(req.params.id);
 
-    if (!group) {
-      return res.status(404).json({ message: 'Group not found' });
+        if (!group) {
+        return res.status(404).json({ message: 'Group not found' });
+        }
+
+        if (group.createdBy.toString() !== req.user._id.toString()) {
+        return res.status(401).json({ message: 'Not authorized' });
+        }
+
+        await InterestGroup.findByIdAndDelete(req.params.id); // Use findByIdAndDelete for deletion
+
+        res.status(200).json({ message: 'Group removed successfully' });
+    } catch (error) {
+        console.error('Error deleting group:', error.message);
+        res.status(500).json({ message: 'Server Error' });
     }
-
-    if (group.createdBy.toString() !== req.user._id.toString()) {
-      return res.status(401).json({ message: 'Not authorized' });
-    }
-
-    await group.remove();
-    res.status(200).json({ message: 'Group removed' });
-  } catch (error) {
-    console.error('Error deleting group:', error.message);
-    res.status(500).json({ message: 'Server Error' });
-  }
-};
+};  
 
 // @desc    Invite members to the group
 // @route   POST /api/groups/:id/invite

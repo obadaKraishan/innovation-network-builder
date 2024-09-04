@@ -30,6 +30,7 @@ import InterestGroups from './components/InterestGroups';
 import CreateInterestGroups from './components/CreateInterestGroups';
 import InterestGroupDetails from './components/InterestGroupDetails';
 import GroupsInvitations from './components/GroupsInvitations';
+import EditInterestGroup from './components/EditInterestGroup';
 
 const AppRoutes = () => {
   return (
@@ -63,6 +64,7 @@ const AppRoutes = () => {
           <Route path="/create-interest-group" element={<CreateInterestGroups />} />
           <Route path="/interest-groups/:id" element={<InterestGroupDetails />} />
           <Route path="/group-invitations" element={<GroupsInvitations />} />
+          <Route path="/edit-interest-group/:id" element={<EditInterestGroup />} />
 
           <Route path="/" element={<Navigate to="/login" />} />
           <Route path="*" element={<Navigate to="/" />} />

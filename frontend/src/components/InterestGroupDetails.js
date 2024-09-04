@@ -80,7 +80,7 @@ const InterestGroupDetails = () => {
       .map(comment => (
         <div
           key={comment._id} // Ensure each comment has a unique key
-          className={`mb-4 p-4 rounded-lg shadow-sm ${level === 0 ? 'bg-gray-100' : 'bg-gray-200 border-l-4 border-blue-300'}`}
+          className={`mb-4 p-4 rounded-lg shadow-sm ${level === 0 ? 'bg-gray-100' : 'mt-4 bg-gray-200 border-l-4 border-blue-300'}`}
           style={{ marginLeft: level * 20 }}
         >
           <div className="flex justify-between items-center mb-2">
