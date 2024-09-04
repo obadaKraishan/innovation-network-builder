@@ -132,11 +132,11 @@ const InterestGroupDetails = () => {
               {group.createdBy._id === JSON.parse(localStorage.getItem('userInfo'))._id && (
                 <div className="flex space-x-4 mb-6">
                   <button
-                    onClick={() => navigate(`/edit-group/${id}`)}
+                    onClick={() => navigate(`/edit-interest-group/${id}`)} // Update this route
                     className="bg-yellow-500 text-white py-2 px-4 rounded hover:bg-yellow-600 transition"
-                  >
+                    >
                     <FaEdit className="mr-2" /> Edit Group
-                  </button>
+                    </button>
                   <button
                     onClick={handleDeleteGroup}
                     className="bg-red-500 text-white py-2 px-4 rounded hover:bg-red-600 transition"

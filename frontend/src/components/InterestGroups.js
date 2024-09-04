@@ -252,7 +252,7 @@ const InterestGroups = () => {
                     <FaEye size={20} />
                   </button>
                   <button
-                    onClick={() => navigate(`/edit-interest-group/${group._id}`)}
+                    onClick={() => navigate(`/edit-interest-group/${group._id}`)} // Update this route
                     className="text-yellow-500 hover:text-yellow-700"
                     title="Edit Group"
                   >
