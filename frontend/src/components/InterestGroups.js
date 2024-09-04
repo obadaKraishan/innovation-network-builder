@@ -67,16 +67,28 @@ const InterestGroups = () => {
   const visibleJoinedGroups = showMoreJoined ? filteredJoinedGroups : filteredJoinedGroups.slice(0, 6);
   const visibleCreatedGroups = showMoreCreated ? filteredCreatedGroups : filteredCreatedGroups.slice(0, 6);
 
-  const handleLeaveGroup = async (groupId) => {
-    try {
-      await api.put(`/groups/leave/${groupId}`);
-      setJoinedGroups(joinedGroups.filter(group => group._id !== groupId));
-      toast.success('You have left the group.');
-    } catch (error) {
-      console.error('Error leaving group:', error);
-      toast.error('Failed to leave the group.');
-    }
-  };
+  const handleLeaveGroup = (groupId) => {
+    Swal.fire({
+      title: 'Are you sure?',
+      text: "Do you really want to leave this group?",
+      icon: 'warning',
+      showCancelButton: true,
+      confirmButtonColor: '#3085d6',
+      cancelButtonColor: '#d33',
+      confirmButtonText: 'Yes, leave it!'
+    }).then(async (result) => {
+      if (result.isConfirmed) {
+        try {
+          await api.put(`/groups/${groupId}/leave`); // Use groupId instead of id
+          setJoinedGroups(joinedGroups.filter(group => group._id !== groupId));
+          toast.success('You have left the group.');
+        } catch (error) {
+          console.error('Error leaving group:', error);
+          toast.error('Failed to leave the group.');
+        }
+      }
+    });
+  };  
 
   const handleDeleteGroup = async (groupId) => {
     Swal.fire({
@@ -169,12 +181,12 @@ const InterestGroups = () => {
                   {/* Show Leave Group button if user is a member but not the creator */}
                   {group.createdBy._id !== JSON.parse(localStorage.getItem('userInfo'))._id && (
                     <button
-                      onClick={() => handleLeaveGroup(group._id)}
+                      onClick={() => handleLeaveGroup(group._id)}  // Pass the group's ID here
                       className="text-red-500 hover:text-red-700"
                       title="Leave Group"
                     >
-                      <FaSignOutAlt size={20} />
-                    </button>
+                    <FaSignOutAlt size={20} />
+                  </button>                  
                   )}
                 </div>
               </li>

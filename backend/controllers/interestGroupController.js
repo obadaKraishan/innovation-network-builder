@@ -166,28 +166,29 @@ const deleteGroup = async (req, res) => {
 // @access  Private
 const leaveGroup = async (req, res) => {
     try {
-      const group = await InterestGroup.findById(req.params.id);
-  
-      if (!group) {
-        return res.status(404).json({ message: 'Group not found' });
-      }
-  
-      // Check if the user is a member of the group
-      if (!group.members.includes(req.user._id)) {
-        return res.status(400).json({ message: 'You are not a member of this group' });
-      }
-  
-      // Remove the user from the members array
-      group.members = group.members.filter(member => member.toString() !== req.user._id.toString());
-  
-      await group.save();
-  
-      res.status(200).json({ message: 'Successfully left the group' });
+        console.log(`Leave group request received for ID: ${req.params.id}`); // Log the ID
+        const group = await InterestGroup.findById(req.params.id);
+
+        if (!group) {
+            return res.status(404).json({ message: 'Group not found' });
+        }
+
+        // Check if the user is a member of the group
+        if (!group.members.includes(req.user._id)) {
+            return res.status(400).json({ message: 'You are not a member of this group' });
+        }
+
+        // Remove the user from the members array
+        group.members = group.members.filter(member => member.toString() !== req.user._id.toString());
+
+        await group.save();
+
+        res.status(200).json({ message: 'Successfully left the group' });
     } catch (error) {
-      console.error('Error leaving group:', error.message);
-      res.status(500).json({ message: 'Server Error' });
+        console.error('Error leaving group:', error.message);
+        res.status(500).json({ message: 'Server Error' });
     }
-  };  
+};
 
 // @desc    Invite members to the group
 // @route   POST /api/groups/:id/invite

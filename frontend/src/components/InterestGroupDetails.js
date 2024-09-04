@@ -8,16 +8,17 @@ import { toast } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
 
 const InterestGroupDetails = () => {
-  const { id } = useParams();
-  const [group, setGroup] = useState(null);
-  const [comment, setComment] = useState('');
-  const [comments, setComments] = useState([]);
-  const [editCommentId, setEditCommentId] = useState(null);
-  const [parentCommentId, setParentCommentId] = useState(null);
+  const { id } = useParams(); // Grabs the group ID from the URL params
+  const [group, setGroup] = useState(null); // State to hold group details
+  const [comment, setComment] = useState(''); // State to handle comment input
+  const [comments, setComments] = useState([]); // State to manage all comments
+  const [editCommentId, setEditCommentId] = useState(null); // State to manage editing comments
+  const [parentCommentId, setParentCommentId] = useState(null); // State to manage reply threading
   const navigate = useNavigate();
 
-  const user = JSON.parse(localStorage.getItem('userInfo'));
+  const user = JSON.parse(localStorage.getItem('userInfo')); // Retrieves user info from localStorage
 
+  // Fetch group details on component mount or when `id` changes
   useEffect(() => {
     const fetchGroupDetails = async () => {
       try {
@@ -26,12 +27,14 @@ const InterestGroupDetails = () => {
         setComments(data.interestGroupDiscussions || []);
       } catch (error) {
         console.error('Error fetching group details:', error);
+        toast.error('Failed to load group details.');
       }
     };
   
     fetchGroupDetails();
-  }, [id]);  
+  }, [id]);
 
+  // Add or update a comment
   const handleAddComment = async () => {
     try {
       if (editCommentId) {
@@ -43,15 +46,16 @@ const InterestGroupDetails = () => {
         setComments([...comments, data]);
         toast.success(parentCommentId ? 'Reply added successfully!' : 'Comment added successfully!');
       }
-      setComment('');
-      setEditCommentId(null);
-      setParentCommentId(null);
+      setComment(''); // Clear the comment input
+      setEditCommentId(null); // Reset editing state
+      setParentCommentId(null); // Reset parent comment ID
     } catch (error) {
       console.error('Error adding/editing comment:', error);
       toast.error('Failed to add/update comment.');
     }
   };
 
+  // Delete the group (only available to the group's creator)
   const handleDeleteGroup = async () => {
     Swal.fire({
       title: 'Are you sure?',
@@ -66,7 +70,7 @@ const InterestGroupDetails = () => {
         try {
           await api.delete(`/groups/${id}`);
           toast.success('Group deleted successfully!');
-          navigate('/interest-groups');
+          navigate('/interest-groups'); // Redirect to the interest groups list
         } catch (error) {
           console.error('Error deleting group:', error);
           toast.error('Error deleting group.');
@@ -75,6 +79,7 @@ const InterestGroupDetails = () => {
     });
   };
 
+  // Leave the group (available to all members except the creator)
   const handleLeaveGroup = async () => {
     try {
       await api.put(`/groups/leave/${id}`);
@@ -86,12 +91,14 @@ const InterestGroupDetails = () => {
     }
   };
 
+  // Edit a comment (loads the comment into the input for editing)
   const handleEditComment = (comment) => {
     setComment(comment.comment);
     setEditCommentId(comment._id);
     setParentCommentId(comment.parent || null);
   };
 
+  // Delete a comment
   const handleDeleteComment = async (commentId) => {
     try {
       await api.delete(`/groups/${id}/comments/${commentId}`);
@@ -103,6 +110,7 @@ const InterestGroupDetails = () => {
     }
   };
 
+  // Render comments recursively with a limit on nesting levels
   const renderComments = (comments, parentId = null, level = 0) => {
     if (level > 5) {  // Prevents infinite recursion by limiting nesting levels
       return null;
@@ -144,7 +152,7 @@ const InterestGroupDetails = () => {
         {renderComments(comments, comment._id, level + 1)}
       </div>
     ));
-  };    
+  };
 
   return (
     <div className="flex h-screen">
