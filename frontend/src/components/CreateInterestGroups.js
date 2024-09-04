@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useFormik } from 'formik';
+import Sidebar from './Sidebar';
 import * as yup from 'yup';
 import api from '../utils/api';
 import Select from 'react-select';
