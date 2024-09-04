@@ -1,8 +1,9 @@
 import React, { useState, useEffect } from 'react';
 import Sidebar from './Sidebar';
 import { useNavigate } from 'react-router-dom';
-import { FaSearch, FaPlus } from 'react-icons/fa';
+import { FaSearch, FaPlus, FaEnvelopeOpenText } from 'react-icons/fa';
 import Select from 'react-select';
+import { toast } from 'react-toastify';
 import api from '../utils/api';
 import 'react-toastify/dist/ReactToastify.css';
 
@@ -23,10 +24,12 @@ const InterestGroups = () => {
       try {
         const { data } = await api.get('/groups');
         setGroups(data);
+
         // Separate the groups into joined and created by the user
         const user = JSON.parse(localStorage.getItem('userInfo'));
         setJoinedGroups(data.filter(group => group.members.some(member => member._id === user._id)));
         setCreatedGroups(data.filter(group => group.createdBy === user._id));
+
         // Extract unique hobbies for filter options
         const hobbies = [...new Set(data.flatMap(group => group.hobbies))];
         setHobbiesOptions(hobbies.map(hobby => ({ value: hobby, label: hobby })));
@@ -62,6 +65,28 @@ const InterestGroups = () => {
   const visibleJoinedGroups = showMoreJoined ? filteredJoinedGroups : filteredJoinedGroups.slice(0, 6);
   const visibleCreatedGroups = showMoreCreated ? filteredCreatedGroups : filteredCreatedGroups.slice(0, 6);
 
+  const handleLeaveGroup = async (groupId) => {
+    try {
+      await api.put(`/groups/leave/${groupId}`);
+      setJoinedGroups(joinedGroups.filter(group => group._id !== groupId));
+      toast.success('You have left the group.');
+    } catch (error) {
+      console.error('Error leaving group:', error);
+      toast.error('Failed to leave the group.');
+    }
+  };
+
+  const handleDeleteGroup = async (groupId) => {
+    try {
+      await api.delete(`/groups/${groupId}`);
+      setCreatedGroups(createdGroups.filter(group => group._id !== groupId));
+      toast.success('Group deleted successfully.');
+    } catch (error) {
+      console.error('Error deleting group:', error);
+      toast.error('Failed to delete the group.');
+    }
+  };
+
   return (
     <div className="flex h-screen overflow-hidden">
       <Sidebar />
@@ -96,6 +121,15 @@ const InterestGroups = () => {
           </button>
         </div>
 
+        <div className="flex justify-between mb-6">
+          <button
+            onClick={() => navigate('/group-invitations')}
+            className="bg-green-500 text-white px-6 py-3 rounded-lg flex items-center hover:bg-green-600 transition"
+          >
+            <FaEnvelopeOpenText className="mr-2" /> Invitations
+          </button>
+        </div>
+
         <h3 className="text-xl font-semibold mb-4">Available Groups</h3>
         {visibleGroups.length > 0 ? (
           <ul className="space-y-4">
@@ -103,13 +137,20 @@ const InterestGroups = () => {
               <li
                 key={group._id}
                 className="p-4 bg-white rounded-lg shadow-lg flex justify-between items-center"
-                onClick={() => navigate(`/interest-groups/${group._id}`)}
               >
                 <div>
                   <h4 className="text-lg font-bold">{group.name}</h4>
                   <p className="text-gray-700">{group.description}</p>
                   <p className="text-sm text-gray-500">Hobbies: {group.hobbies.join(', ')}</p>
+                  <p className="text-sm text-gray-500">Members: {group.members.map(member => member.name).join(', ')}</p>
+                  <p className="text-sm text-gray-500">Created by: {group.createdBy.name}</p>
                 </div>
+                <button
+                  onClick={() => navigate(`/interest-groups/${group._id}`)}
+                  className="text-blue-500 hover:underline"
+                >
+                  View Details
+                </button>
               </li>
             ))}
           </ul>
@@ -132,12 +173,27 @@ const InterestGroups = () => {
               <li
                 key={group._id}
                 className="p-4 bg-white rounded-lg shadow-lg flex justify-between items-center"
-                onClick={() => navigate(`/interest-groups/${group._id}`)}
               >
                 <div>
                   <h4 className="text-lg font-bold">{group.name}</h4>
                   <p className="text-gray-700">{group.description}</p>
                   <p className="text-sm text-gray-500">Hobbies: {group.hobbies.join(', ')}</p>
+                  <p className="text-sm text-gray-500">Members: {group.members.map(member => member.name).join(', ')}</p>
+                  <p className="text-sm text-gray-500">Created by: {group.createdBy.name}</p>
+                </div>
+                <div className="flex space-x-4">
+                  <button
+                    onClick={() => navigate(`/interest-groups/${group._id}`)}
+                    className="text-blue-500 hover:underline"
+                  >
+                    View Details
+                  </button>
+                  <button
+                    onClick={() => handleLeaveGroup(group._id)}
+                    className="text-red-500 hover:underline"
+                  >
+                    Leave Group
+                  </button>
                 </div>
               </li>
             ))}
@@ -161,12 +217,33 @@ const InterestGroups = () => {
               <li
                 key={group._id}
                 className="p-4 bg-white rounded-lg shadow-lg flex justify-between items-center"
-                onClick={() => navigate(`/interest-groups/${group._id}`)}
               >
                 <div>
                   <h4 className="text-lg font-bold">{group.name}</h4>
                   <p className="text-gray-700">{group.description}</p>
                   <p className="text-sm text-gray-500">Hobbies: {group.hobbies.join(', ')}</p>
+                  <p className="text-sm text-gray-500">Members: {group.members.map(member => member.name).join(', ')}</p>
+                  <p className="text-sm text-gray-500">Created by: {group.createdBy.name}</p>
+                </div>
+                <div className="flex space-x-4">
+                  <button
+                    onClick={() => navigate(`/interest-groups/${group._id}`)}
+                    className="text-blue-500 hover:underline"
+                  >
+                    View Details
+                  </button>
+                  <button
+                    onClick={() => navigate(`/edit-interest-group/${group._id}`)}
+                    className="text-yellow-500 hover:underline"
+                  >
+                    Edit
+                  </button>
+                  <button
+                    onClick={() => handleDeleteGroup(group._id)}
+                    className="text-red-500 hover:underline"
+                  >
+                    Delete
+                  </button>
                 </div>
               </li>
             ))}
