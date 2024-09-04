@@ -25,6 +25,12 @@ import MeetingBooking from './components/MeetingBooking';
 import BookMeeting from './components/BookMeeting';
 import MeetingAvailability from './components/MeetingAvailability';
 
+// New Components for Interest Groups
+import InterestGroups from './components/InterestGroups';
+import CreateInterestGroups from './components/CreateInterestGroups';
+import InterestGroupDetails from './components/InterestGroupDetails';
+import GroupsInvitations from './components/GroupsInvitations';
+
 const AppRoutes = () => {
   return (
     <Router>
@@ -48,9 +54,16 @@ const AppRoutes = () => {
           <Route path="/messages/sent" element={<MessagesSent />} />
           <Route path="/messages/important" element={<MessagesImportant />} />
           <Route path="/messages/:id" element={<MessageDetails />} />
-          <Route path="/meeting-booking" element={<MeetingBooking />} />\
+          <Route path="/meeting-booking" element={<MeetingBooking />} />
           <Route path="/book-meeting" element={<BookMeeting />} />
           <Route path="/meeting-availability" element={<MeetingAvailability />} />
+          
+          {/* New Routes for Personal Interest Groups */}
+          <Route path="/interest-groups" element={<InterestGroups />} />
+          <Route path="/create-interest-group" element={<CreateInterestGroups />} />
+          <Route path="/interest-groups/:id" element={<InterestGroupDetails />} />
+          <Route path="/group-invitations" element={<GroupsInvitations />} />
+
           <Route path="/" element={<Navigate to="/login" />} />
           <Route path="*" element={<Navigate to="/" />} />
         </Routes>

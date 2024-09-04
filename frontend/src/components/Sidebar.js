@@ -1,6 +1,6 @@
 import React, { useContext } from 'react';
 import { Link, useLocation } from 'react-router-dom';
-import { FaUser, FaSignOutAlt, FaTachometerAlt, FaUsers, FaChartLine, FaBuilding, FaCogs, FaUserShield, FaEnvelope, FaCalendarAlt } from 'react-icons/fa'; // Added FaUserShield for Manage Users
+import { FaUser, FaSignOutAlt, FaTachometerAlt, FaUsers, FaChartLine, FaBuilding, FaCogs, FaUserShield, FaEnvelope, FaCalendarAlt, FaLayerGroup, FaPlusSquare } from 'react-icons/fa'; 
 import AuthContext from '../context/AuthContext';
 
 const Sidebar = () => {
@@ -18,6 +18,7 @@ const Sidebar = () => {
       { name: 'My Meetings', icon: <FaCalendarAlt />, path: '/meeting-booking' },
       { name: 'Collaborator Finder', icon: <FaCogs />, path: '/collaborator-finder' },
       { name: 'Messages', icon: <FaEnvelope />, path: '/messages' },
+      { name: 'Interest Groups', icon: <FaLayerGroup />, path: '/interest-groups' },  // Added Personal Interest Groups
     ],
     'Team Leader': [
       { name: 'Profile', icon: <FaUser />, path: '/profile' },
@@ -27,6 +28,7 @@ const Sidebar = () => {
       { name: 'My Meetings', icon: <FaCalendarAlt />, path: '/meeting-booking' },
       { name: 'Collaborator Finder', icon: <FaCogs />, path: '/collaborator-finder' },
       { name: 'Messages', icon: <FaEnvelope />, path: '/messages' },
+      { name: 'Interest Groups', icon: <FaLayerGroup />, path: '/interest-groups' },  // Added Personal Interest Groups
     ],
     'Department Manager': [
       { name: 'Profile', icon: <FaUser />, path: '/profile' },
@@ -35,16 +37,18 @@ const Sidebar = () => {
       { name: 'My Meetings', icon: <FaCalendarAlt />, path: '/meeting-booking' },
       { name: 'Collaborator Finder', icon: <FaCogs />, path: '/collaborator-finder' },
       { name: 'Messages', icon: <FaEnvelope />, path: '/messages' },
+      { name: 'Interest Groups', icon: <FaLayerGroup />, path: '/interest-groups' },  // Added Personal Interest Groups
     ],
     CEO: [
       { name: 'Profile', icon: <FaUser />, path: '/profile' },
       { name: 'Overview', icon: <FaTachometerAlt />, path: '/overview' },
       { name: 'Company Reports', icon: <FaChartLine />, path: '/company-reports' },
       { name: 'Manage Departments', icon: <FaBuilding />, path: '/manage-departments' },
-      { name: 'Manage Users', icon: <FaUserShield />, path: '/manage-users' }, // Added Manage Users
+      { name: 'Manage Users', icon: <FaUserShield />, path: '/manage-users' },
       { name: 'My Meetings', icon: <FaCalendarAlt />, path: '/meeting-booking' },
       { name: 'Collaborator Finder', icon: <FaCogs />, path: '/collaborator-finder' },
       { name: 'Messages', icon: <FaEnvelope />, path: '/messages' },
+      { name: 'Interest Groups', icon: <FaLayerGroup />, path: '/interest-groups' },  // Added Personal Interest Groups
     ],
     CTO: [
       { name: 'Profile', icon: <FaUser />, path: '/profile' },
@@ -53,15 +57,17 @@ const Sidebar = () => {
       { name: 'My Meetings', icon: <FaCalendarAlt />, path: '/meeting-booking' },
       { name: 'Collaborator Finder', icon: <FaCogs />, path: '/collaborator-finder' },
       { name: 'Messages', icon: <FaEnvelope />, path: '/messages' },
+      { name: 'Interest Groups', icon: <FaLayerGroup />, path: '/interest-groups' },  // Added Personal Interest Groups
     ],
     'Director of HR': [
       { name: 'Profile', icon: <FaUser />, path: '/profile' },
       { name: 'HR Overview', icon: <FaTachometerAlt />, path: '/hr-overview' },
       { name: 'Manage Recruitment', icon: <FaUsers />, path: '/manage-recruitment' },
-      { name: 'Manage Users', icon: <FaUserShield />, path: '/manage-users' }, // Added Manage Users
+      { name: 'Manage Users', icon: <FaUserShield />, path: '/manage-users' },
       { name: 'My Meetings', icon: <FaCalendarAlt />, path: '/meeting-booking' },
       { name: 'Collaborator Finder', icon: <FaCogs />, path: '/collaborator-finder' },
       { name: 'Messages', icon: <FaEnvelope />, path: '/messages' },
+      { name: 'Interest Groups', icon: <FaLayerGroup />, path: '/interest-groups' },  // Added Personal Interest Groups
     ],
     'Director of Finance': [
       { name: 'Profile', icon: <FaUser />, path: '/profile' },
@@ -70,6 +76,7 @@ const Sidebar = () => {
       { name: 'My Meetings', icon: <FaCalendarAlt />, path: '/meeting-booking' },
       { name: 'Collaborator Finder', icon: <FaCogs />, path: '/collaborator-finder' },
       { name: 'Messages', icon: <FaEnvelope />, path: '/messages' },
+      { name: 'Interest Groups', icon: <FaLayerGroup />, path: '/interest-groups' },  // Added Personal Interest Groups
     ],
     'Research Scientist': [
       { name: 'Profile', icon: <FaUser />, path: '/profile' },
@@ -77,6 +84,7 @@ const Sidebar = () => {
       { name: 'My Meetings', icon: <FaCalendarAlt />, path: '/meeting-booking' },
       { name: 'Collaborator Finder', icon: <FaCogs />, path: '/collaborator-finder' },
       { name: 'Messages', icon: <FaEnvelope />, path: '/messages' },
+      { name: 'Interest Groups', icon: <FaLayerGroup />, path: '/interest-groups' },  // Added Personal Interest Groups
     ],
     'Customer Support Specialist': [
       { name: 'Profile', icon: <FaUser />, path: '/profile' },
@@ -84,6 +92,7 @@ const Sidebar = () => {
       { name: 'My Meetings', icon: <FaCalendarAlt />, path: '/meeting-booking' },
       { name: 'Collaborator Finder', icon: <FaCogs />, path: '/collaborator-finder' },
       { name: 'Messages', icon: <FaEnvelope />, path: '/messages' },
+      { name: 'Interest Groups', icon: <FaLayerGroup />, path: '/interest-groups' },  // Added Personal Interest Groups
     ],
   };
 
