@@ -14,6 +14,7 @@ const InterestGroupDetails = () => {
   const [comments, setComments] = useState([]); // State to manage all comments
   const [editCommentId, setEditCommentId] = useState(null); // State to manage editing comments
   const [parentCommentId, setParentCommentId] = useState(null); // State to manage reply threading
+  const [requestSent, setRequestSent] = useState(false); // State to manage the request to join
   const navigate = useNavigate();
 
   const user = JSON.parse(localStorage.getItem('userInfo')); // Retrieves user info from localStorage
@@ -25,6 +26,11 @@ const InterestGroupDetails = () => {
         const { data } = await api.get(`/groups/${id}`);
         setGroup(data);
         setComments(data.interestGroupDiscussions || []);
+        // Check if the user has already sent a request to join
+        const isRequestSent = data.invitations.some(
+          (invitation) => invitation.userId._id === user._id && invitation.status === 'pending'
+        );
+        setRequestSent(isRequestSent);
       } catch (error) {
         console.error('Error fetching group details:', error);
         toast.error('Failed to load group details.');
@@ -32,7 +38,7 @@ const InterestGroupDetails = () => {
     };
   
     fetchGroupDetails();
-  }, [id]);
+  }, [id, user._id]);
 
   // Add or update a comment
   const handleAddComment = async () => {
@@ -94,13 +100,18 @@ const InterestGroupDetails = () => {
   // Request to join the group
   const handleRequestToJoin = async () => {
     try {
-      await api.post(`/groups/${id}/invite`, { userId: user._id });
+      await api.post(`/groups/${id}/invite`, { userId: user._id }, {
+        headers: {
+          Authorization: `Bearer ${user.token}` // Ensure the token is included
+        }
+      });
+      setRequestSent(true);
       toast.success('Join request sent successfully!');
     } catch (error) {
       console.error('Error requesting to join group:', error);
       toast.error('Failed to send join request.');
     }
-  };
+  };  
 
   // Edit a comment (loads the comment into the input for editing)
   const handleEditComment = (comment) => {
@@ -216,9 +227,10 @@ const InterestGroupDetails = () => {
               ) : (
                 <button
                   onClick={handleRequestToJoin}
-                  className="bg-green-500 text-white py-2 px-4 rounded hover:bg-green-600 transition mb-6"
+                  className={`py-2 px-4 rounded transition mb-6 ${requestSent ? 'bg-gray-500 text-white' : 'bg-green-500 text-white hover:bg-green-600'}`}
+                  disabled={requestSent}
                 >
-                  <FaUserPlus className="mr-2" /> Request to Join
+                  <FaUserPlus className="mr-2" /> {requestSent ? 'Requested' : 'Request to Join'}
                 </button>
               )}
             </div>

@@ -7,9 +7,9 @@ const api = axios.create({
 });
 
 api.interceptors.request.use(
-  config => {
-    const token = localStorage.getItem('token'); // Ensure we're using the correct key
-    console.log('Token being used:', token); // Add this log to confirm the token is being set
+  (config) => {
+    const token = localStorage.getItem('token');
+    console.log('Token being used:', token); // This should show the token
     if (token) {
       config.headers.Authorization = `Bearer ${token}`;
     } else {
@@ -17,7 +17,7 @@ api.interceptors.request.use(
     }
     return config;
   },
-  error => {
+  (error) => {
     console.error('Error in request interceptor:', error);
     return Promise.reject(error);
   }
