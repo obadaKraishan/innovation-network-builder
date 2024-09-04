@@ -13,6 +13,9 @@ const InterestGroups = () => {
   const [searchTerm, setSearchTerm] = useState('');
   const [hobbiesOptions, setHobbiesOptions] = useState([]);
   const [selectedHobbies, setSelectedHobbies] = useState([]);
+  const [showMoreGroups, setShowMoreGroups] = useState(false);
+  const [showMoreJoined, setShowMoreJoined] = useState(false);
+  const [showMoreCreated, setShowMoreCreated] = useState(false);
   const navigate = useNavigate();
 
   useEffect(() => {
@@ -55,6 +58,10 @@ const InterestGroups = () => {
   const filteredJoinedGroups = handleSearch(joinedGroups);
   const filteredCreatedGroups = handleSearch(createdGroups);
 
+  const visibleGroups = showMoreGroups ? filteredGroups : filteredGroups.slice(0, 6);
+  const visibleJoinedGroups = showMoreJoined ? filteredJoinedGroups : filteredJoinedGroups.slice(0, 6);
+  const visibleCreatedGroups = showMoreCreated ? filteredCreatedGroups : filteredCreatedGroups.slice(0, 6);
+
   return (
     <div className="flex h-screen overflow-hidden">
       <Sidebar />
@@ -90,55 +97,91 @@ const InterestGroups = () => {
         </div>
 
         <h3 className="text-xl font-semibold mb-4">Available Groups</h3>
-        <ul className="space-y-4">
-          {filteredGroups.map(group => (
-            <li
-              key={group._id}
-              className="p-4 bg-white rounded-lg shadow-lg flex justify-between items-center"
-              onClick={() => navigate(`/interest-groups/${group._id}`)}
-            >
-              <div>
-                <h4 className="text-lg font-bold">{group.name}</h4>
-                <p className="text-gray-700">{group.description}</p>
-                <p className="text-sm text-gray-500">Hobbies: {group.hobbies.join(', ')}</p>
-              </div>
-            </li>
-          ))}
-        </ul>
+        {visibleGroups.length > 0 ? (
+          <ul className="space-y-4">
+            {visibleGroups.map(group => (
+              <li
+                key={group._id}
+                className="p-4 bg-white rounded-lg shadow-lg flex justify-between items-center"
+                onClick={() => navigate(`/interest-groups/${group._id}`)}
+              >
+                <div>
+                  <h4 className="text-lg font-bold">{group.name}</h4>
+                  <p className="text-gray-700">{group.description}</p>
+                  <p className="text-sm text-gray-500">Hobbies: {group.hobbies.join(', ')}</p>
+                </div>
+              </li>
+            ))}
+          </ul>
+        ) : (
+          <p className="text-gray-500">No available groups to display.</p>
+        )}
+        {filteredGroups.length > 6 && !showMoreGroups && (
+          <button
+            onClick={() => setShowMoreGroups(true)}
+            className="text-blue-500 hover:underline mt-4"
+          >
+            Show More
+          </button>
+        )}
 
         <h3 className="text-xl font-semibold mt-8 mb-4">Groups You Have Joined</h3>
-        <ul className="space-y-4">
-          {filteredJoinedGroups.map(group => (
-            <li
-              key={group._id}
-              className="p-4 bg-white rounded-lg shadow-lg flex justify-between items-center"
-              onClick={() => navigate(`/interest-groups/${group._id}`)}
-            >
-              <div>
-                <h4 className="text-lg font-bold">{group.name}</h4>
-                <p className="text-gray-700">{group.description}</p>
-                <p className="text-sm text-gray-500">Hobbies: {group.hobbies.join(', ')}</p>
-              </div>
-            </li>
-          ))}
-        </ul>
+        {visibleJoinedGroups.length > 0 ? (
+          <ul className="space-y-4">
+            {visibleJoinedGroups.map(group => (
+              <li
+                key={group._id}
+                className="p-4 bg-white rounded-lg shadow-lg flex justify-between items-center"
+                onClick={() => navigate(`/interest-groups/${group._id}`)}
+              >
+                <div>
+                  <h4 className="text-lg font-bold">{group.name}</h4>
+                  <p className="text-gray-700">{group.description}</p>
+                  <p className="text-sm text-gray-500">Hobbies: {group.hobbies.join(', ')}</p>
+                </div>
+              </li>
+            ))}
+          </ul>
+        ) : (
+          <p className="text-gray-500">You haven't joined any groups yet.</p>
+        )}
+        {filteredJoinedGroups.length > 6 && !showMoreJoined && (
+          <button
+            onClick={() => setShowMoreJoined(true)}
+            className="text-blue-500 hover:underline mt-4"
+          >
+            Show More
+          </button>
+        )}
 
         <h3 className="text-xl font-semibold mt-8 mb-4">Groups You Have Created</h3>
-        <ul className="space-y-4">
-          {filteredCreatedGroups.map(group => (
-            <li
-              key={group._id}
-              className="p-4 bg-white rounded-lg shadow-lg flex justify-between items-center"
-              onClick={() => navigate(`/interest-groups/${group._id}`)}
-            >
-              <div>
-                <h4 className="text-lg font-bold">{group.name}</h4>
-                <p className="text-gray-700">{group.description}</p>
-                <p className="text-sm text-gray-500">Hobbies: {group.hobbies.join(', ')}</p>
-              </div>
-            </li>
-          ))}
-        </ul>
+        {visibleCreatedGroups.length > 0 ? (
+          <ul className="space-y-4">
+            {visibleCreatedGroups.map(group => (
+              <li
+                key={group._id}
+                className="p-4 bg-white rounded-lg shadow-lg flex justify-between items-center"
+                onClick={() => navigate(`/interest-groups/${group._id}`)}
+              >
+                <div>
+                  <h4 className="text-lg font-bold">{group.name}</h4>
+                  <p className="text-gray-700">{group.description}</p>
+                  <p className="text-sm text-gray-500">Hobbies: {group.hobbies.join(', ')}</p>
+                </div>
+              </li>
+            ))}
+          </ul>
+        ) : (
+          <p className="text-gray-500">You haven't created any groups yet.</p>
+        )}
+        {filteredCreatedGroups.length > 6 && !showMoreCreated && (
+          <button
+            onClick={() => setShowMoreCreated(true)}
+            className="text-blue-500 hover:underline mt-4"
+          >
+            Show More
+          </button>
+        )}
       </div>
     </div>
   );
