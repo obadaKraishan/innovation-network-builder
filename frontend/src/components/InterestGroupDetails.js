@@ -1,3 +1,4 @@
+import Swal from 'sweetalert2';
 import React, { useState, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import Sidebar from './Sidebar';
@@ -49,13 +50,26 @@ const InterestGroupDetails = () => {
   };
 
   const handleDeleteGroup = async () => {
-    try {
-      await api.delete(`/groups/${id}`);
-      navigate('/interest-groups');
-      toast.success('Group deleted successfully!');
-    } catch (error) {
-      console.error('Error deleting group:', error);
-    }
+    Swal.fire({
+      title: 'Are you sure?',
+      text: "You won't be able to revert this!",
+      icon: 'warning',
+      showCancelButton: true,
+      confirmButtonColor: '#3085d6',
+      cancelButtonColor: '#d33',
+      confirmButtonText: 'Yes, delete it!'
+    }).then(async (result) => {
+      if (result.isConfirmed) {
+        try {
+          await api.delete(`/groups/${id}`);
+          toast.success('Group deleted successfully!');
+          navigate('/interest-groups');
+        } catch (error) {
+          console.error('Error deleting group:', error);
+          toast.error('Error deleting group.');
+        }
+      }
+    });
   };
 
   const handleEditComment = (comment) => {
@@ -75,38 +89,39 @@ const InterestGroupDetails = () => {
   };
 
   const renderComments = (comments, parentId = null, level = 0) => {
-    return comments
-      .filter(comment => comment.parent === parentId)
-      .map(comment => (
-        <div
-          key={comment._id} // Ensure each comment has a unique key
-          className={`mb-4 p-4 rounded-lg shadow-sm ${level === 0 ? 'bg-gray-100' : 'mt-4 bg-gray-200 border-l-4 border-blue-300'}`}
-          style={{ marginLeft: level * 20 }}
-        >
-          <div className="flex justify-between items-center mb-2">
-            <p className="font-semibold text-gray-700">
-              {comment.user?.name || "Unknown User"}:
-            </p>
-            <div className="text-xs text-gray-500">
-              {new Date(comment.createdAt).toLocaleDateString()}
-            </div>
+    const filteredComments = comments.filter(comment => comment.parent === parentId);
+  
+    return filteredComments.map(comment => (
+      <div
+        key={comment._id}
+        className={`mb-4 p-4 rounded-lg shadow-sm ${level === 0 ? 'bg-gray-100' : 'mt-4 bg-gray-200 border-l-4 border-blue-300'}`}
+        style={{ marginLeft: level * 20 }}
+      >
+        <div className="flex justify-between items-center mb-2">
+          <p className="font-semibold text-gray-700">
+            {comment.user?.name || "Unknown User"}:
+          </p>
+          <div className="text-xs text-gray-500">
+            {new Date(comment.createdAt).toLocaleDateString()}
           </div>
-          <p className="text-gray-800 mb-2">{comment.comment}</p>
-          <div className="flex justify-between items-center">
-            <button
-              onClick={() => setParentCommentId(comment._id)}
-              className="text-xs text-blue-500 hover:underline"
-            >
-              Reply
-            </button>
-            <div className="flex space-x-2">
-              <FaEdit className="text-blue-500 cursor-pointer" onClick={() => handleEditComment(comment)} />
-              <FaTrashAlt className="text-red-500 cursor-pointer" onClick={() => handleDeleteComment(comment._id)} />
-            </div>
-          </div>
-          {renderComments(comments, comment._id, level + 1)}
         </div>
-      ));
+        <p className="text-gray-800 mb-2">{comment.comment}</p>
+        <div className="flex justify-between items-center">
+          <button
+            onClick={() => setParentCommentId(comment._id)}
+            className="text-xs text-blue-500 hover:underline"
+          >
+            Reply
+          </button>
+          <div className="flex space-x-2">
+            <FaEdit className="text-blue-500 cursor-pointer" onClick={() => handleEditComment(comment)} />
+            <FaTrashAlt className="text-red-500 cursor-pointer" onClick={() => handleDeleteComment(comment._id)} />
+          </div>
+        </div>
+        {/* Render child comments recursively */}
+        {renderComments(comments, comment._id, level + 1)}
+      </div>
+    ));
   };  
 
   return (
