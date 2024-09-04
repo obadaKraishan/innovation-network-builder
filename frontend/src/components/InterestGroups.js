@@ -29,7 +29,7 @@ const InterestGroups = () => {
         // Separate the groups into joined and created by the user
         const user = JSON.parse(localStorage.getItem('userInfo'));
         setJoinedGroups(data.filter(group => group.members.some(member => member._id === user._id)));
-        setCreatedGroups(data.filter(group => group.createdBy === user._id));
+        setCreatedGroups(data.filter(group => group.createdBy._id === user._id));
 
         // Extract unique hobbies for filter options
         const hobbies = [...new Set(data.flatMap(group => group.hobbies))];
