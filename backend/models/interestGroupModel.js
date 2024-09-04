@@ -9,7 +9,19 @@ const interestGroupDiscussionSchema = new Schema({
   createdAt: { type: Date, default: Date.now },
 });
 
-// Update the InterestGroup schema to include the new discussion schema
+// Define a schema for invitations
+const invitationSchema = new Schema({
+  userId: { type: mongoose.Schema.Types.ObjectId, ref: "User" }, // Reference to the user receiving the invitation
+  groupId: { type: mongoose.Schema.Types.ObjectId, ref: "InterestGroup" }, // Reference to the group sending the invitation
+  status: {
+    type: String,
+    enum: ["pending", "accepted", "declined"],
+    default: "pending",
+  },
+  createdAt: { type: Date, default: Date.now },
+});
+
+// Update the InterestGroup schema to include the new discussion schema and invitations schema
 const interestGroupSchema = new mongoose.Schema({
   name: { type: String, required: true },
   description: { type: String, required: true },
@@ -25,16 +37,7 @@ const interestGroupSchema = new mongoose.Schema({
   },
   createdAt: { type: Date, default: Date.now },
   updatedAt: { type: Date, default: Date.now },
-  invitations: [
-    {
-      userId: { type: mongoose.Schema.Types.ObjectId, ref: "User" },
-      status: {
-        type: String,
-        enum: ["pending", "accepted", "declined"],
-        default: "pending",
-      },
-    },
-  ],
+  invitations: [invitationSchema], // Reference the invitation schema here
   interestGroupDiscussions: [interestGroupDiscussionSchema], // Add the discussions array
 });
 

@@ -197,10 +197,13 @@ const getReceivedInvitations = async (req, res) => {
     try {
       const groups = await InterestGroup.find({ 'invitations.userId': req.user._id })
         .populate('createdBy', 'name')
-        .populate('invitations.userId', 'name');
+        .populate('invitations.userId', 'name'); // Correct field names
   
       const receivedInvitations = groups
-        .map(group => group.invitations.filter(inv => inv.userId.toString() === req.user._id.toString() && inv.status === 'pending'))
+        .map(group =>
+          group.invitations
+            .filter(inv => inv.userId.toString() === req.user._id.toString() && inv.status === 'pending')
+            .map(inv => ({ ...inv.toObject(), group }))) // Attach the group to each invitation
         .flat();
   
       res.status(200).json(receivedInvitations);
@@ -210,17 +213,32 @@ const getReceivedInvitations = async (req, res) => {
     }
   };
   
-  // @desc    Get sent invitations by the logged-in user
-  // @route   GET /api/groups/invitations/sent
-  // @access  Private
-  const getSentInvitations = async (req, res) => {
+// @desc    Get sent invitations by the logged-in user
+// @route   GET /api/groups/invitations/sent
+// @access  Private
+const getSentInvitations = async (req, res) => {
     try {
       const groups = await InterestGroup.find({ createdBy: req.user._id })
         .populate('createdBy', 'name')
-        .populate('invitations.userId', 'name');
+        .populate({
+          path: 'invitations.userId',
+          select: 'name',
+          model: 'User', // Ensure that Mongoose knows which model to use for the population
+        });
   
       const sentInvitations = groups
-        .map(group => group.invitations.filter(inv => inv.status === 'pending'))
+        .map(group =>
+          group.invitations
+            .filter(inv => inv.status === 'pending')
+            .map(inv => ({
+              _id: inv._id,
+              status: inv.status,
+              group: {
+                _id: group._id,
+                name: group.name,
+              },
+              user: inv.userId,
+            }))) // Structure the response
         .flat();
   
       res.status(200).json(sentInvitations);
