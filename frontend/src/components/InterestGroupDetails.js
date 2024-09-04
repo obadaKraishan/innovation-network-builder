@@ -1,11 +1,29 @@
 import Swal from 'sweetalert2';
 import React, { useState, useEffect } from 'react';
+import Modal from 'react-modal';
+import Select from 'react-select';
 import { useParams, useNavigate } from 'react-router-dom';
 import Sidebar from './Sidebar';
 import api from '../utils/api';
 import { FaEdit, FaTrashAlt, FaArrowLeft, FaSignOutAlt, FaUserPlus } from 'react-icons/fa';
 import { toast } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
+
+const customStyles = {
+  content: {
+    top: '50%',
+    left: '50%',
+    right: 'auto',
+    bottom: 'auto',
+    marginRight: '-50%',
+    transform: 'translate(-50%, -50%)',
+    width: '50%',
+    maxHeight: '80%',
+    overflowY: 'auto',
+  },
+};
+
+Modal.setAppElement('#root');
 
 const InterestGroupDetails = () => {
   const { id } = useParams(); // Grabs the group ID from the URL params
@@ -15,6 +33,9 @@ const InterestGroupDetails = () => {
   const [editCommentId, setEditCommentId] = useState(null); // State to manage editing comments
   const [parentCommentId, setParentCommentId] = useState(null); // State to manage reply threading
   const [requestSent, setRequestSent] = useState(false); // State to manage the request to join
+  const [modalIsOpen, setModalIsOpen] = useState(false); // State to manage modal visibility
+  const [allUsers, setAllUsers] = useState([]); // State to hold all users for the select dropdown
+  const [selectedUsers, setSelectedUsers] = useState([]); // State to manage selected users
   const navigate = useNavigate();
 
   const user = JSON.parse(localStorage.getItem('userInfo')); // Retrieves user info from localStorage
@@ -31,14 +52,49 @@ const InterestGroupDetails = () => {
           (invitation) => invitation.userId._id === user._id && invitation.status === 'pending'
         );
         setRequestSent(isRequestSent);
+
+        // Fetch all users for the select dropdown
+        const usersData = await api.get('/users');
+        setAllUsers(usersData.data.map(user => ({ label: user.name, value: user._id })));
+
+        // Preselect the current group members
+        const groupMembers = data.members.map(member => ({ label: member.name, value: member._id }));
+        setSelectedUsers(groupMembers);
       } catch (error) {
         console.error('Error fetching group details:', error);
         toast.error('Failed to load group details.');
       }
     };
-  
+
     fetchGroupDetails();
   }, [id, user._id]);
+
+  // Open modal
+  const openModal = () => {
+    setModalIsOpen(true);
+  };
+
+  // Close modal
+  const closeModal = () => {
+    setModalIsOpen(false);
+  };
+
+  // Send invitations
+  const handleSendInvitations = async () => {
+    try {
+      const userIds = selectedUsers.map(user => user.value);
+      await api.post(`/groups/${id}/invite`, { userIds }, {
+        headers: {
+          Authorization: `Bearer ${user.token}`,
+        },
+      });
+      toast.success('Invitations sent successfully!');
+      closeModal();
+    } catch (error) {
+      console.error('Error sending invitations:', error);
+      toast.error('Failed to send invitations.');
+    }
+  };
 
   // Add or update a comment
   const handleAddComment = async () => {
@@ -98,7 +154,7 @@ const InterestGroupDetails = () => {
   };
 
   // Request to join the group
-const handleRequestToJoin = async () => {
+  const handleRequestToJoin = async () => {
     try {
       console.log('Token being sent:', user.token);
       await api.post(`/groups/${id}/join`, {}, {
@@ -112,7 +168,7 @@ const handleRequestToJoin = async () => {
       console.error('Error requesting to join group:', error);
       toast.error('Failed to send join request.');
     }
-  };  
+  };
 
   // Edit a comment (loads the comment into the input for editing)
   const handleEditComment = (comment) => {
@@ -138,9 +194,9 @@ const handleRequestToJoin = async () => {
     if (level > 5) {  // Prevents infinite recursion by limiting nesting levels
       return null;
     }
-  
+
     const filteredComments = comments.filter(comment => comment.parent === parentId);
-  
+
     return filteredComments.map(comment => (
       <div
         key={comment._id}
@@ -212,7 +268,7 @@ const handleRequestToJoin = async () => {
                     <FaTrashAlt className="mr-2" /> Delete Group
                   </button>
                   <button
-                    onClick={() => navigate(`/invite-to-group/${id}`)}
+                    onClick={openModal}
                     className="bg-green-500 text-white py-2 px-4 rounded hover:bg-green-600 transition"
                   >
                     <FaUserPlus className="mr-2" /> Send Invitations
@@ -272,6 +328,35 @@ const handleRequestToJoin = async () => {
           </>
         )}
       </div>
+
+      <Modal
+        isOpen={modalIsOpen}
+        onRequestClose={closeModal}
+        style={customStyles}
+        contentLabel="Send Invitations Modal"
+      >
+        <h2 className="text-2xl font-semibold mb-4">Invite Users to {group?.name}</h2>
+        <Select
+          isMulti
+          value={selectedUsers}
+          onChange={setSelectedUsers}
+          options={allUsers}
+        />
+        <div className="mt-6 flex justify-end">
+          <button
+            onClick={handleSendInvitations}
+            className="bg-green-500 text-white py-2 px-4 rounded hover:bg-green-600 transition"
+          >
+            Send Invitations
+          </button>
+          <button
+            onClick={closeModal}
+            className="ml-4 bg-red-500 text-white py-2 px-4 rounded hover:bg-red-600 transition"
+          >
+            Cancel
+          </button>
+        </div>
+      </Modal>
     </div>
   );
 };

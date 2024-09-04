@@ -233,41 +233,36 @@ const getReceivedInvitations = async (req, res) => {
 // @desc    Invite members to the group
 // @route   POST /api/groups/:id/invite
 // @access  Private
+// @desc    Invite members to the group
+// @route   POST /api/groups/:id/invite
+// @access  Private
 const sendInvitation = async (req, res) => {
     try {
-      console.log('Request to send invitation received');
-      const group = await InterestGroup.findById(req.params.id);
+        const group = await InterestGroup.findById(req.params.id);
   
-      if (!group) {
-        console.error('Group not found with ID:', req.params.id);
-        return res.status(404).json({ message: 'Group not found' });
-      }
-  
-      console.log('Group found:', group.name);
-  
-      if (group.createdBy.toString() !== req.user._id.toString()) {
-        console.warn('Unauthorized access attempt by user:', req.user._id);
-        return res.status(401).json({ message: 'Not authorized' });
-      }
-  
-      const { userId } = req.body;
-      console.log('User to invite:', userId);
-  
-      if (group.members.includes(userId)) {
-        console.warn('User is already a member:', userId);
-        return res.status(400).json({ message: 'User is already a member' });
-      }
-  
-      group.invitations.push({ userId, status: 'pending' });
-      await group.save();
-      console.log('Invitation sent successfully to:', userId);
-  
-      res.status(200).json(group);
+        if (!group) {
+            return res.status(404).json({ message: 'Group not found' });
+        }
+
+        if (group.createdBy.toString() !== req.user._id.toString()) {
+            return res.status(401).json({ message: 'Not authorized' });
+        }
+
+        const { userIds } = req.body;
+
+        userIds.forEach(userId => {
+            if (!group.members.includes(userId) && !group.invitations.some(inv => inv.userId.toString() === userId.toString())) {
+                group.invitations.push({ userId, status: 'pending' });
+            }
+        });
+
+        await group.save();
+        res.status(200).json(group);
     } catch (error) {
-      console.error('Error sending invitation:', error.message);
-      res.status(500).json({ message: 'Server Error' });
+        console.error('Error sending invitations:', error.message);
+        res.status(500).json({ message: 'Server Error' });
     }
-  };
+};
 
 // @desc    Request to join the group or send invitations to users
 // @route   POST /api/groups/:id/join
