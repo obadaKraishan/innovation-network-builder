@@ -74,8 +74,8 @@ const GroupsInvitations = () => {
                 className="p-4 bg-white rounded-lg shadow-lg flex justify-between items-center"
               >
                 <div>
-                  <p className="text-gray-700">Group: {invitation.group.name}</p>
-                  <p className="text-sm text-gray-500">From: {invitation.group.createdBy.name}</p>
+                  <p className="text-gray-700">Group: {invitation.group?.name || 'Unknown Group'}</p>
+                  <p className="text-sm text-gray-500">From: {invitation.group?.createdBy?.name || 'Unknown User'}</p>
                 </div>
                 <div className="flex space-x-2">
                   <button
@@ -110,8 +110,8 @@ const GroupsInvitations = () => {
                 className="p-4 bg-white rounded-lg shadow-lg flex justify-between items-center"
               >
                 <div>
-                  <p className="text-gray-700">Group: {invitation.group.name}</p>
-                  <p className="text-sm text-gray-500">To: {invitation.user.name}</p>
+                  <p className="text-gray-700">Group: {invitation.group?.name || 'Unknown Group'}</p>
+                  <p className="text-sm text-gray-500">To: {invitation.user?.name || 'Unknown User'}</p>
                 </div>
                 <div className="flex space-x-2">
                   <button
