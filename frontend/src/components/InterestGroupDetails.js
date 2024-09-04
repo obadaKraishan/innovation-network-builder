@@ -3,7 +3,7 @@ import React, { useState, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import Sidebar from './Sidebar';
 import api from '../utils/api';
-import { FaEdit, FaTrashAlt, FaArrowLeft } from 'react-icons/fa';
+import { FaEdit, FaTrashAlt, FaArrowLeft, FaSignOutAlt } from 'react-icons/fa';
 import { toast } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
 
@@ -15,6 +15,8 @@ const InterestGroupDetails = () => {
   const [editCommentId, setEditCommentId] = useState(null);
   const [parentCommentId, setParentCommentId] = useState(null);
   const navigate = useNavigate();
+
+  const user = JSON.parse(localStorage.getItem('userInfo'));
 
   useEffect(() => {
     const fetchGroupDetails = async () => {
@@ -73,6 +75,17 @@ const InterestGroupDetails = () => {
     });
   };
 
+  const handleLeaveGroup = async () => {
+    try {
+      await api.put(`/groups/leave/${id}`);
+      toast.success('You have left the group.');
+      navigate('/interest-groups');
+    } catch (error) {
+      console.error('Error leaving group:', error);
+      toast.error('Failed to leave the group.');
+    }
+  };
+
   const handleEditComment = (comment) => {
     setComment(comment.comment);
     setEditCommentId(comment._id);
@@ -120,11 +133,14 @@ const InterestGroupDetails = () => {
             Reply
           </button>
           <div className="flex space-x-2">
-            <FaEdit className="text-blue-500 cursor-pointer" onClick={() => handleEditComment(comment)} />
-            <FaTrashAlt className="text-red-500 cursor-pointer" onClick={() => handleDeleteComment(comment._id)} />
+            {comment.user?._id === user._id && (
+              <>
+                <FaEdit className="text-blue-500 cursor-pointer" onClick={() => handleEditComment(comment)} />
+                <FaTrashAlt className="text-red-500 cursor-pointer" onClick={() => handleDeleteComment(comment._id)} />
+              </>
+            )}
           </div>
         </div>
-        {/* Render child comments recursively */}
         {renderComments(comments, comment._id, level + 1)}
       </div>
     ));
@@ -150,7 +166,7 @@ const InterestGroupDetails = () => {
               <p className="text-gray-600 mb-4"><strong>Hobbies:</strong> {group.hobbies.join(', ')}</p>
               <p className="text-gray-600 mb-4"><strong>Created by:</strong> {group.createdBy.name}</p>
 
-              {group.createdBy._id === JSON.parse(localStorage.getItem('userInfo'))._id && (
+              {group.createdBy._id === user._id ? (
                 <div className="flex space-x-4 mb-6">
                   <button
                     onClick={() => navigate(`/edit-interest-group/${id}`)}
@@ -165,6 +181,13 @@ const InterestGroupDetails = () => {
                     <FaTrashAlt className="mr-2" /> Delete Group
                   </button>
                 </div>
+              ) : (
+                <button
+                  onClick={handleLeaveGroup}
+                  className="bg-red-500 text-white py-2 px-4 rounded hover:bg-red-600 transition mb-6"
+                >
+                  <FaSignOutAlt className="mr-2" /> Leave Group
+                </button>
               )}
             </div>
 

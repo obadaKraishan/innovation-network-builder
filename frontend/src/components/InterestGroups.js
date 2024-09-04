@@ -1,10 +1,10 @@
 import React, { useState, useEffect } from 'react';
 import Sidebar from './Sidebar';
 import { useNavigate } from 'react-router-dom';
-import { FaSearch, FaPlus, FaEnvelopeOpenText, FaEye, FaEdit, FaTrash } from 'react-icons/fa';
+import { FaSearch, FaPlus, FaEnvelopeOpenText, FaEye, FaEdit, FaTrash, FaSignOutAlt } from 'react-icons/fa';
 import Select from 'react-select';
 import { toast } from 'react-toastify';
-import Swal from 'sweetalert2'; // Importing SweetAlert2
+import Swal from 'sweetalert2';
 import api from '../utils/api';
 import 'react-toastify/dist/ReactToastify.css';
 
@@ -166,6 +166,16 @@ const InterestGroups = () => {
                   >
                     <FaEye size={20} />
                   </button>
+                  {/* Show Leave Group button if user is a member but not the creator */}
+                  {group.createdBy._id !== JSON.parse(localStorage.getItem('userInfo'))._id && (
+                    <button
+                      onClick={() => handleLeaveGroup(group._id)}
+                      className="text-red-500 hover:text-red-700"
+                      title="Leave Group"
+                    >
+                      <FaSignOutAlt size={20} />
+                    </button>
+                  )}
                 </div>
               </li>
             ))}
@@ -205,12 +215,13 @@ const InterestGroups = () => {
                   >
                     <FaEye size={20} />
                   </button>
+                  {/* Show Leave Group button for joined groups */}
                   <button
                     onClick={() => handleLeaveGroup(group._id)}
                     className="text-red-500 hover:text-red-700"
                     title="Leave Group"
                   >
-                    <FaTrash size={20} />
+                    <FaSignOutAlt size={20} />
                   </button>
                 </div>
               </li>
