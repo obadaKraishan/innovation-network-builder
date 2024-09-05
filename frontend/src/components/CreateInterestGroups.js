@@ -19,20 +19,29 @@ const CreateInterestGroups = () => {
   useEffect(() => {
     const fetchUsers = async () => {
       try {
-        const { data } = await api.get("/users");
+        const user = JSON.parse(localStorage.getItem('userInfo')); // Retrieve user info from localStorage
+        if (!user || !user.token) {
+          throw new Error("User token not found");
+        }
+  
+        const { data } = await api.get('/users', {
+          headers: {
+            Authorization: `Bearer ${user.token}`, // Attach the token here
+          },
+        });
         const options = data.map((user) => ({
           value: user._id,
           label: `${user.name} (${user.email})`,
         }));
         setUserOptions(options);
       } catch (error) {
-        console.error("Error fetching users:", error);
-        toast.error("Error fetching users.");
+        console.error('Error fetching users:', error);
+        toast.error('Error fetching users.');
       }
     };
-
+  
     fetchUsers();
-  }, []);
+  }, []);  
 
   const validateForm = () => {
     if (!name) {

@@ -39,16 +39,14 @@ const protect = asyncHandler(async (req, res, next) => {
   }
 });
 
-// Middleware to allow all employees (non-admins) to view users in the Personal Interest Groups system
+// Middleware to allow any authenticated user to view users in the Personal Interest Groups system
 const allowEmployees = asyncHandler(async (req, res, next) => {
-  let token;
+  console.log('Allow Employees middleware triggered for user:', req.user.role);
 
   if (req.headers.authorization && req.headers.authorization.startsWith('Bearer')) {
     try {
       // Get token from header
-      token = req.headers.authorization.split(' ')[1];
-
-      // Verify token
+      const token = req.headers.authorization.split(' ')[1];
       const decoded = jwt.verify(token, process.env.JWT_SECRET);
 
       // Get user from the token
@@ -58,7 +56,7 @@ const allowEmployees = asyncHandler(async (req, res, next) => {
         return res.status(404).json({ message: 'User not found' });
       }
 
-      // Proceed if the user is found (employee access)
+      // Allow access to any authenticated user, regardless of role
       next();
     } catch (error) {
       return res.status(401).json({ message: 'Not authorized, token failed' });
@@ -101,10 +99,22 @@ const protectForMessages = asyncHandler(async (req, res, next) => {
 
 // Middleware to check if the user has admin privileges
 const admin = (req, res, next) => {
-  if (
-    req.user &&
-    ['Executive', 'CEO', 'CTO', 'Director of HR', 'Director of Finance', 'Team Leader', 'Department Manager'].includes(req.user.role)
-  ) {
+  console.log('Admin middleware triggered', req.user.role);
+  const adminRoles = [
+    'Executive',
+    'CEO',
+    'CTO',
+    'Director of HR',
+    'Director of Finance',
+    'Team Leader',
+    'Department Manager',
+    'Legal Advisor',               // Added roles
+    'Product Manager',             // Added roles
+    'Research Scientist',          // Added roles
+    'Customer Support Specialist', // Added roles
+  ];
+
+  if (req.user && adminRoles.includes(req.user.role)) {
     next();
   } else {
     console.warn('User is not authorized as an admin:', req.user ? req.user.role : 'No user');

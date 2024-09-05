@@ -1,7 +1,8 @@
 const express = require('express');
-const { protect } = require('../middleware/authMiddleware');
+const { protect, allowEmployees } = require('../middleware/authMiddleware');
 const {
   createGroup,
+  getAllUsersInGroup,
   getGroups,
   getGroupById,
   updateGroup,
