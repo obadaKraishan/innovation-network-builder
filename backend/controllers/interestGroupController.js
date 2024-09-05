@@ -195,23 +195,42 @@ const leaveGroup = async (req, res) => {
 // @access  Private
 const getReceivedInvitations = async (req, res) => {
     try {
+      console.log("Fetching groups for user:", req.user._id);
+  
+      // Fetch the groups where the user has invitations
       const groups = await InterestGroup.find({ 'invitations.userId': req.user._id })
         .populate('createdBy', 'name')
-        .populate('invitations.userId', 'name'); // Correct field names
+        .populate('invitations.userId', 'name'); // Ensure this population is correct
   
-      const receivedInvitations = groups
-        .map(group =>
-          group.invitations
-            .filter(inv => inv.userId.toString() === req.user._id.toString() && inv.status === 'pending')
-            .map(inv => ({ ...inv.toObject(), group }))) // Attach the group to each invitation
-        .flat();
+      console.log("Groups found with invitations:", groups);
+  
+      // Process the received invitations
+      const receivedInvitations = groups.flatMap(group => {
+        return group.invitations
+          .filter(inv => {
+            const isPending = inv.userId.toString() === req.user._id.toString() && inv.status === 'pending';
+            console.log(`Invitation for group "${group.name}" with ID "${group._id}" is pending:`, isPending);
+            return isPending;
+          })
+          .map(inv => ({
+            _id: inv._id,
+            status: inv.status,
+            group: {
+              _id: group._id,
+              name: group.name,
+            },
+            from: group.createdBy,
+          }));
+      });
+  
+      console.log("Processed received invitations:", receivedInvitations);
   
       res.status(200).json(receivedInvitations);
     } catch (error) {
       console.error('Error fetching received invitations:', error.message);
       res.status(500).json({ message: 'Server Error' });
     }
-  };
+  };  
   
 // @desc    Get sent invitations by the logged-in user
 // @route   GET /api/groups/invitations/sent
@@ -251,9 +270,6 @@ const getSentInvitations = async (req, res) => {
 // @desc    Invite members to the group
 // @route   POST /api/groups/:id/invite
 // @access  Private
-// @desc    Invite members to the group
-// @route   POST /api/groups/:id/invite
-// @access  Private
 const sendInvitation = async (req, res) => {
     try {
         const group = await InterestGroup.findById(req.params.id);
@@ -261,21 +277,35 @@ const sendInvitation = async (req, res) => {
         if (!group) {
             return res.status(404).json({ message: 'Group not found' });
         }
-
+  
         if (group.createdBy.toString() !== req.user._id.toString()) {
             return res.status(401).json({ message: 'Not authorized' });
         }
-
+  
         const { userIds } = req.body;
-
+  
+        if (!userIds || userIds.length === 0) {
+            return res.status(400).json({ message: 'No users provided for invitation.' });
+        }
+  
+        if (!userIds.every(userId => mongoose.Types.ObjectId.isValid(userId))) {
+            return res.status(400).json({ message: 'One or more invalid user IDs.' });
+        }
+  
         userIds.forEach(userId => {
             if (!group.members.includes(userId) && !group.invitations.some(inv => inv.userId.toString() === userId.toString())) {
                 group.invitations.push({ userId, status: 'pending' });
             }
         });
-
-        await group.save();
-        res.status(200).json(group);
+  
+        // Attempt to save and catch potential errors
+        try {
+            await group.save();
+            res.status(200).json(group);
+        } catch (saveError) {
+            console.error('Error during save operation:', saveError.message);
+            res.status(500).json({ message: 'Server Error during save operation.' });
+        }
     } catch (error) {
         console.error('Error sending invitations:', error.message);
         res.status(500).json({ message: 'Server Error' });
@@ -326,40 +356,40 @@ const requestToJoinGroup = async (req, res) => {
 // @route   PUT /api/groups/invitation/:invitationId
 // @access  Private
 const manageInvitation = async (req, res) => {
-  try {
-    const { invitationId } = req.params;
-    const { status } = req.body;
-
-    const group = await InterestGroup.findOne({ 'invitations._id': invitationId });
-
-    if (!group) {
-      return res.status(404).json({ message: 'Group not found' });
+    try {
+      const { invitationId } = req.params;
+      const { status } = req.body;
+  
+      const group = await InterestGroup.findOne({ 'invitations._id': invitationId });
+  
+      if (!group) {
+        return res.status(404).json({ message: 'Group not found' });
+      }
+  
+      const invitation = group.invitations.id(invitationId);
+  
+      if (!invitation) {
+        return res.status(404).json({ message: 'Invitation not found' });
+      }
+  
+      if (invitation.userId.toString() !== req.user._id.toString()) {
+        return res.status(401).json({ message: 'Not authorized' });
+      }
+  
+      invitation.status = status;
+  
+      if (status === 'accepted') {
+        await addMemberToGroup(group, req.user._id);
+      }
+  
+      await group.save();
+  
+      res.status(200).json(group);
+    } catch (error) {
+      console.error('Error managing invitation:', error.message);
+      res.status(500).json({ message: 'Server Error' });
     }
-
-    const invitation = group.invitations.id(invitationId);
-
-    if (!invitation) {
-      return res.status(404).json({ message: 'Invitation not found' });
-    }
-
-    if (invitation.userId.toString() !== req.user._id.toString()) {
-      return res.status(401).json({ message: 'Not authorized' });
-    }
-
-    invitation.status = status;
-
-    if (status === 'accepted') {
-      await addMemberToGroup(group, req.user._id);
-    }
-
-    await group.save();
-
-    res.status(200).json(group);
-  } catch (error) {
-    console.error('Error managing invitation:', error.message);
-    res.status(500).json({ message: 'Server Error' });
-  }
-};
+  };  
 
 // @desc    Add a comment or reply to an interest group discussion
 // @route   POST /api/groups/:id/comments

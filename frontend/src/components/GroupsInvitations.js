@@ -12,18 +12,19 @@ const GroupsInvitations = () => {
 
   useEffect(() => {
     const fetchInvitations = async () => {
-      try {
-        const { data: received } = await api.get('/groups/invitations/received');
-        setReceivedInvitations(received);
-        const { data: sent } = await api.get('/groups/invitations/sent');
-        setSentInvitations(sent);
-      } catch (error) {
-        console.error('Error fetching invitations:', error);
-      }
+        try {
+            const { data: received } = await api.get('/groups/invitations/received');
+            console.log('Received Invitations:', received); // Debugging line
+            setReceivedInvitations(received);
+            const { data: sent } = await api.get('/groups/invitations/sent');
+            setSentInvitations(sent);
+        } catch (error) {
+            console.error('Error fetching invitations:', error);
+        }
     };
 
     fetchInvitations();
-  }, []);
+}, []);
 
   const handleAcceptInvitation = async (invitationId) => {
     try {
@@ -67,35 +68,35 @@ const GroupsInvitations = () => {
 
         <h3 className="text-xl font-semibold mb-4">Received Invitations</h3>
         {receivedInvitations.length > 0 ? (
-          <ul className="space-y-4 mb-6">
-            {receivedInvitations.map(invitation => (
-              <li
-                key={invitation._id}
-                className="p-4 bg-white rounded-lg shadow-lg flex justify-between items-center"
-              >
-                <div>
-                  <p className="text-gray-700">Group: {invitation.group?.name || 'Unknown Group'}</p>
-                  <p className="text-sm text-gray-500">From: {invitation.group?.createdBy?.name || 'Unknown User'}</p>
-                </div>
-                <div className="flex space-x-2">
-                  <button
-                    onClick={() => handleAcceptInvitation(invitation._id)}
-                    className="bg-green-500 text-white p-2 rounded-full hover:bg-green-600 transition"
-                  >
-                    <FaCheck />
-                  </button>
-                  <button
-                    onClick={() => handleDeclineInvitation(invitation._id)}
-                    className="bg-red-500 text-white p-2 rounded-full hover:bg-red-600 transition"
-                  >
-                    <FaTimes />
-                  </button>
-                </div>
-              </li>
-            ))}
-          </ul>
+            <ul className="space-y-4 mb-6">
+                {receivedInvitations.map(invitation => (
+                    <li
+                        key={invitation._id}
+                        className="p-4 bg-white rounded-lg shadow-lg flex justify-between items-center"
+                    >
+                        <div>
+                            <p className="text-gray-700">Group: {invitation.group?.name || 'Unknown Group'}</p>
+                            <p className="text-sm text-gray-500">From: {invitation.from?.name || 'Unknown User'}</p>
+                        </div>
+                        <div className="flex space-x-2">
+                            <button
+                                onClick={() => handleAcceptInvitation(invitation._id)}
+                                className="bg-green-500 text-white p-2 rounded-full hover:bg-green-600 transition"
+                            >
+                                <FaCheck />
+                            </button>
+                            <button
+                                onClick={() => handleDeclineInvitation(invitation._id)}
+                                className="bg-red-500 text-white p-2 rounded-full hover:bg-red-600 transition"
+                            >
+                                <FaTimes />
+                            </button>
+                        </div>
+                    </li>
+                ))}
+            </ul>
         ) : (
-          <p className="text-gray-500">No received invitations to display.</p>
+            <p className="text-gray-500">No received invitations to display.</p>
         )}
 
         {/* Divider */}
