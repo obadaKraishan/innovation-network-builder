@@ -196,85 +196,74 @@ const leaveGroup = async (req, res) => {
 // @access  Private
 const getReceivedInvitations = async (req, res) => {
     try {
-        console.log("Fetching received invitations for user:", req.user._id);
-
-        // Fetch the groups where the user has invitations
-        const groups = await InterestGroup.find({ 'invitations.userId': req.user._id })
-            .populate('createdBy', 'name')
-            .populate('invitations.userId', 'name');
-
-        console.log("Groups found with invitations:", JSON.stringify(groups, null, 2));
-
-        // Check if groups is an array and has items
-        if (!Array.isArray(groups) || groups.length === 0) {
-            console.log("No groups found with invitations for this user.");
-            return res.status(200).json([]); // Return empty array if no groups found
-        }
-
-        // Process the received invitations
-        const receivedInvitations = groups.flatMap(group => {
-            const filteredInvitations = group.invitations.filter(inv => {
-                const isPending = inv.userId.toString() === req.user._id.toString() && inv.status === 'pending';
-                console.log(`Processing invitation: ${inv._id}, isPending: ${isPending}`);
-                return isPending;
-            });
-
-            console.log(`Filtered Invitations for Group ${group.name}:`, filteredInvitations);
-
-            return filteredInvitations.map(inv => ({
-                _id: inv._id,
-                status: inv.status,
-                group: {
-                    _id: group._id,
-                    name: group.name,
-                },
-                from: group.createdBy,
-            }));
+      // Find all groups where the logged-in user has received an invitation
+      const groups = await InterestGroup.find({ 'invitations.userId': req.user._id })
+        .populate('createdBy', 'name') // Populate the group's creator
+        .populate({
+          path: 'invitations.userId',
+          select: 'name',
+          model: 'User', // Ensure the correct model is used for population
         });
-
-        console.log("Final received invitations:", JSON.stringify(receivedInvitations, null, 2));
-
-        res.status(200).json(receivedInvitations);
+  
+      // Filter and structure the response for received invitations
+      const receivedInvitations = groups
+        .flatMap(group =>
+          group.invitations
+            .filter(invitation => invitation.userId.equals(req.user._id) && invitation.status === 'pending')
+            .map(invitation => ({
+              _id: invitation._id,
+              status: invitation.status,
+              group: {
+                _id: group._id,
+                name: group.name,
+              },
+              from: group.createdBy,
+            }))
+        );
+  
+      res.status(200).json(receivedInvitations);
     } catch (error) {
-        console.error('Error fetching received invitations:', error.message);
-        res.status(500).json({ message: 'Server Error' });
+      console.error('Error fetching received invitations:', error.message);
+      res.status(500).json({ message: 'Server Error' });
     }
-};
+  };  
   
 // @desc    Get sent invitations by the logged-in user
 // @route   GET /api/groups/invitations/sent
 // @access  Private
 const getSentInvitations = async (req, res) => {
     try {
+      // Find all groups created by the logged-in user
       const groups = await InterestGroup.find({ createdBy: req.user._id })
         .populate('createdBy', 'name')
         .populate({
           path: 'invitations.userId',
           select: 'name',
-          model: 'User', // Ensure that Mongoose knows which model to use for the population
+          model: 'User', // Ensure the correct model is used for population
         });
   
+      // Filter and structure the response for sent invitations
       const sentInvitations = groups
-        .map(group =>
+        .flatMap(group =>
           group.invitations
-            .filter(inv => inv.status === 'pending')
-            .map(inv => ({
-              _id: inv._id,
-              status: inv.status,
+            .filter(invitation => invitation.status === 'pending')
+            .map(invitation => ({
+              _id: invitation._id,
+              status: invitation.status,
               group: {
                 _id: group._id,
                 name: group.name,
               },
-              user: inv.userId,
-            }))) // Structure the response
-        .flat();
+              user: invitation.userId,
+            }))
+        );
   
       res.status(200).json(sentInvitations);
     } catch (error) {
       console.error('Error fetching sent invitations:', error.message);
       res.status(500).json({ message: 'Server Error' });
     }
-  };  
+  };    
 
 // @desc    Invite members to the group
 // @route   POST /api/groups/:id/invite

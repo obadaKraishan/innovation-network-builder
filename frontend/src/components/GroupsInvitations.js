@@ -28,7 +28,7 @@ const GroupsInvitations = () => {
     };
 
     fetchInvitations();
-  }, []);
+  }, []); 
 
   const handleAcceptInvitation = async (invitationId) => {
     try {

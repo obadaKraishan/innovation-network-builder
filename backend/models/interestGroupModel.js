@@ -3,16 +3,20 @@ const Schema = mongoose.Schema;
 
 // Define a schema for nested comments (interest group discussions)
 const interestGroupDiscussionSchema = new Schema({
-  user: { type: Schema.Types.ObjectId, ref: 'User' },
+  user: { type: Schema.Types.ObjectId, ref: "User" },
   comment: { type: String, required: true },
-  parent: { type: Schema.Types.ObjectId, ref: 'interestGroupDiscussion', default: null }, // Added for replies
+  parent: {
+    type: Schema.Types.ObjectId,
+    ref: "interestGroupDiscussion",
+    default: null,
+  }, // Added for replies
   createdAt: { type: Date, default: Date.now },
 });
 
 // Define a schema for invitations
 const invitationSchema = new Schema({
-    userId: { type: mongoose.Schema.Types.ObjectId, ref: "User", required: true }, // Ensure it's required
-    groupId: { type: mongoose.Schema.Types.ObjectId, ref: "InterestGroup", required: true }, // Ensure it's required
+    userId: { type: mongoose.Schema.Types.ObjectId, ref: "User", required: true },
+    groupId: { type: mongoose.Schema.Types.ObjectId, ref: "InterestGroup", required: true },
     status: {
       type: String,
       enum: ["pending", "accepted", "declined"],
