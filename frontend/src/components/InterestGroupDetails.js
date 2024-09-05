@@ -199,22 +199,22 @@ const InterestGroupDetails = () => {
     }
   };
 
-  // Request to join the group
-  const handleRequestToJoin = async () => {
-    try {
-      console.log('Token being sent:', user.token);
-      await api.post(`/groups/${id}/join`, {}, {
-        headers: {
-          Authorization: `Bearer ${user.token}` // Ensure the token is included
-        }
-      });
-      setRequestSent(true);
-      toast.success('Join request sent successfully!');
-    } catch (error) {
-      console.error('Error requesting to join group:', error);
-      toast.error('Failed to send join request.');
-    }
-  };
+// Request to join the group
+const handleRequestToJoin = async () => {
+  try {
+    console.log('Token being sent:', user.token);  // Log the token to check if it's correct
+    await api.post(`/groups/${id}/join`, {}, {
+      headers: {
+        Authorization: `Bearer ${user.token}`, // Ensure the token is included
+      }
+    });
+    setRequestSent(true);
+    toast.success('Join request sent successfully!');
+  } catch (error) {
+    console.error('Error requesting to join group:', error.response?.data || error.message);
+    toast.error('Failed to send join request.');
+  }
+};
 
   // Edit a comment (loads the comment into the input for editing)
   const handleEditComment = (comment) => {

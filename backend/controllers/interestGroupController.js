@@ -337,41 +337,63 @@ const sendInvitation = async (req, res) => {
 // @route   POST /api/groups/:id/join
 // @access  Private
 const requestToJoinGroup = async (req, res) => {
-    try {
-      const group = await InterestGroup.findById(req.params.id);
-  
-      if (!group) {
-        return res.status(404).json({ message: 'Group not found' });
+  try {
+    console.log(`User ${req.user._id} is trying to join group ${req.params.id}`);
+    
+    const group = await InterestGroup.findById(req.params.id);
+
+    if (!group) {
+      console.log('Group not found');
+      return res.status(404).json({ message: 'Group not found' });
+    }
+
+    // Case 1: If the user is the group creator, they can invite others
+    if (group.createdBy.toString() === req.user._id.toString()) {
+      console.log('User is the group creator');
+      const { userId } = req.body;
+
+      if (!userId) {
+        console.log('No user ID provided');
+        return res.status(400).json({ message: 'User ID is required for sending invitations' });
       }
-  
-      // If the user is the group creator, handle invitation logic
-      if (group.createdBy.toString() === req.user._id.toString()) {
-        const { userId } = req.body;
-        if (group.members.includes(userId)) {
-          return res.status(400).json({ message: 'User is already a member' });
-        }
-  
-        group.invitations.push({ userId, status: 'pending' });
+
+      if (group.members.includes(userId)) {
+        console.log('User is already a member');
+        return res.status(400).json({ message: 'User is already a member' });
+      }
+
+      if (!group.invitations.some(inv => inv.userId.toString() === userId.toString() && inv.status === 'pending')) {
+        group.invitations.push({ userId, groupId: group._id, status: 'pending' }); // Add groupId here
         await group.save();
-  
+        console.log('Invitation sent successfully');
         return res.status(200).json({ message: 'Invitation sent successfully' });
+      } else {
+        console.log('Invitation already sent');
+        return res.status(400).json({ message: 'Invitation already sent' });
       }
-  
-      // If the user is not the group creator, handle join request logic
+    }
+
+    // Case 2: If the user is requesting to join the group (not the creator)
+    if (!group.members.includes(req.user._id)) {
+      console.log('User is requesting to join');
       if (!group.invitations.some(inv => inv.userId.toString() === req.user._id.toString() && inv.status === 'pending')) {
-        group.invitations.push({ userId: req.user._id, status: 'pending' });
+        group.invitations.push({ userId: req.user._id, groupId: group._id, status: 'pending' }); // Add groupId here
         await group.save();
-  
+        console.log('Join request sent successfully');
         return res.status(200).json({ message: 'Join request sent successfully' });
       } else {
+        console.log('Join request already sent');
         return res.status(400).json({ message: 'Join request already sent' });
       }
-  
-    } catch (error) {
-      console.error('Error handling join request or invitation:', error.message);
-      res.status(500).json({ message: 'Server Error' });
+    } else {
+      console.log('User is already a member');
+      return res.status(400).json({ message: 'You are already a member of this group' });
     }
-  };
+  } catch (error) {
+    console.error('Error handling join request or invitation:', error.message);
+    res.status(500).json({ message: 'Server Error', error: error.message });
+  }
+};
 
 // @desc    Accept or decline invitations
 // @route   PUT /api/groups/invitation/:invitationId
