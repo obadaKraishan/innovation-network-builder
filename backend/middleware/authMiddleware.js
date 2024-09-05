@@ -41,30 +41,14 @@ const protect = asyncHandler(async (req, res, next) => {
 
 // Middleware to allow any authenticated user to view users in the Personal Interest Groups system
 const allowEmployees = asyncHandler(async (req, res, next) => {
-  console.log('Allow Employees middleware triggered for user:', req.user.role);
-
-  if (req.headers.authorization && req.headers.authorization.startsWith('Bearer')) {
-    try {
-      // Get token from header
-      const token = req.headers.authorization.split(' ')[1];
-      const decoded = jwt.verify(token, process.env.JWT_SECRET);
-
-      // Get user from the token
-      req.user = await User.findById(decoded.id).select('-password');
-
-      if (!req.user) {
-        return res.status(404).json({ message: 'User not found' });
-      }
-
-      // Allow access to any authenticated user, regardless of role
-      next();
-    } catch (error) {
-      return res.status(401).json({ message: 'Not authorized, token failed' });
-    }
+  if (req.user) {
+    console.log(`Access granted for role: ${req.user.role}`);
+    next(); // Allow any authenticated user
   } else {
     return res.status(401).json({ message: 'Not authorized, no token' });
   }
 });
+
 
 // Middleware to protect routes with JWT authentication specifically for message-related routes
 const protectForMessages = asyncHandler(async (req, res, next) => {
@@ -111,7 +95,8 @@ const admin = (req, res, next) => {
     'Legal Advisor',               // Added roles
     'Product Manager',             // Added roles
     'Research Scientist',          // Added roles
-    'Customer Support Specialist', // Added roles
+    'Customer Support Specialist',
+    'Employee', // Added roles
   ];
 
   if (req.user && adminRoles.includes(req.user.role)) {

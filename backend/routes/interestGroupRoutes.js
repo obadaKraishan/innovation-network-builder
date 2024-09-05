@@ -13,9 +13,9 @@ const {
   sendInvitation,
   requestToJoinGroup,
   manageInvitation,
-  addInterestGroupComment,     
-  updateInterestGroupComment,  
-  deleteInterestGroupComment,  
+  addInterestGroupComment,
+  updateInterestGroupComment,
+  deleteInterestGroupComment,
 } = require('../controllers/interestGroupController');
 
 const router = express.Router();
@@ -36,7 +36,7 @@ router.route('/:id').put(protect, updateGroup);
 router.route('/:id').delete(protect, deleteGroup);
 
 // Route to list all users in a specific group (accessible to all employees)
-router.route('/:id/users').get(allowEmployees, getAllUsersInGroup);  // New route
+router.route('/:id/users').get(protect, allowEmployees, getAllUsersInGroup);
 
 // Route to send invitations to users
 router.route('/:id/invite').post(protect, sendInvitation);
@@ -53,8 +53,8 @@ router.route('/:id/join').post(protect, requestToJoinGroup);
 router.route('/:id/leave').put(protect, leaveGroup);
 
 // Routes for handling comments in interest group discussions
-router.post('/:id/comments', protect, addInterestGroupComment);          // Route to add a comment/reply
-router.put('/:id/comments/:commentId', protect, updateInterestGroupComment); // Route to update a comment
-router.delete('/:id/comments/:commentId', protect, deleteInterestGroupComment); // Route to delete a comment
+router.post('/:id/comments', protect, addInterestGroupComment); // Add comment/reply
+router.put('/:id/comments/:commentId', protect, updateInterestGroupComment); // Update comment
+router.delete('/:id/comments/:commentId', protect, deleteInterestGroupComment); // Delete comment
 
 module.exports = router;

@@ -19,11 +19,12 @@ const CreateInterestGroups = () => {
   useEffect(() => {
     const fetchUsers = async () => {
       try {
-        const user = JSON.parse(localStorage.getItem('userInfo')); // Retrieve user info from localStorage
+        const user = JSON.parse(localStorage.getItem('userInfo'));
         if (!user || !user.token) {
           throw new Error("User token not found");
         }
-  
+    
+        console.log('Fetching users with token:', user.token); // Log token
         const { data } = await api.get('/users', {
           headers: {
             Authorization: `Bearer ${user.token}`, // Attach the token here
@@ -38,7 +39,7 @@ const CreateInterestGroups = () => {
         console.error('Error fetching users:', error);
         toast.error('Error fetching users.');
       }
-    };
+    };      
   
     fetchUsers();
   }, []);  
