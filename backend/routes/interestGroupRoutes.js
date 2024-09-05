@@ -34,6 +34,9 @@ router.route('/:id').put(protect, updateGroup);
 // Route to delete a group
 router.route('/:id').delete(protect, deleteGroup);
 
+// Route to list all users in a specific group (accessible to all employees)
+router.route('/:id/users').get(allowEmployees, getAllUsersInGroup);  // New route
+
 // Route to send invitations to users
 router.route('/:id/invite').post(protect, sendInvitation);
 

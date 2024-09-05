@@ -5,7 +5,7 @@ import Select from 'react-select';
 import { useParams, useNavigate } from 'react-router-dom';
 import Sidebar from './Sidebar';
 import api from '../utils/api';
-import { FaEdit, FaTrashAlt, FaArrowLeft, FaSignOutAlt, FaUserPlus } from 'react-icons/fa';
+import { FaEdit, FaTrashAlt, FaArrowLeft, FaSignOutAlt, FaUserPlus, FaCheck, FaTimes } from 'react-icons/fa'; // Added FaCheck and FaTimes for accept/decline buttons
 import { toast } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
 
@@ -46,6 +46,7 @@ const InterestGroupDetails = () => {
   const [editCommentId, setEditCommentId] = useState(null); // State to manage editing comments
   const [parentCommentId, setParentCommentId] = useState(null); // State to manage reply threading
   const [requestSent, setRequestSent] = useState(false); // State to manage the request to join
+  const [receivedInvitation, setReceivedInvitation] = useState(null); // State for received invitation
   const [modalIsOpen, setModalIsOpen] = useState(false); // State to manage modal visibility
   const [allUsers, setAllUsers] = useState([]); // State to hold all users for the select dropdown
   const [selectedUsers, setSelectedUsers] = useState([]); // State to manage selected users
@@ -60,11 +61,18 @@ const InterestGroupDetails = () => {
         const { data } = await api.get(`/groups/${id}`);
         setGroup(data);
         setComments(data.interestGroupDiscussions || []);
+
         // Check if the user has already sent a request to join
         const isRequestSent = data.invitations.some(
           (invitation) => invitation.userId._id === user._id && invitation.status === 'pending'
         );
         setRequestSent(isRequestSent);
+
+        // Check if the user has received an invitation
+        const userInvitation = data.invitations.find(
+          (invitation) => invitation.userId._id === user._id && invitation.status === 'pending'
+        );
+        setReceivedInvitation(userInvitation);
 
         // Fetch all users for the select dropdown
         const usersData = await api.get('/users');
@@ -127,6 +135,31 @@ const InterestGroupDetails = () => {
     } catch (error) {
       console.error('Error adding/editing comment:', error);
       toast.error('Failed to add/update comment.');
+    }
+  };
+
+  // Accept invitation
+  const handleAcceptInvitation = async (invitationId) => {
+    try {
+      await api.put(`/groups/invitation/${invitationId}`, { status: 'accepted' });
+      setGroup({ ...group, members: [...group.members, { _id: user._id, name: user.name }] });
+      setReceivedInvitation(null);
+      toast.success('You have joined the group!');
+    } catch (error) {
+      console.error('Error accepting invitation:', error);
+      toast.error('Failed to accept invitation.');
+    }
+  };
+
+  // Decline invitation
+  const handleDeclineInvitation = async (invitationId) => {
+    try {
+      await api.put(`/groups/invitation/${invitationId}`, { status: 'declined' });
+      setReceivedInvitation(null);
+      toast.success('Invitation declined.');
+    } catch (error) {
+      console.error('Error declining invitation:', error);
+      toast.error('Failed to decline invitation.');
     }
   };
 
@@ -294,6 +327,21 @@ const InterestGroupDetails = () => {
                 >
                   <FaSignOutAlt className="mr-2" /> Leave Group
                 </button>
+              ) : receivedInvitation ? (
+                <div className="flex space-x-4 mb-6">
+                  <button
+                    onClick={() => handleAcceptInvitation(receivedInvitation._id)}
+                    className="bg-green-500 text-white py-2 px-4 rounded hover:bg-green-600 transition"
+                  >
+                    <FaCheck className="mr-2" /> Accept Invitation
+                  </button>
+                  <button
+                    onClick={() => handleDeclineInvitation(receivedInvitation._id)}
+                    className="bg-red-500 text-white py-2 px-4 rounded hover:bg-red-600 transition"
+                  >
+                    <FaTimes className="mr-2" /> Decline Invitation
+                  </button>
+                </div>
               ) : (
                 <button
                   onClick={handleRequestToJoin}

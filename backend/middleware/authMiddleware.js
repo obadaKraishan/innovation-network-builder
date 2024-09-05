@@ -39,6 +39,35 @@ const protect = asyncHandler(async (req, res, next) => {
   }
 });
 
+// Middleware to allow all employees (non-admins) to view users in the Personal Interest Groups system
+const allowEmployees = asyncHandler(async (req, res, next) => {
+  let token;
+
+  if (req.headers.authorization && req.headers.authorization.startsWith('Bearer')) {
+    try {
+      // Get token from header
+      token = req.headers.authorization.split(' ')[1];
+
+      // Verify token
+      const decoded = jwt.verify(token, process.env.JWT_SECRET);
+
+      // Get user from the token
+      req.user = await User.findById(decoded.id).select('-password');
+
+      if (!req.user) {
+        return res.status(404).json({ message: 'User not found' });
+      }
+
+      // Proceed if the user is found (employee access)
+      next();
+    } catch (error) {
+      return res.status(401).json({ message: 'Not authorized, token failed' });
+    }
+  } else {
+    return res.status(401).json({ message: 'Not authorized, no token' });
+  }
+});
+
 // Middleware to protect routes with JWT authentication specifically for message-related routes
 const protectForMessages = asyncHandler(async (req, res, next) => {
   let token;
@@ -93,4 +122,4 @@ const ceoOrAuthorized = (req, res, next) => {
   }
 };
 
-module.exports = { protect, protectForMessages, admin, ceoOrAuthorized };
+module.exports = { protect, protectForMessages, admin, ceoOrAuthorized, allowEmployees };
