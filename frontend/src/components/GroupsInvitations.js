@@ -13,10 +13,14 @@ const GroupsInvitations = () => {
   useEffect(() => {
     const fetchInvitations = async () => {
         try {
+            console.log("Fetching received invitations from API...");
             const { data: received } = await api.get('/groups/invitations/received');
-            console.log('Received Invitations:', received); // Debugging line
+            console.log('Received Invitations from API:', received);
             setReceivedInvitations(received);
+
+            console.log("Fetching sent invitations from API...");
             const { data: sent } = await api.get('/groups/invitations/sent');
+            console.log('Sent Invitations from API:', sent);
             setSentInvitations(sent);
         } catch (error) {
             console.error('Error fetching invitations:', error);
@@ -24,10 +28,11 @@ const GroupsInvitations = () => {
     };
 
     fetchInvitations();
-}, []);
+  }, []);
 
   const handleAcceptInvitation = async (invitationId) => {
     try {
+      console.log(`Accepting invitation: ${invitationId}`);
       await api.put(`/groups/invitation/${invitationId}`, { status: 'accepted' });
       setReceivedInvitations(receivedInvitations.filter(inv => inv._id !== invitationId));
     } catch (error) {
@@ -37,6 +42,7 @@ const GroupsInvitations = () => {
 
   const handleDeclineInvitation = async (invitationId) => {
     try {
+      console.log(`Declining invitation: ${invitationId}`);
       await api.put(`/groups/invitation/${invitationId}`, { status: 'declined' });
       setReceivedInvitations(receivedInvitations.filter(inv => inv._id !== invitationId));
     } catch (error) {
@@ -46,6 +52,7 @@ const GroupsInvitations = () => {
 
   const handleCancelInvitation = async (invitationId) => {
     try {
+      console.log(`Cancelling invitation: ${invitationId}`);
       await api.delete(`/groups/invitation/${invitationId}`);
       setSentInvitations(sentInvitations.filter(inv => inv._id !== invitationId));
     } catch (error) {

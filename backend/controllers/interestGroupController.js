@@ -1,5 +1,6 @@
 const InterestGroup = require('../models/interestGroupModel');
 const User = require('../models/userModel');
+const mongoose = require('mongoose');
 
 // Utility function to add a member to a group
 const addMemberToGroup = async (group, userId) => {
@@ -195,42 +196,50 @@ const leaveGroup = async (req, res) => {
 // @access  Private
 const getReceivedInvitations = async (req, res) => {
     try {
-      console.log("Fetching groups for user:", req.user._id);
-  
-      // Fetch the groups where the user has invitations
-      const groups = await InterestGroup.find({ 'invitations.userId': req.user._id })
-        .populate('createdBy', 'name')
-        .populate('invitations.userId', 'name'); // Ensure this population is correct
-  
-      console.log("Groups found with invitations:", groups);
-  
-      // Process the received invitations
-      const receivedInvitations = groups.flatMap(group => {
-        return group.invitations
-          .filter(inv => {
-            const isPending = inv.userId.toString() === req.user._id.toString() && inv.status === 'pending';
-            console.log(`Invitation for group "${group.name}" with ID "${group._id}" is pending:`, isPending);
-            return isPending;
-          })
-          .map(inv => ({
-            _id: inv._id,
-            status: inv.status,
-            group: {
-              _id: group._id,
-              name: group.name,
-            },
-            from: group.createdBy,
-          }));
-      });
-  
-      console.log("Processed received invitations:", receivedInvitations);
-  
-      res.status(200).json(receivedInvitations);
+        console.log("Fetching received invitations for user:", req.user._id);
+
+        // Fetch the groups where the user has invitations
+        const groups = await InterestGroup.find({ 'invitations.userId': req.user._id })
+            .populate('createdBy', 'name')
+            .populate('invitations.userId', 'name');
+
+        console.log("Groups found with invitations:", JSON.stringify(groups, null, 2));
+
+        // Check if groups is an array and has items
+        if (!Array.isArray(groups) || groups.length === 0) {
+            console.log("No groups found with invitations for this user.");
+            return res.status(200).json([]); // Return empty array if no groups found
+        }
+
+        // Process the received invitations
+        const receivedInvitations = groups.flatMap(group => {
+            const filteredInvitations = group.invitations.filter(inv => {
+                const isPending = inv.userId.toString() === req.user._id.toString() && inv.status === 'pending';
+                console.log(`Processing invitation: ${inv._id}, isPending: ${isPending}`);
+                return isPending;
+            });
+
+            console.log(`Filtered Invitations for Group ${group.name}:`, filteredInvitations);
+
+            return filteredInvitations.map(inv => ({
+                _id: inv._id,
+                status: inv.status,
+                group: {
+                    _id: group._id,
+                    name: group.name,
+                },
+                from: group.createdBy,
+            }));
+        });
+
+        console.log("Final received invitations:", JSON.stringify(receivedInvitations, null, 2));
+
+        res.status(200).json(receivedInvitations);
     } catch (error) {
-      console.error('Error fetching received invitations:', error.message);
-      res.status(500).json({ message: 'Server Error' });
+        console.error('Error fetching received invitations:', error.message);
+        res.status(500).json({ message: 'Server Error' });
     }
-  };  
+};
   
 // @desc    Get sent invitations by the logged-in user
 // @route   GET /api/groups/invitations/sent
@@ -273,34 +282,39 @@ const getSentInvitations = async (req, res) => {
 const sendInvitation = async (req, res) => {
     try {
         const group = await InterestGroup.findById(req.params.id);
-  
+
         if (!group) {
+            console.log("Group not found when trying to send invitation.");
             return res.status(404).json({ message: 'Group not found' });
         }
-  
+
         if (group.createdBy.toString() !== req.user._id.toString()) {
             return res.status(401).json({ message: 'Not authorized' });
         }
-  
+
         const { userIds } = req.body;
-  
+
         if (!userIds || userIds.length === 0) {
+            console.log("No users provided for invitation.");
             return res.status(400).json({ message: 'No users provided for invitation.' });
         }
-  
+
         if (!userIds.every(userId => mongoose.Types.ObjectId.isValid(userId))) {
+            console.log("One or more invalid user IDs.");
             return res.status(400).json({ message: 'One or more invalid user IDs.' });
         }
-  
+
         userIds.forEach(userId => {
             if (!group.members.includes(userId) && !group.invitations.some(inv => inv.userId.toString() === userId.toString())) {
-                group.invitations.push({ userId, status: 'pending' });
+                group.invitations.push({ userId, groupId: group._id, status: 'pending' });
+                console.log(`Invitation added for user ${userId} to group ${group.name}.`);
             }
         });
-  
+
         // Attempt to save and catch potential errors
         try {
             await group.save();
+            console.log("Group saved successfully with invitations.");
             res.status(200).json(group);
         } catch (saveError) {
             console.error('Error during save operation:', saveError.message);
