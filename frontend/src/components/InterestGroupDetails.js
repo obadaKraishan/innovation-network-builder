@@ -5,7 +5,7 @@ import Select from 'react-select';
 import { useParams, useNavigate } from 'react-router-dom';
 import Sidebar from './Sidebar';
 import api from '../utils/api';
-import { FaEdit, FaTrashAlt, FaArrowLeft, FaSignOutAlt, FaUserPlus, FaCheck, FaTimes } from 'react-icons/fa'; // Added FaCheck and FaTimes for accept/decline buttons
+import { FaEdit, FaTrashAlt, FaArrowLeft, FaSignOutAlt, FaUserPlus, FaCheck, FaTimes } from 'react-icons/fa';
 import { toast } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
 
@@ -110,7 +110,7 @@ const InterestGroupDetails = () => {
         },
       });
       toast.success('Invitations sent successfully!');
-      closeModal();
+      closeModal(); // Close the modal after sending invitations
     } catch (error) {
       console.error('Error sending invitations:', error);
       toast.error('Failed to send invitations.');
@@ -402,7 +402,7 @@ const InterestGroupDetails = () => {
           value={selectedUsers}
           onChange={setSelectedUsers}
           options={allUsers}
-          styles={selectStyles} // Apply the custom styles here
+          styles={selectStyles}
         />
         <div className="mt-6 flex justify-end">
           <button
