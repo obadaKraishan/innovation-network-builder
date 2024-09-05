@@ -10,10 +10,11 @@ import 'react-toastify/dist/ReactToastify.css';
 const GroupsInvitations = () => {
   const [receivedInvitations, setReceivedInvitations] = useState([]);
   const [sentInvitations, setSentInvitations] = useState([]);
+  const [joinRequests, setJoinRequests] = useState([]);  // New state for join requests
   const navigate = useNavigate();
 
   useEffect(() => {
-    const fetchInvitations = async () => {
+    const fetchInvitationsAndRequests = async () => {
       try {
         console.log('Fetching received invitations from API...');
         const { data: received } = await api.get('/groups/invitations/received');
@@ -24,13 +25,18 @@ const GroupsInvitations = () => {
         const { data: sent } = await api.get('/groups/invitations/sent');
         console.log('Sent Invitations from API:', sent);
         setSentInvitations(sent);
+
+        console.log('Fetching join requests from API...');
+        const { data: requests } = await api.get('/groups/join-requests');
+        console.log('Join Requests from API:', requests);
+        setJoinRequests(requests);  // Set join requests in state
       } catch (error) {
-        console.error('Error fetching invitations:', error);
-        toast.error('Failed to load invitations.');
+        console.error('Error fetching invitations and join requests:', error);
+        toast.error('Failed to load invitations or join requests.');
       }
     };
 
-    fetchInvitations();
+    fetchInvitationsAndRequests();
   }, []);
 
   // Handle accepting the invitation
@@ -96,7 +102,7 @@ const GroupsInvitations = () => {
           <FaArrowLeft className="mr-2" />
           Back
         </button>
-        <h2 className="text-3xl font-semibold mb-6">Group Invitations</h2>
+        <h2 className="text-3xl font-semibold mb-6">Group Invitations & Requests</h2>
 
         <h3 className="text-xl font-semibold mb-4">Received Invitations</h3>
         {receivedInvitations.length > 0 ? (
@@ -159,6 +165,31 @@ const GroupsInvitations = () => {
           </ul>
         ) : (
           <p className="text-gray-500">No sent invitations to display.</p>
+        )}
+
+        {/* Divider */}
+        <hr className="my-8 border-t-2 border-gray-300" />
+
+        <h3 className="text-xl font-semibold mb-4">My Join Requests</h3>
+        {joinRequests.length > 0 ? (
+          <ul className="space-y-4">
+            {joinRequests.map((request) => (
+              <li
+                key={request._id}
+                className="p-4 bg-white rounded-lg shadow-lg flex justify-between items-center"
+              >
+                <div>
+                  <p className="text-gray-700">Group: {request.group.name}</p>
+                  <p className="text-sm text-gray-500">Requested on: {new Date(request.createdAt).toLocaleDateString()}</p>
+                </div>
+                <div>
+                  <p className="text-gray-500">Status: {request.status}</p>
+                </div>
+              </li>
+            ))}
+          </ul>
+        ) : (
+          <p className="text-gray-500">No join requests to display.</p>
         )}
       </div>
     </div>
