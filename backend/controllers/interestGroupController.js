@@ -333,6 +333,43 @@ const sendInvitation = async (req, res) => {
     }
 };
 
+// @desc    Get all join requests made by the logged-in user
+// @route   GET /api/groups/join-requests
+// @access  Private
+const getJoinRequests = async (req, res) => {
+  try {
+    const groups = await InterestGroup.find({
+      'invitations.userId': req.user._id,
+      'invitations.status': 'pending',
+    }).populate('createdBy', 'name') // Populate the group's creator
+      .populate({
+        path: 'invitations.userId',
+        select: 'name',
+        model: 'User',
+      });
+
+    const joinRequests = groups.map((group) => {
+      const invitation = group.invitations.find(
+        (inv) => inv.userId.toString() === req.user._id.toString()
+      );
+      return {
+        _id: invitation._id,
+        group: {
+          _id: group._id,
+          name: group.name,
+        },
+        status: invitation.status,
+        createdAt: invitation.createdAt,
+      };
+    });
+
+    res.status(200).json(joinRequests);
+  } catch (error) {
+    console.error('Error fetching join requests:', error.message);
+    res.status(500).json({ message: 'Server Error' });
+  }
+};
+
 // @desc    Request to join the group or send invitations to users
 // @route   POST /api/groups/:id/join
 // @access  Private
@@ -538,6 +575,7 @@ module.exports = {
   getReceivedInvitations,
   getSentInvitations,
   sendInvitation,
+  getJoinRequests,
   requestToJoinGroup,
   manageInvitation,
   addInterestGroupComment,    

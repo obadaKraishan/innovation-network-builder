@@ -11,6 +11,7 @@ const {
   getReceivedInvitations,
   getSentInvitations,
   sendInvitation,
+  getJoinRequests,
   requestToJoinGroup,
   manageInvitation,
   addInterestGroupComment,
@@ -48,6 +49,9 @@ router.route('/invitation/:invitationId').put(protect, manageInvitation);
 router.get('/invitations/received', protect, getReceivedInvitations);
 router.get('/invitations/sent', protect, getSentInvitations);
 router.route('/:id/join').post(protect, requestToJoinGroup);
+
+// Route to fetch all join requests made by the logged-in user
+router.get('/join-requests', protect, getJoinRequests);
 
 // Route to leave a group
 router.route('/:id/leave').put(protect, leaveGroup);
