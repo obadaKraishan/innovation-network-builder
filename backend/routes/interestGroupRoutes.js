@@ -21,11 +21,28 @@ const {
 
 const router = express.Router();
 
+// Place static routes before dynamic ones to avoid conflicts
+
+// Route to fetch all join requests made by the logged-in user
+router.get('/join-requests', protect, getJoinRequests);
+
+// Routes to fetch received and sent invitations
+router.get('/invitations/received', protect, getReceivedInvitations);
+router.get('/invitations/sent', protect, getSentInvitations);
+
 // Route to create a new group
 router.route('/create').post(protect, createGroup);
 
 // Route to fetch all groups
 router.route('/').get(protect, getGroups);
+
+// Route to send invitations to users
+router.route('/:id/invite').post(protect, sendInvitation);
+
+// Route to manage invitations (accept/decline)
+router.route('/invitation/:invitationId').put(protect, manageInvitation);
+
+// Dynamic routes come after static ones to avoid conflicts
 
 // Route to fetch details of a specific group
 router.route('/:id').get(protect, getGroupById);
@@ -39,19 +56,8 @@ router.route('/:id').delete(protect, deleteGroup);
 // Route to list all users in a specific group (accessible to all employees)
 router.route('/:id/users').get(protect, allowEmployees, getAllUsersInGroup);
 
-// Route to send invitations to users
-router.route('/:id/invite').post(protect, sendInvitation);
-
-// Route to manage invitations (accept/decline)
-router.route('/invitation/:invitationId').put(protect, manageInvitation);
-
-// Routes to fetch received and sent invitations
-router.get('/invitations/received', protect, getReceivedInvitations);
-router.get('/invitations/sent', protect, getSentInvitations);
+// Route to request to join a group
 router.route('/:id/join').post(protect, requestToJoinGroup);
-
-// Route to fetch all join requests made by the logged-in user
-router.get('/join-requests', protect, getJoinRequests);
 
 // Route to leave a group
 router.route('/:id/leave').put(protect, leaveGroup);

@@ -341,27 +341,32 @@ const getJoinRequests = async (req, res) => {
     const groups = await InterestGroup.find({
       'invitations.userId': req.user._id,
       'invitations.status': 'pending',
-    }).populate('createdBy', 'name') // Populate the group's creator
+    })
+      .populate('createdBy', 'name') // Populate the group's creator
       .populate({
         path: 'invitations.userId',
         select: 'name',
         model: 'User',
       });
 
+    // Ensure there are invitations to map over
     const joinRequests = groups.map((group) => {
       const invitation = group.invitations.find(
         (inv) => inv.userId.toString() === req.user._id.toString()
       );
-      return {
-        _id: invitation._id,
-        group: {
-          _id: group._id,
-          name: group.name,
-        },
-        status: invitation.status,
-        createdAt: invitation.createdAt,
-      };
-    });
+      
+      if (invitation) {
+        return {
+          _id: invitation._id,
+          group: {
+            _id: group._id,
+            name: group.name,
+          },
+          status: invitation.status,
+          createdAt: invitation.createdAt,
+        };
+      }
+    }).filter(Boolean); // Filter out any undefined results
 
     res.status(200).json(joinRequests);
   } catch (error) {
