@@ -1,3 +1,5 @@
+// File: frontend/src/components/DecisionRoomDetails.js
+
 import React, { useState, useEffect, useContext } from 'react';
 import { useParams, Link, useNavigate } from 'react-router-dom';
 import Sidebar from './Sidebar';
@@ -5,7 +7,7 @@ import api from '../utils/api';
 import { FaPlus, FaVoteYea, FaComments, FaArrowLeft, FaEdit } from 'react-icons/fa';
 import { toast } from 'react-toastify';
 import Modal from 'react-modal';
-import AuthContext from '../context/AuthContext';  // Import your auth context to get the current user
+import AuthContext from '../context/AuthContext'; 
 
 const DecisionRoomDetails = () => {
   const { id } = useParams();
@@ -14,23 +16,35 @@ const DecisionRoomDetails = () => {
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [proposalTitle, setProposalTitle] = useState('');
   const [proposalDescription, setProposalDescription] = useState('');
-  const { user } = useContext(AuthContext);  // Get the current logged-in user
+  const { user } = useContext(AuthContext);  
   const navigate = useNavigate();
 
   useEffect(() => {
     const fetchRoomDetails = async () => {
       try {
         const { data } = await api.get(`/decisions/${id}`);
+        if (!data || !data._id) {
+          throw new Error('Room data is invalid or empty');
+        }
+        if (!data.createdBy || !data.createdBy._id) {
+          throw new Error('Creator information is missing in the room data');
+        }
         setRoom(data);
         setLoading(false);
         console.log('Room created by:', data.createdBy._id);
-        console.log('Logged in user:', user._id);
+        console.log('Logged in user:', user?._id); // Added null check for user
       } catch (error) {
+        console.error('Error fetching decision room:', error.message);
         toast.error('Failed to load decision room details');
+        setLoading(false); 
       }
     };
-
-    fetchRoomDetails();
+    
+    if (user) {
+      fetchRoomDetails();
+    } else {
+      console.error('User is not available. Fetching decision room is delayed.');
+    }
   }, [id, user]);
 
   const openModal = () => {
@@ -107,7 +121,7 @@ const DecisionRoomDetails = () => {
         </button>
 
         {/* Edit Decision Room Button (only for room creator) */}
-        {room.createdBy._id === user._id && (  // Compare room's creator with logged-in user
+        {room.createdBy && room.createdBy._id === user?._id && ( 
           <button
             onClick={() => navigate(`/edit-decision-room/${id}`)}
             className="bg-yellow-500 text-white px-4 py-2 rounded-lg flex items-center mt-4"
@@ -129,7 +143,7 @@ const DecisionRoomDetails = () => {
               bottom: 'auto',
               marginRight: '-50%',
               transform: 'translate(-50%, -50%)',
-              width: '500px',  // Adjust width
+              width: '500px',
               padding: '20px',
             },
           }}
