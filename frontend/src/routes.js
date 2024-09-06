@@ -39,6 +39,7 @@ import DecisionRoomDetails from './components/DecisionRoomDetails';
 import ProposalDetails from './components/ProposalDetails';
 import VotingSection from './components/VotingSection';
 import EditDecisionRoom from './components/EditDecisionRoom';
+import DecisionRoomDiscussion from './components/DecisionRoomDiscussion';
 
 const AppRoutes = () => {
   return (
@@ -80,6 +81,7 @@ const AppRoutes = () => {
           <Route path="/decision-rooms/:id" element={<DecisionRoomDetails />} />
           <Route path="/decision-rooms/:id/proposal/:proposalId" element={<ProposalDetails />} />
           <Route path="/decision-rooms/:id/proposal/:proposalId/vote" element={<VotingSection />} />
+          <Route path="/decision-rooms/:id/proposal/:proposalId/discussion" element={<DecisionRoomDiscussion />} />
           <Route path="/edit-decision-room/:id" element={<EditDecisionRoom />} />
 
           {/* Default redirect to login */}
