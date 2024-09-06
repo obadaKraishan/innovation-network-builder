@@ -5,12 +5,13 @@ import api from '../utils/api';
 import { FaPlus, FaFolderOpen, FaArchive, FaSearch, FaSortAmountUp, FaSortAmountDown } from 'react-icons/fa';
 import { toast } from 'react-toastify';
 import Select from 'react-select';
-import Tooltip from 'react-tooltip';
+import { Tooltip } from 'react-tooltip';
 
 const DecisionRoomsDashboard = () => {
   const [activeRooms, setActiveRooms] = useState([]);
   const [archivedRooms, setArchivedRooms] = useState([]);
   const [filteredRooms, setFilteredRooms] = useState([]);
+  const [visibleRooms, setVisibleRooms] = useState(6); // Initially show 6 rooms
   const [searchTerm, setSearchTerm] = useState('');
   const [isPrivateFilter, setIsPrivateFilter] = useState(null);
   const [votingTypeFilter, setVotingTypeFilter] = useState(null);
@@ -32,9 +33,10 @@ const DecisionRoomsDashboard = () => {
     const fetchDecisionRooms = async () => {
       try {
         const { data } = await api.get('/decisions');
-        setActiveRooms(data.filter(room => room.status === 'active'));
+        const active = data.filter(room => room.status === 'active');
+        setActiveRooms(active);
         setArchivedRooms(data.filter(room => room.status === 'archived'));
-        setFilteredRooms(data.filter(room => room.status === 'active')); // Default to active rooms
+        setFilteredRooms(active); // Initially show all active rooms
       } catch (error) {
         toast.error('Failed to fetch decision rooms');
         console.error('Error fetching decision rooms:', error);
@@ -85,13 +87,17 @@ const DecisionRoomsDashboard = () => {
     setFilteredRooms(sortedRooms);
   };
 
+  const handleLoadMore = () => {
+    setVisibleRooms((prevVisibleRooms) => prevVisibleRooms + 6);
+  };
+
   useEffect(() => {
     handleFilterChange();
   }, [isPrivateFilter, votingTypeFilter, searchTerm]);
 
   useEffect(() => {
     handleSort();
-  }, [sortOrder, filteredRooms]);
+  }, [sortOrder]);
 
   return (
     <div className="flex h-screen">
@@ -107,8 +113,8 @@ const DecisionRoomsDashboard = () => {
           </button>
         </div>
 
-        {/* Search and Filters */}
-        <div className="flex mb-6">
+        {/* Search Bar */}
+        <div className="mb-6">
           <div className="flex items-center w-full">
             <FaSearch className="text-gray-500 mr-2" />
             <input
@@ -119,8 +125,11 @@ const DecisionRoomsDashboard = () => {
               className="w-full p-2 border border-gray-300 rounded-lg"
             />
           </div>
+        </div>
 
-          <div className="ml-4">
+        {/* Filters */}
+        <div className="flex mb-6 space-x-4">
+          <div className="w-1/3">
             <Select
               placeholder="Filter by privacy"
               options={privacyOptions}
@@ -128,8 +137,7 @@ const DecisionRoomsDashboard = () => {
               isClearable
             />
           </div>
-
-          <div className="ml-4">
+          <div className="w-1/3">
             <Select
               placeholder="Filter by voting type"
               options={votingTypeOptions}
@@ -152,7 +160,7 @@ const DecisionRoomsDashboard = () => {
           <h2 className="text-xl font-semibold mb-4">Active Decision Rooms</h2>
           {filteredRooms.length > 0 ? (
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-              {filteredRooms.map((room) => (
+              {filteredRooms.slice(0, visibleRooms).map((room) => (
                 <div key={room._id} className="bg-white p-6 shadow-lg rounded-lg transition-transform transform hover:scale-105 hover:shadow-xl">
                   <div className="flex justify-between items-center mb-4">
                     <Link
@@ -180,9 +188,8 @@ const DecisionRoomsDashboard = () => {
                   <p className="text-gray-600">
                     Created: <strong>{new Date(room.createdAt).toLocaleDateString()}</strong>
                   </p>
-                  {/* Tooltip for extra information */}
                   <div className="mt-2">
-                    <span className="text-blue-500 hover:underline" data-tip="New proposals are available!">
+                    <span className="text-blue-500 hover:underline" data-tooltip="New proposals are available!">
                       Check Proposals
                     </span>
                   </div>
@@ -191,6 +198,17 @@ const DecisionRoomsDashboard = () => {
             </div>
           ) : (
             <p>No active decision rooms available.</p>
+          )}
+          {/* Load more button */}
+          {filteredRooms.length > visibleRooms && (
+            <div className="flex justify-center mt-6">
+              <button
+                onClick={handleLoadMore}
+                className="bg-blue-500 text-white px-4 py-2 rounded-lg"
+              >
+                Load More
+              </button>
+            </div>
           )}
         </div>
 
@@ -204,7 +222,7 @@ const DecisionRoomsDashboard = () => {
                     <Link
                       to={`/decision-rooms/${room._id}`}
                       className="text-lg font-bold text-blue-600"
-                      data-tip="Click to view room details"
+                      data-tooltip="Click to view room details"
                     >
                       <FaArchive className="mr-2" />
                       {room.decisionRoomName}
