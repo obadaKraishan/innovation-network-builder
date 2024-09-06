@@ -1,6 +1,8 @@
+// File: frontend/src/components/EditDecisionRoom.js
+
 import React, { useState, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
-import Sidebar from './Sidebar';  // Import Sidebar
+import Sidebar from './Sidebar';
 import api from '../utils/api';
 import Select from 'react-select';
 import { toast } from 'react-toastify';
@@ -20,11 +22,25 @@ const EditDecisionRoom = () => {
       try {
         const { data } = await api.get(`/decisions/${id}`);
         setDecisionRoomName(data.decisionRoomName);
-        setMembers(data.members.map(member => ({ label: member.name, value: member._id })));
+        setMembers(
+          data.members.map((member) => ({
+            label: member.name || 'Unknown',  // Handle undefined names
+            value: member._id || `Unknown-${Math.random()}`, // Handle missing or undefined member IDs
+            key: member._id || `Unknown-${Math.random()}`,  // Ensure key is unique
+          }))
+        );
         setVotingType(data.votingType);
         setIsPrivate(data.isPrivate);
+
+        // Fetch all users for the members dropdown
         const users = await api.get('/users');
-        setAllUsers(users.data.map(user => ({ label: user.name, value: user._id })));
+        setAllUsers(
+          users.data.map((user) => ({
+            label: user.name || 'Unknown',  // Handle undefined names
+            value: user._id || `Unknown-${Math.random()}`,  // Handle missing or undefined user IDs
+            key: user._id || `Unknown-${Math.random()}`,  // Ensure key is unique
+          }))
+        );
         setLoading(false);
       } catch (error) {
         toast.error('Failed to load decision room details');
@@ -42,7 +58,7 @@ const EditDecisionRoom = () => {
         decisionRoomName,
         isPrivate,
         votingType,
-        members: members.map(member => member.value),
+        members: members.map((member) => member.value),  // Extract member IDs
       });
       toast.success('Decision room updated successfully!');
       navigate(`/decision-rooms/${id}`);
@@ -57,7 +73,7 @@ const EditDecisionRoom = () => {
 
   return (
     <div className="flex h-screen">
-      <Sidebar />  {/* Add Sidebar here */}
+      <Sidebar />
       <div className="flex-1 p-6 bg-gray-100">
         <h1 className="text-2xl font-bold mb-6">Edit Decision Room</h1>
         <form onSubmit={handleSubmit} className="bg-white p-6 shadow rounded-lg">
@@ -71,6 +87,7 @@ const EditDecisionRoom = () => {
               required
             />
           </div>
+
           <div className="mb-4">
             <label className="block text-gray-700">Members</label>
             <Select
@@ -79,8 +96,12 @@ const EditDecisionRoom = () => {
               onChange={setMembers}
               options={allUsers}
               className="w-full"
+              getOptionValue={(option) => option.value}
+              getOptionLabel={(option) => option.label || 'Unknown'}  // Handle missing labels
+              key={option => option.key} // Ensure each option has a unique key
             />
           </div>
+
           <div className="mb-4">
             <label className="block text-gray-700">Voting Type</label>
             <select
@@ -93,6 +114,7 @@ const EditDecisionRoom = () => {
               <option value="rating">Rating (1-5)</option>
             </select>
           </div>
+
           <div className="mb-4">
             <label className="block text-gray-700">
               <input
@@ -104,6 +126,7 @@ const EditDecisionRoom = () => {
               Private Room
             </label>
           </div>
+
           <button
             type="submit"
             className="bg-blue-500 text-white px-4 py-2 rounded-lg hover:bg-blue-600"
