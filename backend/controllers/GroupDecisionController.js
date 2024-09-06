@@ -142,6 +142,25 @@ const archiveDecisionRoom = asyncHandler(async (req, res) => {
   res.json(room);
 });
 
+// Fetch discussion for a proposal
+const getProposalDiscussion = asyncHandler(async (req, res) => {
+    const { id, proposalId } = req.params;
+  
+    const room = await DecisionRoom.findById(id);
+    if (!room) {
+      res.status(404);
+      throw new Error('Decision room not found');
+    }
+  
+    const proposal = room.proposals.id(proposalId);
+    if (!proposal) {
+      res.status(404);
+      throw new Error('Proposal not found');
+    }
+  
+    res.json(proposal.discussion); // Assuming the proposal has a discussion field with messages
+  });  
+
 // Update an existing decision room
 const updateDecisionRoom = asyncHandler(async (req, res) => {
     const { decisionRoomName, isPrivate, votingType, members } = req.body;
@@ -173,6 +192,7 @@ module.exports = {
   getDecisionRooms,
   getDecisionRoomDetails,
   getProposalDetails,
+  getProposalDiscussion,
   archiveDecisionRoom,
   updateDecisionRoom,
 };

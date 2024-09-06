@@ -20,11 +20,12 @@ const DecisionRoomDiscussion = () => {
         setLoading(false);
       } catch (error) {
         toast.error('Failed to load discussion');
+        setLoading(false);
       }
     };
-
+  
     fetchDiscussion();
-  }, [id, proposalId]);
+  }, [id, proposalId]);  
 
   const handleAddMessage = async () => {
     try {
