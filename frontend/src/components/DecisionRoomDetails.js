@@ -1,15 +1,21 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useContext } from 'react';
 import { useParams, Link, useNavigate } from 'react-router-dom';
-import Sidebar from './Sidebar';  // Import Sidebar
+import Sidebar from './Sidebar';
 import api from '../utils/api';
-import { FaPlus, FaVoteYea, FaComments, FaArrowLeft } from 'react-icons/fa';  // Import back icon
+import { FaPlus, FaVoteYea, FaComments, FaArrowLeft, FaEdit } from 'react-icons/fa';
 import { toast } from 'react-toastify';
+import Modal from 'react-modal';
+import AuthContext from '../context/AuthContext';  // Import your auth context to get the current user
 
 const DecisionRoomDetails = () => {
   const { id } = useParams();
   const [room, setRoom] = useState(null);
   const [loading, setLoading] = useState(true);
-  const navigate = useNavigate();  // Initialize navigate hook
+  const [isModalOpen, setIsModalOpen] = useState(false);
+  const [proposalTitle, setProposalTitle] = useState('');
+  const [proposalDescription, setProposalDescription] = useState('');
+  const { user } = useContext(AuthContext);  // Get the current logged-in user
+  const navigate = useNavigate();
 
   useEffect(() => {
     const fetchRoomDetails = async () => {
@@ -25,13 +31,37 @@ const DecisionRoomDetails = () => {
     fetchRoomDetails();
   }, [id]);
 
+  const openModal = () => {
+    setIsModalOpen(true);
+  };
+
+  const closeModal = () => {
+    setIsModalOpen(false);
+    setProposalTitle('');
+    setProposalDescription('');
+  };
+
+  const handleAddProposal = async () => {
+    try {
+      await api.post('/decisions/add-proposal', {
+        roomId: id,
+        proposalTitle,
+        proposalDescription,
+      });
+      toast.success('Proposal added successfully');
+      closeModal();
+    } catch (error) {
+      toast.error('Failed to add proposal');
+    }
+  };
+
   if (loading) {
     return <div>Loading...</div>;
   }
 
   return (
     <div className="flex h-screen">
-      <Sidebar />  {/* Add Sidebar here */}
+      <Sidebar />
       <div className="flex-1 p-6 bg-gray-100">
         <button
           onClick={() => navigate(-1)}
@@ -41,6 +71,7 @@ const DecisionRoomDetails = () => {
           Back
         </button>
         <h1 className="text-2xl font-bold mb-6">{room.decisionRoomName}</h1>
+
         <div className="mb-6">
           <h2 className="text-xl font-semibold mb-4">Proposals</h2>
           {room.proposals.length > 0 ? (
@@ -67,9 +98,61 @@ const DecisionRoomDetails = () => {
             <p>No proposals yet. Be the first to propose a decision.</p>
           )}
         </div>
-        <Link to={`/decision-rooms/${id}/add-proposal`} className="bg-blue-500 text-white px-4 py-2 rounded-lg flex items-center">
+
+        {/* Add Proposal Button */}
+        <button onClick={openModal} className="bg-blue-500 text-white px-4 py-2 rounded-lg flex items-center">
           <FaPlus className="mr-2" /> Add Proposal
-        </Link>
+        </button>
+
+        {/* Edit Decision Room Button (only for room creator) */}
+        {room.createdBy._id === user._id && (  // Compare room's creator with logged-in user
+          <button
+            onClick={() => navigate(`/edit-decision-room/${id}`)}
+            className="bg-yellow-500 text-white px-4 py-2 rounded-lg flex items-center mt-4"
+          >
+            <FaEdit className="mr-2" /> Edit Room
+          </button>
+        )}
+
+        {/* Modal for Adding Proposal */}
+        <Modal isOpen={isModalOpen} onRequestClose={closeModal} contentLabel="Add Proposal Modal">
+          <h2 className="text-xl font-bold mb-4">Add Proposal</h2>
+          <form
+            onSubmit={(e) => {
+              e.preventDefault();
+              handleAddProposal();
+            }}
+          >
+            <div className="mb-4">
+              <label className="block text-gray-700 mb-2">Proposal Title</label>
+              <input
+                type="text"
+                value={proposalTitle}
+                onChange={(e) => setProposalTitle(e.target.value)}
+                className="w-full p-2 border rounded"
+                required
+              />
+            </div>
+            <div className="mb-4">
+              <label className="block text-gray-700 mb-2">Proposal Description</label>
+              <textarea
+                value={proposalDescription}
+                onChange={(e) => setProposalDescription(e.target.value)}
+                className="w-full p-2 border rounded"
+                rows="4"
+                required
+              ></textarea>
+            </div>
+            <div className="flex justify-end space-x-4">
+              <button type="button" onClick={closeModal} className="bg-gray-500 text-white px-4 py-2 rounded-lg">
+                Cancel
+              </button>
+              <button type="submit" className="bg-blue-500 text-white px-4 py-2 rounded-lg">
+                Add Proposal
+              </button>
+            </div>
+          </form>
+        </Modal>
       </div>
     </div>
   );

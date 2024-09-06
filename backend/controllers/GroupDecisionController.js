@@ -77,18 +77,19 @@ const getDecisionRooms = asyncHandler(async (req, res) => {
 
 // Get details of a specific decision room
 const getDecisionRoomDetails = asyncHandler(async (req, res) => {
-  const room = await DecisionRoom.findById(req.params.id)
-    .populate('proposals.createdBy')
-    .populate('proposals.votes.votedBy')
-    .populate('proposals.discussion.postedBy');
-
-  if (!room) {
-    res.status(404);
-    throw new Error('Decision room not found');
-  }
-
-  res.json(room);
-});
+    const room = await DecisionRoom.findById(req.params.id)
+      .populate('createdBy')  // Include the creator details
+      .populate('proposals.createdBy')
+      .populate('proposals.votes.votedBy')
+      .populate('proposals.discussion.postedBy');
+  
+    if (!room) {
+      res.status(404);
+      throw new Error('Decision room not found');
+    }
+  
+    res.json(room);
+  });  
 
 // Archive a decision room
 const archiveDecisionRoom = asyncHandler(async (req, res) => {
