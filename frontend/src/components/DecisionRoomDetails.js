@@ -23,13 +23,15 @@ const DecisionRoomDetails = () => {
         const { data } = await api.get(`/decisions/${id}`);
         setRoom(data);
         setLoading(false);
+        console.log('Room created by:', data.createdBy._id);
+        console.log('Logged in user:', user._id);
       } catch (error) {
         toast.error('Failed to load decision room details');
       }
     };
 
     fetchRoomDetails();
-  }, [id]);
+  }, [id, user]);
 
   const openModal = () => {
     setIsModalOpen(true);
@@ -115,7 +117,23 @@ const DecisionRoomDetails = () => {
         )}
 
         {/* Modal for Adding Proposal */}
-        <Modal isOpen={isModalOpen} onRequestClose={closeModal} contentLabel="Add Proposal Modal">
+        <Modal
+          isOpen={isModalOpen}
+          onRequestClose={closeModal}
+          contentLabel="Add Proposal Modal"
+          style={{
+            content: {
+              top: '50%',
+              left: '50%',
+              right: 'auto',
+              bottom: 'auto',
+              marginRight: '-50%',
+              transform: 'translate(-50%, -50%)',
+              width: '500px',  // Adjust width
+              padding: '20px',
+            },
+          }}
+        >
           <h2 className="text-xl font-bold mb-4">Add Proposal</h2>
           <form
             onSubmit={(e) => {
