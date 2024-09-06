@@ -80,6 +80,7 @@ const getDecisionRoomDetails = asyncHandler(async (req, res) => {
     try {
       const room = await DecisionRoom.findById(req.params.id)
         .populate('createdBy')
+        .populate('members', 'name')  // Populate the 'members' field with their names
         .populate('proposals.createdBy')
         .populate('proposals.votes.votedBy')
         .populate('proposals.discussion.postedBy');
@@ -100,7 +101,7 @@ const getDecisionRoomDetails = asyncHandler(async (req, res) => {
       console.error('Error fetching room details:', error.message);
       res.status(500).json({ message: 'Server error while fetching room details' });
     }
-  });
+});
 
 // Archive a decision room
 const archiveDecisionRoom = asyncHandler(async (req, res) => {
