@@ -1,14 +1,30 @@
 import React, { useState, useEffect } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
-import Sidebar from './Sidebar';  // Import Sidebar
+import Sidebar from './Sidebar';
 import api from '../utils/api';
-import { FaPlus, FaFolderOpen, FaArchive } from 'react-icons/fa';
+import { FaPlus, FaFolderOpen, FaArchive, FaSearch } from 'react-icons/fa';
 import { toast } from 'react-toastify';
+import Select from 'react-select';
 
 const DecisionRoomsDashboard = () => {
   const [activeRooms, setActiveRooms] = useState([]);
   const [archivedRooms, setArchivedRooms] = useState([]);
+  const [filteredRooms, setFilteredRooms] = useState([]);
+  const [searchTerm, setSearchTerm] = useState('');
+  const [isPrivateFilter, setIsPrivateFilter] = useState(null);
+  const [votingTypeFilter, setVotingTypeFilter] = useState(null);
   const navigate = useNavigate();
+
+  const votingTypeOptions = [
+    { value: 'approval', label: 'Approval' },
+    { value: 'ranking', label: 'Ranking' },
+    { value: 'rating', label: 'Rating' },
+  ];
+
+  const privacyOptions = [
+    { value: true, label: 'Private' },
+    { value: false, label: 'Public' },
+  ];
 
   useEffect(() => {
     const fetchDecisionRooms = async () => {
@@ -16,6 +32,7 @@ const DecisionRoomsDashboard = () => {
         const { data } = await api.get('/decisions');
         setActiveRooms(data.filter(room => room.status === 'active'));
         setArchivedRooms(data.filter(room => room.status === 'archived'));
+        setFilteredRooms(data.filter(room => room.status === 'active')); // Default to active rooms
       } catch (error) {
         toast.error('Failed to fetch decision rooms');
         console.error('Error fetching decision rooms:', error);
@@ -25,9 +42,43 @@ const DecisionRoomsDashboard = () => {
     fetchDecisionRooms();
   }, []);
 
+  const handleSearch = (e) => {
+    const value = e.target.value.toLowerCase();
+    setSearchTerm(value);
+
+    const filtered = activeRooms.filter((room) =>
+      room.decisionRoomName.toLowerCase().includes(value)
+    );
+    setFilteredRooms(filtered);
+  };
+
+  const handleFilterChange = () => {
+    let filtered = activeRooms;
+
+    if (isPrivateFilter !== null) {
+      filtered = filtered.filter(room => room.isPrivate === isPrivateFilter.value);
+    }
+
+    if (votingTypeFilter !== null) {
+      filtered = filtered.filter(room => room.votingType === votingTypeFilter.value);
+    }
+
+    if (searchTerm) {
+      filtered = filtered.filter(room =>
+        room.decisionRoomName.toLowerCase().includes(searchTerm)
+      );
+    }
+
+    setFilteredRooms(filtered);
+  };
+
+  useEffect(() => {
+    handleFilterChange();
+  }, [isPrivateFilter, votingTypeFilter, searchTerm]);
+
   return (
     <div className="flex h-screen">
-      <Sidebar />  {/* Add Sidebar here */}
+      <Sidebar />
       <div className="flex-1 p-6 bg-gray-100">
         <div className="flex justify-between items-center mb-6">
           <h1 className="text-2xl font-bold">Decision Rooms</h1>
@@ -39,19 +90,72 @@ const DecisionRoomsDashboard = () => {
           </button>
         </div>
 
+        {/* Search and Filters */}
+        <div className="flex mb-6">
+          <div className="flex items-center w-full">
+            <FaSearch className="text-gray-500 mr-2" />
+            <input
+              type="text"
+              placeholder="Search rooms..."
+              value={searchTerm}
+              onChange={handleSearch}
+              className="w-full p-2 border border-gray-300 rounded-lg"
+            />
+          </div>
+
+          <div className="ml-4">
+            <Select
+              placeholder="Filter by privacy"
+              options={privacyOptions}
+              onChange={setIsPrivateFilter}
+              isClearable
+            />
+          </div>
+
+          <div className="ml-4">
+            <Select
+              placeholder="Filter by voting type"
+              options={votingTypeOptions}
+              onChange={setVotingTypeFilter}
+              isClearable
+            />
+          </div>
+        </div>
+
         <div className="mb-6">
           <h2 className="text-xl font-semibold mb-4">Active Decision Rooms</h2>
-          {activeRooms.length > 0 ? (
-            <ul>
-              {activeRooms.map(room => (
-                <li key={room._id} className="bg-white p-4 shadow rounded-lg mb-4">
-                  <Link to={`/decision-rooms/${room._id}`} className="text-lg font-bold">
-                    <FaFolderOpen className="mr-2" />
-                    {room.decisionRoomName}
-                  </Link>
-                </li>
+          {filteredRooms.length > 0 ? (
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+              {filteredRooms.map((room) => (
+                <div key={room._id} className="bg-white p-6 shadow-lg rounded-lg">
+                  <div className="flex justify-between items-center mb-4">
+                    <Link
+                      to={`/decision-rooms/${room._id}`}
+                      className="text-lg font-bold text-blue-600"
+                    >
+                      <FaFolderOpen className="mr-2" />
+                      {room.decisionRoomName}
+                    </Link>
+                    <span
+                      className={`px-2 py-1 rounded-lg text-sm ${
+                        room.isPrivate ? 'bg-red-500' : 'bg-green-500'
+                      } text-white`}
+                    >
+                      {room.isPrivate ? 'Private' : 'Public'}
+                    </span>
+                  </div>
+                  <p className="text-gray-600">
+                    Voting Type: <strong>{room.votingType}</strong>
+                  </p>
+                  <p className="text-gray-600">
+                    Members: <strong>{room.members.length}</strong>
+                  </p>
+                  <p className="text-gray-600">
+                    Created: <strong>{new Date(room.createdAt).toLocaleDateString()}</strong>
+                  </p>
+                </div>
               ))}
-            </ul>
+            </div>
           ) : (
             <p>No active decision rooms available.</p>
           )}
@@ -60,16 +164,33 @@ const DecisionRoomsDashboard = () => {
         <div>
           <h2 className="text-xl font-semibold mb-4">Archived Decision Rooms</h2>
           {archivedRooms.length > 0 ? (
-            <ul>
-              {archivedRooms.map(room => (
-                <li key={room._id} className="bg-gray-200 p-4 shadow rounded-lg mb-4">
-                  <Link to={`/decision-rooms/${room._id}`} className="text-lg font-bold">
-                    <FaArchive className="mr-2" />
-                    {room.decisionRoomName}
-                  </Link>
-                </li>
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+              {archivedRooms.map((room) => (
+                <div key={room._id} className="bg-gray-200 p-6 shadow-lg rounded-lg">
+                  <div className="flex justify-between items-center mb-4">
+                    <Link
+                      to={`/decision-rooms/${room._id}`}
+                      className="text-lg font-bold text-blue-600"
+                    >
+                      <FaArchive className="mr-2" />
+                      {room.decisionRoomName}
+                    </Link>
+                    <span className="px-2 py-1 rounded-lg text-sm bg-gray-500 text-white">
+                      Archived
+                    </span>
+                  </div>
+                  <p className="text-gray-600">
+                    Voting Type: <strong>{room.votingType}</strong>
+                  </p>
+                  <p className="text-gray-600">
+                    Members: <strong>{room.members.length}</strong>
+                  </p>
+                  <p className="text-gray-600">
+                    Created: <strong>{new Date(room.createdAt).toLocaleDateString()}</strong>
+                  </p>
+                </div>
               ))}
-            </ul>
+            </div>
           ) : (
             <p>No archived decision rooms available.</p>
           )}
