@@ -25,6 +25,13 @@ import MeetingBooking from './components/MeetingBooking';
 import BookMeeting from './components/BookMeeting';
 import MeetingAvailability from './components/MeetingAvailability';
 
+// New Components for Interest Groups
+import InterestGroups from './components/InterestGroups';
+import CreateInterestGroups from './components/CreateInterestGroups';
+import InterestGroupDetails from './components/InterestGroupDetails';
+import GroupsInvitations from './components/GroupsInvitations';
+import EditInterestGroup from './components/EditInterestGroup';
+
 // New Components for Decision Rooms
 import DecisionRoomsDashboard from './components/DecisionRoomsDashboard';
 import CreateDecisionRoom from './components/CreateDecisionRoom';
@@ -59,6 +66,13 @@ const AppRoutes = () => {
           <Route path="/meeting-booking" element={<MeetingBooking />} />
           <Route path="/book-meeting" element={<BookMeeting />} />
           <Route path="/meeting-availability" element={<MeetingAvailability />} />
+          
+          {/* New Routes for Personal Interest Groups */}
+          <Route path="/interest-groups" element={<InterestGroups />} />
+          <Route path="/create-interest-group" element={<CreateInterestGroups />} />
+          <Route path="/interest-groups/:id" element={<InterestGroupDetails />} />
+          <Route path="/group-invitations" element={<GroupsInvitations />} />
+          <Route path="/edit-interest-group/:id" element={<EditInterestGroup />} />
 
           {/* New Routes for Decision Rooms */}
           <Route path="/decision-rooms" element={<DecisionRoomsDashboard />} />
