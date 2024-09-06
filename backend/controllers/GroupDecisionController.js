@@ -103,6 +103,25 @@ const getDecisionRoomDetails = asyncHandler(async (req, res) => {
     }
 });
 
+// Get proposal details by roomId and proposalId
+const getProposalDetails = asyncHandler(async (req, res) => {
+    const { id, proposalId } = req.params;
+    
+    const room = await DecisionRoom.findById(id);
+    if (!room) {
+      res.status(404);
+      throw new Error('Decision room not found');
+    }
+  
+    const proposal = room.proposals.id(proposalId);
+    if (!proposal) {
+      res.status(404);
+      throw new Error('Proposal not found');
+    }
+  
+    res.json(proposal);
+  });  
+
 // Archive a decision room
 const archiveDecisionRoom = asyncHandler(async (req, res) => {
   const room = await DecisionRoom.findById(req.params.id);
@@ -153,6 +172,7 @@ module.exports = {
   castVote,
   getDecisionRooms,
   getDecisionRoomDetails,
+  getProposalDetails,
   archiveDecisionRoom,
   updateDecisionRoom,
 };

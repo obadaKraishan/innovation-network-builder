@@ -5,6 +5,7 @@ const {
   castVote,
   getDecisionRooms,
   getDecisionRoomDetails,
+  getProposalDetails,
   archiveDecisionRoom,
   updateDecisionRoom,
 } = require('../controllers/GroupDecisionController');
@@ -17,6 +18,7 @@ router.route('/:id').get(protect, getDecisionRoomDetails);
 router.route('/add-proposal').post(protect, addProposal);
 router.route('/cast-vote').post(protect, castVote);
 router.route('/archive/:id').post(protect, archiveDecisionRoom);
+router.route('/:id/proposal/:proposalId').get(protect, getProposalDetails);
 router.route('/edit/:id').post(protect, updateDecisionRoom);
 
 module.exports = router;
