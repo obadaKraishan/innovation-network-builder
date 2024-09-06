@@ -106,21 +106,27 @@ const getDecisionRoomDetails = asyncHandler(async (req, res) => {
 // Get proposal details by roomId and proposalId
 const getProposalDetails = asyncHandler(async (req, res) => {
     const { id, proposalId } = req.params;
-    
+
+    // Fetch the decision room
     const room = await DecisionRoom.findById(id);
     if (!room) {
       res.status(404);
       throw new Error('Decision room not found');
     }
-  
+
+    // Fetch the proposal from the room
     const proposal = room.proposals.id(proposalId);
     if (!proposal) {
       res.status(404);
       throw new Error('Proposal not found');
     }
-  
-    res.json(proposal);
-  });  
+
+    // Send proposal details along with votingType
+    res.json({
+      ...proposal.toObject(),
+      votingType: room.votingType, // Include the voting type from the decision room
+    });
+});
 
 // Archive a decision room
 const archiveDecisionRoom = asyncHandler(async (req, res) => {

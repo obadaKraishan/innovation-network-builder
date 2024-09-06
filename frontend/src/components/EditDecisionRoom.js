@@ -75,7 +75,7 @@ const EditDecisionRoom = () => {
   return (
     <div className="flex h-screen">
       <Sidebar />
-      <div className="flex-1 p-6 bg-gray-100">
+      <div className="flex-1 overflow-y-auto p-6 bg-gray-100">
         {/* Back Button */}
         <button
           onClick={() => navigate(-1)}  // Go back to the previous page

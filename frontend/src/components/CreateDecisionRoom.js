@@ -45,7 +45,7 @@ const CreateDecisionRoom = () => {
   return (
     <div className="flex h-screen">
       <Sidebar />  {/* Add Sidebar here */}
-      <div className="flex-1 p-6 bg-gray-100">
+      <div className="flex-1 overflow-y-auto p-6 bg-gray-100">
         <button
           onClick={() => navigate(-1)}
           className="mb-4 bg-blue-500 text-white py-2 px-4 rounded inline-flex items-center hover:bg-blue-600 transition"
