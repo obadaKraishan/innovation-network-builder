@@ -2,9 +2,10 @@ import React, { useState, useEffect } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import Sidebar from './Sidebar';
 import api from '../utils/api';
-import { FaPlus, FaFolderOpen, FaArchive, FaSearch } from 'react-icons/fa';
+import { FaPlus, FaFolderOpen, FaArchive, FaSearch, FaSortAmountUp, FaSortAmountDown } from 'react-icons/fa';
 import { toast } from 'react-toastify';
 import Select from 'react-select';
+import Tooltip from 'react-tooltip';
 
 const DecisionRoomsDashboard = () => {
   const [activeRooms, setActiveRooms] = useState([]);
@@ -13,6 +14,7 @@ const DecisionRoomsDashboard = () => {
   const [searchTerm, setSearchTerm] = useState('');
   const [isPrivateFilter, setIsPrivateFilter] = useState(null);
   const [votingTypeFilter, setVotingTypeFilter] = useState(null);
+  const [sortOrder, setSortOrder] = useState('asc');
   const navigate = useNavigate();
 
   const votingTypeOptions = [
@@ -72,9 +74,24 @@ const DecisionRoomsDashboard = () => {
     setFilteredRooms(filtered);
   };
 
+  const handleSort = () => {
+    const sortedRooms = [...filteredRooms].sort((a, b) => {
+      if (sortOrder === 'asc') {
+        return new Date(a.createdAt) - new Date(b.createdAt);
+      } else {
+        return new Date(b.createdAt) - new Date(a.createdAt);
+      }
+    });
+    setFilteredRooms(sortedRooms);
+  };
+
   useEffect(() => {
     handleFilterChange();
   }, [isPrivateFilter, votingTypeFilter, searchTerm]);
+
+  useEffect(() => {
+    handleSort();
+  }, [sortOrder, filteredRooms]);
 
   return (
     <div className="flex h-screen">
@@ -120,6 +137,15 @@ const DecisionRoomsDashboard = () => {
               isClearable
             />
           </div>
+
+          {/* Sorting Toggle */}
+          <button
+            className="ml-4 bg-gray-200 px-3 py-2 rounded-lg flex items-center"
+            onClick={() => setSortOrder(sortOrder === 'asc' ? 'desc' : 'asc')}
+          >
+            {sortOrder === 'asc' ? <FaSortAmountUp /> : <FaSortAmountDown />}
+            <span className="ml-2">Sort by Date</span>
+          </button>
         </div>
 
         <div className="mb-6">
@@ -127,11 +153,12 @@ const DecisionRoomsDashboard = () => {
           {filteredRooms.length > 0 ? (
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
               {filteredRooms.map((room) => (
-                <div key={room._id} className="bg-white p-6 shadow-lg rounded-lg">
+                <div key={room._id} className="bg-white p-6 shadow-lg rounded-lg transition-transform transform hover:scale-105 hover:shadow-xl">
                   <div className="flex justify-between items-center mb-4">
                     <Link
                       to={`/decision-rooms/${room._id}`}
                       className="text-lg font-bold text-blue-600"
+                      data-tip="Click to view room details"
                     >
                       <FaFolderOpen className="mr-2" />
                       {room.decisionRoomName}
@@ -153,6 +180,12 @@ const DecisionRoomsDashboard = () => {
                   <p className="text-gray-600">
                     Created: <strong>{new Date(room.createdAt).toLocaleDateString()}</strong>
                   </p>
+                  {/* Tooltip for extra information */}
+                  <div className="mt-2">
+                    <span className="text-blue-500 hover:underline" data-tip="New proposals are available!">
+                      Check Proposals
+                    </span>
+                  </div>
                 </div>
               ))}
             </div>
@@ -166,11 +199,12 @@ const DecisionRoomsDashboard = () => {
           {archivedRooms.length > 0 ? (
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
               {archivedRooms.map((room) => (
-                <div key={room._id} className="bg-gray-200 p-6 shadow-lg rounded-lg">
+                <div key={room._id} className="bg-gray-200 p-6 shadow-lg rounded-lg transition-transform transform hover:scale-105 hover:shadow-xl">
                   <div className="flex justify-between items-center mb-4">
                     <Link
                       to={`/decision-rooms/${room._id}`}
                       className="text-lg font-bold text-blue-600"
+                      data-tip="Click to view room details"
                     >
                       <FaArchive className="mr-2" />
                       {room.decisionRoomName}
@@ -195,6 +229,7 @@ const DecisionRoomsDashboard = () => {
             <p>No archived decision rooms available.</p>
           )}
         </div>
+        <Tooltip effect="solid" />
       </div>
     </div>
   );
