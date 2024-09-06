@@ -1,8 +1,9 @@
 // File: frontend/src/routes.js
 
-import React from 'react';
-import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-dom';
+import React, { useState, useEffect } from 'react';
+import { Routes, Route, Navigate, useLocation } from 'react-router-dom';
 import { AuthProvider } from './context/AuthContext';
+import LoadingSpinner from './components/LoadingSpinner';
 import Login from './components/Login';
 import Dashboard from './components/Dashboard';
 import CollaboratorFinder from './components/CollaboratorFinder';
@@ -42,8 +43,24 @@ import EditDecisionRoom from './components/EditDecisionRoom';
 import DecisionRoomDiscussion from './components/DecisionRoomDiscussion';
 
 const AppRoutes = () => {
+
+  const [loading, setLoading] = useState(false);
+  const location = useLocation();
+
+  useEffect(() => {
+    setLoading(true);  // Start loading when route changes
+    const timer = setTimeout(() => {
+      setLoading(false);  // Stop loading after a delay (simulate async data loading)
+    }, 500);  // Adjust timeout as per your requirement
+
+    return () => clearTimeout(timer);  // Cleanup timeout
+  }, [location]);
+
+  if (loading) {
+    return <LoadingSpinner />;
+  }
+
   return (
-    <Router>
       <AuthProvider>
         <Routes>
           <Route path="/login" element={<Login />} />
@@ -89,7 +106,6 @@ const AppRoutes = () => {
           <Route path="*" element={<Navigate to="/" />} />
         </Routes>
       </AuthProvider>
-    </Router>
   );
 };
 

@@ -23,9 +23,9 @@ const DecisionRoomDiscussion = () => {
         setLoading(false);
       }
     };
-  
+
     fetchDiscussion();
-  }, [id, proposalId]);  
+  }, [id, proposalId]);
 
   const handleAddMessage = async () => {
     try {
@@ -34,6 +34,9 @@ const DecisionRoomDiscussion = () => {
       });
       setNewMessage('');
       toast.success('Message added successfully');
+      // Fetch the updated discussion
+      const { data } = await api.get(`/decisions/${id}/proposal/${proposalId}/discussion`);
+      setDiscussion(data);
     } catch (error) {
       toast.error('Failed to add message');
     }
@@ -55,13 +58,17 @@ const DecisionRoomDiscussion = () => {
         </button>
         <h1 className="text-2xl font-bold mb-6">Proposal Discussion</h1>
         <div className="bg-white p-6 shadow rounded-lg mb-6">
-          <ul>
-            {discussion.map((msg) => (
-              <li key={msg._id} className="border-b mb-4 pb-4">
-                <strong>{msg.postedBy.name}:</strong> {msg.messageText}
-              </li>
-            ))}
-          </ul>
+          {discussion.length > 0 ? (
+            <ul>
+              {discussion.map((msg) => (
+                <li key={msg._id} className="border-b mb-4 pb-4">
+                  <strong>{msg.postedBy.name}:</strong> {msg.messageText}
+                </li>
+              ))}
+            </ul>
+          ) : (
+            <p className="text-gray-500">No messages yet. Be the first to contribute to the discussion.</p>
+          )}
         </div>
         <div className="bg-white p-6 shadow rounded-lg">
           <textarea
