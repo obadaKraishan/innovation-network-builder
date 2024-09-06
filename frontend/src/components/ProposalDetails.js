@@ -30,6 +30,10 @@ const ProposalDetails = () => {
     return <div>Loading...</div>;
   }
 
+  if (!proposal) {
+    return <div>No proposal found.</div>;
+  }
+
   return (
     <div className="flex h-screen">
       <Sidebar />
