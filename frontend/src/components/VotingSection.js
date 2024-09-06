@@ -27,9 +27,9 @@ const VotingSection = () => {
         setLoading(false);
       }
     };
-  
+
     fetchProposal();
-  }, [id, proposalId]);  
+  }, [id, proposalId]);
 
   const handleSubmitVote = async (e) => {
     e.preventDefault();
@@ -53,25 +53,33 @@ const VotingSection = () => {
     switch (proposal?.votingType) {
       case 'approval':
         return (
-          <div className="mb-4">
-            <label className="mr-4">
+            <div className="mb-4">
+            <div className="flex items-center">
               <input
                 type="radio"
                 value="approve"
                 checked={voteValue === 'approve'}
                 onChange={(e) => setVoteValue(e.target.value)}
+                className="form-radio text-blue-600"
+                id="approve"
               />
-              Approve
-            </label>
-            <label className="mr-4">
+              <label htmlFor="approve" className="ml-2 text-gray-700">
+                Approve
+              </label>
+            </div>
+            <div className="flex items-center mt-2">
               <input
                 type="radio"
                 value="reject"
                 checked={voteValue === 'reject'}
                 onChange={(e) => setVoteValue(e.target.value)}
+                className="form-radio text-red-600"
+                id="reject"
               />
-              Reject
-            </label>
+              <label htmlFor="reject" className="ml-2 text-gray-700">
+                Reject
+              </label>
+            </div>
           </div>
         );
       case 'ranking':
@@ -113,7 +121,29 @@ const VotingSection = () => {
       default:
         return <p>No voting type available for this proposal.</p>;
     }
-  };  
+  };
+
+  const renderVotesList = () => {
+    if (proposal?.votes?.length > 0) {
+      return (
+        <div className="mt-6">
+          <h3 className="text-lg font-semibold">Votes List:</h3>
+          <ul className="mt-4">
+            {proposal.votes.map((vote, index) => (
+              <li key={vote._id} className="bg-white p-4 rounded-lg shadow mb-4">
+                <p><strong>Voted By:</strong> {vote.votedBy.name || 'Anonymous'}</p>
+                <p><strong>Vote:</strong> {vote.voteValue}</p>
+                <p><strong>Comment:</strong> {vote.comment || 'No comment'}</p>
+                <p><strong>Voted At:</strong> {new Date(vote.createdAt).toLocaleString()}</p>
+              </li>
+            ))}
+          </ul>
+        </div>
+      );
+    } else {
+      return <p>No votes have been submitted yet.</p>;
+    }
+  };
 
   if (loading) {
     return <div>Loading...</div>;
@@ -159,6 +189,9 @@ const VotingSection = () => {
         <div className="mt-6">
           <h3 className="text-lg font-semibold">Current Vote Count: {voteCount}</h3>
         </div>
+
+        {/* Render Votes List */}
+        {renderVotesList()}
       </div>
     </div>
   );

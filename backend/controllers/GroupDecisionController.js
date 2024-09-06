@@ -108,7 +108,9 @@ const getProposalDetails = asyncHandler(async (req, res) => {
     const { id, proposalId } = req.params;
 
     // Fetch the decision room
-    const room = await DecisionRoom.findById(id);
+    const room = await DecisionRoom.findById(id)
+      .populate('proposals.votes.votedBy', 'name'); // Populate the votedBy field with name
+
     if (!room) {
       res.status(404);
       throw new Error('Decision room not found');
@@ -121,7 +123,6 @@ const getProposalDetails = asyncHandler(async (req, res) => {
       throw new Error('Proposal not found');
     }
 
-    // Send proposal details along with votingType
     res.json({
       ...proposal.toObject(),
       votingType: room.votingType, // Include the voting type from the decision room
