@@ -1,10 +1,8 @@
-// File: frontend/src/components/DecisionRoomDetails.js
-
 import React, { useState, useEffect, useContext } from 'react';
 import { useParams, Link, useNavigate } from 'react-router-dom';
 import Sidebar from './Sidebar';
 import api from '../utils/api';
-import { FaPlus, FaVoteYea, FaComments, FaArrowLeft, FaEdit } from 'react-icons/fa';
+import { FaPlus, FaVoteYea, FaComments, FaArrowLeft, FaEdit, FaArchive } from 'react-icons/fa';
 import { toast } from 'react-toastify';
 import Modal from 'react-modal';
 import AuthContext from '../context/AuthContext';
@@ -30,6 +28,7 @@ const DecisionRoomDetails = () => {
         if (!data || !data._id) {
           throw new Error('Room data is invalid or empty');
         }
+        console.log('Fetched room details:', data); // Debug: check the room data
         setRoom(data);
         setLoading(false);
       } catch (error) {
@@ -62,8 +61,19 @@ const DecisionRoomDetails = () => {
       });
       toast.success('Proposal added successfully');
       closeModal();
+      window.location.reload(); // Refresh the page to show the new proposal
     } catch (error) {
       toast.error('Failed to add proposal');
+    }
+  };
+
+  const handleArchiveRoom = async () => {
+    try {
+      await api.post(`/decisions/archive/${id}`);
+      toast.success('Decision room has been archived.');
+      setRoom({ ...room, status: 'archived' });
+    } catch (error) {
+      toast.error('Failed to archive the decision room.');
     }
   };
 
@@ -101,18 +111,23 @@ const DecisionRoomDetails = () => {
             <ul>
               {room.proposals.map((proposal) => (
                 <li key={proposal._id} className="bg-white p-4 shadow rounded-lg mb-4">
-                  <Link to={`/decision-rooms/${id}/proposal/${proposal._id}`} className="text-lg font-bold">
-                    {proposal.proposalTitle}
-                  </Link>
-                  <div className="flex space-x-4 mt-2">
-                    <Link to={`/decision-rooms/${id}/proposal/${proposal._id}/vote`} className="text-blue-500">
-                      <FaVoteYea className="inline mr-2" />
-                      Vote
-                    </Link>
-                    <Link to={`/decision-rooms/${id}/proposal/${proposal._id}/discussion`} className="text-green-500">
-                      <FaComments className="inline mr-2" />
-                      Discussion
-                    </Link>
+                  <div className="flex justify-between">
+                    <div>
+                      <Link to={`/decision-rooms/${id}/proposal/${proposal._id}`} className="text-lg font-bold">
+                        {proposal.proposalTitle}
+                      </Link>
+                      <p><strong>Created By:</strong> {proposal.createdBy?.name || 'Unknown'}</p>
+                      <p><strong>Description:</strong> {proposal.proposalDescription}</p>
+                      <p><strong>Created At:</strong> {new Date(proposal.createdAt).toLocaleString()}</p>
+                    </div>
+                    <div className="text-right">
+                      <Link to={`/decision-rooms/${id}/proposal/${proposal._id}/vote`} className="text-blue-500">
+                        <FaVoteYea className="inline mr-2" /> {proposal.votes.length} Votes
+                      </Link>
+                      <Link to={`/decision-rooms/${id}/proposal/${proposal._id}/discussion`} className="text-green-500">
+                        <FaComments className="inline mr-2" /> {proposal.discussion.length} Comments
+                      </Link>
+                    </div>
                   </div>
                 </li>
               ))}
@@ -122,19 +137,29 @@ const DecisionRoomDetails = () => {
           )}
         </div>
 
-        {/* Add Proposal Button */}
-        <button onClick={openModal} className="bg-blue-500 text-white px-4 py-2 rounded-lg flex items-center">
-          <FaPlus className="mr-2" /> Add Proposal
-        </button>
+        {/* Add Proposal and Archive Room Button */}
+        {room.status !== 'archived' && (
+          <div className="flex space-x-4">
+            <button onClick={openModal} className="bg-blue-500 text-white px-4 py-2 rounded-lg flex items-center">
+              <FaPlus className="mr-2" /> Add Proposal
+            </button>
 
-        {/* Edit Decision Room Button (only for room creator) */}
-        {room.createdBy && room.createdBy._id === user?._id && (
-          <button
-            onClick={() => navigate(`/edit-decision-room/${id}`)}
-            className="bg-yellow-500 text-white px-4 py-2 rounded-lg flex items-center mt-4"
-          >
-            <FaEdit className="mr-2" /> Edit Room
-          </button>
+            {/* Archive Room Button (only for room creator) */}
+            {room.createdBy && room.createdBy._id === user?._id && (
+              <button
+                onClick={handleArchiveRoom}
+                className="bg-red-500 text-white px-4 py-2 rounded-lg flex items-center"
+              >
+                <FaArchive className="mr-2" /> Archive Room
+              </button>
+            )}
+          </div>
+        )}
+
+        {room.status === 'archived' && (
+          <p className="text-red-500 text-lg font-bold mt-4">
+            This decision room has been archived. No further proposals, votes, or discussions are allowed.
+          </p>
         )}
 
         {/* Modal for Adding Proposal */}
@@ -198,4 +223,3 @@ const DecisionRoomDetails = () => {
 };
 
 export default DecisionRoomDetails;
-
