@@ -38,6 +38,34 @@ const addProposal = asyncHandler(async (req, res) => {
   res.status(201).json(room);
 });
 
+// Add a discussion message to a proposal
+const addDiscussionMessage = asyncHandler(async (req, res) => {
+    const { id, proposalId } = req.params;
+    const { messageText } = req.body;
+  
+    const room = await DecisionRoom.findById(id);
+    if (!room) {
+      res.status(404);
+      throw new Error('Decision room not found');
+    }
+  
+    const proposal = room.proposals.id(proposalId);
+    if (!proposal) {
+      res.status(404);
+      throw new Error('Proposal not found');
+    }
+  
+    const newMessage = {
+      messageText,
+      postedBy: req.user._id,
+    };
+  
+    proposal.discussion.push(newMessage);
+    await room.save();
+  
+    res.status(201).json(proposal.discussion); // Return the updated discussion
+  });
+
 // Cast a vote on a proposal
 const castVote = asyncHandler(async (req, res) => {
   const { roomId, proposalId, voteValue, comment } = req.body;
@@ -195,6 +223,7 @@ const updateDecisionRoom = asyncHandler(async (req, res) => {
 module.exports = {
   createDecisionRoom,
   addProposal,
+  addDiscussionMessage,
   castVote,
   getDecisionRooms,
   getDecisionRoomDetails,

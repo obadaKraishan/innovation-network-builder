@@ -111,21 +111,21 @@ const DecisionRoomDetails = () => {
             <ul>
               {room.proposals.map((proposal) => (
                 <li key={proposal._id} className="bg-white p-4 shadow rounded-lg mb-4">
-                  <div className="flex justify-between">
-                    <div>
-                      <Link to={`/decision-rooms/${id}/proposal/${proposal._id}`} className="text-lg font-bold">
-                        {proposal.proposalTitle}
-                      </Link>
-                      <p><strong>Created By:</strong> {proposal.createdBy?.name || 'Unknown'}</p>
-                      <p><strong>Description:</strong> {proposal.proposalDescription}</p>
-                      <p><strong>Created At:</strong> {new Date(proposal.createdAt).toLocaleString()}</p>
-                    </div>
-                    <div className="text-right">
+                  <div>
+                    <Link to={`/decision-rooms/${id}/proposal/${proposal._id}`} className="text-lg font-bold">
+                      {proposal.proposalTitle}
+                    </Link>
+                    <p><strong>Created By:</strong> {proposal.createdBy?.name || 'Unknown'}</p>
+                    <p><strong>Description:</strong> {proposal.proposalDescription}</p>
+                    <p><strong>Created At:</strong> {new Date(proposal.createdAt).toLocaleString()}</p>
+
+                    {/* Updated section for votes and comments */}
+                    <div className="flex justify-between mt-2">
                       <Link to={`/decision-rooms/${id}/proposal/${proposal._id}/vote`} className="text-blue-500">
-                        <FaVoteYea className="inline mr-2" /> {proposal.votes.length} Votes
+                        <FaVoteYea className="inline mr-1" /> {proposal.votes.length} Votes
                       </Link>
                       <Link to={`/decision-rooms/${id}/proposal/${proposal._id}/discussion`} className="text-green-500">
-                        <FaComments className="inline mr-2" /> {proposal.discussion.length} Comments
+                        <FaComments className="inline mr-1" /> {proposal.discussion.length} Comments
                       </Link>
                     </div>
                   </div>
