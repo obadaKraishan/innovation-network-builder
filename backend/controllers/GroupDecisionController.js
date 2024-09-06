@@ -123,6 +123,30 @@ const archiveDecisionRoom = asyncHandler(async (req, res) => {
   res.json(room);
 });
 
+// Update an existing decision room
+const updateDecisionRoom = asyncHandler(async (req, res) => {
+    const { decisionRoomName, isPrivate, votingType, members } = req.body;
+  
+    const room = await DecisionRoom.findById(req.params.id);
+    if (!room) {
+      res.status(404);
+      throw new Error('Decision room not found');
+    }
+  
+    if (room.createdBy.toString() !== req.user._id.toString()) {
+      res.status(403);
+      throw new Error('Not authorized to update this room');
+    }
+  
+    room.decisionRoomName = decisionRoomName || room.decisionRoomName;
+    room.isPrivate = isPrivate !== undefined ? isPrivate : room.isPrivate;
+    room.votingType = votingType || room.votingType;
+    room.members = members || room.members;
+  
+    await room.save();
+    res.json(room);
+  });  
+
 module.exports = {
   createDecisionRoom,
   addProposal,
@@ -130,4 +154,5 @@ module.exports = {
   getDecisionRooms,
   getDecisionRoomDetails,
   archiveDecisionRoom,
+  updateDecisionRoom,
 };

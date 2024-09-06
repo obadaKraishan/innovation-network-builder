@@ -54,12 +54,12 @@ const EditDecisionRoom = () => {
   const handleSubmit = async (e) => {
     e.preventDefault();
     try {
-      await api.post(`/decisions/edit/${id}`, {
-        decisionRoomName,
-        isPrivate,
-        votingType,
-        members: members.map((member) => member.value),  // Extract member IDs
-      });
+        await api.post(`/decisions/edit/${id}`, {
+            decisionRoomName,
+            isPrivate,
+            votingType,
+            members: members.map((member) => member.value),  // Extract member IDs
+        });          
       toast.success('Decision room updated successfully!');
       navigate(`/decision-rooms/${id}`);
     } catch (error) {
