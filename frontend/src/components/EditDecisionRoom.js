@@ -6,6 +6,7 @@ import Sidebar from './Sidebar';
 import api from '../utils/api';
 import Select from 'react-select';
 import { toast } from 'react-toastify';
+import { FaArrowLeft } from 'react-icons/fa'; // Import the back icon
 
 const EditDecisionRoom = () => {
   const { id } = useParams();
@@ -54,12 +55,12 @@ const EditDecisionRoom = () => {
   const handleSubmit = async (e) => {
     e.preventDefault();
     try {
-        await api.post(`/decisions/edit/${id}`, {
-            decisionRoomName,
-            isPrivate,
-            votingType,
-            members: members.map((member) => member.value),  // Extract member IDs
-        });          
+      await api.post(`/decisions/edit/${id}`, {
+        decisionRoomName,
+        isPrivate,
+        votingType,
+        members: members.map((member) => member.value),  // Extract member IDs
+      });
       toast.success('Decision room updated successfully!');
       navigate(`/decision-rooms/${id}`);
     } catch (error) {
@@ -75,6 +76,14 @@ const EditDecisionRoom = () => {
     <div className="flex h-screen">
       <Sidebar />
       <div className="flex-1 p-6 bg-gray-100">
+        {/* Back Button */}
+        <button
+          onClick={() => navigate(-1)}  // Go back to the previous page
+          className="mb-4 bg-blue-500 text-white py-2 px-4 rounded inline-flex items-center hover:bg-blue-600 transition"
+        >
+          <FaArrowLeft className="mr-2" /> Back
+        </button>
+
         <h1 className="text-2xl font-bold mb-6">Edit Decision Room</h1>
         <form onSubmit={handleSubmit} className="bg-white p-6 shadow rounded-lg">
           <div className="mb-4">
