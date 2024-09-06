@@ -4,6 +4,7 @@ import Sidebar from './Sidebar';  // Import Sidebar
 import api from '../utils/api';
 import Select from 'react-select';
 import { toast } from 'react-toastify';
+import { FaArrowLeft } from 'react-icons/fa';  // Import back icon
 
 const CreateDecisionRoom = () => {
   const [decisionRoomName, setDecisionRoomName] = useState('');
@@ -45,8 +46,16 @@ const CreateDecisionRoom = () => {
     <div className="flex h-screen">
       <Sidebar />  {/* Add Sidebar here */}
       <div className="flex-1 p-6 bg-gray-100">
+        <button
+          onClick={() => navigate(-1)}
+          className="mb-4 bg-blue-500 text-white py-2 px-4 rounded inline-flex items-center hover:bg-blue-600 transition"
+        >
+          <FaArrowLeft className="mr-2" />
+          Back
+        </button>
         <h1 className="text-2xl font-bold mb-6">Create New Decision Room</h1>
         <form onSubmit={handleSubmit} className="bg-white p-6 shadow rounded-lg">
+          {/* Form Fields */}
           <div className="mb-4">
             <label className="block text-gray-700">Decision Room Name</label>
             <input
