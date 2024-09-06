@@ -11,22 +11,25 @@ const VotingSection = () => {
   const [comment, setComment] = useState('');
   const [proposal, setProposal] = useState(null);
   const [loading, setLoading] = useState(true);
+  const [voteCount, setVoteCount] = useState(0); // Real-time vote count
   const navigate = useNavigate();
 
   useEffect(() => {
     const fetchProposal = async () => {
       try {
         const { data } = await api.get(`/decisions/${id}/proposal/${proposalId}`);
+        console.log('Proposal Data:', data); // Debug: see the proposal data
         setProposal(data);
         setLoading(false);
+        setVoteCount(data.votes.length); // Set the initial vote count
       } catch (error) {
         toast.error('Failed to load proposal details');
         setLoading(false);
       }
     };
-
+  
     fetchProposal();
-  }, [id, proposalId]);
+  }, [id, proposalId]);  
 
   const handleSubmitVote = async (e) => {
     e.preventDefault();
@@ -38,6 +41,7 @@ const VotingSection = () => {
         comment,
       });
       toast.success('Vote submitted successfully');
+      setVoteCount(voteCount + 1); // Update vote count in real-time
       navigate(-1); // Navigate back after voting
     } catch (error) {
       toast.error('Failed to submit vote');
@@ -45,11 +49,12 @@ const VotingSection = () => {
   };
 
   const renderVotingOptions = () => {
+    console.log('Proposal Voting Type:', proposal?.votingType); // Debug: check the voting type
     switch (proposal?.votingType) {
       case 'approval':
         return (
-          <>
-            <label>
+          <div className="mb-4">
+            <label className="mr-4">
               <input
                 type="radio"
                 value="approve"
@@ -58,7 +63,7 @@ const VotingSection = () => {
               />
               Approve
             </label>
-            <label className="ml-4">
+            <label className="mr-4">
               <input
                 type="radio"
                 value="reject"
@@ -67,42 +72,48 @@ const VotingSection = () => {
               />
               Reject
             </label>
-          </>
+          </div>
         );
       case 'ranking':
         return (
-          <select
-            value={voteValue}
-            onChange={(e) => setVoteValue(e.target.value)}
-            className="w-full p-3 border rounded-lg"
-          >
-            <option value="">Select Ranking</option>
-            {[1, 2, 3, 4, 5].map((rank) => (
-              <option key={rank} value={rank}>
-                {rank}
-              </option>
-            ))}
-          </select>
+          <div className="mb-4">
+            <label className="block mb-2 text-gray-700">Rank the proposal (1-5):</label>
+            <select
+              value={voteValue}
+              onChange={(e) => setVoteValue(e.target.value)}
+              className="w-full p-3 border rounded-lg"
+            >
+              <option value="">Select Ranking</option>
+              {[1, 2, 3, 4, 5].map((rank) => (
+                <option key={rank} value={rank}>
+                  {rank}
+                </option>
+              ))}
+            </select>
+          </div>
         );
       case 'rating':
         return (
-          <select
-            value={voteValue}
-            onChange={(e) => setVoteValue(e.target.value)}
-            className="w-full p-3 border rounded-lg"
-          >
-            <option value="">Rate (1-5)</option>
-            {[1, 2, 3, 4, 5].map((rating) => (
-              <option key={rating} value={rating}>
-                {rating}
-              </option>
-            ))}
-          </select>
+          <div className="mb-4">
+            <label className="block mb-2 text-gray-700">Rate the proposal (1-5):</label>
+            <select
+              value={voteValue}
+              onChange={(e) => setVoteValue(e.target.value)}
+              className="w-full p-3 border rounded-lg"
+            >
+              <option value="">Select Rating</option>
+              {[1, 2, 3, 4, 5].map((rating) => (
+                <option key={rating} value={rating}>
+                  {rating}
+                </option>
+              ))}
+            </select>
+          </div>
         );
       default:
-        return null;
+        return <p>No voting type available for this proposal.</p>;
     }
-  };
+  };  
 
   if (loading) {
     return <div>Loading...</div>;
@@ -119,16 +130,23 @@ const VotingSection = () => {
           <FaArrowLeft className="mr-2" /> Back
         </button>
         <h2 className="text-xl font-bold mb-4">Vote on Proposal</h2>
+
+        {/* Display voting options dynamically */}
         <form onSubmit={handleSubmitVote}>
-          <div className="mb-4">{renderVotingOptions()}</div>
+          {renderVotingOptions()}
+
+          {/* Comment box for feedback */}
           <div className="mb-4">
             <label className="block text-gray-700">Optional Comment</label>
             <textarea
               value={comment}
               onChange={(e) => setComment(e.target.value)}
               className="w-full p-3 border rounded-lg"
+              placeholder="Provide feedback if needed..."
             />
           </div>
+
+          {/* Submit button */}
           <button
             type="submit"
             className="bg-blue-500 text-white px-4 py-2 rounded-lg hover:bg-blue-600"
@@ -136,6 +154,11 @@ const VotingSection = () => {
             Submit Vote
           </button>
         </form>
+
+        {/* Real-time vote count */}
+        <div className="mt-6">
+          <h3 className="text-lg font-semibold">Current Vote Count: {voteCount}</h3>
+        </div>
       </div>
     </div>
   );

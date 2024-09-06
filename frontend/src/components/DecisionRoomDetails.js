@@ -30,15 +30,9 @@ const DecisionRoomDetails = () => {
         if (!data || !data._id) {
           throw new Error('Room data is invalid or empty');
         }
-        if (!data.createdBy || !data.createdBy._id) {
-          throw new Error('Creator information is missing in the room data');
-        }
         setRoom(data);
         setLoading(false);
-        console.log('Room created by:', data.createdBy._id);
-        console.log('Logged in user:', user._id);
       } catch (error) {
-        console.error('Error fetching decision room:', error.message);
         toast.error('Failed to load decision room details');
         setLoading(false);
       }
@@ -46,8 +40,6 @@ const DecisionRoomDetails = () => {
 
     if (user) {
       fetchRoomDetails();
-    } else {
-      console.error('User is not available. Fetching decision room is delayed.');
     }
   }, [id, user]);
 
@@ -92,6 +84,17 @@ const DecisionRoomDetails = () => {
         </button>
         <h1 className="text-2xl font-bold mb-6">{room.decisionRoomName}</h1>
 
+        {/* Display room details */}
+        <div className="bg-white p-6 shadow rounded-lg mb-6">
+          <h2 className="text-lg font-bold mb-2">Details</h2>
+          <p><strong>Created By:</strong> {room.createdBy?.name || 'Unknown'}</p>
+          <p><strong>Members:</strong> {room.members.map((member) => member.name).join(', ')}</p>
+          <p><strong>Voting Type:</strong> {room.votingType.charAt(0).toUpperCase() + room.votingType.slice(1)}</p>
+          <p><strong>Privacy:</strong> {room.isPrivate ? 'Private' : 'Public'}</p>
+          <p><strong>Created At:</strong> {new Date(room.createdAt).toLocaleString()}</p>
+        </div>
+
+        {/* Proposals Section */}
         <div className="mb-6">
           <h2 className="text-xl font-semibold mb-4">Proposals</h2>
           {room.proposals.length > 0 ? (
@@ -195,3 +198,4 @@ const DecisionRoomDetails = () => {
 };
 
 export default DecisionRoomDetails;
+
