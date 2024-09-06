@@ -7,7 +7,7 @@ import api from '../utils/api';
 import { FaPlus, FaVoteYea, FaComments, FaArrowLeft, FaEdit } from 'react-icons/fa';
 import { toast } from 'react-toastify';
 import Modal from 'react-modal';
-import AuthContext from '../context/AuthContext'; 
+import AuthContext from '../context/AuthContext';
 
 const DecisionRoomDetails = () => {
   const { id } = useParams();
@@ -16,12 +16,16 @@ const DecisionRoomDetails = () => {
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [proposalTitle, setProposalTitle] = useState('');
   const [proposalDescription, setProposalDescription] = useState('');
-  const { user } = useContext(AuthContext);  
+  const { user } = useContext(AuthContext);
   const navigate = useNavigate();
 
+  // Fetch room details only if the user is available
   useEffect(() => {
     const fetchRoomDetails = async () => {
       try {
+        if (!user) {
+          throw new Error('User not available');
+        }
         const { data } = await api.get(`/decisions/${id}`);
         if (!data || !data._id) {
           throw new Error('Room data is invalid or empty');
@@ -32,14 +36,14 @@ const DecisionRoomDetails = () => {
         setRoom(data);
         setLoading(false);
         console.log('Room created by:', data.createdBy._id);
-        console.log('Logged in user:', user?._id); // Added null check for user
+        console.log('Logged in user:', user._id);
       } catch (error) {
         console.error('Error fetching decision room:', error.message);
         toast.error('Failed to load decision room details');
-        setLoading(false); 
+        setLoading(false);
       }
     };
-    
+
     if (user) {
       fetchRoomDetails();
     } else {
@@ -121,7 +125,7 @@ const DecisionRoomDetails = () => {
         </button>
 
         {/* Edit Decision Room Button (only for room creator) */}
-        {room.createdBy && room.createdBy._id === user?._id && ( 
+        {room.createdBy && room.createdBy._id === user?._id && (
           <button
             onClick={() => navigate(`/edit-decision-room/${id}`)}
             className="bg-yellow-500 text-white px-4 py-2 rounded-lg flex items-center mt-4"
