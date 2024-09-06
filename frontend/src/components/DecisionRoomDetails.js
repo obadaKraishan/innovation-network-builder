@@ -1,14 +1,15 @@
 import React, { useState, useEffect } from 'react';
-import { useParams, Link } from 'react-router-dom';
+import { useParams, Link, useNavigate } from 'react-router-dom';
 import Sidebar from './Sidebar';  // Import Sidebar
 import api from '../utils/api';
-import { FaPlus, FaVoteYea, FaComments } from 'react-icons/fa';
+import { FaPlus, FaVoteYea, FaComments, FaArrowLeft } from 'react-icons/fa';  // Import back icon
 import { toast } from 'react-toastify';
 
 const DecisionRoomDetails = () => {
   const { id } = useParams();
   const [room, setRoom] = useState(null);
   const [loading, setLoading] = useState(true);
+  const navigate = useNavigate();  // Initialize navigate hook
 
   useEffect(() => {
     const fetchRoomDetails = async () => {
@@ -32,6 +33,13 @@ const DecisionRoomDetails = () => {
     <div className="flex h-screen">
       <Sidebar />  {/* Add Sidebar here */}
       <div className="flex-1 p-6 bg-gray-100">
+        <button
+          onClick={() => navigate(-1)}
+          className="mb-4 bg-blue-500 text-white py-2 px-4 rounded inline-flex items-center hover:bg-blue-600 transition"
+        >
+          <FaArrowLeft className="mr-2" />
+          Back
+        </button>
         <h1 className="text-2xl font-bold mb-6">{room.decisionRoomName}</h1>
         <div className="mb-6">
           <h2 className="text-xl font-semibold mb-4">Proposals</h2>
