@@ -11,7 +11,8 @@ const networkRoutes = require('./routes/networkRoutes');
 const teamRoutes = require('./routes/teamRoutes');
 const messageRoutes = require('./routes/messagesRoutes'); 
 const bookingRoutes = require('./routes/bookingRoutes');
-const interestGroupRoutes = require('./routes/interestGroupRoutes');  // Add this line
+const interestGroupRoutes = require('./routes/interestGroupRoutes'); 
+const GroupDecisionRoutes = require('./routes/GroupDecisionRoutes');
 
 const app = express();
 
@@ -33,7 +34,8 @@ app.use('/api/network', networkRoutes);
 app.use('/api/teams', teamRoutes);
 app.use('/api/messages', messageRoutes);
 app.use('/api/booking', bookingRoutes);
-app.use('/api/groups', interestGroupRoutes);  // Add this line
+app.use('/api/groups', interestGroupRoutes);  
+app.use('/api/decisions', GroupDecisionRoutes);
 
 // Error Handling Middleware
 app.use((err, req, res, next) => {
