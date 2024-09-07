@@ -39,6 +39,7 @@ const addProposal = asyncHandler(async (req, res) => {
 });
 
 // Add a discussion message to a proposal
+// Add a discussion message to a proposal
 const addDiscussionMessage = asyncHandler(async (req, res) => {
     const { id, proposalId } = req.params;
     const { messageText, parent = null } = req.body;
@@ -63,10 +64,10 @@ const addDiscussionMessage = asyncHandler(async (req, res) => {
     await room.save();
 
     // Populate the entire discussion array with `postedBy` field for all messages
-    await room.populate({
+    const populatedRoom = await room.populate({
         path: 'proposals.discussion.postedBy',
         select: 'name',
-    }).execPopulate();
+    });
 
     res.status(201).json(proposal.discussion);
 });
@@ -217,33 +218,29 @@ const updateDiscussionMessage = asyncHandler(async (req, res) => {
     const { id, proposalId, messageId } = req.params;
     const { messageText } = req.body;
 
-    // Find the decision room by ID
     const room = await DecisionRoom.findById(id);
     if (!room) {
         return res.status(404).json({ message: 'Decision room not found' });
     }
 
-    // Find the proposal by ID
     const proposal = room.proposals.id(proposalId);
     if (!proposal) {
         return res.status(404).json({ message: 'Proposal not found' });
     }
 
-    // Find the message in the proposal's discussion by ID
     const message = proposal.discussion.id(messageId);
     if (!message) {
         return res.status(404).json({ message: 'Message not found' });
     }
 
-    // Update the message
     message.messageText = messageText;
     await room.save();
 
     // Populate the entire discussion array with `postedBy` field for all messages
-    await room.populate({
+    const populatedRoom = await room.populate({
         path: 'proposals.discussion.postedBy',
         select: 'name',
-    }).execPopulate();
+    });
 
     res.status(200).json(proposal.discussion);
 });
