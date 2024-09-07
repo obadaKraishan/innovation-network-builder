@@ -4,6 +4,7 @@ import { FaArrowLeft, FaEdit, FaTrashAlt, FaReply } from 'react-icons/fa';
 import Sidebar from './Sidebar';
 import api from '../utils/api';
 import { toast } from 'react-toastify';
+import Swal from 'sweetalert2'; // Import SweetAlert
 import AuthContext from '../context/AuthContext';
 import { formatDistanceToNow, parseISO } from 'date-fns';
 
@@ -21,8 +22,7 @@ const DecisionRoomDiscussion = () => {
     const fetchDiscussion = async () => {
       try {
         const { data } = await api.get(`/decisions/${id}/proposal/${proposalId}/discussion`);
-        console.log("Fetched discussion:", data);
-        setDiscussion(data);  // Make sure this sets the fetched data into state
+        setDiscussion(data);
         setLoading(false);
       } catch (error) {
         toast.error('Failed to load discussion');
@@ -30,31 +30,29 @@ const DecisionRoomDiscussion = () => {
       }
     };
     fetchDiscussion();
-  }, [id, proposalId]);  
-  
+  }, [id, proposalId]);
+
   const handleAddMessage = async () => {
     try {
       const endpoint = editMessageId
         ? `/decisions/${id}/proposal/${proposalId}/discussion/${editMessageId}`
         : `/decisions/${id}/proposal/${proposalId}/discussion`;
-  
+
       const { data } = await api.post(endpoint, {
         messageText: newMessage,
-        parent: parentMessageId, // Add parent if it is a reply
+        parent: parentMessageId,
       });
-  
+
       setNewMessage('');
       setEditMessageId(null);
       setParentMessageId(null);
       toast.success('Message added/updated successfully');
-      
-      // Directly set the updated discussion from the POST response
       setDiscussion(data);
     } catch (error) {
       toast.error('Failed to add message');
     }
   };
-  
+
   const handleEditMessage = (message) => {
     setNewMessage(message.messageText);
     setEditMessageId(message._id);
@@ -62,14 +60,26 @@ const DecisionRoomDiscussion = () => {
   };
 
   const handleDeleteMessage = async (messageId) => {
-    try {
-      await api.delete(`/decisions/${id}/proposal/${proposalId}/discussion/${messageId}`);
-      toast.success('Message deleted successfully');
-      const { data } = await api.get(`/decisions/${id}/proposal/${proposalId}/discussion`);
-      setDiscussion(data);
-    } catch (error) {
-      toast.error('Failed to delete message');
-    }
+    Swal.fire({
+      title: 'Are you sure?',
+      text: "You won't be able to revert this!",
+      icon: 'warning',
+      showCancelButton: true,
+      confirmButtonColor: '#3085d6',
+      cancelButtonColor: '#d33',
+      confirmButtonText: 'Yes, delete it!'
+    }).then(async (result) => {
+      if (result.isConfirmed) {
+        try {
+          await api.delete(`/decisions/${id}/proposal/${proposalId}/discussion/${messageId}`);
+          toast.success('Message deleted successfully');
+          const { data } = await api.get(`/decisions/${id}/proposal/${proposalId}/discussion`);
+          setDiscussion(data);
+        } catch (error) {
+          toast.error('Failed to delete message');
+        }
+      }
+    });
   };
 
   const formatTimeAgo = (dateString) => {
@@ -79,17 +89,15 @@ const DecisionRoomDiscussion = () => {
 
   const renderDiscussion = (messages, parentId = null, level = 0) => {
     return messages
-      .filter(message => message.parent === parentId)  // Ensure parent-child relation is correct
-      .map(message => (
+      .filter((message) => message.parent === parentId)
+      .map((message) => (
         <div
           key={message._id}
           className={`p-4 mb-4 rounded-lg ${level === 0 ? 'bg-gray-100' : 'bg-gray-200'}`}
           style={{ marginLeft: level * 20 }}
         >
           <div className="flex justify-between items-center mb-2">
-            <p className="font-semibold text-gray-700">
-              {message.postedBy?.name || 'Unknown'}:
-            </p>
+            <p className="font-semibold text-gray-700">{message.postedBy?.name || 'Unknown'}:</p>
             <p className="text-sm text-gray-500">{formatTimeAgo(message.createdAt)}</p>
           </div>
           <p className="text-gray-800">{message.messageText}</p>
@@ -101,7 +109,7 @@ const DecisionRoomDiscussion = () => {
               <FaReply className="inline mr-1" /> Reply
             </button>
             <div className="flex">
-              {message.postedBy?._id === user._id && (  // Check if the comment is owned by the user
+              {message.postedBy?._id === user._id && (
                 <>
                   <FaEdit
                     className="text-blue-500 cursor-pointer mr-3"
@@ -115,10 +123,10 @@ const DecisionRoomDiscussion = () => {
               )}
             </div>
           </div>
-          {renderDiscussion(messages, message._id, level + 1)} {/* Recursive call for nested comments */}
+          {renderDiscussion(messages, message._id, level + 1)}
         </div>
       ));
-  };   
+  };
 
   if (loading) {
     return <div>Loading...</div>;
@@ -136,11 +144,7 @@ const DecisionRoomDiscussion = () => {
         </button>
         <h1 className="text-2xl font-bold mb-6">Proposal Discussion</h1>
         <div className="bg-white p-6 shadow rounded-lg mb-6">
-          {discussion.length > 0 ? (
-            <ul>{renderDiscussion(discussion)}</ul>
-          ) : (
-            <p className="text-gray-500">No messages yet. Be the first to contribute to the discussion.</p>
-          )}
+          {discussion.length > 0 ? <ul>{renderDiscussion(discussion)}</ul> : <p>No messages yet.</p>}
         </div>
         <div className="bg-white p-6 shadow rounded-lg">
           <textarea

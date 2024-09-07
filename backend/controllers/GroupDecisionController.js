@@ -41,7 +41,7 @@ const addProposal = asyncHandler(async (req, res) => {
 // Add a discussion message to a proposal
 const addDiscussionMessage = asyncHandler(async (req, res) => {
     const { id, proposalId } = req.params;
-    const { messageText, parent = null } = req.body;  // Parent defaults to null for top-level messages
+    const { messageText, parent = null } = req.body;
   
     const room = await DecisionRoom.findById(id);
     if (!room) {
@@ -58,14 +58,17 @@ const addDiscussionMessage = asyncHandler(async (req, res) => {
     const newMessage = {
       messageText,
       postedBy: req.user._id,
-      parent,  // Save parent message ID (or null)
+      parent,
     };
   
     proposal.discussion.push(newMessage);
     await room.save();
   
-    res.status(201).json(proposal.discussion);  // Return updated discussion
-});
+    // Populate `postedBy` for the newly added message
+    await proposal.populate('discussion.postedBy', 'name');
+  
+    res.status(201).json(proposal.discussion);
+  });
 
 // Cast a vote on a proposal
 const castVote = asyncHandler(async (req, res) => {
@@ -233,7 +236,10 @@ const updateDiscussionMessage = asyncHandler(async (req, res) => {
   
     message.messageText = messageText;
     await room.save();
-    
+  
+    // Populate `postedBy` after updating the message
+    await proposal.populate('discussion.postedBy', 'name');
+  
     res.status(200).json(proposal.discussion);
   });
   
@@ -253,11 +259,13 @@ const updateDiscussionMessage = asyncHandler(async (req, res) => {
       throw new Error('Proposal not found');
     }
   
-    proposal.discussion.id(messageId).remove();
+    // Use `pull` to remove the message from the array
+    proposal.discussion.pull({ _id: messageId });
+  
     await room.save();
   
     res.status(200).json(proposal.discussion);
-  });
+  });  
 
 // Update an existing decision room
 const updateDecisionRoom = asyncHandler(async (req, res) => {
