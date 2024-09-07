@@ -146,6 +146,7 @@ const getProposalDetails = asyncHandler(async (req, res) => {
 
     // Fetch the decision room
     const room = await DecisionRoom.findById(id)
+      .populate('proposals.createdBy', 'name') // Populate the createdBy field with the user's name or ID
       .populate('proposals.votes.votedBy', 'name'); // Populate the votedBy field with name
 
     if (!room) {

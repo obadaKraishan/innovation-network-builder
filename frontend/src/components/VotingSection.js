@@ -1,10 +1,9 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useContext } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import api from '../utils/api';
 import { toast } from 'react-toastify';
 import Sidebar from './Sidebar';
 import { FaArrowLeft } from 'react-icons/fa';
-import { useContext } from 'react';
 import AuthContext from '../context/AuthContext'; // Import AuthContext
 
 const VotingSection = () => {
@@ -21,6 +20,7 @@ const VotingSection = () => {
     const fetchProposal = async () => {
       try {
         const { data } = await api.get(`/decisions/${id}/proposal/${proposalId}`);
+        console.log('Fetched Proposal:', data); // Debug: log the entire proposal object
         setProposal(data);
         setLoading(false);
         setVoteCount(data.votes.length); // Set the initial vote count
@@ -29,9 +29,9 @@ const VotingSection = () => {
         setLoading(false);
       }
     };
-
+  
     fetchProposal();
-  }, [id, proposalId]);
+  }, [id, proposalId]);  
 
   const handleSubmitVote = async (e) => {
     e.preventDefault();
@@ -51,10 +51,6 @@ const VotingSection = () => {
   };
 
   const renderVotingOptions = () => {
-    if (!proposal || proposal.createdBy._id === user._id) {
-      return <p>You cannot vote on your own proposal.</p>; // Display message if user is the creator
-    }
-
     switch (proposal?.votingType) {
       case 'approval':
         return (
@@ -134,7 +130,7 @@ const VotingSection = () => {
         <div className="mt-6">
           <h3 className="text-lg font-semibold">Votes List:</h3>
           <ul className="mt-4">
-            {proposal.votes.map((vote, index) => (
+            {proposal.votes.map((vote) => (
               <li key={vote._id} className="bg-white p-4 rounded-lg shadow mb-4">
                 <p><strong>Voted By:</strong> {vote.votedBy.name || 'Anonymous'}</p>
                 <p><strong>Vote:</strong> {vote.voteValue}</p>
@@ -154,6 +150,10 @@ const VotingSection = () => {
     return <div>Loading...</div>;
   }
 
+  // Debugging logs to ensure user and proposal information is correct
+  console.log('Logged-in User ID:', user._id);
+  console.log('Proposal Created By ID:', proposal?.createdBy?._id);
+
   return (
     <div className="flex h-screen">
       <Sidebar />
@@ -166,32 +166,33 @@ const VotingSection = () => {
         </button>
         <h2 className="text-xl font-bold mb-4">Vote on Proposal</h2>
 
-        {/* Display voting options dynamically */}
-        <form onSubmit={handleSubmitVote}>
-          {renderVotingOptions()}
+        {/* Conditionally render voting options or placeholder */}
+        {proposal && proposal.createdBy?._id === user._id ? (
+  <p className="text-red-500">You cannot vote on your own proposal.</p>
+) : (
+  <form onSubmit={handleSubmitVote}>
+    {renderVotingOptions()}
 
-          {/* Comment box for feedback */}
-          <div className="mb-4">
-            <label className="block text-gray-700">Optional Comment</label>
-            <textarea
-              value={comment}
-              onChange={(e) => setComment(e.target.value)}
-              className="w-full p-3 border rounded-lg"
-              placeholder="Provide feedback if needed..."
-            />
-          </div>
+    {/* Comment box for feedback */}
+    <div className="mb-4">
+      <label className="block text-gray-700">Optional Comment</label>
+      <textarea
+        value={comment}
+        onChange={(e) => setComment(e.target.value)}
+        className="w-full p-3 border rounded-lg"
+        placeholder="Provide feedback if needed..."
+      />
+    </div>
 
-          {/* Submit button */}
-          {!proposal || proposal.createdBy._id !== user._id ? (
-            <button
-              type="submit"
-              className="bg-blue-500 text-white px-4 py-2 rounded-lg hover:bg-blue-600"
-            >
-              Submit Vote
-            </button>
-          ) : null}
-
-        </form>
+    {/* Submit button */}
+    <button
+      type="submit"
+      className="bg-blue-500 text-white px-4 py-2 rounded-lg hover:bg-blue-600"
+    >
+      Submit Vote
+    </button>
+  </form>
+)}
 
         {/* Real-time vote count */}
         <div className="mt-6">
