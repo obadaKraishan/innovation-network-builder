@@ -182,23 +182,31 @@ const archiveDecisionRoom = asyncHandler(async (req, res) => {
 const getProposalDiscussion = asyncHandler(async (req, res) => {
     const { id, proposalId } = req.params;
   
-    const room = await DecisionRoom.findById(id);
-    if (!room) {
-      res.status(404);
-      throw new Error('Decision room not found');
+    try {
+      const room = await DecisionRoom.findById(id);
+      if (!room) {
+        res.status(404);
+        throw new Error('Decision room not found');
+      }
+  
+      const proposal = room.proposals.id(proposalId);
+      if (!proposal) {
+        res.status(404);
+        throw new Error('Proposal not found');
+      }
+  
+      // Instead of populating inside the array, populate the entire discussion array's postedBy field
+      await DecisionRoom.populate(room, {
+        path: 'proposals.discussion.postedBy',
+        select: 'name',
+      });
+  
+      res.json(proposal.discussion);  // Send populated discussion
+    } catch (error) {
+      console.error('Error fetching proposal discussion:', error);
+      res.status(500).json({ message: 'Server error while fetching discussion' });
     }
-  
-    const proposal = room.proposals.id(proposalId);
-    if (!proposal) {
-      res.status(404);
-      throw new Error('Proposal not found');
-    }
-  
-    // Populate the postedBy field with user details
-    await proposal.populate('discussion.postedBy', 'name'); 
-  
-    res.json(proposal.discussion); // Assuming the proposal has a discussion field with messages
-});
+  });  
 
 // Controller functions for updating and deleting discussion messages:
 const updateDiscussionMessage = asyncHandler(async (req, res) => {
