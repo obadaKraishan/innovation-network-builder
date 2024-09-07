@@ -55,7 +55,6 @@ const DecisionRoomDiscussion = () => {
     }
   };
   
-
   const handleEditMessage = (message) => {
     setNewMessage(message.messageText);
     setEditMessageId(message._id);
@@ -88,8 +87,8 @@ const DecisionRoomDiscussion = () => {
           style={{ marginLeft: level * 20 }}
         >
           <div className="flex justify-between items-center mb-2">
-          <p className="font-semibold text-gray-700">
-                {message.postedBy?.name || 'Unknown'}:
+            <p className="font-semibold text-gray-700">
+              {message.postedBy?.name || 'Unknown'}:
             </p>
             <p className="text-sm text-gray-500">{formatTimeAgo(message.createdAt)}</p>
           </div>
@@ -102,7 +101,7 @@ const DecisionRoomDiscussion = () => {
               <FaReply className="inline mr-1" /> Reply
             </button>
             <div className="flex">
-              {message.postedBy === user?._id && (  // Assuming `user._id` is accessible
+              {message.postedBy?._id === user._id && (  // Check if the comment is owned by the user
                 <>
                   <FaEdit
                     className="text-blue-500 cursor-pointer mr-3"
@@ -151,11 +150,11 @@ const DecisionRoomDiscussion = () => {
             placeholder="Add a message..."
           />
           <button
-  onClick={handleAddMessage}
-  className="mt-4 bg-blue-500 text-white px-4 py-2 rounded-lg hover:bg-blue-600"
->
-  {editMessageId ? 'Update Message' : parentMessageId ? 'Reply' : 'Add Message'}
-</button>
+            onClick={handleAddMessage}
+            className="mt-4 bg-blue-500 text-white px-4 py-2 rounded-lg hover:bg-blue-600"
+          >
+            {editMessageId ? 'Update Message' : parentMessageId ? 'Reply' : 'Add Message'}
+          </button>
         </div>
       </div>
     </div>
