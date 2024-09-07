@@ -4,6 +4,8 @@ import api from '../utils/api';
 import { toast } from 'react-toastify';
 import Sidebar from './Sidebar';
 import { FaArrowLeft } from 'react-icons/fa';
+import { useContext } from 'react';
+import AuthContext from '../context/AuthContext'; // Import AuthContext
 
 const VotingSection = () => {
   const { id, proposalId } = useParams();
@@ -12,13 +14,13 @@ const VotingSection = () => {
   const [proposal, setProposal] = useState(null);
   const [loading, setLoading] = useState(true);
   const [voteCount, setVoteCount] = useState(0); // Real-time vote count
+  const { user } = useContext(AuthContext); // Get the current logged-in user
   const navigate = useNavigate();
 
   useEffect(() => {
     const fetchProposal = async () => {
       try {
         const { data } = await api.get(`/decisions/${id}/proposal/${proposalId}`);
-        console.log('Proposal Data:', data); // Debug: see the proposal data
         setProposal(data);
         setLoading(false);
         setVoteCount(data.votes.length); // Set the initial vote count
@@ -49,11 +51,14 @@ const VotingSection = () => {
   };
 
   const renderVotingOptions = () => {
-    console.log('Proposal Voting Type:', proposal?.votingType); // Debug: check the voting type
+    if (!proposal || proposal.createdBy._id === user._id) {
+      return <p>You cannot vote on your own proposal.</p>; // Display message if user is the creator
+    }
+
     switch (proposal?.votingType) {
       case 'approval':
         return (
-            <div className="mb-4">
+          <div className="mb-4">
             <div className="flex items-center">
               <input
                 type="radio"
@@ -177,12 +182,15 @@ const VotingSection = () => {
           </div>
 
           {/* Submit button */}
-          <button
-            type="submit"
-            className="bg-blue-500 text-white px-4 py-2 rounded-lg hover:bg-blue-600"
-          >
-            Submit Vote
-          </button>
+          {!proposal || proposal.createdBy._id !== user._id ? (
+            <button
+              type="submit"
+              className="bg-blue-500 text-white px-4 py-2 rounded-lg hover:bg-blue-600"
+            >
+              Submit Vote
+            </button>
+          ) : null}
+
         </form>
 
         {/* Real-time vote count */}

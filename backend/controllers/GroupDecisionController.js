@@ -74,31 +74,34 @@ const addDiscussionMessage = asyncHandler(async (req, res) => {
 
 // Cast a vote on a proposal
 const castVote = asyncHandler(async (req, res) => {
-  const { roomId, proposalId, voteValue, comment } = req.body;
-
-  const room = await DecisionRoom.findById(roomId);
-  if (!room) {
-    res.status(404);
-    throw new Error('Decision room not found');
-  }
-
-  const proposal = room.proposals.id(proposalId);
-  if (!proposal) {
-    res.status(404);
-    throw new Error('Proposal not found');
-  }
-
-  const vote = {
-    votedBy: req.user._id,
-    voteValue,
-    comment,
-  };
-
-  proposal.votes.push(vote);
-  await room.save();
-
-  res.status(201).json(proposal);
-});
+    const { roomId, proposalId, voteValue, comment } = req.body;
+  
+    const room = await DecisionRoom.findById(roomId);
+    if (!room) {
+      res.status(404).throw(new Error('Decision room not found'));
+    }
+  
+    const proposal = room.proposals.id(proposalId);
+    if (!proposal) {
+      res.status(404).throw(new Error('Proposal not found'));
+    }
+  
+    // Prevent the proposal creator from voting
+    if (proposal.createdBy.toString() === req.user._id.toString()) {
+      return res.status(403).json({ message: "Proposal creator cannot vote on their own proposal" });
+    }
+  
+    const vote = {
+      votedBy: req.user._id,
+      voteValue,
+      comment,
+    };
+  
+    proposal.votes.push(vote);
+    await room.save();
+  
+    res.status(201).json(proposal);
+  });  
 
 // Get all decision rooms for the current user
 const getDecisionRooms = asyncHandler(async (req, res) => {
