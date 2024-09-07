@@ -1,20 +1,62 @@
 const DecisionRoom = require('../models/GroupDecisionModel');
+const Connection = require('../models/connectionModel');
 const asyncHandler = require('express-async-handler');
 
+// Create new Connections
+const createConnection = async (userA, userB, context) => {
+    try {
+      console.log(`Attempting to create connection between ${userA} and ${userB} with context: ${context}`);
+  
+      // Check if a connection already exists between these users
+      const existingConnection = await Connection.findOne({
+        $or: [
+          { userA: userA, userB: userB },
+          { userA: userB, userB: userA }
+        ]
+      });
+  
+      if (!existingConnection) {
+        const newConnection = new Connection({
+          userA,
+          userB,
+          context,
+          interactionCount: 1,
+          lastInteractedAt: Date.now(),
+        });
+  
+        const savedConnection = await newConnection.save();
+        console.log(`Connection successfully created:`, savedConnection);
+  
+        return savedConnection;
+      } else {
+        console.log(`Connection already exists between ${userA} and ${userB}`);
+      }
+    } catch (error) {
+      console.error(`Error creating connection between ${userA} and ${userB} for context: ${context}:`, error.message);
+    }
+  };
+  
 // Create a new decision room
 const createDecisionRoom = asyncHandler(async (req, res) => {
-  const { decisionRoomName, isPrivate, votingType, members } = req.body;
-
-  const room = await DecisionRoom.create({
-    decisionRoomName,
-    createdBy: req.user._id,
-    isPrivate,
-    votingType,
-    members,
-  });
-
-  res.status(201).json(room);
-});
+    const { decisionRoomName, isPrivate, votingType, members } = req.body;
+  
+    const room = await DecisionRoom.create({
+      decisionRoomName,
+      createdBy: req.user._id,
+      isPrivate,
+      votingType,
+      members,
+    });
+  
+    // Create connections between all members of the room
+    for (let i = 0; i < members.length; i++) {
+      for (let j = i + 1; j < members.length; j++) {
+        await createConnection(members[i], members[j], 'decision room creation');
+      }
+    }
+  
+    res.status(201).json(room);
+  });  
 
 // Add a proposal to a decision room
 const addProposal = asyncHandler(async (req, res) => {
@@ -35,41 +77,50 @@ const addProposal = asyncHandler(async (req, res) => {
   room.proposals.push(proposal);
   await room.save();
 
+  // Create connections between the proposal creator and all members of the room
+  for (const member of room.members) {
+    await createConnection(req.user._id, member, 'decision proposal creation');
+  }
+
   res.status(201).json(room);
 });
 
 // Add a discussion message to a proposal
-// Add a discussion message to a proposal
 const addDiscussionMessage = asyncHandler(async (req, res) => {
-    const { id, proposalId } = req.params;
-    const { messageText, parent = null } = req.body;
+  const { id, proposalId } = req.params;
+  const { messageText, parent = null } = req.body;
 
-    const room = await DecisionRoom.findById(id);
-    if (!room) {
-        return res.status(404).json({ message: 'Decision room not found' });
+  const room = await DecisionRoom.findById(id);
+  if (!room) {
+    return res.status(404).json({ message: 'Decision room not found' });
+  }
+
+  const proposal = room.proposals.id(proposalId);
+  if (!proposal) {
+    return res.status(404).json({ message: 'Proposal not found' });
+  }
+
+  const newMessage = {
+    messageText,
+    postedBy: req.user._id,
+    parent,
+  };
+
+  proposal.discussion.push(newMessage);
+  await room.save();
+
+  // Create a connection between the commenter and the proposal creator
+  await createConnection(req.user._id, proposal.createdBy, 'decision discussion comment');
+
+  // If this is a reply, create a connection between the commenter and the parent comment's author
+  if (parent) {
+    const parentMessage = proposal.discussion.id(parent);
+    if (parentMessage) {
+      await createConnection(req.user._id, parentMessage.postedBy, 'decision discussion reply');
     }
+  }
 
-    const proposal = room.proposals.id(proposalId);
-    if (!proposal) {
-        return res.status(404).json({ message: 'Proposal not found' });
-    }
-
-    const newMessage = {
-        messageText,
-        postedBy: req.user._id,
-        parent,
-    };
-
-    proposal.discussion.push(newMessage);
-    await room.save();
-
-    // Populate the entire discussion array with `postedBy` field for all messages
-    const populatedRoom = await room.populate({
-        path: 'proposals.discussion.postedBy',
-        select: 'name',
-    });
-
-    res.status(201).json(proposal.discussion);
+  res.status(201).json(proposal.discussion);
 });
 
 // Cast a vote on a proposal
@@ -78,12 +129,14 @@ const castVote = asyncHandler(async (req, res) => {
   
     const room = await DecisionRoom.findById(roomId);
     if (!room) {
-      res.status(404).throw(new Error('Decision room not found'));
+      res.status(404);
+      throw new Error('Decision room not found');
     }
   
     const proposal = room.proposals.id(proposalId);
     if (!proposal) {
-      res.status(404).throw(new Error('Proposal not found'));
+      res.status(404);
+      throw new Error('Proposal not found');
     }
   
     // Prevent the proposal creator from voting
@@ -99,6 +152,9 @@ const castVote = asyncHandler(async (req, res) => {
   
     proposal.votes.push(vote);
     await room.save();
+  
+    // Create a connection between the voter and the proposal creator
+    await createConnection(req.user._id, proposal.createdBy, 'decision proposal voting');
   
     res.status(201).json(proposal);
   });  
