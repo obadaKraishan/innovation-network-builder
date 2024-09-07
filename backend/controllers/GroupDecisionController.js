@@ -5,36 +5,25 @@ const asyncHandler = require('express-async-handler');
 // Create new Connections
 const createConnection = async (userA, userB, context) => {
     try {
-      console.log(`Attempting to create connection between ${userA} and ${userB} with context: ${context}`);
-  
-      // Check if a connection already exists between these users
-      const existingConnection = await Connection.findOne({
-        $or: [
-          { userA: userA, userB: userB },
-          { userA: userB, userB: userA }
-        ]
-      });
-  
-      if (!existingConnection) {
+        console.log(`Attempting to create connection between ${userA} and ${userB} with context: ${context}`);
+
+        // Create a new connection without checking for existing ones
         const newConnection = new Connection({
-          userA,
-          userB,
-          context,
-          interactionCount: 1,
-          lastInteractedAt: Date.now(),
+            userA,
+            userB,
+            context,
+            interactionCount: 1,
+            lastInteractedAt: Date.now(),
         });
-  
+
         const savedConnection = await newConnection.save();
         console.log(`Connection successfully created:`, savedConnection);
-  
+
         return savedConnection;
-      } else {
-        console.log(`Connection already exists between ${userA} and ${userB}`);
-      }
     } catch (error) {
-      console.error(`Error creating connection between ${userA} and ${userB} for context: ${context}:`, error.message);
+        console.error(`Error creating connection between ${userA} and ${userB} for context: ${context}:`, error.message);
     }
-  };
+};
   
 // Create a new decision room
 const createDecisionRoom = asyncHandler(async (req, res) => {
