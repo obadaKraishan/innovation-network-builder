@@ -98,6 +98,12 @@ const addDiscussionMessage = asyncHandler(async (req, res) => {
   proposal.discussion.push(newMessage);
   await room.save();
 
+  // Populate the postedBy field for the entire discussion array
+  await room.populate({
+    path: 'proposals.discussion.postedBy',
+    select: 'name',
+  });
+
   // Create a connection between the commenter and the proposal creator
   await createConnection(req.user._id, proposal.createdBy, 'decision discussion comment');
 
@@ -264,34 +270,34 @@ const getProposalDiscussion = asyncHandler(async (req, res) => {
 
 // Controller functions for updating and deleting discussion messages:
 const updateDiscussionMessage = asyncHandler(async (req, res) => {
-    const { id, proposalId, messageId } = req.params;
-    const { messageText } = req.body;
+  const { id, proposalId, messageId } = req.params;
+  const { messageText } = req.body;
 
-    const room = await DecisionRoom.findById(id);
-    if (!room) {
-        return res.status(404).json({ message: 'Decision room not found' });
-    }
+  const room = await DecisionRoom.findById(id);
+  if (!room) {
+    return res.status(404).json({ message: 'Decision room not found' });
+  }
 
-    const proposal = room.proposals.id(proposalId);
-    if (!proposal) {
-        return res.status(404).json({ message: 'Proposal not found' });
-    }
+  const proposal = room.proposals.id(proposalId);
+  if (!proposal) {
+    return res.status(404).json({ message: 'Proposal not found' });
+  }
 
-    const message = proposal.discussion.id(messageId);
-    if (!message) {
-        return res.status(404).json({ message: 'Message not found' });
-    }
+  const message = proposal.discussion.id(messageId);
+  if (!message) {
+    return res.status(404).json({ message: 'Message not found' });
+  }
 
-    message.messageText = messageText;
-    await room.save();
+  message.messageText = messageText;
+  await room.save();
 
-    // Populate the entire discussion array with `postedBy` field for all messages
-    const populatedRoom = await room.populate({
-        path: 'proposals.discussion.postedBy',
-        select: 'name',
-    });
+  // Populate the postedBy field for all messages
+  await room.populate({
+    path: 'proposals.discussion.postedBy',
+    select: 'name',
+  });
 
-    res.status(200).json(proposal.discussion);
+  res.status(200).json(proposal.discussion);
 });
   
   // Controller function for deleting a discussion message:
