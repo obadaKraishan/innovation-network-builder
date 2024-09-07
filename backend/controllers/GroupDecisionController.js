@@ -41,7 +41,7 @@ const addProposal = asyncHandler(async (req, res) => {
 // Add a discussion message to a proposal
 const addDiscussionMessage = asyncHandler(async (req, res) => {
     const { id, proposalId } = req.params;
-    const { messageText } = req.body;
+    const { messageText, parent = null } = req.body;  // Parent defaults to null for top-level messages
   
     const room = await DecisionRoom.findById(id);
     if (!room) {
@@ -58,13 +58,14 @@ const addDiscussionMessage = asyncHandler(async (req, res) => {
     const newMessage = {
       messageText,
       postedBy: req.user._id,
+      parent,  // Save parent message ID (or null)
     };
   
     proposal.discussion.push(newMessage);
     await room.save();
   
-    res.status(201).json(proposal.discussion); // Return the updated discussion
-  });
+    res.status(201).json(proposal.discussion);  // Return updated discussion
+});
 
 // Cast a vote on a proposal
 const castVote = asyncHandler(async (req, res) => {
@@ -193,8 +194,62 @@ const getProposalDiscussion = asyncHandler(async (req, res) => {
       throw new Error('Proposal not found');
     }
   
+    // Populate the postedBy field with user details
+    await proposal.populate('discussion.postedBy', 'name'); 
+  
     res.json(proposal.discussion); // Assuming the proposal has a discussion field with messages
-  });  
+});
+
+// Controller functions for updating and deleting discussion messages:
+const updateDiscussionMessage = asyncHandler(async (req, res) => {
+    const { id, proposalId, messageId } = req.params;
+    const { messageText } = req.body;
+  
+    const room = await DecisionRoom.findById(id);
+    if (!room) {
+      res.status(404);
+      throw new Error('Decision room not found');
+    }
+  
+    const proposal = room.proposals.id(proposalId);
+    if (!proposal) {
+      res.status(404);
+      throw new Error('Proposal not found');
+    }
+  
+    const message = proposal.discussion.id(messageId);
+    if (!message) {
+      res.status(404);
+      throw new Error('Message not found');
+    }
+  
+    message.messageText = messageText;
+    await room.save();
+    
+    res.status(200).json(proposal.discussion);
+  });
+  
+  // Controller function for deleting a discussion message:
+  const deleteDiscussionMessage = asyncHandler(async (req, res) => {
+    const { id, proposalId, messageId } = req.params;
+  
+    const room = await DecisionRoom.findById(id);
+    if (!room) {
+      res.status(404);
+      throw new Error('Decision room not found');
+    }
+  
+    const proposal = room.proposals.id(proposalId);
+    if (!proposal) {
+      res.status(404);
+      throw new Error('Proposal not found');
+    }
+  
+    proposal.discussion.id(messageId).remove();
+    await room.save();
+  
+    res.status(200).json(proposal.discussion);
+  });
 
 // Update an existing decision room
 const updateDecisionRoom = asyncHandler(async (req, res) => {
@@ -229,6 +284,8 @@ module.exports = {
   getDecisionRoomDetails,
   getProposalDetails,
   getProposalDiscussion,
+  updateDiscussionMessage,
+  deleteDiscussionMessage,
   archiveDecisionRoom,
   updateDecisionRoom,
 };

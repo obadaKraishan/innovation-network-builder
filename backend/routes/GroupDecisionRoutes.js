@@ -8,6 +8,8 @@ const {
   getDecisionRoomDetails,
   getProposalDetails,
   getProposalDiscussion,
+  updateDiscussionMessage,
+  deleteDiscussionMessage,
   archiveDecisionRoom,
   updateDecisionRoom,
 } = require('../controllers/GroupDecisionController');
@@ -24,6 +26,10 @@ router.route('/:id/proposal/:proposalId').get(protect, getProposalDetails);
 router.route('/:id/proposal/:proposalId/discussion')
   .get(protect, getProposalDiscussion) // Ensure GET request works
   .post(protect, addDiscussionMessage); // Add the POST request route
+// Add this route for editing a discussion message
+router.route('/:id/proposal/:proposalId/discussion/:messageId')
+  .post(protect, updateDiscussionMessage)
+  .delete(protect, deleteDiscussionMessage);
 router.route('/edit/:id').post(protect, updateDecisionRoom);
 
 module.exports = router;

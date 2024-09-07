@@ -14,21 +14,22 @@ const voteSchema = new mongoose.Schema({
 }, { timestamps: true });
 
 const discussionSchema = new mongoose.Schema({
-  messageText: {
-    type: String,
-    required: true,
-  },
-  postedBy: {
-    type: mongoose.Schema.Types.ObjectId,
-    ref: 'User',
-    required: true,
-  },
-  attachments: [String],  // Optional array of attachments (e.g., file URLs)
-  replies: [{
-    type: mongoose.Schema.Types.ObjectId,
-    ref: 'Discussion',
-  }],
-}, { timestamps: true });
+    messageText: {
+      type: String,
+      required: true,
+    },
+    postedBy: {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: 'User',
+      required: true,
+    },
+    parent: {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: 'Discussion',  // This allows us to reference the parent message
+      default: null,  // If null, it's a top-level message
+    },
+    attachments: [String],  // Optional array of attachments (e.g., file URLs)
+  }, { timestamps: true });  
 
 const proposalSchema = new mongoose.Schema({
   proposalTitle: {
