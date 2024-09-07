@@ -42,33 +42,34 @@ const addProposal = asyncHandler(async (req, res) => {
 const addDiscussionMessage = asyncHandler(async (req, res) => {
     const { id, proposalId } = req.params;
     const { messageText, parent = null } = req.body;
-  
+
     const room = await DecisionRoom.findById(id);
     if (!room) {
-      res.status(404);
-      throw new Error('Decision room not found');
+        return res.status(404).json({ message: 'Decision room not found' });
     }
-  
+
     const proposal = room.proposals.id(proposalId);
     if (!proposal) {
-      res.status(404);
-      throw new Error('Proposal not found');
+        return res.status(404).json({ message: 'Proposal not found' });
     }
-  
+
     const newMessage = {
-      messageText,
-      postedBy: req.user._id,
-      parent,
+        messageText,
+        postedBy: req.user._id,
+        parent,
     };
-  
+
     proposal.discussion.push(newMessage);
     await room.save();
-  
-    // Populate `postedBy` for the newly added message
-    await proposal.populate('discussion.postedBy', 'name');
-  
+
+    // Populate the entire discussion array with `postedBy` field for all messages
+    await room.populate({
+        path: 'proposals.discussion.postedBy',
+        select: 'name',
+    }).execPopulate();
+
     res.status(201).json(proposal.discussion);
-  });
+});
 
 // Cast a vote on a proposal
 const castVote = asyncHandler(async (req, res) => {
@@ -215,33 +216,37 @@ const getProposalDiscussion = asyncHandler(async (req, res) => {
 const updateDiscussionMessage = asyncHandler(async (req, res) => {
     const { id, proposalId, messageId } = req.params;
     const { messageText } = req.body;
-  
+
+    // Find the decision room by ID
     const room = await DecisionRoom.findById(id);
     if (!room) {
-      res.status(404);
-      throw new Error('Decision room not found');
+        return res.status(404).json({ message: 'Decision room not found' });
     }
-  
+
+    // Find the proposal by ID
     const proposal = room.proposals.id(proposalId);
     if (!proposal) {
-      res.status(404);
-      throw new Error('Proposal not found');
+        return res.status(404).json({ message: 'Proposal not found' });
     }
-  
+
+    // Find the message in the proposal's discussion by ID
     const message = proposal.discussion.id(messageId);
     if (!message) {
-      res.status(404);
-      throw new Error('Message not found');
+        return res.status(404).json({ message: 'Message not found' });
     }
-  
+
+    // Update the message
     message.messageText = messageText;
     await room.save();
-  
-    // Populate `postedBy` after updating the message
-    await proposal.populate('discussion.postedBy', 'name');
-  
+
+    // Populate the entire discussion array with `postedBy` field for all messages
+    await room.populate({
+        path: 'proposals.discussion.postedBy',
+        select: 'name',
+    }).execPopulate();
+
     res.status(200).json(proposal.discussion);
-  });
+});
   
   // Controller function for deleting a discussion message:
   const deleteDiscussionMessage = asyncHandler(async (req, res) => {

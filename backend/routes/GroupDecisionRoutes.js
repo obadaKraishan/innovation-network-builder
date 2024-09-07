@@ -27,7 +27,7 @@ router.route('/:id/proposal/:proposalId/discussion')
   .get(protect, getProposalDiscussion) // Ensure GET request works
   .post(protect, addDiscussionMessage); // Add the POST request route
 router.route('/:id/proposal/:proposalId/discussion/:messageId')
-  .post(protect, updateDiscussionMessage)
+  .put(protect, updateDiscussionMessage)
   .delete(protect, deleteDiscussionMessage);
 router.route('/edit/:id').post(protect, updateDecisionRoom);
 

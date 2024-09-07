@@ -37,27 +37,29 @@ const DecisionRoomDiscussion = () => {
       const endpoint = editMessageId
         ? `/decisions/${id}/proposal/${proposalId}/discussion/${editMessageId}`
         : `/decisions/${id}/proposal/${proposalId}/discussion`;
-
-      const { data } = await api.post(endpoint, {
+  
+      const method = editMessageId ? 'put' : 'post'; // Use PUT for editing, POST for adding
+  
+      const { data } = await api[method](endpoint, {
         messageText: newMessage,
         parent: parentMessageId,
       });
-
+  
       setNewMessage('');
       setEditMessageId(null);
       setParentMessageId(null);
       toast.success('Message added/updated successfully');
       setDiscussion(data);
     } catch (error) {
-      toast.error('Failed to add message');
+      toast.error('Failed to add/update message');
     }
-  };
+  };  
 
   const handleEditMessage = (message) => {
     setNewMessage(message.messageText);
-    setEditMessageId(message._id);
+    setEditMessageId(message._id);  // Ensure this ID is valid
     setParentMessageId(message.parent || null);
-  };
+  };  
 
   const handleDeleteMessage = async (messageId) => {
     Swal.fire({
