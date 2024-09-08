@@ -53,39 +53,43 @@ const WellnessDashboard = () => {
     const fetchMetrics = async () => {
       try {
         const { data } = await api.get("/wellness/metrics");
+        console.log("Fetched metrics:", data); // Debugging log
         setBurnoutRisk(data.burnoutRisk || 0);
         setStressLevels(data.stressLevels || []);
         setAnonymousFeedback(data.anonymousFeedback || []);
         setRecommendations(data.recommendations || []);
       } catch (error) {
-        console.error("Failed to fetch wellness metrics", error);
+        console.error("Failed to fetch wellness metrics", error); // Error log
       }
     };
 
     const fetchSurveys = async () => {
       try {
         const { data } = await api.get("/wellness/all-surveys");
+        console.log("Fetched surveys:", data); // Debugging log
         setSurveys(data);
       } catch (error) {
-        console.error("Failed to fetch surveys", error);
+        console.error("Failed to fetch surveys", error); // Error log
       }
     };
 
     const fetchUserFeedback = async () => {
       try {
         const { data } = await api.get(`/wellness/user-feedback/${user._id}`);
+        console.log("Fetched user feedback:", data); // Debugging log
         setUserFeedback(data);
       } catch (error) {
-        console.error("Failed to fetch user feedback", error);
+        console.error("Failed to fetch user feedback", error); // Error log
       }
     };
 
     const fetchNonAnonymousFeedback = async () => {
       try {
         const { data } = await api.get("/wellness/non-anonymous-feedback");
+        console.log("Fetched non-anonymous feedback:", data); // Debugging log
         setNonAnonymousFeedback(data);
       } catch (error) {
-        console.error("Failed to fetch non-anonymous feedback", error);
+        console.error("Failed to fetch non-anonymous feedback", error); // Error log
       }
     };
 
@@ -100,32 +104,32 @@ const WellnessDashboard = () => {
 
   // Safeguard for missing employeeId or feedback responses
   const renderFeedbackItem = (feedback, surveyTitle, feedbackDate) => {
-    if (!feedback._id) {
-      console.error("Feedback ID is missing for feedback:", feedback);
+    if (!feedback || !feedback._id) {
+      console.error("Feedback ID is missing or feedback is invalid:", feedback); // Error log for missing _id
       return null;
     }
-
+  
     const employeeName = feedback.anonymous
       ? "Anonymous"
-      : feedback.employeeId
+      : feedback.employeeId && feedback.employeeId.name
       ? feedback.employeeId.name
       : "Unknown Employee";
-
+  
     const validDate = feedbackDate
       ? new Date(feedbackDate).toLocaleString()
       : "Invalid Date";
-
+  
     // Render individual feedback responses
     const feedbackResponses = feedback.feedback
       .map((fb) => {
-        // Ensure you're extracting the specific response value
         if (typeof fb.response === "object") {
-          return JSON.stringify(fb.response); // If the response is an array or object, stringify it
+          // If the response is an object or array, convert it to a string for display
+          return JSON.stringify(fb.response);
         }
         return fb.response;
       })
       .join(", ");
-
+  
     return (
       <li
         key={feedback._id}
@@ -135,8 +139,7 @@ const WellnessDashboard = () => {
           <strong>Feedback from: {employeeName}</strong>
           <p>Survey: {surveyTitle || "Unknown Survey"}</p>
           <p>Submitted on: {validDate}</p>
-          <p>Feedback: {feedbackResponses}</p>{" "}
-          {/* Display feedback responses */}
+          <p>Feedback: {feedbackResponses}</p> {/* Display feedback responses */}
         </div>
         <button
           className="bg-blue-500 text-white px-4 py-2 rounded"
@@ -146,7 +149,7 @@ const WellnessDashboard = () => {
         </button>
       </li>
     );
-  };
+  };  
 
   // Handle survey deletion
   const handleDeleteSurvey = async (surveyId) => {
@@ -167,6 +170,7 @@ const WellnessDashboard = () => {
         Swal.fire("Deleted!", "The survey has been deleted.", "success");
       } catch (error) {
         Swal.fire("Error!", "Failed to delete the survey.", "error");
+        console.error("Error deleting survey:", error); // Error log for deletion
       }
     }
   };
@@ -207,9 +211,7 @@ const WellnessDashboard = () => {
             <>
               <div className="flex justify-between items-center mb-4">
                 <div>
-                  <h2 className="text-xl font-semibold">
-                    Management Dashboard
-                  </h2>
+                  <h2 className="text-xl font-semibold">Management Dashboard</h2>
                 </div>
                 <div>
                   <button
@@ -243,17 +245,11 @@ const WellnessDashboard = () => {
 
               {/* Anonymous Feedback Section */}
               <div className="mb-6">
-                <h2 className="text-xl font-semibold mb-4">
-                  Anonymous Feedback
-                </h2>
+                <h2 className="text-xl font-semibold mb-4">Anonymous Feedback</h2>
                 <ul className="space-y-4 bg-gray-100 p-4 rounded-lg">
                   {anonymousFeedback.length ? (
                     anonymousFeedback.map((feedback) =>
-                      renderFeedbackItem(
-                        feedback,
-                        feedback.surveyTitle,
-                        feedback.createdAt
-                      )
+                      renderFeedbackItem(feedback, feedback.surveyTitle, feedback.createdAt)
                     )
                   ) : (
                     <li>No anonymous feedback available</li>
@@ -263,17 +259,11 @@ const WellnessDashboard = () => {
 
               {/* Non-Anonymous Feedback Section */}
               <div className="mb-6">
-                <h2 className="text-xl font-semibold mb-4">
-                  Non-Anonymous Feedback
-                </h2>
+                <h2 className="text-xl font-semibold mb-4">Non-Anonymous Feedback</h2>
                 <ul className="space-y-4 bg-gray-100 p-4 rounded-lg">
                   {nonAnonymousFeedback.length ? (
                     nonAnonymousFeedback.map((feedback) =>
-                      renderFeedbackItem(
-                        feedback,
-                        feedback.surveyTitle,
-                        feedback.createdAt
-                      )
+                      renderFeedbackItem(feedback, feedback.surveyTitle, feedback.createdAt)
                     )
                   ) : (
                     <li>No non-anonymous feedback available</li>
@@ -292,18 +282,13 @@ const WellnessDashboard = () => {
                       >
                         <div>
                           <h3 className="text-xl font-bold">{survey.title}</h3>
-                          <p>
-                            Created At:{" "}
-                            {new Date(survey.createdAt).toLocaleString()}
-                          </p>
+                          <p>Created At: {new Date(survey.createdAt).toLocaleString()}</p>
                           <p>{survey.surveyQuestions.length} Questions</p>
                         </div>
                         <div className="flex space-x-4">
                           <button
                             className="text-blue-500 flex items-center"
-                            onClick={() =>
-                              navigate(`/wellness/edit-survey/${survey._id}`)
-                            }
+                            onClick={() => navigate(`/wellness/edit-survey/${survey._id}`)}
                           >
                             <FaEdit className="mr-2" /> Edit
                           </button>
@@ -326,11 +311,7 @@ const WellnessDashboard = () => {
           )}
 
           {/* Employee-specific features */}
-          {[
-            "Employee",
-            "Customer Support Specialist",
-            "Research Scientist",
-          ].includes(user.role) && (
+          {["Employee", "Customer Support Specialist", "Research Scientist"].includes(user.role) && (
             <>
               <div className="flex justify-between items-center mb-4">
                 <h2 className="text-xl font-semibold">Your Wellness</h2>
@@ -344,22 +325,17 @@ const WellnessDashboard = () => {
 
               {/* User Feedback Section */}
               <div className="bg-gray-100 p-4 rounded-lg mb-6">
-                <h2 className="text-xl font-semibold mb-4">
-                  Your Previous Feedback
-                </h2>
+                <h2 className="text-xl font-semibold mb-4">Your Previous Feedback</h2>
                 <ul className="space-y-2">
                   {userFeedback.length ? (
                     userFeedback.map((feedback) => (
-                      <li
-                        key={feedback._id}
-                        className="p-2 bg-white shadow rounded"
-                      >
+                      <li key={feedback._id} className="p-2 bg-white shadow rounded">
                         {/* Display each feedback response */}
                         {feedback.feedback
                           .map((fb, fbIndex) => (
                             <span key={fbIndex}>
                               {typeof fb.response === "object"
-                                ? JSON.stringify(fb.response)
+                                ? JSON.stringify(fb.response) // Handling object/array feedback
                                 : fb.response}
                             </span>
                           ))
@@ -373,16 +349,11 @@ const WellnessDashboard = () => {
               </div>
 
               <div className="bg-gray-100 p-4 rounded-lg mb-6">
-                <h2 className="text-xl font-semibold mb-4">
-                  Personalized Recommendations
-                </h2>
+                <h2 className="text-xl font-semibold mb-4">Personalized Recommendations</h2>
                 <ul className="space-y-2">
                   {recommendations.length ? (
                     recommendations.map((recommendation) => (
-                      <li
-                        key={recommendation._id}
-                        className="p-2 bg-white shadow rounded"
-                      >
+                      <li key={recommendation._id} className="p-2 bg-white shadow rounded">
                         {recommendation.text}
                       </li>
                     ))

@@ -86,17 +86,19 @@ const submitFeedback = asyncHandler(async (req, res) => {
 
   const feedbackData = {
     employeeId: anonymous ? null : req.user._id,
-    feedback,
+    feedback: feedback.map((fb) => ({
+      ...fb,
+      _id: new mongoose.Types.ObjectId(), // Ensure each feedback item has a unique _id
+    })),
     anonymous,
   };
 
   console.log('Adding feedback to survey:', surveyId); // Debugging log
-  // Ensure feedback gets an _id automatically
   survey.feedback.push(feedbackData);
   await survey.save();
 
   console.log('Feedback submitted successfully'); // Success log
-  res.status(201).json({ message: 'Feedback submitted successfully' });
+  res.status(201).json({ message: 'Feedback submitted successfully', feedbackId: feedbackData._id });
 });
 
 // Fetch feedback details by feedbackId
@@ -170,12 +172,22 @@ const getAnonymousFeedback = asyncHandler(async (req, res) => {
 // Fetch feedback for a specific user
 const getUserFeedback = asyncHandler(async (req, res) => {
     const userId = req.params.userId;
+  
+    console.log('Fetching user feedback for user:', userId); // Debugging log
+  
+    // Fetch all feedback for the user where the employeeId matches the userId
     const feedbacks = await WellnessSurvey.find({ 'feedback.employeeId': userId })
-        .select('feedback')
-        .populate('feedback.employeeId', 'name role');
-
+      .select('feedback surveyQuestions createdAt title')
+      .populate('feedback.employeeId', 'name role');
+  
+    console.log('User feedback fetched:', feedbacks); // Debugging log
+  
+    if (!feedbacks.length) {
+      return res.status(404).json({ message: 'No feedback found for this user' });
+    }
+  
     res.status(200).json(feedbacks);
-});
+  });  
   
 // Fetch all non-anonymous feedback for management
 const getNonAnonymousFeedback = asyncHandler(async (req, res) => {

@@ -17,11 +17,11 @@ const SubmitFeedback = () => {
     const fetchSurveys = async () => {
       try {
         const { data } = await api.get("/wellness/all-surveys");
-        console.log('Fetched surveys:', data); // Debugging log
+        console.log("Fetched surveys:", data); // Debugging log
         setSurveys(data);
       } catch (error) {
         toast.error("Failed to fetch surveys");
-        console.error('Error fetching surveys:', error); // Error log
+        console.error("Error fetching surveys:", error); // Error log
       }
     };
     fetchSurveys();
@@ -29,31 +29,34 @@ const SubmitFeedback = () => {
 
   // Handle feedback change for each question
   const handleFeedbackChange = (questionId, value) => {
-    console.log('Handling feedback change:', { questionId, value }); // Debugging log
+    console.log("Handling feedback change:", { questionId, value }); // Debugging log
     setFeedback({ ...feedback, [questionId]: value });
   };
 
   // Submit feedback
   const handleSubmit = async (e) => {
     e.preventDefault();
-    console.log('Submitting feedback:', { selectedSurvey, feedback, isAnonymous }); // Debugging log
+    console.log("Submitting feedback:", { selectedSurvey, feedback, isAnonymous }); // Debugging log
 
     const feedbackArray = Object.entries(feedback).map(([questionId, response]) => ({
       questionId,
       response,
     }));
 
+    console.log("Feedback array to be submitted:", feedbackArray); // Debugging log
+
     try {
-      await api.post("/wellness/submit-feedback", {
+      const { data } = await api.post("/wellness/submit-feedback", {
         surveyId: selectedSurvey,
         feedback: feedbackArray,
         isAnonymous,
       });
+      console.log("Feedback submission response:", data); // Debugging log for submission response
       toast.success("Feedback submitted successfully");
       navigate("/wellness-dashboard");
     } catch (error) {
       toast.error("Failed to submit feedback");
-      console.error('Error submitting feedback:', error); // Error log
+      console.error("Error submitting feedback:", error); // Error log
     }
   };
 
