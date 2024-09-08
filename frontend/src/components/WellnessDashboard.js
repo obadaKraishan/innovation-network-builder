@@ -3,8 +3,9 @@ import { useNavigate } from 'react-router-dom'; // Import useNavigate
 import Sidebar from './Sidebar'; // Import Sidebar
 import api from '../utils/api';
 import { Line } from 'react-chartjs-2';
-import { FaHeartbeat, FaChartLine, FaSearch, FaPlusSquare } from 'react-icons/fa';
+import { FaHeartbeat, FaChartLine, FaSearch, FaPlusSquare, FaEdit, FaTrashAlt } from 'react-icons/fa';
 import AuthContext from '../context/AuthContext';
+import Swal from 'sweetalert2';
 
 // Import chart.js and necessary components
 import {
@@ -37,6 +38,7 @@ const WellnessDashboard = () => {
   const [anonymousFeedback, setAnonymousFeedback] = useState([]);
   const [recommendations, setRecommendations] = useState([]);
   const [searchTerm, setSearchTerm] = useState('');
+  const [surveys, setSurveys] = useState([]); // Surveys for higher roles
 
   const navigate = useNavigate(); // Initialize useNavigate for navigation
 
@@ -52,13 +54,46 @@ const WellnessDashboard = () => {
         console.error('Failed to fetch wellness metrics', error);
       }
     };
-    
-    // Fetch metrics only when user is available
+
+    const fetchSurveys = async () => {
+      try {
+        const { data } = await api.get('/wellness/all-surveys');
+        setSurveys(data);
+      } catch (error) {
+        console.error('Failed to fetch surveys', error);
+      }
+    };
+
+    // Fetch metrics and surveys only when user is available
     if (user) {
       fetchMetrics();
+      fetchSurveys();
       setLoading(false);
     }
   }, [user]);
+
+  // Handle survey deletion
+  const handleDeleteSurvey = async (surveyId) => {
+    const result = await Swal.fire({
+      title: 'Are you sure?',
+      text: "Do you really want to delete this survey?",
+      icon: 'warning',
+      showCancelButton: true,
+      confirmButtonColor: '#d33',
+      cancelButtonColor: '#3085d6',
+      confirmButtonText: 'Yes, delete it!'
+    });
+
+    if (result.isConfirmed) {
+      try {
+        await api.delete(`/wellness/surveys/${surveyId}`);
+        setSurveys(surveys.filter((survey) => survey._id !== surveyId));
+        Swal.fire('Deleted!', 'The survey has been deleted.', 'success');
+      } catch (error) {
+        Swal.fire('Error!', 'Failed to delete the survey.', 'error');
+      }
+    }
+  };
 
   // If loading, show a loading message
   if (loading || !user) {
@@ -137,6 +172,39 @@ const WellnessDashboard = () => {
                     ))
                   ) : (
                     <li>No feedback available</li>
+                  )}
+                </ul>
+              </div>
+
+              <div className="mb-6">
+                <h2 className="text-xl font-semibold mb-4">All Surveys</h2>
+                <ul className="space-y-4 bg-gray-100 p-4 rounded-lg">
+                  {surveys.length ? (
+                    surveys.map((survey) => (
+                      <li key={survey._id} className="p-4 bg-white shadow rounded-lg flex justify-between items-center">
+                        <div>
+                          <h3 className="text-xl font-bold">{survey.title}</h3>
+                          <p>Created At: {new Date(survey.createdAt).toLocaleString()}</p>
+                          <p>{survey.surveyQuestions.length} Questions</p>
+                        </div>
+                        <div className="flex space-x-4">
+                          <button
+                            className="text-blue-500 flex items-center"
+                            onClick={() => navigate(`/wellness/edit-survey/${survey._id}`)}
+                          >
+                            <FaEdit className="mr-2" /> Edit
+                          </button>
+                          <button
+                            className="text-red-500 flex items-center"
+                            onClick={() => handleDeleteSurvey(survey._id)}
+                          >
+                            <FaTrashAlt className="mr-2" /> Delete
+                          </button>
+                        </div>
+                      </li>
+                    ))
+                  ) : (
+                    <li>No surveys available</li>
                   )}
                 </ul>
               </div>

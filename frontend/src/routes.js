@@ -47,9 +47,9 @@ import CreateSurvey from './components/CreateSurvey';
 import SubmitFeedback from './components/SubmitFeedback';
 import WellnessResources from './components/WellnessResources';
 import PersonalizedRecommendations from './components/PersonalizedRecommendations';
+import EditWellnessSurvey from './components/EditWellnessSurvey'; // New Edit Component
 
 const AppRoutes = () => {
-
   return (
       <AuthProvider>
         <Routes>
@@ -97,6 +97,7 @@ const AppRoutes = () => {
           <Route path="/wellness/submit-feedback" element={<SubmitFeedback />} />
           <Route path="/wellness/resources" element={<WellnessResources />} />
           <Route path="/wellness/recommendations" element={<PersonalizedRecommendations />} />
+          <Route path="/wellness/edit-survey/:id" element={<EditWellnessSurvey />} /> {/* Edit Survey Route */}
 
           {/* Default redirect to login */}
           <Route path="/" element={<Navigate to="/login" />} />
