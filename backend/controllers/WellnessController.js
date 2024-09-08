@@ -3,11 +3,12 @@ const WellnessSurvey = require('../models/WellnessModel');
 
 // Create a wellness survey
 const createSurvey = asyncHandler(async (req, res) => {
-  const { surveyQuestions, isAnonymous } = req.body;
+  const { title, questions, isAnonymous } = req.body;
 
   const newSurvey = await WellnessSurvey.create({
     createdBy: req.user._id,
-    surveyQuestions,
+    title,
+    surveyQuestions: questions, // Advanced questions with types and options
     isAnonymous,
   });
 

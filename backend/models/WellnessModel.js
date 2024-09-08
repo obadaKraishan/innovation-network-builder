@@ -1,5 +1,15 @@
 const mongoose = require('mongoose');
 
+const questionSchema = new mongoose.Schema({
+  label: { type: String, required: true }, // The text of the question
+  type: { 
+    type: String, 
+    enum: ['text', 'radio', 'checkbox', 'select', 'date'], 
+    required: true 
+  }, // Question type
+  options: [String], // Options for radio, checkbox, and select types
+});
+
 const feedbackSchema = new mongoose.Schema({
   employeeId: {
     type: mongoose.Schema.Types.ObjectId,
@@ -25,16 +35,14 @@ const feedbackSchema = new mongoose.Schema({
 });
 
 const wellnessSchema = new mongoose.Schema({
-  surveyQuestions: {
-    type: [String],
-    required: true,
-  },
+  title: { type: String, required: true }, // Survey title
+  surveyQuestions: [questionSchema], // Array of advanced questions
   createdBy: {
     type: mongoose.Schema.Types.ObjectId,
     ref: 'User',
     required: true,
   },
-  feedback: [feedbackSchema],
+  feedback: [feedbackSchema], // Array of feedback responses
   isAnonymous: {
     type: Boolean,
     default: false,
