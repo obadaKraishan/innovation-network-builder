@@ -1,6 +1,6 @@
 import React, { useContext } from 'react';
 import { Link, useLocation } from 'react-router-dom';
-import { FaUser, FaSignOutAlt, FaTachometerAlt, FaUsers, FaChartLine, FaBuilding, FaCogs, FaUserShield, FaEnvelope, FaCalendarAlt, FaLayerGroup, FaPlusSquare, FaVoteYea } from 'react-icons/fa'; 
+import { FaUser, FaSignOutAlt, FaTachometerAlt, FaUsers, FaChartLine, FaBuilding, FaCogs, FaUserShield, FaEnvelope, FaCalendarAlt, FaLayerGroup, FaPlusSquare, FaVoteYea, FaHeartbeat } from 'react-icons/fa'; 
 import AuthContext from '../context/AuthContext';
 
 const Sidebar = () => {
@@ -20,6 +20,7 @@ const Sidebar = () => {
       { name: 'My Meetings', icon: <FaCalendarAlt />, path: '/meeting-booking' },
       { name: 'Messages', icon: <FaEnvelope />, path: '/messages' },
       { name: 'Collaborator Finder', icon: <FaCogs />, path: '/collaborator-finder' },
+      { name: 'Wellness System', icon: <FaHeartbeat />, path: '/wellness-dashboard' },  // Wellness dashboard for employees
     ],
     'Team Leader': [
       { name: 'Profile', icon: <FaUser />, path: '/profile' },
@@ -31,6 +32,7 @@ const Sidebar = () => {
       { name: 'My Meetings', icon: <FaCalendarAlt />, path: '/meeting-booking' },
       { name: 'Messages', icon: <FaEnvelope />, path: '/messages' },
       { name: 'Collaborator Finder', icon: <FaCogs />, path: '/collaborator-finder' },
+      { name: 'Wellness System', icon: <FaHeartbeat />, path: '/wellness-dashboard' },  // Wellness dashboard for Team Leaders
     ],
     'Department Manager': [
       { name: 'Profile', icon: <FaUser />, path: '/profile' },
@@ -41,6 +43,7 @@ const Sidebar = () => {
       { name: 'My Meetings', icon: <FaCalendarAlt />, path: '/meeting-booking' },
       { name: 'Messages', icon: <FaEnvelope />, path: '/messages' },
       { name: 'Collaborator Finder', icon: <FaCogs />, path: '/collaborator-finder' },
+      { name: 'Wellness System', icon: <FaHeartbeat />, path: '/wellness-dashboard' },
     ],
     CEO: [
       { name: 'Profile', icon: <FaUser />, path: '/profile' },
@@ -53,6 +56,7 @@ const Sidebar = () => {
       { name: 'My Meetings', icon: <FaCalendarAlt />, path: '/meeting-booking' },
       { name: 'Messages', icon: <FaEnvelope />, path: '/messages' },
       { name: 'Collaborator Finder', icon: <FaCogs />, path: '/collaborator-finder' },
+      { name: 'Wellness System', icon: <FaHeartbeat />, path: '/wellness-dashboard' },
     ],
     CTO: [
       { name: 'Profile', icon: <FaUser />, path: '/profile' },
@@ -63,6 +67,7 @@ const Sidebar = () => {
       { name: 'My Meetings', icon: <FaCalendarAlt />, path: '/meeting-booking' },
       { name: 'Messages', icon: <FaEnvelope />, path: '/messages' },
       { name: 'Collaborator Finder', icon: <FaCogs />, path: '/collaborator-finder' },
+      { name: 'Wellness System', icon: <FaHeartbeat />, path: '/wellness-dashboard' },
     ],
     'Director of HR': [
       { name: 'Profile', icon: <FaUser />, path: '/profile' },
@@ -74,6 +79,7 @@ const Sidebar = () => {
       { name: 'My Meetings', icon: <FaCalendarAlt />, path: '/meeting-booking' },
       { name: 'Messages', icon: <FaEnvelope />, path: '/messages' },
       { name: 'Collaborator Finder', icon: <FaCogs />, path: '/collaborator-finder' },
+      { name: 'Wellness System', icon: <FaHeartbeat />, path: '/wellness-dashboard' },
     ],
     'Director of Finance': [
       { name: 'Profile', icon: <FaUser />, path: '/profile' },
@@ -84,6 +90,7 @@ const Sidebar = () => {
       { name: 'My Meetings', icon: <FaCalendarAlt />, path: '/meeting-booking' },
       { name: 'Messages', icon: <FaEnvelope />, path: '/messages' },
       { name: 'Collaborator Finder', icon: <FaCogs />, path: '/collaborator-finder' },
+      { name: 'Wellness System', icon: <FaHeartbeat />, path: '/wellness-dashboard' },
     ],
     'Research Scientist': [
       { name: 'Profile', icon: <FaUser />, path: '/profile' },
@@ -93,6 +100,7 @@ const Sidebar = () => {
       { name: 'My Meetings', icon: <FaCalendarAlt />, path: '/meeting-booking' },
       { name: 'Messages', icon: <FaEnvelope />, path: '/messages' },
       { name: 'Collaborator Finder', icon: <FaCogs />, path: '/collaborator-finder' },
+      { name: 'Wellness System', icon: <FaHeartbeat />, path: '/wellness-dashboard' },
     ],
     'Customer Support Specialist': [
       { name: 'Profile', icon: <FaUser />, path: '/profile' },
@@ -102,6 +110,7 @@ const Sidebar = () => {
       { name: 'My Meetings', icon: <FaCalendarAlt />, path: '/meeting-booking' },
       { name: 'Messages', icon: <FaEnvelope />, path: '/messages' },
       { name: 'Collaborator Finder', icon: <FaCogs />, path: '/collaborator-finder' },
+      { name: 'Wellness System', icon: <FaHeartbeat />, path: '/wellness-dashboard' },
     ],
   };
 

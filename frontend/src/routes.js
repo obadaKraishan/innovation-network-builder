@@ -41,6 +41,13 @@ import VotingSection from './components/VotingSection';
 import EditDecisionRoom from './components/EditDecisionRoom';
 import DecisionRoomDiscussion from './components/DecisionRoomDiscussion';
 
+// Wellness Components
+import WellnessDashboard from './components/WellnessDashboard';
+import CreateSurvey from './components/CreateSurvey';
+import SubmitFeedback from './components/SubmitFeedback';
+import WellnessResources from './components/WellnessResources';
+import PersonalizedRecommendations from './components/PersonalizedRecommendations';
+
 const AppRoutes = () => {
 
   return (
@@ -83,6 +90,13 @@ const AppRoutes = () => {
           <Route path="/decision-rooms/:id/proposal/:proposalId/vote" element={<VotingSection />} />
           <Route path="/decision-rooms/:id/proposal/:proposalId/discussion" element={<DecisionRoomDiscussion />} />
           <Route path="/edit-decision-room/:id" element={<EditDecisionRoom />} />
+
+          {/* Wellness Routes */}
+          <Route path="/wellness-dashboard" element={<WellnessDashboard />} />
+          <Route path="/wellness/create-survey" element={<CreateSurvey />} />
+          <Route path="/wellness/submit-feedback" element={<SubmitFeedback />} />
+          <Route path="/wellness/resources" element={<WellnessResources />} />
+          <Route path="/wellness/recommendations" element={<PersonalizedRecommendations />} />
 
           {/* Default redirect to login */}
           <Route path="/" element={<Navigate to="/login" />} />
