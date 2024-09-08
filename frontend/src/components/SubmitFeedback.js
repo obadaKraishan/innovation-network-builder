@@ -1,4 +1,5 @@
 import React, { useEffect, useState } from "react";
+import { useNavigate } from "react-router-dom"; // Import useNavigate
 import Sidebar from "./Sidebar";
 import api from "../utils/api";
 import { toast } from "react-toastify";
@@ -8,6 +9,7 @@ const SubmitFeedback = () => {
   const [selectedSurvey, setSelectedSurvey] = useState(null);
   const [feedback, setFeedback] = useState({});
   const [isAnonymous, setIsAnonymous] = useState(false);
+  const navigate = useNavigate(); // Initialize navigate
 
   useEffect(() => {
     const fetchSurveys = async () => {
@@ -41,6 +43,7 @@ const SubmitFeedback = () => {
         isAnonymous,
       });
       toast.success("Feedback submitted successfully");
+      navigate("/wellness-dashboard"); // Redirect to the Wellness Dashboard
     } catch (error) {
       toast.error("Failed to submit feedback");
     }
@@ -50,6 +53,14 @@ const SubmitFeedback = () => {
     <div className="flex h-screen">
       <Sidebar /> {/* Add Sidebar */}
       <div className="flex-1 p-6 bg-gray-100 overflow-y-auto">
+        {/* Back Button */}
+        <button
+          onClick={() => navigate(-1)} // Go back to the previous page
+          className="mb-4 bg-blue-500 text-white py-2 px-4 rounded inline-flex items-center hover:bg-blue-600 transition"
+        >
+          <span className="mr-2">←</span> Back
+        </button>
+        
         <div className="p-6 bg-white shadow rounded-lg">
           <h1 className="text-2xl font-bold mb-4">Submit Wellness Feedback</h1>
           <form onSubmit={handleSubmit}>
