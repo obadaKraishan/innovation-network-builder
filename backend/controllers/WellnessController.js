@@ -1,3 +1,4 @@
+const mongoose = require('mongoose');
 const asyncHandler = require('express-async-handler');
 const WellnessSurvey = require('../models/WellnessModel');
 
@@ -22,8 +23,15 @@ const getAllSurveys = asyncHandler(async (req, res) => {
   });
   
   // Fetch a single survey by ID
-  const getSurveyById = asyncHandler(async (req, res) => {
-    const survey = await WellnessSurvey.findById(req.params.surveyId);
+const getSurveyById = asyncHandler(async (req, res) => {
+    const surveyId = req.params.surveyId;
+  
+    // Validate if surveyId is a valid ObjectId
+    if (!mongoose.Types.ObjectId.isValid(surveyId)) {
+      return res.status(400).json({ message: 'Invalid survey ID' });
+    }
+  
+    const survey = await WellnessSurvey.findById(surveyId);
     if (!survey) {
       res.status(404);
       throw new Error('Survey not found');

@@ -188,12 +188,13 @@ const WellnessDashboard = () => {
                           <p>{survey.surveyQuestions.length} Questions</p>
                         </div>
                         <div className="flex space-x-4">
-                          <button
+                        <button
                             className="text-blue-500 flex items-center"
-                            onClick={() => navigate(`/wellness/edit-survey/${survey._id}`)}
-                          >
+                            onClick={() => navigate(`/wellness/edit-survey/${survey._id}`)}  // Ensure survey._id is passed here
+                            >
                             <FaEdit className="mr-2" /> Edit
-                          </button>
+                        </button>
+
                           <button
                             className="text-red-500 flex items-center"
                             onClick={() => handleDeleteSurvey(survey._id)}

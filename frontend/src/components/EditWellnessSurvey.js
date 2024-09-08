@@ -17,7 +17,8 @@ const questionTypes = [
 ];
 
 const EditWellnessSurvey = () => {
-  const { surveyId } = useParams();
+    const { surveyId } = useParams();
+    console.log(surveyId);  // Check if this prints a valid survey ID    
   const { register, control, handleSubmit, reset } = useForm();
   const [questions, setQuestions] = useState([]);
   const [isAnonymous, setIsAnonymous] = useState(false);

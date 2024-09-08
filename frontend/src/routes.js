@@ -97,7 +97,7 @@ const AppRoutes = () => {
           <Route path="/wellness/submit-feedback" element={<SubmitFeedback />} />
           <Route path="/wellness/resources" element={<WellnessResources />} />
           <Route path="/wellness/recommendations" element={<PersonalizedRecommendations />} />
-          <Route path="/wellness/edit-survey/:id" element={<EditWellnessSurvey />} /> {/* Edit Survey Route */}
+          <Route path="/wellness/edit-survey/:surveyId" element={<EditWellnessSurvey />} /> {/* Edit Survey Route */}
 
           {/* Default redirect to login */}
           <Route path="/" element={<Navigate to="/login" />} />
