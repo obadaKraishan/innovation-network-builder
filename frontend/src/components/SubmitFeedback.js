@@ -12,7 +12,7 @@ const SubmitFeedback = () => {
   useEffect(() => {
     const fetchSurveys = async () => {
       try {
-        const { data } = await api.get('/wellness/surveys');
+        const { data } = await api.get('/wellness/all-surveys');
         setSurveys(data);
       } catch (error) {
         toast.error('Failed to fetch surveys');
@@ -41,17 +41,17 @@ const SubmitFeedback = () => {
             <div className="mb-4">
               <label className="block text-gray-700">Select Survey</label>
               <select
-                value={selectedSurvey}
-                onChange={(e) => setSelectedSurvey(e.target.value)}
-                className="w-full p-3 border border-gray-300 rounded"
-              >
-                <option value="">Select a survey...</option>
-                {surveys.map((survey) => (
-                  <option key={survey._id} value={survey._id}>
-                    {survey.title}
-                  </option>
-                ))}
-              </select>
+                    value={selectedSurvey || ""}  // Use an empty string instead of null
+                    onChange={(e) => setSelectedSurvey(e.target.value)}
+                    className="w-full p-3 border border-gray-300 rounded"
+                    >
+                    <option value="">Select a survey...</option>
+                    {surveys.map((survey) => (
+                        <option key={survey._id} value={survey._id}>
+                        {survey.title}
+                        </option>
+                    ))}
+                </select>
             </div>
             {selectedSurvey && (
               <>
