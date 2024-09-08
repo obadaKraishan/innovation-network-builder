@@ -1,8 +1,9 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useState, useContext } from 'react';
 import Sidebar from './Sidebar'; // Import Sidebar
 import api from '../utils/api';
 import { Line } from 'react-chartjs-2';
-import { FaHeartbeat, FaChartLine } from 'react-icons/fa';
+import { FaHeartbeat, FaChartLine, FaSearch, FaPlusSquare } from 'react-icons/fa';
+import AuthContext from '../context/AuthContext';
 
 // Import chart.js and necessary components
 import {
@@ -28,10 +29,12 @@ ChartJS.register(
 );
 
 const WellnessDashboard = () => {
+  const { user } = useContext(AuthContext); // Get user context to determine role
   const [burnoutRisk, setBurnoutRisk] = useState(0);
   const [stressLevels, setStressLevels] = useState([]);
   const [anonymousFeedback, setAnonymousFeedback] = useState([]);
   const [recommendations, setRecommendations] = useState([]);
+  const [searchTerm, setSearchTerm] = useState('');
 
   useEffect(() => {
     const fetchMetrics = async () => {
@@ -47,6 +50,11 @@ const WellnessDashboard = () => {
     };
     fetchMetrics();
   }, []);
+
+  // Filtered anonymous feedback based on search term
+  const filteredFeedback = anonymousFeedback.filter((feedback) =>
+    feedback.text.toLowerCase().includes(searchTerm.toLowerCase())
+  );
 
   const stressChartData = {
     labels: stressLevels.length ? stressLevels.map((level) => level.date) : [],
@@ -66,40 +74,84 @@ const WellnessDashboard = () => {
       <div className="flex-1 p-6 bg-gray-100 overflow-y-auto">
         <div className="p-6 bg-white shadow rounded-lg">
           <h1 className="text-2xl font-bold mb-4">Wellness Dashboard</h1>
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6">
-            <div className="p-4 bg-red-500 text-white rounded-lg">
-              <FaHeartbeat size={24} />
-              <h2 className="text-xl font-semibold">Burnout Risk</h2>
-              <p className="text-4xl">{burnoutRisk}%</p>
-            </div>
-            <div className="p-4 bg-blue-500 text-white rounded-lg">
-              <FaChartLine size={24} />
-              <h2 className="text-xl font-semibold">Stress Levels</h2>
-              <Line data={stressChartData} />
-            </div>
-          </div>
 
-          <div className="mb-6">
-            <h2 className="text-xl font-semibold mb-4">Anonymous Feedback</h2>
-            <ul className="space-y-4 bg-gray-100 p-4 rounded-lg">
-              {anonymousFeedback.length ? anonymousFeedback.map((feedback, index) => (
-                <li key={index} className="p-2 bg-white shadow rounded">
-                  {feedback.text}
-                </li>
-              )) : <li>No feedback available</li>}
-            </ul>
-          </div>
+          {/* Management-specific features */}
+          {['CEO', 'CTO', 'Director', 'Department Manager', 'Team Leader'].includes(user.role) && (
+            <>
+              <div className="flex justify-between items-center mb-4">
+                <div>
+                  <h2 className="text-xl font-semibold">Management Dashboard</h2>
+                </div>
+                <div>
+                  <button className="bg-blue-500 text-white p-2 rounded-lg mr-2 flex items-center">
+                    <FaPlusSquare className="mr-2" /> Create Survey
+                  </button>
+                  <input
+                    type="text"
+                    placeholder="Search feedback..."
+                    value={searchTerm}
+                    onChange={(e) => setSearchTerm(e.target.value)}
+                    className="border p-2 rounded-lg"
+                  />
+                </div>
+              </div>
 
-          <div className="bg-gray-100 p-4 rounded-lg">
-            <h2 className="text-xl font-semibold mb-4">Personalized Recommendations</h2>
-            <ul className="space-y-2">
-              {recommendations.length ? recommendations.map((recommendation, index) => (
-                <li key={index} className="p-2 bg-white shadow rounded">
-                  {recommendation.text}
-                </li>
-              )) : <li>No recommendations available</li>}
-            </ul>
-          </div>
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6">
+                <div className="p-4 bg-red-500 text-white rounded-lg">
+                  <FaHeartbeat size={24} />
+                  <h2 className="text-xl font-semibold">Burnout Risk</h2>
+                  <p className="text-4xl">{burnoutRisk}%</p>
+                </div>
+                <div className="p-4 bg-blue-500 text-white rounded-lg">
+                  <FaChartLine size={24} />
+                  <h2 className="text-xl font-semibold">Stress Levels</h2>
+                  <Line data={stressChartData} />
+                </div>
+              </div>
+
+              <div className="mb-6">
+                <h2 className="text-xl font-semibold mb-4">Anonymous Feedback</h2>
+                <ul className="space-y-4 bg-gray-100 p-4 rounded-lg">
+                  {filteredFeedback.length ? (
+                    filteredFeedback.map((feedback, index) => (
+                      <li key={index} className="p-2 bg-white shadow rounded">
+                        {feedback.text}
+                      </li>
+                    ))
+                  ) : (
+                    <li>No feedback available</li>
+                  )}
+                </ul>
+              </div>
+            </>
+          )}
+
+          {/* Employee-specific features */}
+          {['Employee', 'Customer Support Specialist', 'Research Scientist'].includes(user.role) && (
+            <>
+              <div className="flex justify-between items-center mb-4">
+                <h2 className="text-xl font-semibold">Your Wellness</h2>
+                <button className="bg-green-500 text-white p-2 rounded-lg flex items-center">
+                  <FaPlusSquare className="mr-2" /> Submit Feedback
+                </button>
+              </div>
+
+              <div className="bg-gray-100 p-4 rounded-lg mb-6">
+                <h2 className="text-xl font-semibold mb-4">Personalized Recommendations</h2>
+                <ul className="space-y-2">
+                  {recommendations.length ? (
+                    recommendations.map((recommendation, index) => (
+                      <li key={index} className="p-2 bg-white shadow rounded">
+                        {recommendation.text}
+                      </li>
+                    ))
+                  ) : (
+                    <li>No recommendations available</li>
+                  )}
+                </ul>
+              </div>
+            </>
+          )}
         </div>
       </div>
     </div>
