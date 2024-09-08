@@ -3,7 +3,7 @@ import { useNavigate } from 'react-router-dom'; // Import useNavigate
 import Sidebar from './Sidebar';
 import api from '../utils/api';
 import { Line } from 'react-chartjs-2';
-import { FaHeartbeat, FaChartLine, FaSearch, FaPlusSquare, FaEdit, FaTrashAlt } from 'react-icons/fa';
+import { FaHeartbeat, FaChartLine, FaPlusSquare, FaEdit, FaTrashAlt } from 'react-icons/fa';
 import AuthContext from '../context/AuthContext';
 import Swal from 'sweetalert2';
 
@@ -58,13 +58,14 @@ const WellnessDashboard = () => {
     };
 
     const fetchSurveys = async () => {
-      try {
-        const { data } = await api.get('/wellness/all-surveys');
-        setSurveys(data);
-      } catch (error) {
-        console.error('Failed to fetch surveys', error);
-      }
-    };
+        try {
+           const { data } = await api.get('/wellness/all-surveys');
+           console.log("Surveys data:", data); // Log the data here
+           setSurveys(data);
+        } catch (error) {
+           console.error('Failed to fetch surveys', error);
+        }
+     };     
 
     const fetchUserFeedback = async () => {
       try {
@@ -201,7 +202,7 @@ const WellnessDashboard = () => {
                   {nonAnonymousFeedback.length ? (
                     nonAnonymousFeedback.map((feedback, index) => (
                       <li key={index} className="p-2 bg-white shadow rounded">
-                        <strong>{feedback.employeeName}</strong>: {feedback.text}
+                        <strong>{feedback.employeeId.name}</strong>: {feedback.feedback.map((fb) => fb.response).join(", ")}
                       </li>
                     ))
                   ) : (
@@ -266,7 +267,7 @@ const WellnessDashboard = () => {
                   {userFeedback.length ? (
                     userFeedback.map((feedback, index) => (
                       <li key={index} className="p-2 bg-white shadow rounded">
-                        {feedback.text}
+                        {feedback.feedback.map((fb) => fb.response).join(", ")}
                       </li>
                     ))
                   ) : (

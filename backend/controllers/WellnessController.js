@@ -115,11 +115,11 @@ const getUserFeedback = asyncHandler(async (req, res) => {
 // Fetch all non-anonymous feedback for management
 const getNonAnonymousFeedback = asyncHandler(async (req, res) => {
     const feedbacks = await WellnessSurvey.find({ 'feedback.anonymous': false })
-        .select('feedback')
-        .populate('feedback.employeeId', 'name role');
-
+       .select('feedback')
+       .populate('feedback.employeeId', 'name role');
+    console.log("Non-anonymous feedback:", feedbacks);
     res.status(200).json(feedbacks);
-});
+ }); 
 
 // Fetch wellness resources for employees
 const getWellnessResources = asyncHandler(async (req, res) => {
