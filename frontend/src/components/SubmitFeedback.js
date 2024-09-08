@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from "react";
-import Sidebar from "./Sidebar"; // Import Sidebar
+import Sidebar from "./Sidebar";
 import api from "../utils/api";
 import { toast } from "react-toastify";
 
@@ -21,16 +21,23 @@ const SubmitFeedback = () => {
     fetchSurveys();
   }, []);
 
-  const handleFeedbackChange = (index, value) => {
-    setFeedback({ ...feedback, [index]: value });
+  const handleFeedbackChange = (questionId, value) => {
+    setFeedback({ ...feedback, [questionId]: value });
   };
 
   const handleSubmit = async (e) => {
     e.preventDefault();
+
+    // Prepare the feedback array
+    const feedbackArray = Object.entries(feedback).map(([questionId, response]) => ({
+      questionId, // The question's ID
+      response,   // The user's response
+    }));
+
     try {
       await api.post("/wellness/submit-feedback", {
         surveyId: selectedSurvey,
-        feedback,
+        feedback: feedbackArray,
         isAnonymous,
       });
       toast.success("Feedback submitted successfully");
@@ -49,7 +56,7 @@ const SubmitFeedback = () => {
             <div className="mb-4">
               <label className="block text-gray-700">Select Survey</label>
               <select
-                value={selectedSurvey || ""} // Use an empty string instead of null
+                value={selectedSurvey || ""}
                 onChange={(e) => setSelectedSurvey(e.target.value)}
                 className="w-full p-3 border border-gray-300 rounded"
               >
@@ -74,13 +81,13 @@ const SubmitFeedback = () => {
                       {question.type === "text" && (
                         <input
                           type="text"
-                          value={feedback[index] || ""}
-                          onChange={(e) => handleFeedbackChange(index, e.target.value)}
+                          value={feedback[question._id] || ""}
+                          onChange={(e) => handleFeedbackChange(question._id, e.target.value)}
                           className="w-full p-3 border border-gray-300 rounded"
                         />
                       )}
 
-                      {question.type === "radio" && (
+                      {question.type === "radio" &&
                         question.options.map((option, i) => (
                           <div key={i}>
                             <label>
@@ -88,17 +95,16 @@ const SubmitFeedback = () => {
                                 type="radio"
                                 name={`question-${index}`}
                                 value={option}
-                                checked={feedback[index] === option}
-                                onChange={() => handleFeedbackChange(index, option)}
+                                checked={feedback[question._id] === option}
+                                onChange={() => handleFeedbackChange(question._id, option)}
                                 className="mr-2"
                               />
                               {option}
                             </label>
                           </div>
-                        ))
-                      )}
+                        ))}
 
-                      {question.type === "checkbox" && (
+                      {question.type === "checkbox" &&
                         question.options.map((option, i) => (
                           <div key={i}>
                             <label>
@@ -106,7 +112,7 @@ const SubmitFeedback = () => {
                                 type="checkbox"
                                 value={option}
                                 onChange={(e) => {
-                                  const newFeedback = feedback[index] || [];
+                                  const newFeedback = feedback[question._id] || [];
                                   if (e.target.checked) {
                                     newFeedback.push(option);
                                   } else {
@@ -115,20 +121,19 @@ const SubmitFeedback = () => {
                                       newFeedback.splice(optionIndex, 1);
                                     }
                                   }
-                                  handleFeedbackChange(index, newFeedback);
+                                  handleFeedbackChange(question._id, newFeedback);
                                 }}
                                 className="mr-2"
                               />
                               {option}
                             </label>
                           </div>
-                        ))
-                      )}
+                        ))}
 
                       {question.type === "select" && (
                         <select
-                          value={feedback[index] || ""}
-                          onChange={(e) => handleFeedbackChange(index, e.target.value)}
+                          value={feedback[question._id] || ""}
+                          onChange={(e) => handleFeedbackChange(question._id, e.target.value)}
                           className="w-full p-3 border border-gray-300 rounded"
                         >
                           <option value="">Select an option...</option>
@@ -143,8 +148,8 @@ const SubmitFeedback = () => {
                       {question.type === "date" && (
                         <input
                           type="date"
-                          value={feedback[index] || ""}
-                          onChange={(e) => handleFeedbackChange(index, e.target.value)}
+                          value={feedback[question._id] || ""}
+                          onChange={(e) => handleFeedbackChange(question._id, e.target.value)}
                           className="w-full p-3 border border-gray-300 rounded"
                         />
                       )}
