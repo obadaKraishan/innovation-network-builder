@@ -1,6 +1,7 @@
 const mongoose = require('mongoose');
 const asyncHandler = require('express-async-handler');
 const WellnessSurvey = require('../models/WellnessModel');
+const WellnessFeedback = require('../models/WellnessFeedbackModel');
 
 // Create a wellness survey
 const createSurvey = asyncHandler(async (req, res) => {
@@ -72,34 +73,34 @@ const getSurveyById = asyncHandler(async (req, res) => {
 
 // Submit feedback for a wellness survey
 const submitFeedback = asyncHandler(async (req, res) => {
-  const { surveyId, feedback, anonymous } = req.body;
-
-  console.log('Submitting feedback: ', { surveyId, feedback, anonymous }); // Debugging log
-
-  const survey = await WellnessSurvey.findById(surveyId);
-
-  if (!survey) {
-    console.error('Survey not found with ID:', surveyId); // Error log
-    res.status(404);
-    throw new Error('Survey not found');
-  }
-
-  const feedbackData = {
-    employeeId: anonymous ? null : req.user._id,
-    feedback: feedback.map((fb) => ({
-      ...fb,
-      _id: new mongoose.Types.ObjectId(), // Ensure each feedback item has a unique _id
-    })),
-    anonymous,
-  };
-
-  console.log('Adding feedback to survey:', surveyId); // Debugging log
-  survey.feedback.push(feedbackData);
-  await survey.save();
-
-  console.log('Feedback submitted successfully'); // Success log
-  res.status(201).json({ message: 'Feedback submitted successfully', feedbackId: feedbackData._id });
-});
+    const { surveyId, feedback, anonymous } = req.body;
+  
+    console.log('Submitting feedback: ', { surveyId, feedback, anonymous }); // Debugging log
+  
+    const survey = await WellnessSurvey.findById(surveyId);
+  
+    if (!survey) {
+      console.error('Survey not found with ID:', surveyId); // Error log
+      res.status(404);
+      throw new Error('Survey not found');
+    }
+  
+    const feedbackData = {
+      surveyId,
+      employeeId: anonymous ? null : req.user._id,
+      feedback: feedback.map((fb) => ({
+        ...fb,
+        _id: new mongoose.Types.ObjectId(), // Ensure each feedback item has a unique _id
+      })),
+      anonymous,
+    };
+  
+    console.log('Adding feedback to new WellnessFeedback collection:', feedbackData); // Debugging log
+    const newFeedback = await WellnessFeedback.create(feedbackData);
+  
+    console.log('Feedback submitted successfully'); // Success log
+    res.status(201).json({ message: 'Feedback submitted successfully', feedbackId: newFeedback._id });
+  });
 
 // Fetch feedback details by feedbackId
 const getFeedbackById = asyncHandler(async (req, res) => {
@@ -140,34 +141,40 @@ const getFeedbackById = asyncHandler(async (req, res) => {
     });
   });
 
-// Get anonymous feedback for management
-const getAnonymousFeedback = asyncHandler(async (req, res) => {
+// Fetch all non-anonymous feedback for management
+const getNonAnonymousFeedback = asyncHandler(async (req, res) => {
     try {
-        // Find surveys that contain anonymous feedback
-        const surveys = await WellnessSurvey.find({
-            'feedback.anonymous': true  // This ensures we're filtering for anonymous feedback
-        });
-
-        // Extract anonymous feedback from the surveys
-        const anonymousFeedback = [];
-        surveys.forEach(survey => {
-            survey.feedback.forEach(fb => {
-                if (fb.anonymous) {
-                    anonymousFeedback.push({
-                        feedback: fb.feedback,  // The feedback responses
-                        createdAt: fb.createdAt,  // Date feedback was submitted
-                        surveyTitle: survey.title,  // Title of the survey
-                    });
-                }
-            });
-        });
-
-        res.status(200).json(anonymousFeedback);
+      const feedbacks = await WellnessFeedback.find({ anonymous: false })
+        .populate('employeeId', 'name')
+        .populate('surveyId', 'title');
+  
+      if (!feedbacks.length) {
+        return res.status(404).json({ message: 'No non-anonymous feedback found' });
+      }
+  
+      res.status(200).json(feedbacks);
     } catch (error) {
-        console.error('Error fetching anonymous feedback:', error);
-        res.status(500).json({ message: 'Failed to fetch anonymous feedback' });
+      console.error('Error fetching non-anonymous feedback:', error);
+      res.status(500).json({ message: 'Failed to fetch non-anonymous feedback' });
     }
-});
+  });
+  
+  // Get anonymous feedback for management
+  const getAnonymousFeedback = asyncHandler(async (req, res) => {
+    try {
+      const feedbacks = await WellnessFeedback.find({ anonymous: true })
+        .populate('surveyId', 'title');
+  
+      if (!feedbacks.length) {
+        return res.status(404).json({ message: 'No anonymous feedback found' });
+      }
+  
+      res.status(200).json(feedbacks);
+    } catch (error) {
+      console.error('Error fetching anonymous feedback:', error);
+      res.status(500).json({ message: 'Failed to fetch anonymous feedback' });
+    }
+  });
 
 // Fetch feedback for a specific user
 const getUserFeedback = asyncHandler(async (req, res) => {
@@ -175,10 +182,10 @@ const getUserFeedback = asyncHandler(async (req, res) => {
   
     console.log('Fetching user feedback for user:', userId); // Debugging log
   
-    // Fetch all feedback for the user where the employeeId matches the userId
-    const feedbacks = await WellnessSurvey.find({ 'feedback.employeeId': userId })
-      .select('feedback surveyQuestions createdAt title')
-      .populate('feedback.employeeId', 'name role');
+    // Fetch feedback from the new WellnessFeedback collection
+    const feedbacks = await WellnessFeedback.find({ employeeId: userId })
+      .populate('surveyId', 'title') // Populate survey details
+      .select('feedback surveyId createdAt anonymous');
   
     console.log('User feedback fetched:', feedbacks); // Debugging log
   
@@ -187,39 +194,7 @@ const getUserFeedback = asyncHandler(async (req, res) => {
     }
   
     res.status(200).json(feedbacks);
-  });  
-  
-// Fetch all non-anonymous feedback for management
-const getNonAnonymousFeedback = asyncHandler(async (req, res) => {
-    try {
-        const surveys = await WellnessSurvey.find({ 
-            'feedback.anonymous': false 
-        }).populate('feedback.employeeId', 'name');
-
-        if (!surveys.length) {
-            return res.status(404).json({ message: 'No non-anonymous feedback found' });
-        }
-
-        const nonAnonymousFeedback = [];
-        surveys.forEach(survey => {
-            survey.feedback.forEach(fb => {
-                if (!fb.anonymous) {
-                    nonAnonymousFeedback.push({
-                        feedback: fb.feedback,
-                        employeeId: fb.employeeId,
-                        createdAt: fb.createdAt,
-                        surveyTitle: survey.title,
-                    });
-                }
-            });
-        });
-
-        res.status(200).json(nonAnonymousFeedback);
-    } catch (error) {
-        console.error('Error fetching non-anonymous feedback:', error);
-        res.status(500).json({ message: 'Failed to fetch non-anonymous feedback' });
-    }
-});
+  });
 
 // Fetch wellness resources for employees
 const getWellnessResources = asyncHandler(async (req, res) => {

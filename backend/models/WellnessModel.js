@@ -10,29 +10,6 @@ const questionSchema = new mongoose.Schema({
   options: [String], // Options for radio, checkbox, and select types
 });
 
-const feedbackSchema = new mongoose.Schema({
-  employeeId: {
-    type: mongoose.Schema.Types.ObjectId,
-    ref: 'User',
-    default: null, // Null if feedback is anonymous
-  },
-  anonymous: {
-    type: Boolean,
-    default: false,
-  },
-  feedback: [
-    {
-      questionId: { type: mongoose.Schema.Types.ObjectId, ref: 'WellnessSurvey.surveyQuestions', required: true },
-      response: { type: mongoose.Schema.Types.Mixed, required: true },
-    },
-  ],
-  _id: { type: mongoose.Schema.Types.ObjectId, auto: true }, // Ensure an _id is automatically created for each feedback item
-  createdAt: {
-    type: Date,
-    default: Date.now,
-  },
-});
-
 const wellnessSchema = new mongoose.Schema({
   title: { type: String, required: true }, // Survey title
   surveyQuestions: [questionSchema], // Array of advanced questions
@@ -41,7 +18,6 @@ const wellnessSchema = new mongoose.Schema({
     ref: 'User',
     required: true,
   },
-  feedback: [feedbackSchema], // Array of feedback responses
   isAnonymous: {
     type: Boolean,
     default: false,

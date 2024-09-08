@@ -1,4 +1,3 @@
-// SubmitFeedback.js
 import React, { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom"; // Import useNavigate
 import Sidebar from "./Sidebar";

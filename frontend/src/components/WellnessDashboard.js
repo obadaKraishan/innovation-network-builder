@@ -25,6 +25,7 @@ import {
   Legend,
 } from "chart.js";
 
+// Register chart.js components
 ChartJS.register(
   CategoryScale,
   LinearScale,
@@ -102,6 +103,20 @@ const WellnessDashboard = () => {
     }
   }, [user]);
 
+  // New helper function to handle rendering feedback responses
+  const renderFeedbackResponses = (feedback) => {
+    return feedback
+      .map((fb) => {
+        if (typeof fb.response === "object") {
+          return Array.isArray(fb.response)
+            ? fb.response.join(", ") // Handle array feedback
+            : JSON.stringify(fb.response, null, 2); // Handle object feedback
+        }
+        return fb.response; // Handle regular strings
+      })
+      .join(", ");
+  };
+
   // Safeguard for missing employeeId or feedback responses
   const renderFeedbackItem = (feedback, surveyTitle, feedbackDate) => {
     if (!feedback || !feedback._id) {
@@ -119,16 +134,8 @@ const WellnessDashboard = () => {
       ? new Date(feedbackDate).toLocaleString()
       : "Invalid Date";
   
-    // Render individual feedback responses
-    const feedbackResponses = feedback.feedback
-      .map((fb) => {
-        if (typeof fb.response === "object") {
-          // If the response is an object or array, convert it to a string for display
-          return JSON.stringify(fb.response);
-        }
-        return fb.response;
-      })
-      .join(", ");
+    // Use the new helper function to handle feedback responses
+    const feedbackResponses = renderFeedbackResponses(feedback.feedback);
   
     return (
       <li
@@ -149,7 +156,7 @@ const WellnessDashboard = () => {
         </button>
       </li>
     );
-  };  
+  };
 
   // Handle survey deletion
   const handleDeleteSurvey = async (surveyId) => {
@@ -330,16 +337,8 @@ const WellnessDashboard = () => {
                   {userFeedback.length ? (
                     userFeedback.map((feedback) => (
                       <li key={feedback._id} className="p-2 bg-white shadow rounded">
-                        {/* Display each feedback response */}
-                        {feedback.feedback
-                          .map((fb, fbIndex) => (
-                            <span key={fbIndex}>
-                              {typeof fb.response === "object"
-                                ? JSON.stringify(fb.response) // Handling object/array feedback
-                                : fb.response}
-                            </span>
-                          ))
-                          .join(", ")}
+                        {/* Display each feedback response using the new helper function */}
+                        {renderFeedbackResponses(feedback.feedback)}
                       </li>
                     ))
                   ) : (
