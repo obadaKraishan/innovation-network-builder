@@ -17,9 +17,11 @@ const SubmitFeedback = () => {
     const fetchSurveys = async () => {
       try {
         const { data } = await api.get("/wellness/all-surveys");
+        console.log('Fetched surveys:', data); // Debugging log
         setSurveys(data);
       } catch (error) {
         toast.error("Failed to fetch surveys");
+        console.error('Error fetching surveys:', error); // Error log
       }
     };
     fetchSurveys();
@@ -27,14 +29,15 @@ const SubmitFeedback = () => {
 
   // Handle feedback change for each question
   const handleFeedbackChange = (questionId, value) => {
+    console.log('Handling feedback change:', { questionId, value }); // Debugging log
     setFeedback({ ...feedback, [questionId]: value });
   };
 
   // Submit feedback
   const handleSubmit = async (e) => {
     e.preventDefault();
+    console.log('Submitting feedback:', { selectedSurvey, feedback, isAnonymous }); // Debugging log
 
-    // Prepare the feedback array for backend submission
     const feedbackArray = Object.entries(feedback).map(([questionId, response]) => ({
       questionId,
       response,
@@ -47,22 +50,19 @@ const SubmitFeedback = () => {
         isAnonymous,
       });
       toast.success("Feedback submitted successfully");
-      navigate("/wellness-dashboard"); // Redirect to the Wellness Dashboard
+      navigate("/wellness-dashboard");
     } catch (error) {
       toast.error("Failed to submit feedback");
+      console.error('Error submitting feedback:', error); // Error log
     }
   };
 
   return (
     <div className="flex h-screen">
-      <Sidebar /> {/* Add Sidebar */}
+      <Sidebar />
       <div className="flex-1 p-6 bg-gray-100 overflow-y-auto">
-        {/* Back Button */}
-        <button
-          onClick={() => navigate(-1)} // Go back to the previous page
-          className="mb-4 bg-blue-500 text-white py-2 px-4 rounded inline-flex items-center hover:bg-blue-600 transition"
-        >
-          <span className="mr-2">←</span> Back
+        <button onClick={() => navigate(-1)} className="mb-4 bg-blue-500 text-white py-2 px-4 rounded">
+          ← Back
         </button>
 
         <div className="p-6 bg-white shadow rounded-lg">
@@ -92,7 +92,6 @@ const SubmitFeedback = () => {
                     <div key={index} className="mb-4">
                       <label className="block text-gray-700">{question.label}</label>
 
-                      {/* Render input fields based on question type */}
                       {question.type === "text" && (
                         <input
                           type="text"

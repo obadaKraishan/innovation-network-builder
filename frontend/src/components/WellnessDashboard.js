@@ -102,39 +102,51 @@ const WellnessDashboard = () => {
   const renderFeedbackItem = (feedback, surveyTitle, feedbackDate) => {
     if (!feedback._id) {
       console.error("Feedback ID is missing for feedback:", feedback);
-      return null; // Skip rendering if _id is missing
+      return null;
     }
-  
+
     const employeeName = feedback.anonymous
       ? "Anonymous"
       : feedback.employeeId
       ? feedback.employeeId.name
       : "Unknown Employee";
-  
+
     const validDate = feedbackDate
       ? new Date(feedbackDate).toLocaleString()
       : "Invalid Date";
-    
+
+    // Render individual feedback responses
     const feedbackResponses = feedback.feedback
-      ? feedback.feedback.map((fb) => fb.response).join(", ")
-      : "No responses";
-  
+      .map((fb) => {
+        // Ensure you're extracting the specific response value
+        if (typeof fb.response === "object") {
+          return JSON.stringify(fb.response); // If the response is an array or object, stringify it
+        }
+        return fb.response;
+      })
+      .join(", ");
+
     return (
-      <li key={feedback._id} className="p-2 bg-white shadow rounded flex justify-between items-center">
+      <li
+        key={feedback._id}
+        className="p-2 bg-white shadow rounded flex justify-between items-center"
+      >
         <div>
           <strong>Feedback from: {employeeName}</strong>
           <p>Survey: {surveyTitle || "Unknown Survey"}</p>
           <p>Submitted on: {validDate}</p>
+          <p>Feedback: {feedbackResponses}</p>{" "}
+          {/* Display feedback responses */}
         </div>
         <button
           className="bg-blue-500 text-white px-4 py-2 rounded"
-          onClick={() => navigate(`/wellness/feedback-details/${feedback._id}`)} // Ensure correct feedback._id is passed
+          onClick={() => navigate(`/wellness/feedback-details/${feedback._id}`)}
         >
           View Details
         </button>
       </li>
     );
-  };  
+  };
 
   // Handle survey deletion
   const handleDeleteSurvey = async (surveyId) => {
@@ -342,9 +354,14 @@ const WellnessDashboard = () => {
                         key={feedback._id}
                         className="p-2 bg-white shadow rounded"
                       >
+                        {/* Display each feedback response */}
                         {feedback.feedback
                           .map((fb, fbIndex) => (
-                            <span key={fbIndex}>{fb.response}</span>
+                            <span key={fbIndex}>
+                              {typeof fb.response === "object"
+                                ? JSON.stringify(fb.response)
+                                : fb.response}
+                            </span>
                           ))
                           .join(", ")}
                       </li>

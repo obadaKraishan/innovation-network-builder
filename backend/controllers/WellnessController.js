@@ -16,13 +16,13 @@ const createSurvey = asyncHandler(async (req, res) => {
   res.status(201).json(newSurvey);
 });
 
-// Fetch all surveys 
+// Fetch all surveys
 const getAllSurveys = asyncHandler(async (req, res) => {
-    const surveys = await WellnessSurvey.find({});
-    res.status(200).json(surveys);
-  });
+  const surveys = await WellnessSurvey.find({});
+  res.status(200).json(surveys);
+});
   
-  // Fetch a single survey by ID
+// Fetch a single survey by ID
 const getSurveyById = asyncHandler(async (req, res) => {
     const surveyId = req.params.surveyId;
   
@@ -37,7 +37,7 @@ const getSurveyById = asyncHandler(async (req, res) => {
       throw new Error('Survey not found');
     }
     res.status(200).json(survey);
-  });
+});
   
   // Update a survey
   const updateSurvey = asyncHandler(async (req, res) => {
@@ -74,9 +74,12 @@ const getSurveyById = asyncHandler(async (req, res) => {
 const submitFeedback = asyncHandler(async (req, res) => {
   const { surveyId, feedback, anonymous } = req.body;
 
+  console.log('Submitting feedback: ', { surveyId, feedback, anonymous }); // Debugging log
+
   const survey = await WellnessSurvey.findById(surveyId);
 
   if (!survey) {
+    console.error('Survey not found with ID:', surveyId); // Error log
     res.status(404);
     throw new Error('Survey not found');
   }
@@ -87,10 +90,12 @@ const submitFeedback = asyncHandler(async (req, res) => {
     anonymous,
   };
 
+  console.log('Adding feedback to survey:', surveyId); // Debugging log
   // Ensure feedback gets an _id automatically
   survey.feedback.push(feedbackData);
   await survey.save();
 
+  console.log('Feedback submitted successfully'); // Success log
   res.status(201).json({ message: 'Feedback submitted successfully' });
 });
 
@@ -98,8 +103,11 @@ const submitFeedback = asyncHandler(async (req, res) => {
 const getFeedbackById = asyncHandler(async (req, res) => {
     const feedbackId = req.params.feedbackId;
   
+    console.log('Fetching feedback with ID:', feedbackId); // Debugging log
+  
     // Validate if feedbackId is provided and valid
     if (!mongoose.Types.ObjectId.isValid(feedbackId)) {
+      console.error('Invalid feedback ID:', feedbackId); // Error log
       return res.status(400).json({ message: 'Invalid feedback ID' });
     }
   
@@ -108,16 +116,19 @@ const getFeedbackById = asyncHandler(async (req, res) => {
       .select('feedback surveyQuestions createdAt title');
   
     if (!feedback) {
+      console.error('Feedback not found with ID:', feedbackId); // Error log
       res.status(404);
       throw new Error('Feedback not found');
     }
   
-    const feedbackItem = feedback.feedback.find(fb => fb._id.toString() === feedbackId);
-    
+    const feedbackItem = feedback.feedback.find((fb) => fb._id.toString() === feedbackId);
+  
     if (!feedbackItem) {
-      return res.status(404).json({ message: "Feedback not found" });
+      console.error('Feedback item not found in survey:', feedbackId); // Error log
+      return res.status(404).json({ message: 'Feedback not found' });
     }
   
+    console.log('Found feedback item:', feedbackItem); // Debugging log
     res.status(200).json({
       feedback: feedbackItem.feedback,
       surveyQuestions: feedback.surveyQuestions,
