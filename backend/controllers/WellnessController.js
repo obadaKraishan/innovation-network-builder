@@ -132,17 +132,17 @@ const getFeedbackById = asyncHandler(async (req, res) => {
 const getNonAnonymousFeedback = asyncHandler(async (req, res) => {
     try {
       const feedbacks = await WellnessFeedback.find({ anonymous: false })
-        .populate('employeeId', 'name')
-        .populate('surveyId', 'title');
+        .populate("employeeId", "name")
+        .populate("surveyId", "title");
   
       if (!feedbacks.length) {
-        return res.status(404).json({ message: 'No non-anonymous feedback found' });
+        return res.status(404).json({ message: "No non-anonymous feedback found" });
       }
   
       res.status(200).json(feedbacks);
     } catch (error) {
-      console.error('Error fetching non-anonymous feedback:', error);
-      res.status(500).json({ message: 'Failed to fetch non-anonymous feedback' });
+      console.error("Error fetching non-anonymous feedback:", error);
+      res.status(500).json({ message: "Failed to fetch non-anonymous feedback" });
     }
   });
   
@@ -167,20 +167,25 @@ const getAnonymousFeedback = asyncHandler(async (req, res) => {
 const getUserFeedback = asyncHandler(async (req, res) => {
     const userId = req.params.userId;
   
-    console.log('Fetching user feedback for user:', userId); // Debugging log
+    try {
+      const feedbacks = await WellnessFeedback.find({
+        $or: [
+          { employeeId: userId }, // Feedback that explicitly belongs to the user
+          { employeeId: null, anonymous: true }, // Anonymous feedback by this user
+        ],
+      })
+        .populate("surveyId", "title")
+        .select("feedback surveyId createdAt anonymous employeeId");
   
-    // Fetch feedback from the WellnessFeedback collection
-    const feedbacks = await WellnessFeedback.find({ employeeId: userId })
-      .populate('surveyId', 'title') // Populate survey details
-      .select('feedback surveyId createdAt anonymous');
+      if (!feedbacks.length) {
+        return res.status(200).json({ message: "No feedback found for this user", feedbacks: [] });
+      }
   
-    console.log('User feedback fetched:', feedbacks); // Debugging log
-  
-    if (!feedbacks.length) {
-      return res.status(200).json({ message: 'No feedback found for this user', feedbacks: [] });
+      res.status(200).json(feedbacks);
+    } catch (error) {
+      console.error("Error fetching user feedback:", error);
+      res.status(500).json({ message: "Failed to fetch user feedback" });
     }
-  
-    res.status(200).json(feedbacks);
   });  
 
 // Fetch wellness resources for employees

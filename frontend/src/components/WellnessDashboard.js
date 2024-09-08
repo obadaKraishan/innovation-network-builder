@@ -124,22 +124,25 @@ const WellnessDashboard = () => {
   };
 
   // Safeguard for missing employeeId or feedback responses
-  const renderFeedbackItem = (feedback, surveyTitle, feedbackDate) => {
+const renderFeedbackItem = (feedback, surveyTitle, feedbackDate) => {
     if (!feedback || !feedback._id) {
       return null;
     }
-
-    const employeeName =
-      feedback.employeeId && feedback.employeeId.name
-        ? feedback.employeeId.name
-        : "Unknown Employee";
-
+  
+    // If the feedback is anonymous and does not belong to the current user, show 'Anonymous'
+    const isOwnFeedback = feedback.employeeId === user._id || feedback.employeeId?._id === user._id;
+    const employeeName = feedback.anonymous && !isOwnFeedback
+      ? "Anonymous"
+      : feedback.employeeId && feedback.employeeId.name
+      ? feedback.employeeId.name
+      : "Unknown Employee";
+  
     const validDate = feedbackDate
       ? new Date(feedbackDate).toLocaleString()
       : "Invalid Date";
-
+  
     const feedbackResponses = renderFeedbackResponses(feedback.feedback);
-
+  
     return (
       <li
         key={feedback._id}
@@ -159,7 +162,7 @@ const WellnessDashboard = () => {
         </button>
       </li>
     );
-  };
+  };  
 
   // Handle survey deletion
   const handleDeleteSurvey = async (surveyId) => {
