@@ -27,20 +27,31 @@ const WellnessFeedbackDetails = () => {
 
   // Destructure and safeguard surveyQuestions and feedback
   const { feedback = [], surveyId = {}, employeeId = {}, anonymous, createdAt } = feedbackDetails;
-  const { surveyQuestions = [] } = surveyId;
+  const { title: surveyTitle, surveyQuestions = [] } = surveyId;
 
   return (
     <div className="flex h-screen">
       <Sidebar />
       <div className="flex-1 p-6 bg-gray-100 overflow-y-auto">
         <div className="p-6 bg-white shadow rounded-lg">
-          <h1 className="text-2xl font-bold mb-4">Feedback Details</h1>
+          {/* Back Button at Top Left */}
+          <button
+            className="bg-blue-500 text-white py-2 px-4 rounded mb-4"
+            onClick={() => navigate(-1)} // Go back to the previous page
+          >
+            ← Back
+          </button>
+          
+          {/* Survey Title */}
+          <h1 className="text-2xl font-bold mb-4">Survey: {surveyTitle || 'Unknown Survey'}</h1>
+
           <div className="mb-6">
             <h2 className="text-xl font-semibold">
               Feedback from: {anonymous ? 'Anonymous' : employeeId?.name || 'Unknown Employee'}
             </h2>
             <p>Submitted on: {new Date(createdAt).toLocaleString()}</p>
           </div>
+
           <div className="bg-gray-100 p-4 rounded-lg mb-6">
             <h2 className="text-xl font-semibold mb-4">Survey Questions and Responses</h2>
             <ul className="space-y-2">
@@ -59,12 +70,6 @@ const WellnessFeedbackDetails = () => {
               )}
             </ul>
           </div>
-          <button
-            className="bg-blue-500 text-white px-4 py-2 rounded"
-            onClick={() => navigate(-1)} // Go back to the previous page
-          >
-            Back to Dashboard
-          </button>
         </div>
       </div>
     </div>
