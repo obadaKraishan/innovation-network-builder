@@ -8,7 +8,7 @@ const SubmitFeedback = () => {
   const [surveys, setSurveys] = useState([]);
   const [selectedSurvey, setSelectedSurvey] = useState(null);
   const [feedback, setFeedback] = useState({});
-  const [isAnonymous, setIsAnonymous] = useState(false);
+  const [isAnonymous, setIsAnonymous] = useState(false); // State for anonymous checkbox
   const navigate = useNavigate(); // Initialize navigate
 
   // Fetch surveys on component mount
@@ -48,7 +48,7 @@ const SubmitFeedback = () => {
       const { data } = await api.post("/wellness/submit-feedback", {
         surveyId: selectedSurvey,
         feedback: feedbackArray,
-        isAnonymous,
+        anonymous: isAnonymous, // Pass the isAnonymous value to the backend
       });
       console.log("Feedback submission response:", data); // Debugging log for submission response
       toast.success("Feedback submitted successfully");

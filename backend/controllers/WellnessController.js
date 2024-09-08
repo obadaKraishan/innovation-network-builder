@@ -75,32 +75,32 @@ const getSurveyById = asyncHandler(async (req, res) => {
 const submitFeedback = asyncHandler(async (req, res) => {
     const { surveyId, feedback, anonymous } = req.body;
   
-    console.log('Submitting feedback: ', { surveyId, feedback, anonymous }); // Debugging log
+    console.log('Submitting feedback: ', { surveyId, feedback, anonymous });
   
     const survey = await WellnessSurvey.findById(surveyId);
   
     if (!survey) {
-      console.error('Survey not found with ID:', surveyId); // Error log
+      console.error('Survey not found with ID:', surveyId);
       res.status(404);
       throw new Error('Survey not found');
     }
   
     const feedbackData = {
       surveyId,
-      employeeId: anonymous ? null : req.user._id,
+      employeeId: anonymous ? null : req.user._id, // Set employeeId as null if anonymous
       feedback: feedback.map((fb) => ({
         ...fb,
         _id: new mongoose.Types.ObjectId(), // Ensure each feedback item has a unique _id
       })),
-      anonymous,
+      anonymous, // Store the anonymous value in the feedback
     };
   
-    console.log('Adding feedback to new WellnessFeedback collection:', feedbackData); // Debugging log
+    console.log('Adding feedback to new WellnessFeedback collection:', feedbackData);
     const newFeedback = await WellnessFeedback.create(feedbackData);
   
-    console.log('Feedback submitted successfully'); // Success log
+    console.log('Feedback submitted successfully');
     res.status(201).json({ message: 'Feedback submitted successfully', feedbackId: newFeedback._id });
-  });
+  });  
 
 // Fetch feedback details by feedbackId
 const getFeedbackById = asyncHandler(async (req, res) => {

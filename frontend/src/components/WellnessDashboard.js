@@ -263,7 +263,7 @@ const WellnessDashboard = () => {
                     anonymousFeedback.map((feedback) =>
                       renderFeedbackItem(
                         feedback,
-                        feedback.surveyTitle,
+                        feedback.surveyId?.title,
                         feedback.createdAt
                       )
                     )
@@ -283,7 +283,7 @@ const WellnessDashboard = () => {
                     nonAnonymousFeedback.map((feedback) =>
                       renderFeedbackItem(
                         feedback,
-                        feedback.surveyTitle,
+                        feedback.surveyId?.title,
                         feedback.createdAt
                       )
                     )
