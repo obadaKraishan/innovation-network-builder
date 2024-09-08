@@ -102,6 +102,25 @@ const getAnonymousFeedback = asyncHandler(async (req, res) => {
   res.status(200).json(feedbacks);
 });
 
+// Fetch feedback for a specific user
+const getUserFeedback = asyncHandler(async (req, res) => {
+    const userId = req.params.userId;
+    const feedbacks = await WellnessSurvey.find({ 'feedback.employeeId': userId })
+        .select('feedback')
+        .populate('feedback.employeeId', 'name role');
+
+    res.status(200).json(feedbacks);
+});
+  
+// Fetch all non-anonymous feedback for management
+const getNonAnonymousFeedback = asyncHandler(async (req, res) => {
+    const feedbacks = await WellnessSurvey.find({ 'feedback.anonymous': false })
+        .select('feedback')
+        .populate('feedback.employeeId', 'name role');
+
+    res.status(200).json(feedbacks);
+});
+
 // Fetch wellness resources for employees
 const getWellnessResources = asyncHandler(async (req, res) => {
   const resources = await WellnessSurvey.find({}).select('resources');
@@ -132,6 +151,8 @@ module.exports = {
   deleteSurvey,
   submitFeedback,
   getAnonymousFeedback,
+  getNonAnonymousFeedback,
+  getUserFeedback,
   getWellnessResources,
   getDashboardMetrics,
 };

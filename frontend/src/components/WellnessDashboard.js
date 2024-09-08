@@ -1,6 +1,6 @@
 import React, { useEffect, useState, useContext } from 'react';
 import { useNavigate } from 'react-router-dom'; // Import useNavigate
-import Sidebar from './Sidebar'; // Import Sidebar
+import Sidebar from './Sidebar';
 import api from '../utils/api';
 import { Line } from 'react-chartjs-2';
 import { FaHeartbeat, FaChartLine, FaSearch, FaPlusSquare, FaEdit, FaTrashAlt } from 'react-icons/fa';
@@ -36,6 +36,8 @@ const WellnessDashboard = () => {
   const [burnoutRisk, setBurnoutRisk] = useState(0);
   const [stressLevels, setStressLevels] = useState([]);
   const [anonymousFeedback, setAnonymousFeedback] = useState([]);
+  const [nonAnonymousFeedback, setNonAnonymousFeedback] = useState([]); // Non-anonymous feedback
+  const [userFeedback, setUserFeedback] = useState([]); // Current user's feedback
   const [recommendations, setRecommendations] = useState([]);
   const [searchTerm, setSearchTerm] = useState('');
   const [surveys, setSurveys] = useState([]); // Surveys for higher roles
@@ -64,10 +66,30 @@ const WellnessDashboard = () => {
       }
     };
 
+    const fetchUserFeedback = async () => {
+      try {
+        const { data } = await api.get(`/wellness/user-feedback/${user._id}`);
+        setUserFeedback(data);
+      } catch (error) {
+        console.error('Failed to fetch user feedback', error);
+      }
+    };
+
+    const fetchNonAnonymousFeedback = async () => {
+      try {
+        const { data } = await api.get('/wellness/non-anonymous-feedback');
+        setNonAnonymousFeedback(data);
+      } catch (error) {
+        console.error('Failed to fetch non-anonymous feedback', error);
+      }
+    };
+
     // Fetch metrics and surveys only when user is available
     if (user) {
       fetchMetrics();
       fetchSurveys();
+      fetchUserFeedback();
+      fetchNonAnonymousFeedback();
       setLoading(false);
     }
   }, [user]);
@@ -99,11 +121,6 @@ const WellnessDashboard = () => {
   if (loading || !user) {
     return <div>Loading...</div>;
   }
-
-  // Filtered anonymous feedback based on search term
-  const filteredFeedback = anonymousFeedback.filter((feedback) =>
-    feedback.text.toLowerCase().includes(searchTerm.toLowerCase())
-  );
 
   const stressChartData = {
     labels: stressLevels.length ? stressLevels.map((level) => level.date) : [],
@@ -161,17 +178,34 @@ const WellnessDashboard = () => {
                 </div>
               </div>
 
+              {/* Anonymous Feedback Section */}
               <div className="mb-6">
                 <h2 className="text-xl font-semibold mb-4">Anonymous Feedback</h2>
                 <ul className="space-y-4 bg-gray-100 p-4 rounded-lg">
-                  {filteredFeedback.length ? (
-                    filteredFeedback.map((feedback, index) => (
+                  {anonymousFeedback.length ? (
+                    anonymousFeedback.map((feedback, index) => (
                       <li key={index} className="p-2 bg-white shadow rounded">
                         {feedback.text}
                       </li>
                     ))
                   ) : (
-                    <li>No feedback available</li>
+                    <li>No anonymous feedback available</li>
+                  )}
+                </ul>
+              </div>
+
+              {/* Non-Anonymous Feedback Section */}
+              <div className="mb-6">
+                <h2 className="text-xl font-semibold mb-4">Non-Anonymous Feedback</h2>
+                <ul className="space-y-4 bg-gray-100 p-4 rounded-lg">
+                  {nonAnonymousFeedback.length ? (
+                    nonAnonymousFeedback.map((feedback, index) => (
+                      <li key={index} className="p-2 bg-white shadow rounded">
+                        <strong>{feedback.employeeName}</strong>: {feedback.text}
+                      </li>
+                    ))
+                  ) : (
+                    <li>No non-anonymous feedback available</li>
                   )}
                 </ul>
               </div>
@@ -223,6 +257,22 @@ const WellnessDashboard = () => {
                 >
                   <FaPlusSquare className="mr-2" /> Submit Feedback
                 </button>
+              </div>
+
+              {/* User Feedback Section */}
+              <div className="bg-gray-100 p-4 rounded-lg mb-6">
+                <h2 className="text-xl font-semibold mb-4">Your Previous Feedback</h2>
+                <ul className="space-y-2">
+                  {userFeedback.length ? (
+                    userFeedback.map((feedback, index) => (
+                      <li key={index} className="p-2 bg-white shadow rounded">
+                        {feedback.text}
+                      </li>
+                    ))
+                  ) : (
+                    <li>No previous feedback available</li>
+                  )}
+                </ul>
               </div>
 
               <div className="bg-gray-100 p-4 rounded-lg mb-6">
