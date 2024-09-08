@@ -284,15 +284,15 @@ const WellnessDashboard = () => {
                   </button>
                   <button
                     className="bg-green-500 text-white p-2 rounded-lg flex items-center"
-                    onClick={() => navigate("/wellness/add-resource")} // Redirect to Add Resource
+                    onClick={() => navigate("/wellness/resources")} // Redirect to Add Resource
                   >
-                    <FaPlusSquare className="mr-2" /> Add Resource
+                    <FaPlusSquare className="mr-2" /> Resources
                   </button>
                   <button
                     className="bg-green-500 text-white p-2 rounded-lg flex items-center"
-                    onClick={() => navigate("/wellness/add-recommendation")} // Redirect to Add Recommendation
+                    onClick={() => navigate("/wellness/recommendations")} // Redirect to Add Recommendation
                   >
-                    <FaPlusSquare className="mr-2" /> Add Recommendation
+                    <FaPlusSquare className="mr-2" /> Recommendations
                   </button>
                   <input
                     type="text"
