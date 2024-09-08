@@ -123,11 +123,31 @@ const getFeedbackById = asyncHandler(async (req, res) => {
 
 // Get anonymous feedback for management
 const getAnonymousFeedback = asyncHandler(async (req, res) => {
-  const feedbacks = await WellnessSurvey.find({ 'feedback.anonymous': true })
-    .select('feedback')
-    .populate('feedback.employeeId', 'name role');
+    try {
+        // Find surveys that contain anonymous feedback
+        const surveys = await WellnessSurvey.find({
+            'feedback.anonymous': true  // This ensures we're filtering for anonymous feedback
+        });
 
-  res.status(200).json(feedbacks);
+        // Extract anonymous feedback from the surveys
+        const anonymousFeedback = [];
+        surveys.forEach(survey => {
+            survey.feedback.forEach(fb => {
+                if (fb.anonymous) {
+                    anonymousFeedback.push({
+                        feedback: fb.feedback,  // The feedback responses
+                        createdAt: fb.createdAt,  // Date feedback was submitted
+                        surveyTitle: survey.title,  // Title of the survey
+                    });
+                }
+            });
+        });
+
+        res.status(200).json(anonymousFeedback);
+    } catch (error) {
+        console.error('Error fetching anonymous feedback:', error);
+        res.status(500).json({ message: 'Failed to fetch anonymous feedback' });
+    }
 });
 
 // Fetch feedback for a specific user
@@ -142,11 +162,34 @@ const getUserFeedback = asyncHandler(async (req, res) => {
   
 // Fetch all non-anonymous feedback for management
 const getNonAnonymousFeedback = asyncHandler(async (req, res) => {
-    const feedbacks = await WellnessSurvey.find({ 'feedback.anonymous': false })
-       .populate('feedback.employeeId', 'name') // Ensure employee name is populated
-       .select('feedback');
+    try {
+        const surveys = await WellnessSurvey.find({ 
+            'feedback.anonymous': false 
+        }).populate('feedback.employeeId', 'name');
 
-    res.status(200).json(feedbacks);
+        if (!surveys.length) {
+            return res.status(404).json({ message: 'No non-anonymous feedback found' });
+        }
+
+        const nonAnonymousFeedback = [];
+        surveys.forEach(survey => {
+            survey.feedback.forEach(fb => {
+                if (!fb.anonymous) {
+                    nonAnonymousFeedback.push({
+                        feedback: fb.feedback,
+                        employeeId: fb.employeeId,
+                        createdAt: fb.createdAt,
+                        surveyTitle: survey.title,
+                    });
+                }
+            });
+        });
+
+        res.status(200).json(nonAnonymousFeedback);
+    } catch (error) {
+        console.error('Error fetching non-anonymous feedback:', error);
+        res.status(500).json({ message: 'Failed to fetch non-anonymous feedback' });
+    }
 });
 
 // Fetch wellness resources for employees
