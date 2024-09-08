@@ -1,5 +1,6 @@
 const WellnessResource = require('../models/WellnessResourceModel');
 const asyncHandler = require('express-async-handler');
+const User = require('../models/userModel'); // Assuming you have a UserModel for referencing the user
 
 // Create a wellness resource
 const createResource = asyncHandler(async (req, res) => {
@@ -15,11 +16,13 @@ const createResource = asyncHandler(async (req, res) => {
   res.status(201).json(newResource);
 });
 
-// Get all resources
+// Get all resources (with user details)
 const getAllResources = asyncHandler(async (req, res) => {
-  const resources = await WellnessResource.find({});
-  res.status(200).json(resources);
-});
+    const resources = await WellnessResource.find({})
+      .populate("createdBy", "name email") // Ensure this is correct
+      .exec();
+    res.status(200).json(resources);
+  });  
 
 // Delete a resource by ID
 const deleteResource = asyncHandler(async (req, res) => {

@@ -47,8 +47,10 @@ import CreateSurvey from './components/CreateSurvey';
 import SubmitFeedback from './components/SubmitFeedback';
 import WellnessResources from './components/WellnessResources';
 import PersonalizedRecommendations from './components/PersonalizedRecommendations';
-import EditWellnessSurvey from './components/EditWellnessSurvey'; // New Edit Component
+import EditWellnessSurvey from './components/EditWellnessSurvey'; 
 import WellnessFeedbackDetails from './components/WellnessFeedbackDetails';
+import WellnessEditResource from './components/WellnessEditResource';
+import WellnessEditRecommendation from './components/WellnessEditRecommendation'; 
 
 const AppRoutes = () => {
   return (
@@ -98,8 +100,10 @@ const AppRoutes = () => {
           <Route path="/wellness/submit-feedback" element={<SubmitFeedback />} />
           <Route path="/wellness/resources" element={<WellnessResources />} />
           <Route path="/wellness/recommendations" element={<PersonalizedRecommendations />} />
-          <Route path="/wellness/edit-survey/:surveyId" element={<EditWellnessSurvey />} /> {/* Edit Survey Route */}
+          <Route path="/wellness/edit-survey/:surveyId" element={<EditWellnessSurvey />} /> 
           <Route path="/wellness/feedback-details/:feedbackId" element={<WellnessFeedbackDetails />} />
+          <Route path="/wellness/edit-resource/:resourceId" element={<WellnessEditResource />} />
+          <Route path="/wellness/edit-recommendation/:recommendationId" element={<WellnessEditRecommendation />} />
 
           {/* Default redirect to login */}
           <Route path="/" element={<Navigate to="/login" />} />

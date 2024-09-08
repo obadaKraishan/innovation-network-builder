@@ -139,7 +139,9 @@ const WellnessDashboard = () => {
     if (result.isConfirmed) {
       try {
         await api.delete(`/wellness/resources/${resourceId}`);
-        setResources(resources.filter((resource) => resource._id !== resourceId));
+        setResources(
+          resources.filter((resource) => resource._id !== resourceId)
+        );
         Swal.fire("Deleted!", "The resource has been deleted.", "success");
       } catch (error) {
         Swal.fire("Error!", "Failed to delete the resource.", "error");
@@ -162,8 +164,14 @@ const WellnessDashboard = () => {
     if (result.isConfirmed) {
       try {
         await api.delete(`/wellness/recommendations/${recommendationId}`);
-        setRecommendations(recommendations.filter((rec) => rec._id !== recommendationId));
-        Swal.fire("Deleted!", "The recommendation has been deleted.", "success");
+        setRecommendations(
+          recommendations.filter((rec) => rec._id !== recommendationId)
+        );
+        Swal.fire(
+          "Deleted!",
+          "The recommendation has been deleted.",
+          "success"
+        );
       } catch (error) {
         Swal.fire("Error!", "Failed to delete the recommendation.", "error");
       }
@@ -204,18 +212,26 @@ const WellnessDashboard = () => {
         ? feedback.employeeId.name
         : "Unknown Employee";
 
-    const validDate = feedbackDate ? new Date(feedbackDate).toLocaleString() : "Invalid Date";
+    const validDate = feedbackDate
+      ? new Date(feedbackDate).toLocaleString()
+      : "Invalid Date";
     const feedbackResponses = renderFeedbackResponses(feedback.feedback);
 
     return (
-      <li key={feedback._id} className="p-2 bg-white shadow rounded flex justify-between items-center">
+      <li
+        key={feedback._id}
+        className="p-2 bg-white shadow rounded flex justify-between items-center"
+      >
         <div>
           <strong>Feedback from: {employeeName}</strong>
           <p>Survey: {surveyTitle || "Unknown Survey"}</p>
           <p>Submitted on: {validDate}</p>
           <p>Feedback: {feedbackResponses}</p>
         </div>
-        <button className="bg-blue-500 text-white px-4 py-2 rounded" onClick={() => navigate(`/wellness/feedback-details/${feedback._id}`)}>
+        <button
+          className="bg-blue-500 text-white px-4 py-2 rounded"
+          onClick={() => navigate(`/wellness/feedback-details/${feedback._id}`)}
+        >
           View Details
         </button>
       </li>
@@ -254,7 +270,9 @@ const WellnessDashboard = () => {
     datasets: [
       {
         label: "Stress Levels",
-        data: stressLevels.length ? stressLevels.map((level) => level.value) : [],
+        data: stressLevels.length
+          ? stressLevels.map((level) => level.value)
+          : [],
         fill: false,
         borderColor: "#f56565",
       },
@@ -269,11 +287,19 @@ const WellnessDashboard = () => {
           <h1 className="text-2xl font-bold mb-4">Wellness Dashboard</h1>
 
           {/* Management-specific features */}
-          {["CEO", "CTO", "Director", "Department Manager", "Team Leader"].includes(user.role) && (
+          {[
+            "CEO",
+            "CTO",
+            "Director",
+            "Department Manager",
+            "Team Leader",
+          ].includes(user.role) && (
             <>
               <div className="flex justify-between items-center mb-4">
                 <div>
-                  <h2 className="text-xl font-semibold">Management Dashboard</h2>
+                  <h2 className="text-xl font-semibold">
+                    Management Dashboard
+                  </h2>
                 </div>
                 <div className="flex space-x-2">
                   <button
@@ -319,7 +345,9 @@ const WellnessDashboard = () => {
 
               {/* Manage Resources Section */}
               <div className="mb-6">
-                <h2 className="text-xl font-semibold mb-4">Wellness Resources</h2>
+                <h2 className="text-xl font-semibold mb-4">
+                  Wellness Resources
+                </h2>
                 <ul className="space-y-4 bg-gray-100 p-4 rounded-lg">
                   {resources.length ? (
                     resources.map((resource) => (
@@ -328,16 +356,45 @@ const WellnessDashboard = () => {
                         className="p-4 bg-white shadow rounded-lg flex justify-between items-center"
                       >
                         <div>
-                          <h3 className="text-xl font-bold">{resource.resourceTitle}</h3>
+                          <h3 className="text-xl font-bold">
+                            {resource.resourceTitle}
+                          </h3>
                           <p>Category: {resource.resourceCategory}</p>
-                          <a href={resource.resourceURL} className="text-blue-500">Visit Resource</a>
+                          <p>
+                            Created By: {resource.createdBy?.name || "Unknown"}
+                          </p>{" "}
+                          {/* Display creator name */}
+                          <p>
+                            Created On:{" "}
+                            {new Date(resource.createdAt).toLocaleDateString()}
+                          </p>
+                          <a
+                            href={resource.resourceURL}
+                            className="text-blue-500"
+                            target="_blank"
+                            rel="noopener noreferrer"
+                          >
+                            Visit Resource
+                          </a>
                         </div>
-                        <button
-                          className="text-red-500 flex items-center"
-                          onClick={() => handleDeleteResource(resource._id)}
-                        >
-                          <FaTrashAlt className="mr-2" /> Delete
-                        </button>
+                        <div className="flex space-x-2">
+                          <button
+                            className="text-blue-500 flex items-center"
+                            onClick={() =>
+                              navigate(
+                                `/wellness/edit-resource/${resource._id}`
+                              )
+                            }
+                          >
+                            <FaEdit className="mr-2" /> Edit
+                          </button>
+                          <button
+                            className="text-red-500 flex items-center"
+                            onClick={() => handleDeleteResource(resource._id)}
+                          >
+                            <FaTrashAlt className="mr-2" /> Delete
+                          </button>
+                        </div>
                       </li>
                     ))
                   ) : (
@@ -348,12 +405,60 @@ const WellnessDashboard = () => {
 
               {/* Manage Recommendations Section */}
               <div className="mb-6">
-                <h2 className="text-xl font-semibold mb-4">Personalized Recommendations</h2>
+                <h2 className="text-xl font-semibold mb-4">
+                  Personalized Recommendations
+                </h2>
                 <ul className="space-y-4 bg-gray-100 p-4 rounded-lg">
                   {recommendations.length ? (
                     recommendations.map((recommendation) => (
-                      <li key={recommendation._id} className="p-4 bg-white shadow rounded-lg">
-                        {recommendation.text}
+                      <li
+                        key={recommendation._id}
+                        className="p-4 bg-white shadow rounded-lg flex justify-between items-center"
+                      >
+                        <div>
+                          <p>{recommendation.recommendationText}</p>
+                          <p>
+                            Created By:{" "}
+                            {recommendation.employeeId?.name || "Unknown"}
+                          </p>{" "}
+                          {/* Display employee name */}
+                          <p>
+                            Created On:{" "}
+                            {new Date(
+                              recommendation.createdAt
+                            ).toLocaleDateString()}
+                          </p>
+                          {recommendation.resourceUrl && (
+                            <a
+                              href={recommendation.resourceUrl}
+                              className="text-blue-500"
+                              target="_blank"
+                              rel="noopener noreferrer"
+                            >
+                              Related Resource
+                            </a>
+                          )}
+                        </div>
+                        <div className="flex space-x-2">
+                          <button
+                            className="text-blue-500 flex items-center"
+                            onClick={() =>
+                              navigate(
+                                `/wellness/edit-recommendation/${recommendation._id}`
+                              )
+                            }
+                          >
+                            <FaEdit className="mr-2" /> Edit
+                          </button>
+                          <button
+                            className="text-red-500 flex items-center"
+                            onClick={() =>
+                              handleDeleteRecommendation(recommendation._id)
+                            }
+                          >
+                            <FaTrashAlt className="mr-2" /> Delete
+                          </button>
+                        </div>
                       </li>
                     ))
                   ) : (
@@ -364,11 +469,17 @@ const WellnessDashboard = () => {
 
               {/* Anonymous Feedback Section */}
               <div className="mb-6">
-                <h2 className="text-xl font-semibold mb-4">Anonymous Feedback</h2>
+                <h2 className="text-xl font-semibold mb-4">
+                  Anonymous Feedback
+                </h2>
                 <ul className="space-y-4 bg-gray-100 p-4 rounded-lg">
                   {anonymousFeedback.length ? (
                     anonymousFeedback.map((feedback) =>
-                      renderFeedbackItem(feedback, feedback.surveyId?.title, feedback.createdAt)
+                      renderFeedbackItem(
+                        feedback,
+                        feedback.surveyId?.title,
+                        feedback.createdAt
+                      )
                     )
                   ) : (
                     <li>No anonymous feedback available</li>
@@ -378,11 +489,17 @@ const WellnessDashboard = () => {
 
               {/* Non-Anonymous Feedback Section */}
               <div className="mb-6">
-                <h2 className="text-xl font-semibold mb-4">Non-Anonymous Feedback</h2>
+                <h2 className="text-xl font-semibold mb-4">
+                  Non-Anonymous Feedback
+                </h2>
                 <ul className="space-y-4 bg-gray-100 p-4 rounded-lg">
                   {nonAnonymousFeedback.length ? (
                     nonAnonymousFeedback.map((feedback) =>
-                      renderFeedbackItem(feedback, feedback.surveyId?.title, feedback.createdAt)
+                      renderFeedbackItem(
+                        feedback,
+                        feedback.surveyId?.title,
+                        feedback.createdAt
+                      )
                     )
                   ) : (
                     <li>No non-anonymous feedback available</li>
@@ -402,14 +519,17 @@ const WellnessDashboard = () => {
                         <div>
                           <h3 className="text-xl font-bold">{survey.title}</h3>
                           <p>
-                            Created At: {new Date(survey.createdAt).toLocaleString()}
+                            Created At:{" "}
+                            {new Date(survey.createdAt).toLocaleString()}
                           </p>
                           <p>{survey.surveyQuestions.length} Questions</p>
                         </div>
                         <div className="flex space-x-4">
                           <button
                             className="text-blue-500 flex items-center"
-                            onClick={() => navigate(`/wellness/edit-survey/${survey._id}`)}
+                            onClick={() =>
+                              navigate(`/wellness/edit-survey/${survey._id}`)
+                            }
                           >
                             <FaEdit className="mr-2" /> Edit
                           </button>
@@ -432,7 +552,11 @@ const WellnessDashboard = () => {
           )}
 
           {/* Employee-specific features */}
-          {["Employee", "Customer Support Specialist", "Research Scientist"].includes(user.role) && (
+          {[
+            "Employee",
+            "Customer Support Specialist",
+            "Research Scientist",
+          ].includes(user.role) && (
             <>
               <div className="flex justify-between items-center mb-4">
                 <h2 className="text-xl font-semibold">Your Wellness</h2>
@@ -446,10 +570,18 @@ const WellnessDashboard = () => {
 
               {/* User Feedback Section */}
               <div className="bg-gray-100 p-4 rounded-lg mb-6">
-                <h2 className="text-xl font-semibold mb-4">Your Previous Feedback</h2>
+                <h2 className="text-xl font-semibold mb-4">
+                  Your Previous Feedback
+                </h2>
                 <ul className="space-y-4 bg-gray-100 p-4 rounded-lg">
                   {userFeedback.length ? (
-                    userFeedback.map((feedback) => renderFeedbackItem(feedback, feedback.surveyId?.title, feedback.createdAt))
+                    userFeedback.map((feedback) =>
+                      renderFeedbackItem(
+                        feedback,
+                        feedback.surveyId?.title,
+                        feedback.createdAt
+                      )
+                    )
                   ) : (
                     <li>No previous feedback available</li>
                   )}
@@ -458,11 +590,16 @@ const WellnessDashboard = () => {
 
               {/* Personalized Recommendations Section */}
               <div className="bg-gray-100 p-4 rounded-lg mb-6">
-                <h2 className="text-xl font-semibold mb-4">Personalized Recommendations</h2>
+                <h2 className="text-xl font-semibold mb-4">
+                  Personalized Recommendations
+                </h2>
                 <ul className="space-y-2">
                   {recommendations.length ? (
                     recommendations.map((recommendation) => (
-                      <li key={recommendation._id} className="p-2 bg-white shadow rounded">
+                      <li
+                        key={recommendation._id}
+                        className="p-2 bg-white shadow rounded"
+                      >
                         {recommendation.text}
                       </li>
                     ))
