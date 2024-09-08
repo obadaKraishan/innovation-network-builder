@@ -1,7 +1,7 @@
-import React, { useEffect, useState } from 'react';
-import Sidebar from './Sidebar'; // Import Sidebar
-import api from '../utils/api';
-import { toast } from 'react-toastify';
+import React, { useEffect, useState } from "react";
+import Sidebar from "./Sidebar"; // Import Sidebar
+import api from "../utils/api";
+import { toast } from "react-toastify";
 
 const SubmitFeedback = () => {
   const [surveys, setSurveys] = useState([]);
@@ -12,10 +12,10 @@ const SubmitFeedback = () => {
   useEffect(() => {
     const fetchSurveys = async () => {
       try {
-        const { data } = await api.get('/wellness/all-surveys');
+        const { data } = await api.get("/wellness/all-surveys");
         setSurveys(data);
       } catch (error) {
-        toast.error('Failed to fetch surveys');
+        toast.error("Failed to fetch surveys");
       }
     };
     fetchSurveys();
@@ -24,10 +24,14 @@ const SubmitFeedback = () => {
   const handleSubmit = async (e) => {
     e.preventDefault();
     try {
-      await api.post('/wellness/submit-feedback', { surveyId: selectedSurvey, feedback, isAnonymous });
-      toast.success('Feedback submitted successfully');
+      await api.post("/wellness/submit-feedback", {
+        surveyId: selectedSurvey,
+        feedback,
+        isAnonymous,
+      });
+      toast.success("Feedback submitted successfully");
     } catch (error) {
-      toast.error('Failed to submit feedback');
+      toast.error("Failed to submit feedback");
     }
   };
 
@@ -41,38 +45,45 @@ const SubmitFeedback = () => {
             <div className="mb-4">
               <label className="block text-gray-700">Select Survey</label>
               <select
-                    value={selectedSurvey || ""}  // Use an empty string instead of null
-                    onChange={(e) => setSelectedSurvey(e.target.value)}
-                    className="w-full p-3 border border-gray-300 rounded"
-                    >
-                    <option value="">Select a survey...</option>
-                    {surveys.map((survey) => (
-                        <option key={survey._id} value={survey._id}>
-                        {survey.title}
-                        </option>
-                    ))}
-                </select>
+                value={selectedSurvey || ""} // Use an empty string instead of null
+                onChange={(e) => setSelectedSurvey(e.target.value)}
+                className="w-full p-3 border border-gray-300 rounded"
+              >
+                <option value="">Select a survey...</option>
+                {surveys.map((survey) => (
+                  <option key={survey._id} value={survey._id}>
+                    {survey.title}
+                  </option>
+                ))}
+              </select>
             </div>
             {selectedSurvey && (
               <>
                 {surveys
                   .find((survey) => survey._id === selectedSurvey)
-                  .questions.map((question, index) => (
-                    <div key={index} className="mb-4">
-                      <label className="block text-gray-700">{question}</label>
-                      <input
-                        type="text"
-                        value={feedback[index] || ''}
-                        onChange={(e) => {
-                          const newFeedback = [...feedback];
-                          newFeedback[index] = e.target.value;
-                          setFeedback(newFeedback);
-                        }}
-                        className="w-full p-3 border border-gray-300 rounded"
-                        required
-                      />
-                    </div>
-                  ))}
+                  .surveyQuestions.map(
+                    (
+                      question,
+                      index // Change questions to surveyQuestions
+                    ) => (
+                      <div key={index} className="mb-4">
+                        <label className="block text-gray-700">
+                          {question.label}
+                        </label>
+                        <input
+                          type="text"
+                          value={feedback[index] || ""}
+                          onChange={(e) => {
+                            const newFeedback = [...feedback];
+                            newFeedback[index] = e.target.value;
+                            setFeedback(newFeedback);
+                          }}
+                          className="w-full p-3 border border-gray-300 rounded"
+                          required
+                        />
+                      </div>
+                    )
+                  )}
                 <div className="mb-4">
                   <label className="flex items-center">
                     <input
@@ -84,7 +95,10 @@ const SubmitFeedback = () => {
                     Submit Anonymously
                   </label>
                 </div>
-                <button type="submit" className="w-full p-3 bg-blue-500 text-white rounded-lg">
+                <button
+                  type="submit"
+                  className="w-full p-3 bg-blue-500 text-white rounded-lg"
+                >
                   Submit Feedback
                 </button>
               </>
