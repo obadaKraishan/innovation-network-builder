@@ -318,51 +318,49 @@ const WellnessDashboard = () => {
           )}
 
           {/* Employee-specific features */}
-          {["Employee", "Customer Support Specialist", "Research Scientist"].includes(user.role) && (
-            <>
-              <div className="flex justify-between items-center mb-4">
-                <h2 className="text-xl font-semibold">Your Wellness</h2>
-                <button
-                    className="bg-green-500 text-white p-2 rounded-lg flex items-center"
-                    onClick={() => navigate("/wellness/submit-feedback")} // Redirect to Submit Feedback
-                >
-                    <FaPlusSquare className="mr-2" /> Submit Feedback
-                </button>
-                </div>
+{["Employee", "Customer Support Specialist", "Research Scientist"].includes(user.role) && (
+  <>
+    <div className="flex justify-between items-center mb-4">
+      <h2 className="text-xl font-semibold">Your Wellness</h2>
+      <button
+          className="bg-green-500 text-white p-2 rounded-lg flex items-center"
+          onClick={() => navigate("/wellness/submit-feedback")} // Redirect to Submit Feedback
+      >
+          <FaPlusSquare className="mr-2" /> Submit Feedback
+      </button>
+    </div>
 
-              {/* User Feedback Section */}
-                <div className="bg-gray-100 p-4 rounded-lg mb-6">
-                <h2 className="text-xl font-semibold mb-4">Your Previous Feedback</h2>
-                <ul className="space-y-2">
-                    {userFeedback.length ? (
-                    userFeedback.map((feedback) => (
-                        <li key={feedback._id} className="p-2 bg-white shadow rounded">
-                        {/* Display each feedback response using the new helper function */}
-                        {renderFeedbackResponses(feedback.feedback)}
-                        </li>
-                    ))
-                    ) : (
-                    <li>No previous feedback available</li>
-                    )}
-                </ul>
-                </div>
+    {/* User Feedback Section */}
+    <div className="bg-gray-100 p-4 rounded-lg mb-6">
+      <h2 className="text-xl font-semibold mb-4">Your Previous Feedback</h2>
+      <ul className="space-y-4 bg-gray-100 p-4 rounded-lg">
+        {userFeedback.length ? (
+          userFeedback.map((feedback) => 
+            renderFeedbackItem(feedback, feedback.surveyId?.title, feedback.createdAt)
+          )
+        ) : (
+          <li>No previous feedback available</li>
+        )}
+      </ul>
+    </div>
 
-              <div className="bg-gray-100 p-4 rounded-lg mb-6">
-                <h2 className="text-xl font-semibold mb-4">Personalized Recommendations</h2>
-                <ul className="space-y-2">
-                  {recommendations.length ? (
-                    recommendations.map((recommendation) => (
-                      <li key={recommendation._id} className="p-2 bg-white shadow rounded">
-                        {recommendation.text}
-                      </li>
-                    ))
-                  ) : (
-                    <li>No recommendations available</li>
-                  )}
-                </ul>
-              </div>
-            </>
-          )}
+    {/* Personalized Recommendations Section */}
+    <div className="bg-gray-100 p-4 rounded-lg mb-6">
+      <h2 className="text-xl font-semibold mb-4">Personalized Recommendations</h2>
+      <ul className="space-y-2">
+        {recommendations.length ? (
+          recommendations.map((recommendation) => (
+            <li key={recommendation._id} className="p-2 bg-white shadow rounded">
+              {recommendation.text}
+            </li>
+          ))
+        ) : (
+          <li>No recommendations available</li>
+        )}
+      </ul>
+    </div>
+  </>
+)}
         </div>
       </div>
     </div>
