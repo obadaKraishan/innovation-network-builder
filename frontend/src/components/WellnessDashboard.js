@@ -114,7 +114,7 @@ const WellnessDashboard = () => {
 
     return (
       <li
-        key={feedback._id}
+        key={feedback._id} // Ensure each list item has a unique key
         className="p-2 bg-white shadow rounded flex justify-between items-center"
       >
         <div>
@@ -271,7 +271,7 @@ const WellnessDashboard = () => {
                   {surveys.length ? (
                     surveys.map((survey) => (
                       <li
-                        key={survey._id}
+                        key={survey._id} // Ensure a unique key for each survey
                         className="p-4 bg-white shadow rounded-lg flex justify-between items-center"
                       >
                         <div>
@@ -333,8 +333,8 @@ const WellnessDashboard = () => {
                 </h2>
                 <ul className="space-y-2">
                   {userFeedback.length ? (
-                    userFeedback.map((feedback, index) => (
-                      <li key={index} className="p-2 bg-white shadow rounded">
+                    userFeedback.map((feedback) => (
+                      <li key={feedback._id} className="p-2 bg-white shadow rounded">
                         {feedback.feedback
                           .map((fb, fbIndex) => (
                             <span key={fbIndex}>{fb.response}</span>
@@ -354,8 +354,8 @@ const WellnessDashboard = () => {
                 </h2>
                 <ul className="space-y-2">
                   {recommendations.length ? (
-                    recommendations.map((recommendation, index) => (
-                      <li key={index} className="p-2 bg-white shadow rounded">
+                    recommendations.map((recommendation) => (
+                      <li key={recommendation._id} className="p-2 bg-white shadow rounded">
                         {recommendation.text}
                       </li>
                     ))
