@@ -1,5 +1,5 @@
 import React, { useEffect, useState, useContext } from 'react';
-import { useNavigate } from 'react-router-dom'; // Import useNavigate
+import { useNavigate } from 'react-router-dom';
 import Sidebar from './Sidebar';
 import api from '../utils/api';
 import { Line } from 'react-chartjs-2';
@@ -7,7 +7,7 @@ import { FaHeartbeat, FaChartLine, FaPlusSquare, FaEdit, FaTrashAlt } from 'reac
 import AuthContext from '../context/AuthContext';
 import Swal from 'sweetalert2';
 
-// Import chart.js and necessary components
+// Import chart.js components
 import {
   Chart as ChartJS,
   CategoryScale,
@@ -19,7 +19,6 @@ import {
   Legend,
 } from 'chart.js';
 
-// Register components
 ChartJS.register(
   CategoryScale,
   LinearScale,
@@ -32,17 +31,17 @@ ChartJS.register(
 
 const WellnessDashboard = () => {
   const { user } = useContext(AuthContext); // Get user context to determine role
-  const [loading, setLoading] = useState(true); // Loading state for user data
+  const [loading, setLoading] = useState(true);
   const [burnoutRisk, setBurnoutRisk] = useState(0);
   const [stressLevels, setStressLevels] = useState([]);
   const [anonymousFeedback, setAnonymousFeedback] = useState([]);
-  const [nonAnonymousFeedback, setNonAnonymousFeedback] = useState([]); // Non-anonymous feedback
-  const [userFeedback, setUserFeedback] = useState([]); // Current user's feedback
+  const [nonAnonymousFeedback, setNonAnonymousFeedback] = useState([]);
+  const [userFeedback, setUserFeedback] = useState([]);
   const [recommendations, setRecommendations] = useState([]);
   const [searchTerm, setSearchTerm] = useState('');
-  const [surveys, setSurveys] = useState([]); // Surveys for higher roles
+  const [surveys, setSurveys] = useState([]);
 
-  const navigate = useNavigate(); // Initialize useNavigate for navigation
+  const navigate = useNavigate(); // For navigation
 
   useEffect(() => {
     const fetchMetrics = async () => {
@@ -58,14 +57,13 @@ const WellnessDashboard = () => {
     };
 
     const fetchSurveys = async () => {
-        try {
-           const { data } = await api.get('/wellness/all-surveys');
-           console.log("Surveys data:", data); // Log the data here
-           setSurveys(data);
-        } catch (error) {
-           console.error('Failed to fetch surveys', error);
-        }
-     };     
+      try {
+        const { data } = await api.get('/wellness/all-surveys');
+        setSurveys(data);
+      } catch (error) {
+        console.error('Failed to fetch surveys', error);
+      }
+    };
 
     const fetchUserFeedback = async () => {
       try {
@@ -85,7 +83,6 @@ const WellnessDashboard = () => {
       }
     };
 
-    // Fetch metrics and surveys only when user is available
     if (user) {
       fetchMetrics();
       fetchSurveys();
@@ -95,16 +92,44 @@ const WellnessDashboard = () => {
     }
   }, [user]);
 
+// Safeguard for missing employeeId or feedback responses
+const renderFeedbackItem = (feedback, surveyTitle, feedbackDate) => {
+    const employeeName = feedback.anonymous
+      ? 'Anonymous'
+      : feedback.employeeId
+      ? feedback.employeeId.name
+      : 'Unknown Employee';
+  
+    const validDate = feedbackDate ? new Date(feedbackDate).toLocaleString() : 'Invalid Date';
+    const feedbackResponses = feedback.feedback?.map((fb) => fb.response).join(', ') || 'No responses';
+  
+    return (
+      <li key={feedback._id} className="p-2 bg-white shadow rounded flex justify-between items-center">
+        <div>
+          <strong>Feedback from: {employeeName}</strong>
+          <p>Survey: {surveyTitle || 'Unknown Survey'}</p>
+          <p>Submitted on: {validDate}</p>
+        </div>
+        <button
+          className="bg-blue-500 text-white px-4 py-2 rounded"
+          onClick={() => navigate(`/wellness/feedback-details/${feedback._id}`)}
+        >
+          View Details
+        </button>
+      </li>
+    );
+  };
+  
   // Handle survey deletion
   const handleDeleteSurvey = async (surveyId) => {
     const result = await Swal.fire({
       title: 'Are you sure?',
-      text: "Do you really want to delete this survey?",
+      text: 'Do you really want to delete this survey?',
       icon: 'warning',
       showCancelButton: true,
       confirmButtonColor: '#d33',
       cancelButtonColor: '#3085d6',
-      confirmButtonText: 'Yes, delete it!'
+      confirmButtonText: 'Yes, delete it!',
     });
 
     if (result.isConfirmed) {
@@ -118,7 +143,6 @@ const WellnessDashboard = () => {
     }
   };
 
-  // If loading, show a loading message
   if (loading || !user) {
     return <div>Loading...</div>;
   }
@@ -150,7 +174,7 @@ const WellnessDashboard = () => {
                   <h2 className="text-xl font-semibold">Management Dashboard</h2>
                 </div>
                 <div>
-                  <button 
+                  <button
                     className="bg-blue-500 text-white p-2 rounded-lg mr-2 flex items-center"
                     onClick={() => navigate('/wellness/create-survey')} // Redirect to Create Survey
                   >
@@ -180,36 +204,34 @@ const WellnessDashboard = () => {
               </div>
 
               {/* Anonymous Feedback Section */}
-              <div className="mb-6">
-                <h2 className="text-xl font-semibold mb-4">Anonymous Feedback</h2>
-                <ul className="space-y-4 bg-gray-100 p-4 rounded-lg">
-                  {anonymousFeedback.length ? (
-                    anonymousFeedback.map((feedback, index) => (
-                      <li key={index} className="p-2 bg-white shadow rounded">
-                        {feedback.text}
-                      </li>
-                    ))
-                  ) : (
-                    <li>No anonymous feedback available</li>
-                  )}
-                </ul>
-              </div>
+<div className="mb-6">
+  <h2 className="text-xl font-semibold mb-4">Anonymous Feedback</h2>
+  <ul className="space-y-4 bg-gray-100 p-4 rounded-lg">
+    {anonymousFeedback.length ? (
+      anonymousFeedback.map((feedback) =>
+        renderFeedbackItem(feedback, feedback.surveyTitle, feedback.createdAt)
+      )
+    ) : (
+      <li>No anonymous feedback available</li>
+    )}
+  </ul>
+</div>
+
 
               {/* Non-Anonymous Feedback Section */}
-              <div className="mb-6">
-                <h2 className="text-xl font-semibold mb-4">Non-Anonymous Feedback</h2>
-                <ul className="space-y-4 bg-gray-100 p-4 rounded-lg">
-                  {nonAnonymousFeedback.length ? (
-                    nonAnonymousFeedback.map((feedback, index) => (
-                      <li key={index} className="p-2 bg-white shadow rounded">
-                        <strong>{feedback.employeeId.name}</strong>: {feedback.feedback.map((fb) => fb.response).join(", ")}
-                      </li>
-                    ))
-                  ) : (
-                    <li>No non-anonymous feedback available</li>
-                  )}
-                </ul>
-              </div>
+<div className="mb-6">
+  <h2 className="text-xl font-semibold mb-4">Non-Anonymous Feedback</h2>
+  <ul className="space-y-4 bg-gray-100 p-4 rounded-lg">
+    {nonAnonymousFeedback.length ? (
+      nonAnonymousFeedback.map((feedback) =>
+        renderFeedbackItem(feedback, feedback.surveyTitle, feedback.createdAt)
+      )
+    ) : (
+      <li>No non-anonymous feedback available</li>
+    )}
+  </ul>
+</div>
+
 
               <div className="mb-6">
                 <h2 className="text-xl font-semibold mb-4">All Surveys</h2>
@@ -223,12 +245,12 @@ const WellnessDashboard = () => {
                           <p>{survey.surveyQuestions.length} Questions</p>
                         </div>
                         <div className="flex space-x-4">
-                        <button
+                          <button
                             className="text-blue-500 flex items-center"
-                            onClick={() => navigate(`/wellness/edit-survey/${survey._id}`)}  // Ensure survey._id is passed here
-                            >
+                            onClick={() => navigate(`/wellness/edit-survey/${survey._id}`)}
+                          >
                             <FaEdit className="mr-2" /> Edit
-                        </button>
+                          </button>
 
                           <button
                             className="text-red-500 flex items-center"
@@ -252,7 +274,7 @@ const WellnessDashboard = () => {
             <>
               <div className="flex justify-between items-center mb-4">
                 <h2 className="text-xl font-semibold">Your Wellness</h2>
-                <button 
+                <button
                   className="bg-green-500 text-white p-2 rounded-lg flex items-center"
                   onClick={() => navigate('/wellness/submit-feedback')} // Redirect to Submit Feedback
                 >
@@ -267,7 +289,7 @@ const WellnessDashboard = () => {
                   {userFeedback.length ? (
                     userFeedback.map((feedback, index) => (
                       <li key={index} className="p-2 bg-white shadow rounded">
-                        {feedback.feedback.map((fb) => fb.response).join(", ")}
+                        {feedback.feedback.map((fb) => fb.response).join(', ')}
                       </li>
                     ))
                   ) : (

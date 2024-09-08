@@ -6,6 +6,7 @@ const {
   updateSurvey, 
   deleteSurvey,
   submitFeedback,
+  getFeedbackById,
   getAnonymousFeedback,
   getNonAnonymousFeedback,
   getUserFeedback,
@@ -21,6 +22,7 @@ router.route('/create-survey').post(protect, admin, createSurvey);
 router.route('/surveys/:surveyId').get(protect, getSurveyById).put(protect, admin, updateSurvey).delete(protect, admin, deleteSurvey);
 router.route('/all-surveys').get(protect, admin, getAllSurveys);
 router.route('/submit-feedback').post(protect, submitFeedback);
+router.route('/feedback/:feedbackId').get(protect, getFeedbackById);
 router.route('/anonymous-feedback').get(protect, admin, getAnonymousFeedback);
 router.route('/non-anonymous-feedback').get(protect, admin, getNonAnonymousFeedback); // Non-anonymous feedback for managers
 router.route('/user-feedback/:userId').get(protect, getUserFeedback); // User-specific feedback

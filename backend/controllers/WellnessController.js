@@ -93,6 +93,34 @@ const submitFeedback = asyncHandler(async (req, res) => {
   res.status(201).json({ message: 'Feedback submitted successfully' });
 });
 
+// Fetch feedback details by feedbackId
+const getFeedbackById = asyncHandler(async (req, res) => {
+    const feedbackId = req.params.feedbackId;
+  
+    const feedback = await WellnessSurvey.findOne({ 'feedback._id': feedbackId })
+      .populate('feedback.employeeId', 'name role') // Ensure employee name is populated
+      .select('feedback surveyQuestions createdAt title');
+  
+    if (!feedback) {
+      res.status(404);
+      throw new Error('Feedback not found');
+    }
+  
+    const feedbackItem = feedback.feedback.find(fb => fb._id.toString() === feedbackId);
+    
+    if (!feedbackItem) {
+      return res.status(404).json({ message: "Feedback not found" });
+    }
+  
+    res.status(200).json({
+      feedback: feedbackItem.feedback,
+      surveyQuestions: feedback.surveyQuestions,
+      employeeId: feedbackItem.employeeId,
+      anonymous: feedbackItem.anonymous,
+      createdAt: feedbackItem.createdAt,
+    });
+  });  
+
 // Get anonymous feedback for management
 const getAnonymousFeedback = asyncHandler(async (req, res) => {
   const feedbacks = await WellnessSurvey.find({ 'feedback.anonymous': true })
@@ -115,11 +143,11 @@ const getUserFeedback = asyncHandler(async (req, res) => {
 // Fetch all non-anonymous feedback for management
 const getNonAnonymousFeedback = asyncHandler(async (req, res) => {
     const feedbacks = await WellnessSurvey.find({ 'feedback.anonymous': false })
-       .select('feedback')
-       .populate('feedback.employeeId', 'name role');
-    console.log("Non-anonymous feedback:", feedbacks);
+       .populate('feedback.employeeId', 'name') // Ensure employee name is populated
+       .select('feedback');
+
     res.status(200).json(feedbacks);
- }); 
+});
 
 // Fetch wellness resources for employees
 const getWellnessResources = asyncHandler(async (req, res) => {
@@ -150,6 +178,7 @@ module.exports = {
   updateSurvey, 
   deleteSurvey,
   submitFeedback,
+  getFeedbackById,
   getAnonymousFeedback,
   getNonAnonymousFeedback,
   getUserFeedback,
