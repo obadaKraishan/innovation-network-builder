@@ -13,6 +13,7 @@ const messageRoutes = require('./routes/messagesRoutes');
 const bookingRoutes = require('./routes/bookingRoutes');
 const interestGroupRoutes = require('./routes/interestGroupRoutes'); 
 const GroupDecisionRoutes = require('./routes/GroupDecisionRoutes');
+const wellnessRoutes = require('./routes/WellnessRoutes');
 
 const app = express();
 
@@ -36,6 +37,7 @@ app.use('/api/messages', messageRoutes);
 app.use('/api/booking', bookingRoutes);
 app.use('/api/groups', interestGroupRoutes);  
 app.use('/api/decisions', GroupDecisionRoutes);
+app.use('/api/wellness', wellnessRoutes);
 
 // Error Handling Middleware
 app.use((err, req, res, next) => {
