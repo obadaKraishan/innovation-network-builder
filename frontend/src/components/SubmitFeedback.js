@@ -6,7 +6,7 @@ import { toast } from "react-toastify";
 const SubmitFeedback = () => {
   const [surveys, setSurveys] = useState([]);
   const [selectedSurvey, setSelectedSurvey] = useState(null);
-  const [feedback, setFeedback] = useState([]);
+  const [feedback, setFeedback] = useState({});
   const [isAnonymous, setIsAnonymous] = useState(false);
 
   useEffect(() => {
@@ -20,6 +20,10 @@ const SubmitFeedback = () => {
     };
     fetchSurveys();
   }, []);
+
+  const handleFeedbackChange = (index, value) => {
+    setFeedback({ ...feedback, [index]: value });
+  };
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -57,33 +61,95 @@ const SubmitFeedback = () => {
                 ))}
               </select>
             </div>
+
             {selectedSurvey && (
               <>
                 {surveys
                   .find((survey) => survey._id === selectedSurvey)
-                  .surveyQuestions.map(
-                    (
-                      question,
-                      index // Change questions to surveyQuestions
-                    ) => (
-                      <div key={index} className="mb-4">
-                        <label className="block text-gray-700">
-                          {question.label}
-                        </label>
+                  .surveyQuestions.map((question, index) => (
+                    <div key={index} className="mb-4">
+                      <label className="block text-gray-700">{question.label}</label>
+
+                      {/* Render input fields based on question type */}
+                      {question.type === "text" && (
                         <input
                           type="text"
                           value={feedback[index] || ""}
-                          onChange={(e) => {
-                            const newFeedback = [...feedback];
-                            newFeedback[index] = e.target.value;
-                            setFeedback(newFeedback);
-                          }}
+                          onChange={(e) => handleFeedbackChange(index, e.target.value)}
                           className="w-full p-3 border border-gray-300 rounded"
-                          required
                         />
-                      </div>
-                    )
-                  )}
+                      )}
+
+                      {question.type === "radio" && (
+                        question.options.map((option, i) => (
+                          <div key={i}>
+                            <label>
+                              <input
+                                type="radio"
+                                name={`question-${index}`}
+                                value={option}
+                                checked={feedback[index] === option}
+                                onChange={() => handleFeedbackChange(index, option)}
+                                className="mr-2"
+                              />
+                              {option}
+                            </label>
+                          </div>
+                        ))
+                      )}
+
+                      {question.type === "checkbox" && (
+                        question.options.map((option, i) => (
+                          <div key={i}>
+                            <label>
+                              <input
+                                type="checkbox"
+                                value={option}
+                                onChange={(e) => {
+                                  const newFeedback = feedback[index] || [];
+                                  if (e.target.checked) {
+                                    newFeedback.push(option);
+                                  } else {
+                                    const optionIndex = newFeedback.indexOf(option);
+                                    if (optionIndex > -1) {
+                                      newFeedback.splice(optionIndex, 1);
+                                    }
+                                  }
+                                  handleFeedbackChange(index, newFeedback);
+                                }}
+                                className="mr-2"
+                              />
+                              {option}
+                            </label>
+                          </div>
+                        ))
+                      )}
+
+                      {question.type === "select" && (
+                        <select
+                          value={feedback[index] || ""}
+                          onChange={(e) => handleFeedbackChange(index, e.target.value)}
+                          className="w-full p-3 border border-gray-300 rounded"
+                        >
+                          <option value="">Select an option...</option>
+                          {question.options.map((option, i) => (
+                            <option key={i} value={option}>
+                              {option}
+                            </option>
+                          ))}
+                        </select>
+                      )}
+
+                      {question.type === "date" && (
+                        <input
+                          type="date"
+                          value={feedback[index] || ""}
+                          onChange={(e) => handleFeedbackChange(index, e.target.value)}
+                          className="w-full p-3 border border-gray-300 rounded"
+                        />
+                      )}
+                    </div>
+                  ))}
                 <div className="mb-4">
                   <label className="flex items-center">
                     <input
@@ -95,10 +161,7 @@ const SubmitFeedback = () => {
                     Submit Anonymously
                   </label>
                 </div>
-                <button
-                  type="submit"
-                  className="w-full p-3 bg-blue-500 text-white rounded-lg"
-                >
+                <button type="submit" className="w-full p-3 bg-blue-500 text-white rounded-lg">
                   Submit Feedback
                 </button>
               </>

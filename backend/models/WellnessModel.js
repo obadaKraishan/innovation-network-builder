@@ -22,12 +22,10 @@ const feedbackSchema = new mongoose.Schema({
   },
   feedback: [
     {
-      jobSatisfaction: { type: Number, required: true },
-      stressLevel: { type: Number, required: true },
-      otherComments: { type: String },
+      questionId: { type: mongoose.Schema.Types.ObjectId, ref: 'WellnessSurvey.surveyQuestions', required: true }, // Reference to question ID
+      response: { type: mongoose.Schema.Types.Mixed, required: true }, // Can be text, radio, checkbox, etc.
     },
   ],
-  recommendations: [String],
   createdAt: {
     type: Date,
     default: Date.now,
