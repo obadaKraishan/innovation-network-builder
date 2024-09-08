@@ -132,8 +132,8 @@ const getFeedbackById = asyncHandler(async (req, res) => {
 const getNonAnonymousFeedback = asyncHandler(async (req, res) => {
     try {
       const feedbacks = await WellnessFeedback.find({ anonymous: false })
-        .populate("employeeId", "name")
-        .populate("surveyId", "title");
+        .populate("employeeId", "name _id") // Populate employee name and _id
+        .populate("surveyId", "title"); // Populate survey title
   
       if (!feedbacks.length) {
         return res.status(404).json({ message: "No non-anonymous feedback found" });
@@ -170,12 +170,12 @@ const getUserFeedback = asyncHandler(async (req, res) => {
     try {
       const feedbacks = await WellnessFeedback.find({
         $or: [
-          { employeeId: userId }, // Feedback that explicitly belongs to the user
-          { employeeId: null, anonymous: true }, // Anonymous feedback by this user
+          { employeeId: userId }, // Feedback explicitly belonging to the user
+          { employeeId: null, anonymous: true }, // Anonymous feedback
         ],
       })
-        .populate("surveyId", "title")
-        .select("feedback surveyId createdAt anonymous employeeId");
+        .populate("employeeId", "name _id") // Populate employee name and _id
+        .populate("surveyId", "title"); // Populate survey title
   
       if (!feedbacks.length) {
         return res.status(200).json({ message: "No feedback found for this user", feedbacks: [] });
@@ -186,7 +186,7 @@ const getUserFeedback = asyncHandler(async (req, res) => {
       console.error("Error fetching user feedback:", error);
       res.status(500).json({ message: "Failed to fetch user feedback" });
     }
-  });  
+  });
 
 // Fetch wellness resources for employees
 const getWellnessResources = asyncHandler(async (req, res) => {

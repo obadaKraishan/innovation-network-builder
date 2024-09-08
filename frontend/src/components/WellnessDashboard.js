@@ -124,30 +124,26 @@ const WellnessDashboard = () => {
   };
 
   // Safeguard for missing employeeId or feedback responses
-const renderFeedbackItem = (feedback, surveyTitle, feedbackDate) => {
+  const renderFeedbackItem = (feedback, surveyTitle, feedbackDate) => {
     if (!feedback || !feedback._id) {
       return null;
     }
   
-    // If the feedback is anonymous and does not belong to the current user, show 'Anonymous'
-    const isOwnFeedback = feedback.employeeId === user._id || feedback.employeeId?._id === user._id;
+    // Safely check if employeeId exists before accessing it
+    const isOwnFeedback = feedback.employeeId && feedback.employeeId._id && feedback.employeeId._id.toString() === user._id.toString();
+  
+    // Display employee name or fallback to 'Unknown Employee' for missing employeeId
     const employeeName = feedback.anonymous && !isOwnFeedback
       ? "Anonymous"
       : feedback.employeeId && feedback.employeeId.name
       ? feedback.employeeId.name
       : "Unknown Employee";
   
-    const validDate = feedbackDate
-      ? new Date(feedbackDate).toLocaleString()
-      : "Invalid Date";
-  
+    const validDate = feedbackDate ? new Date(feedbackDate).toLocaleString() : "Invalid Date";
     const feedbackResponses = renderFeedbackResponses(feedback.feedback);
   
     return (
-      <li
-        key={feedback._id}
-        className="p-2 bg-white shadow rounded flex justify-between items-center"
-      >
+      <li key={feedback._id} className="p-2 bg-white shadow rounded flex justify-between items-center">
         <div>
           <strong>Feedback from: {employeeName}</strong>
           <p>Survey: {surveyTitle || "Unknown Survey"}</p>
