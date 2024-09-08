@@ -87,6 +87,7 @@ const submitFeedback = asyncHandler(async (req, res) => {
     anonymous,
   };
 
+  // Ensure feedback gets an _id automatically
   survey.feedback.push(feedbackData);
   await survey.save();
 
@@ -125,7 +126,7 @@ const getFeedbackById = asyncHandler(async (req, res) => {
       createdAt: feedbackItem.createdAt,
     });
   });
-    
+
 // Get anonymous feedback for management
 const getAnonymousFeedback = asyncHandler(async (req, res) => {
     try {

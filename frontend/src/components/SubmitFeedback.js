@@ -1,3 +1,4 @@
+// SubmitFeedback.js
 import React, { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom"; // Import useNavigate
 import Sidebar from "./Sidebar";
@@ -11,6 +12,7 @@ const SubmitFeedback = () => {
   const [isAnonymous, setIsAnonymous] = useState(false);
   const navigate = useNavigate(); // Initialize navigate
 
+  // Fetch surveys on component mount
   useEffect(() => {
     const fetchSurveys = async () => {
       try {
@@ -23,17 +25,19 @@ const SubmitFeedback = () => {
     fetchSurveys();
   }, []);
 
+  // Handle feedback change for each question
   const handleFeedbackChange = (questionId, value) => {
     setFeedback({ ...feedback, [questionId]: value });
   };
 
+  // Submit feedback
   const handleSubmit = async (e) => {
     e.preventDefault();
 
-    // Prepare the feedback array
+    // Prepare the feedback array for backend submission
     const feedbackArray = Object.entries(feedback).map(([questionId, response]) => ({
-      questionId, // The question's ID
-      response,   // The user's response
+      questionId,
+      response,
     }));
 
     try {
@@ -60,7 +64,7 @@ const SubmitFeedback = () => {
         >
           <span className="mr-2">←</span> Back
         </button>
-        
+
         <div className="p-6 bg-white shadow rounded-lg">
           <h1 className="text-2xl font-bold mb-4">Submit Wellness Feedback</h1>
           <form onSubmit={handleSubmit}>
@@ -123,16 +127,15 @@ const SubmitFeedback = () => {
                                 type="checkbox"
                                 value={option}
                                 onChange={(e) => {
-                                  const newFeedback = feedback[question._id] || [];
+                                  const newFeedback = [...(feedback[question._id] || [])];
                                   if (e.target.checked) {
-                                    newFeedback.push(option);
+                                    handleFeedbackChange(question._id, [...newFeedback, option]);
                                   } else {
-                                    const optionIndex = newFeedback.indexOf(option);
-                                    if (optionIndex > -1) {
-                                      newFeedback.splice(optionIndex, 1);
-                                    }
+                                    handleFeedbackChange(
+                                      question._id,
+                                      newFeedback.filter((opt) => opt !== option)
+                                    );
                                   }
-                                  handleFeedbackChange(question._id, newFeedback);
                                 }}
                                 className="mr-2"
                               />
@@ -143,8 +146,8 @@ const SubmitFeedback = () => {
 
                       {question.type === "select" && (
                         <select
-                          value={feedback[question._id] || ""}
-                          onChange={(e) => handleFeedbackChange(question._id, e.target.value)}
+                          value={feedback[question._id]?.trim() || ""}
+                          onChange={(e) => handleFeedbackChange(question._id, e.target.value.trim())}
                           className="w-full p-3 border border-gray-300 rounded"
                         >
                           <option value="">Select an option...</option>

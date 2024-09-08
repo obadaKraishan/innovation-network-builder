@@ -100,23 +100,27 @@ const WellnessDashboard = () => {
 
   // Safeguard for missing employeeId or feedback responses
   const renderFeedbackItem = (feedback, surveyTitle, feedbackDate) => {
+    if (!feedback._id) {
+      console.error("Feedback ID is missing for feedback:", feedback);
+      return null; // Skip rendering if _id is missing
+    }
+  
     const employeeName = feedback.anonymous
       ? "Anonymous"
       : feedback.employeeId
       ? feedback.employeeId.name
       : "Unknown Employee";
-
+  
     const validDate = feedbackDate
       ? new Date(feedbackDate).toLocaleString()
       : "Invalid Date";
-    const feedbackResponses =
-      feedback.feedback?.map((fb) => fb.response).join(", ") || "No responses";
-
+    
+    const feedbackResponses = feedback.feedback
+      ? feedback.feedback.map((fb) => fb.response).join(", ")
+      : "No responses";
+  
     return (
-      <li
-        key={feedback._id} // Ensure each list item has a unique key
-        className="p-2 bg-white shadow rounded flex justify-between items-center"
-      >
+      <li key={feedback._id} className="p-2 bg-white shadow rounded flex justify-between items-center">
         <div>
           <strong>Feedback from: {employeeName}</strong>
           <p>Survey: {surveyTitle || "Unknown Survey"}</p>
@@ -124,13 +128,13 @@ const WellnessDashboard = () => {
         </div>
         <button
           className="bg-blue-500 text-white px-4 py-2 rounded"
-          onClick={() => navigate(`/wellness/feedback-details/${feedback._id}`)} // Use feedback._id correctly
+          onClick={() => navigate(`/wellness/feedback-details/${feedback._id}`)} // Ensure correct feedback._id is passed
         >
           View Details
         </button>
       </li>
     );
-  };
+  };  
 
   // Handle survey deletion
   const handleDeleteSurvey = async (surveyId) => {
