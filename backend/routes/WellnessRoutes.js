@@ -13,6 +13,15 @@ const {
   getWellnessResources,
   getDashboardMetrics,
 } = require('../controllers/WellnessController');
+const {
+    createResource,
+    getAllResources,
+    deleteResource,
+} = require('../controllers/WellnessResourceController');
+const {
+    createRecommendation,
+    getUserRecommendations,
+} = require('../controllers/PersonalizedRecommendationController');
 const { protect, admin } = require('../middleware/authMiddleware');
 
 const router = express.Router();
@@ -28,5 +37,12 @@ router.route('/non-anonymous-feedback').get(protect, admin, getNonAnonymousFeedb
 router.route('/user-feedback/:userId').get(protect, getUserFeedback); // User-specific feedback
 router.route('/resources').get(protect, getWellnessResources);
 router.route('/metrics').get(protect, admin, getDashboardMetrics);
+// Resources routes
+router.route('/resources').get(protect, getAllResources).post(protect, admin, createResource);
+router.route('/resources/:resourceId').delete(protect, admin, deleteResource);
+
+// Personalized Recommendations routes
+router.route('/recommendations/:userId').get(protect, getUserRecommendations);
+router.route('/recommendations').post(protect, admin, createRecommendation);
 
 module.exports = router;
