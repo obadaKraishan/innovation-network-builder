@@ -97,6 +97,11 @@ const submitFeedback = asyncHandler(async (req, res) => {
 const getFeedbackById = asyncHandler(async (req, res) => {
     const feedbackId = req.params.feedbackId;
   
+    // Validate if feedbackId is provided and valid
+    if (!mongoose.Types.ObjectId.isValid(feedbackId)) {
+      return res.status(400).json({ message: 'Invalid feedback ID' });
+    }
+  
     const feedback = await WellnessSurvey.findOne({ 'feedback._id': feedbackId })
       .populate('feedback.employeeId', 'name role') // Ensure employee name is populated
       .select('feedback surveyQuestions createdAt title');
@@ -119,8 +124,8 @@ const getFeedbackById = asyncHandler(async (req, res) => {
       anonymous: feedbackItem.anonymous,
       createdAt: feedbackItem.createdAt,
     });
-  });  
-
+  });
+    
 // Get anonymous feedback for management
 const getAnonymousFeedback = asyncHandler(async (req, res) => {
     try {

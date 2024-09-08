@@ -124,7 +124,7 @@ const WellnessDashboard = () => {
         </div>
         <button
           className="bg-blue-500 text-white px-4 py-2 rounded"
-          onClick={() => navigate(`/wellness/feedback-details/${feedback._id}`)}
+          onClick={() => navigate(`/wellness/feedback-details/${feedback._id}`)} // Use feedback._id correctly
         >
           View Details
         </button>
@@ -334,7 +334,10 @@ const WellnessDashboard = () => {
                 <ul className="space-y-2">
                   {userFeedback.length ? (
                     userFeedback.map((feedback) => (
-                      <li key={feedback._id} className="p-2 bg-white shadow rounded">
+                      <li
+                        key={feedback._id}
+                        className="p-2 bg-white shadow rounded"
+                      >
                         {feedback.feedback
                           .map((fb, fbIndex) => (
                             <span key={fbIndex}>{fb.response}</span>
@@ -355,7 +358,10 @@ const WellnessDashboard = () => {
                 <ul className="space-y-2">
                   {recommendations.length ? (
                     recommendations.map((recommendation) => (
-                      <li key={recommendation._id} className="p-2 bg-white shadow rounded">
+                      <li
+                        key={recommendation._id}
+                        className="p-2 bg-white shadow rounded"
+                      >
                         {recommendation.text}
                       </li>
                     ))
