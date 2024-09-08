@@ -104,18 +104,18 @@ const WellnessDashboard = () => {
   }, [user]);
 
   // New helper function to handle rendering feedback responses
-    const renderFeedbackResponses = (feedback) => {
+  const renderFeedbackResponses = (feedback) => {
     return feedback
-        .map((fb) => {
+      .map((fb) => {
         if (typeof fb.response === "object") {
-            return Array.isArray(fb.response)
+          return Array.isArray(fb.response)
             ? fb.response.join(", ") // Handle array feedback
             : JSON.stringify(fb.response, null, 2); // Handle object feedback
         }
         return fb.response; // Handle regular strings
-        })
-        .join(", ");
-    };
+      })
+      .join(", ");
+  };
 
   // Safeguard for missing employeeId or feedback responses
   const renderFeedbackItem = (feedback, surveyTitle, feedbackDate) => {
@@ -123,20 +123,20 @@ const WellnessDashboard = () => {
       console.error("Feedback ID is missing or feedback is invalid:", feedback); // Error log for missing _id
       return null;
     }
-  
+
     const employeeName = feedback.anonymous
       ? "Anonymous"
       : feedback.employeeId && feedback.employeeId.name
       ? feedback.employeeId.name
       : "Unknown Employee";
-  
+
     const validDate = feedbackDate
       ? new Date(feedbackDate).toLocaleString()
       : "Invalid Date";
-  
+
     // Use the new helper function to handle feedback responses
     const feedbackResponses = renderFeedbackResponses(feedback.feedback);
-  
+
     return (
       <li
         key={feedback._id}
@@ -146,7 +146,8 @@ const WellnessDashboard = () => {
           <strong>Feedback from: {employeeName}</strong>
           <p>Survey: {surveyTitle || "Unknown Survey"}</p>
           <p>Submitted on: {validDate}</p>
-          <p>Feedback: {feedbackResponses}</p> {/* Display feedback responses */}
+          <p>Feedback: {feedbackResponses}</p>{" "}
+          {/* Display feedback responses */}
         </div>
         <button
           className="bg-blue-500 text-white px-4 py-2 rounded"
@@ -218,7 +219,9 @@ const WellnessDashboard = () => {
             <>
               <div className="flex justify-between items-center mb-4">
                 <div>
-                  <h2 className="text-xl font-semibold">Management Dashboard</h2>
+                  <h2 className="text-xl font-semibold">
+                    Management Dashboard
+                  </h2>
                 </div>
                 <div>
                   <button
@@ -252,11 +255,17 @@ const WellnessDashboard = () => {
 
               {/* Anonymous Feedback Section */}
               <div className="mb-6">
-                <h2 className="text-xl font-semibold mb-4">Anonymous Feedback</h2>
+                <h2 className="text-xl font-semibold mb-4">
+                  Anonymous Feedback
+                </h2>
                 <ul className="space-y-4 bg-gray-100 p-4 rounded-lg">
                   {anonymousFeedback.length ? (
                     anonymousFeedback.map((feedback) =>
-                      renderFeedbackItem(feedback, feedback.surveyTitle, feedback.createdAt)
+                      renderFeedbackItem(
+                        feedback,
+                        feedback.surveyTitle,
+                        feedback.createdAt
+                      )
                     )
                   ) : (
                     <li>No anonymous feedback available</li>
@@ -266,11 +275,17 @@ const WellnessDashboard = () => {
 
               {/* Non-Anonymous Feedback Section */}
               <div className="mb-6">
-                <h2 className="text-xl font-semibold mb-4">Non-Anonymous Feedback</h2>
+                <h2 className="text-xl font-semibold mb-4">
+                  Non-Anonymous Feedback
+                </h2>
                 <ul className="space-y-4 bg-gray-100 p-4 rounded-lg">
                   {nonAnonymousFeedback.length ? (
                     nonAnonymousFeedback.map((feedback) =>
-                      renderFeedbackItem(feedback, feedback.surveyTitle, feedback.createdAt)
+                      renderFeedbackItem(
+                        feedback,
+                        feedback.surveyTitle,
+                        feedback.createdAt
+                      )
                     )
                   ) : (
                     <li>No non-anonymous feedback available</li>
@@ -289,13 +304,18 @@ const WellnessDashboard = () => {
                       >
                         <div>
                           <h3 className="text-xl font-bold">{survey.title}</h3>
-                          <p>Created At: {new Date(survey.createdAt).toLocaleString()}</p>
+                          <p>
+                            Created At:{" "}
+                            {new Date(survey.createdAt).toLocaleString()}
+                          </p>
                           <p>{survey.surveyQuestions.length} Questions</p>
                         </div>
                         <div className="flex space-x-4">
                           <button
                             className="text-blue-500 flex items-center"
-                            onClick={() => navigate(`/wellness/edit-survey/${survey._id}`)}
+                            onClick={() =>
+                              navigate(`/wellness/edit-survey/${survey._id}`)
+                            }
                           >
                             <FaEdit className="mr-2" /> Edit
                           </button>
@@ -318,49 +338,64 @@ const WellnessDashboard = () => {
           )}
 
           {/* Employee-specific features */}
-{["Employee", "Customer Support Specialist", "Research Scientist"].includes(user.role) && (
-  <>
-    <div className="flex justify-between items-center mb-4">
-      <h2 className="text-xl font-semibold">Your Wellness</h2>
-      <button
-          className="bg-green-500 text-white p-2 rounded-lg flex items-center"
-          onClick={() => navigate("/wellness/submit-feedback")} // Redirect to Submit Feedback
-      >
-          <FaPlusSquare className="mr-2" /> Submit Feedback
-      </button>
-    </div>
+          {[
+            "Employee",
+            "Customer Support Specialist",
+            "Research Scientist",
+          ].includes(user.role) && (
+            <>
+              <div className="flex justify-between items-center mb-4">
+                <h2 className="text-xl font-semibold">Your Wellness</h2>
+                <button
+                  className="bg-green-500 text-white p-2 rounded-lg flex items-center"
+                  onClick={() => navigate("/wellness/submit-feedback")} // Redirect to Submit Feedback
+                >
+                  <FaPlusSquare className="mr-2" /> Submit Feedback
+                </button>
+              </div>
 
-    {/* User Feedback Section */}
-    <div className="bg-gray-100 p-4 rounded-lg mb-6">
-      <h2 className="text-xl font-semibold mb-4">Your Previous Feedback</h2>
-      <ul className="space-y-4 bg-gray-100 p-4 rounded-lg">
-        {userFeedback.length ? (
-          userFeedback.map((feedback) => 
-            renderFeedbackItem(feedback, feedback.surveyId?.title, feedback.createdAt)
-          )
-        ) : (
-          <li>No previous feedback available</li>
-        )}
-      </ul>
-    </div>
+              {/* User Feedback Section */}
+              <div className="bg-gray-100 p-4 rounded-lg mb-6">
+                <h2 className="text-xl font-semibold mb-4">
+                  Your Previous Feedback
+                </h2>
+                <ul className="space-y-4 bg-gray-100 p-4 rounded-lg">
+                  {userFeedback.length ? (
+                    userFeedback.map((feedback) =>
+                      renderFeedbackItem(
+                        feedback,
+                        feedback.surveyId?.title,
+                        feedback.createdAt
+                      )
+                    )
+                  ) : (
+                    <li>No previous feedback available</li>
+                  )}
+                </ul>
+              </div>
 
-    {/* Personalized Recommendations Section */}
-    <div className="bg-gray-100 p-4 rounded-lg mb-6">
-      <h2 className="text-xl font-semibold mb-4">Personalized Recommendations</h2>
-      <ul className="space-y-2">
-        {recommendations.length ? (
-          recommendations.map((recommendation) => (
-            <li key={recommendation._id} className="p-2 bg-white shadow rounded">
-              {recommendation.text}
-            </li>
-          ))
-        ) : (
-          <li>No recommendations available</li>
-        )}
-      </ul>
-    </div>
-  </>
-)}
+              {/* Personalized Recommendations Section */}
+              <div className="bg-gray-100 p-4 rounded-lg mb-6">
+                <h2 className="text-xl font-semibold mb-4">
+                  Personalized Recommendations
+                </h2>
+                <ul className="space-y-2">
+                  {recommendations.length ? (
+                    recommendations.map((recommendation) => (
+                      <li
+                        key={recommendation._id}
+                        className="p-2 bg-white shadow rounded"
+                      >
+                        {recommendation.text}
+                      </li>
+                    ))
+                  ) : (
+                    <li>No recommendations available</li>
+                  )}
+                </ul>
+              </div>
+            </>
+          )}
         </div>
       </div>
     </div>

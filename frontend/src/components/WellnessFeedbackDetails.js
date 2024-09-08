@@ -10,13 +10,13 @@ const WellnessFeedbackDetails = () => {
 
   useEffect(() => {
     const fetchFeedbackDetails = async () => {
-        try {
-          const { data } = await api.get(`/wellness/feedback/${feedbackId}`);
-          setFeedbackDetails(data);
-        } catch (error) {
-          console.error('Failed to fetch feedback details:', error);
-        }
-      };      
+      try {
+        const { data } = await api.get(`/wellness/feedback/${feedbackId}`);
+        setFeedbackDetails(data);
+      } catch (error) {
+        console.error('Failed to fetch feedback details:', error);
+      }
+    };
 
     fetchFeedbackDetails();
   }, [feedbackId]);
@@ -25,7 +25,9 @@ const WellnessFeedbackDetails = () => {
     return <div>Loading...</div>;
   }
 
-  const { feedback, surveyQuestions, employeeId, anonymous } = feedbackDetails;
+  // Destructure and safeguard surveyQuestions and feedback
+  const { feedback = [], surveyId = {}, employeeId = {}, anonymous, createdAt } = feedbackDetails;
+  const { surveyQuestions = [] } = surveyId;
 
   return (
     <div className="flex h-screen">
@@ -34,23 +36,32 @@ const WellnessFeedbackDetails = () => {
         <div className="p-6 bg-white shadow rounded-lg">
           <h1 className="text-2xl font-bold mb-4">Feedback Details</h1>
           <div className="mb-6">
-            <h2 className="text-xl font-semibold">Feedback from: {anonymous ? 'Anonymous' : employeeId.name}</h2>
-            <p>Submitted on: {new Date(feedbackDetails.createdAt).toLocaleString()}</p>
+            <h2 className="text-xl font-semibold">
+              Feedback from: {anonymous ? 'Anonymous' : employeeId?.name || 'Unknown Employee'}
+            </h2>
+            <p>Submitted on: {new Date(createdAt).toLocaleString()}</p>
           </div>
           <div className="bg-gray-100 p-4 rounded-lg mb-6">
             <h2 className="text-xl font-semibold mb-4">Survey Questions and Responses</h2>
             <ul className="space-y-2">
-              {surveyQuestions.map((question, index) => (
-                <li key={index} className="p-2 bg-white shadow rounded">
-                  <strong>Q: {question.label}</strong>
-                  <p>A: {feedback.find(fb => fb.questionId === question._id)?.response || 'No response'}</p>
-                </li>
-              ))}
+              {surveyQuestions.length > 0 ? (
+                surveyQuestions.map((question, index) => (
+                  <li key={index} className="p-2 bg-white shadow rounded">
+                    <strong>Q: {question.label}</strong>
+                    <p>
+                      A:{' '}
+                      {feedback.find(fb => fb.questionId === question._id)?.response || 'No response'}
+                    </p>
+                  </li>
+                ))
+              ) : (
+                <li>No survey questions available</li>
+              )}
             </ul>
           </div>
           <button
             className="bg-blue-500 text-white px-4 py-2 rounded"
-            onClick={() => navigate(-1)} // Go back to previous page
+            onClick={() => navigate(-1)} // Go back to the previous page
           >
             Back to Dashboard
           </button>
