@@ -54,43 +54,48 @@ const WellnessDashboard = () => {
     const fetchMetrics = async () => {
       try {
         const { data } = await api.get("/wellness/metrics");
-        console.log("Fetched metrics:", data); // Debugging log
         setBurnoutRisk(data.burnoutRisk || 0);
         setStressLevels(data.stressLevels || []);
         setAnonymousFeedback(data.anonymousFeedback || []);
         setRecommendations(data.recommendations || []);
       } catch (error) {
-        console.error("Failed to fetch wellness metrics", error); // Error log
+        console.error("Failed to fetch wellness metrics", error);
       }
     };
 
     const fetchSurveys = async () => {
       try {
         const { data } = await api.get("/wellness/all-surveys");
-        console.log("Fetched surveys:", data); // Debugging log
         setSurveys(data);
       } catch (error) {
-        console.error("Failed to fetch surveys", error); // Error log
+        console.error("Failed to fetch surveys", error);
       }
     };
 
     const fetchUserFeedback = async () => {
       try {
         const { data } = await api.get(`/wellness/user-feedback/${user._id}`);
-        console.log("Fetched user feedback:", data); // Debugging log
         setUserFeedback(data);
       } catch (error) {
-        console.error("Failed to fetch user feedback", error); // Error log
+        console.error("Failed to fetch user feedback", error);
       }
     };
 
     const fetchNonAnonymousFeedback = async () => {
       try {
         const { data } = await api.get("/wellness/non-anonymous-feedback");
-        console.log("Fetched non-anonymous feedback:", data); // Debugging log
         setNonAnonymousFeedback(data);
       } catch (error) {
-        console.error("Failed to fetch non-anonymous feedback", error); // Error log
+        console.error("Failed to fetch non-anonymous feedback", error);
+      }
+    };
+
+    const fetchAnonymousFeedback = async () => {
+      try {
+        const { data } = await api.get("/wellness/anonymous-feedback");
+        setAnonymousFeedback(data);
+      } catch (error) {
+        console.error("Failed to fetch anonymous feedback", error);
       }
     };
 
@@ -99,6 +104,7 @@ const WellnessDashboard = () => {
       fetchSurveys();
       fetchUserFeedback();
       fetchNonAnonymousFeedback();
+      fetchAnonymousFeedback();
       setLoading(false);
     }
   }, [user]);
@@ -120,21 +126,18 @@ const WellnessDashboard = () => {
   // Safeguard for missing employeeId or feedback responses
   const renderFeedbackItem = (feedback, surveyTitle, feedbackDate) => {
     if (!feedback || !feedback._id) {
-      console.error("Feedback ID is missing or feedback is invalid:", feedback); // Error log for missing _id
       return null;
     }
 
-    const employeeName = feedback.anonymous
-      ? "Anonymous"
-      : feedback.employeeId && feedback.employeeId.name
-      ? feedback.employeeId.name
-      : "Unknown Employee";
+    const employeeName =
+      feedback.employeeId && feedback.employeeId.name
+        ? feedback.employeeId.name
+        : "Unknown Employee";
 
     const validDate = feedbackDate
       ? new Date(feedbackDate).toLocaleString()
       : "Invalid Date";
 
-    // Use the new helper function to handle feedback responses
     const feedbackResponses = renderFeedbackResponses(feedback.feedback);
 
     return (
@@ -146,8 +149,7 @@ const WellnessDashboard = () => {
           <strong>Feedback from: {employeeName}</strong>
           <p>Survey: {surveyTitle || "Unknown Survey"}</p>
           <p>Submitted on: {validDate}</p>
-          <p>Feedback: {feedbackResponses}</p>{" "}
-          {/* Display feedback responses */}
+          <p>Feedback: {feedbackResponses}</p>
         </div>
         <button
           className="bg-blue-500 text-white px-4 py-2 rounded"
@@ -178,7 +180,6 @@ const WellnessDashboard = () => {
         Swal.fire("Deleted!", "The survey has been deleted.", "success");
       } catch (error) {
         Swal.fire("Error!", "Failed to delete the survey.", "error");
-        console.error("Error deleting survey:", error); // Error log for deletion
       }
     }
   };
@@ -299,7 +300,7 @@ const WellnessDashboard = () => {
                   {surveys.length ? (
                     surveys.map((survey) => (
                       <li
-                        key={survey._id} // Ensure a unique key for each survey
+                        key={survey._id}
                         className="p-4 bg-white shadow rounded-lg flex justify-between items-center"
                       >
                         <div>
