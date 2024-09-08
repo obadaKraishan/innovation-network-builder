@@ -1,4 +1,5 @@
 import React, { useEffect, useState, useContext } from 'react';
+import { useNavigate } from 'react-router-dom'; // Import useNavigate
 import Sidebar from './Sidebar'; // Import Sidebar
 import api from '../utils/api';
 import { Line } from 'react-chartjs-2';
@@ -30,11 +31,14 @@ ChartJS.register(
 
 const WellnessDashboard = () => {
   const { user } = useContext(AuthContext); // Get user context to determine role
+  const [loading, setLoading] = useState(true); // Loading state for user data
   const [burnoutRisk, setBurnoutRisk] = useState(0);
   const [stressLevels, setStressLevels] = useState([]);
   const [anonymousFeedback, setAnonymousFeedback] = useState([]);
   const [recommendations, setRecommendations] = useState([]);
   const [searchTerm, setSearchTerm] = useState('');
+
+  const navigate = useNavigate(); // Initialize useNavigate for navigation
 
   useEffect(() => {
     const fetchMetrics = async () => {
@@ -48,8 +52,18 @@ const WellnessDashboard = () => {
         console.error('Failed to fetch wellness metrics', error);
       }
     };
-    fetchMetrics();
-  }, []);
+    
+    // Fetch metrics only when user is available
+    if (user) {
+      fetchMetrics();
+      setLoading(false);
+    }
+  }, [user]);
+
+  // If loading, show a loading message
+  if (loading || !user) {
+    return <div>Loading...</div>;
+  }
 
   // Filtered anonymous feedback based on search term
   const filteredFeedback = anonymousFeedback.filter((feedback) =>
@@ -83,7 +97,10 @@ const WellnessDashboard = () => {
                   <h2 className="text-xl font-semibold">Management Dashboard</h2>
                 </div>
                 <div>
-                  <button className="bg-blue-500 text-white p-2 rounded-lg mr-2 flex items-center">
+                  <button 
+                    className="bg-blue-500 text-white p-2 rounded-lg mr-2 flex items-center"
+                    onClick={() => navigate('/wellness/create-survey')} // Redirect to Create Survey
+                  >
                     <FaPlusSquare className="mr-2" /> Create Survey
                   </button>
                   <input
@@ -131,7 +148,10 @@ const WellnessDashboard = () => {
             <>
               <div className="flex justify-between items-center mb-4">
                 <h2 className="text-xl font-semibold">Your Wellness</h2>
-                <button className="bg-green-500 text-white p-2 rounded-lg flex items-center">
+                <button 
+                  className="bg-green-500 text-white p-2 rounded-lg flex items-center"
+                  onClick={() => navigate('/wellness/submit-feedback')} // Redirect to Submit Feedback
+                >
                   <FaPlusSquare className="mr-2" /> Submit Feedback
                 </button>
               </div>
