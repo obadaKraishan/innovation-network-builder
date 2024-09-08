@@ -105,41 +105,28 @@ const submitFeedback = asyncHandler(async (req, res) => {
 // Fetch feedback details by feedbackId
 const getFeedbackById = asyncHandler(async (req, res) => {
     const feedbackId = req.params.feedbackId;
-  
+
     console.log('Fetching feedback with ID:', feedbackId); // Debugging log
-  
+
     // Validate if feedbackId is provided and valid
     if (!mongoose.Types.ObjectId.isValid(feedbackId)) {
       console.error('Invalid feedback ID:', feedbackId); // Error log
       return res.status(400).json({ message: 'Invalid feedback ID' });
     }
-  
-    const feedback = await WellnessSurvey.findOne({ 'feedback._id': feedbackId })
-      .populate('feedback.employeeId', 'name role') // Ensure employee name is populated
-      .select('feedback surveyQuestions createdAt title');
-  
+
+    const feedback = await WellnessFeedback.findById(feedbackId)
+      .populate('employeeId', 'name role') // Ensure employee name is populated
+      .populate('surveyId', 'title surveyQuestions') // Populate survey details
+      .select('feedback createdAt anonymous employeeId');
+
     if (!feedback) {
       console.error('Feedback not found with ID:', feedbackId); // Error log
       res.status(404);
       throw new Error('Feedback not found');
     }
-  
-    const feedbackItem = feedback.feedback.find((fb) => fb._id.toString() === feedbackId);
-  
-    if (!feedbackItem) {
-      console.error('Feedback item not found in survey:', feedbackId); // Error log
-      return res.status(404).json({ message: 'Feedback not found' });
-    }
-  
-    console.log('Found feedback item:', feedbackItem); // Debugging log
-    res.status(200).json({
-      feedback: feedbackItem.feedback,
-      surveyQuestions: feedback.surveyQuestions,
-      employeeId: feedbackItem.employeeId,
-      anonymous: feedbackItem.anonymous,
-      createdAt: feedbackItem.createdAt,
-    });
-  });
+
+    res.status(200).json(feedback);
+});
 
 // Fetch all non-anonymous feedback for management
 const getNonAnonymousFeedback = asyncHandler(async (req, res) => {
@@ -182,7 +169,7 @@ const getUserFeedback = asyncHandler(async (req, res) => {
   
     console.log('Fetching user feedback for user:', userId); // Debugging log
   
-    // Fetch feedback from the new WellnessFeedback collection
+    // Fetch feedback from the WellnessFeedback collection
     const feedbacks = await WellnessFeedback.find({ employeeId: userId })
       .populate('surveyId', 'title') // Populate survey details
       .select('feedback surveyId createdAt anonymous');
@@ -190,11 +177,11 @@ const getUserFeedback = asyncHandler(async (req, res) => {
     console.log('User feedback fetched:', feedbacks); // Debugging log
   
     if (!feedbacks.length) {
-      return res.status(404).json({ message: 'No feedback found for this user' });
+      return res.status(200).json({ message: 'No feedback found for this user', feedbacks: [] });
     }
   
     res.status(200).json(feedbacks);
-  });
+  });  
 
 // Fetch wellness resources for employees
 const getWellnessResources = asyncHandler(async (req, res) => {
@@ -204,13 +191,13 @@ const getWellnessResources = asyncHandler(async (req, res) => {
 
 // Get wellness dashboard metrics for management
 const getDashboardMetrics = asyncHandler(async (req, res) => {
-  const metrics = await WellnessSurvey.aggregate([
+  const metrics = await WellnessFeedback.aggregate([
     { $unwind: '$feedback' },
     {
       $group: {
         _id: null,
-        avgStressLevel: { $avg: '$feedback.feedback.stressLevel' },
-        avgJobSatisfaction: { $avg: '$feedback.feedback.jobSatisfaction' },
+        avgStressLevel: { $avg: { $cond: [{ $eq: ['$feedback.questionId', 'STRESS_LEVEL_QUESTION_ID'] }, '$feedback.response', null] }},
+        avgJobSatisfaction: { $avg: { $cond: [{ $eq: ['$feedback.questionId', 'JOB_SATISFACTION_QUESTION_ID'] }, '$feedback.response', null] }},
       },
     },
   ]);

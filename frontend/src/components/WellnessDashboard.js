@@ -104,18 +104,18 @@ const WellnessDashboard = () => {
   }, [user]);
 
   // New helper function to handle rendering feedback responses
-  const renderFeedbackResponses = (feedback) => {
+    const renderFeedbackResponses = (feedback) => {
     return feedback
-      .map((fb) => {
+        .map((fb) => {
         if (typeof fb.response === "object") {
-          return Array.isArray(fb.response)
+            return Array.isArray(fb.response)
             ? fb.response.join(", ") // Handle array feedback
             : JSON.stringify(fb.response, null, 2); // Handle object feedback
         }
         return fb.response; // Handle regular strings
-      })
-      .join(", ");
-  };
+        })
+        .join(", ");
+    };
 
   // Safeguard for missing employeeId or feedback responses
   const renderFeedbackItem = (feedback, surveyTitle, feedbackDate) => {
@@ -323,29 +323,29 @@ const WellnessDashboard = () => {
               <div className="flex justify-between items-center mb-4">
                 <h2 className="text-xl font-semibold">Your Wellness</h2>
                 <button
-                  className="bg-green-500 text-white p-2 rounded-lg flex items-center"
-                  onClick={() => navigate("/wellness/submit-feedback")} // Redirect to Submit Feedback
+                    className="bg-green-500 text-white p-2 rounded-lg flex items-center"
+                    onClick={() => navigate("/wellness/submit-feedback")} // Redirect to Submit Feedback
                 >
-                  <FaPlusSquare className="mr-2" /> Submit Feedback
+                    <FaPlusSquare className="mr-2" /> Submit Feedback
                 </button>
-              </div>
+                </div>
 
               {/* User Feedback Section */}
-              <div className="bg-gray-100 p-4 rounded-lg mb-6">
+                <div className="bg-gray-100 p-4 rounded-lg mb-6">
                 <h2 className="text-xl font-semibold mb-4">Your Previous Feedback</h2>
                 <ul className="space-y-2">
-                  {userFeedback.length ? (
+                    {userFeedback.length ? (
                     userFeedback.map((feedback) => (
-                      <li key={feedback._id} className="p-2 bg-white shadow rounded">
+                        <li key={feedback._id} className="p-2 bg-white shadow rounded">
                         {/* Display each feedback response using the new helper function */}
                         {renderFeedbackResponses(feedback.feedback)}
-                      </li>
+                        </li>
                     ))
-                  ) : (
+                    ) : (
                     <li>No previous feedback available</li>
-                  )}
+                    )}
                 </ul>
-              </div>
+                </div>
 
               <div className="bg-gray-100 p-4 rounded-lg mb-6">
                 <h2 className="text-xl font-semibold mb-4">Personalized Recommendations</h2>
