@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
-import Sidebar from './Sidebar'; // Import Sidebar
+import { useNavigate } from 'react-router-dom';
+import Sidebar from './Sidebar';
 import { useForm, Controller } from 'react-hook-form';
 import Select from 'react-select';
 import DatePicker from 'react-datepicker';
@@ -19,6 +20,7 @@ const CreateSurvey = () => {
   const { register, control, handleSubmit } = useForm();
   const [questions, setQuestions] = useState([{ type: 'text', label: '', options: [] }]);
   const [isAnonymous, setIsAnonymous] = useState(false);
+  const navigate = useNavigate(); // Used to redirect and navigate
 
   const addQuestion = () => {
     setQuestions([...questions, { type: 'text', label: '', options: [] }]);
@@ -38,6 +40,7 @@ const CreateSurvey = () => {
     try {
       await api.post('/wellness/create-survey', { title: data.title, questions, isAnonymous });
       toast.success('Survey created successfully');
+      navigate('/wellness-dashboard'); // Redirect to Wellness Dashboard after successful creation
     } catch (error) {
       toast.error('Failed to create survey');
     }
@@ -47,6 +50,13 @@ const CreateSurvey = () => {
     <div className="flex h-screen">
       <Sidebar />
       <div className="flex-1 p-6 bg-gray-100 overflow-y-auto">
+        {/* Back Button */}
+        <button
+          onClick={() => navigate(-1)} // Go back to the previous page
+          className="mb-4 bg-blue-500 text-white py-2 px-4 rounded inline-flex items-center hover:bg-blue-600 transition"
+        >
+          <span className="mr-2">←</span> Back
+        </button>
         <div className="p-6 bg-white shadow rounded-lg">
           <h1 className="text-2xl font-bold mb-4">Create Wellness Survey</h1>
           <form onSubmit={handleSubmit(handleSubmitSurvey)}>
