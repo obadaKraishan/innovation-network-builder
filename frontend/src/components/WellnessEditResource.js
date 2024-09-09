@@ -43,7 +43,7 @@ const WellnessEditResource = () => {
         <div className="p-6 bg-white shadow rounded-lg">
           <button
             className="bg-blue-500 text-white px-4 py-2 rounded mb-6"
-            onClick={() => navigate('/wellness-dashboard')}
+            onClick={() => navigate(-1)}
           >
             Back
           </button>
