@@ -101,21 +101,26 @@ const WellnessDashboard = () => {
     };
 
     const fetchResourcesAndRecommendations = async () => {
-        try {
-          const [resourcesRes, recommendationsRes] = await Promise.all([
-            api.get("/wellness/resources"), // Fetches from `WellnessResource`
-            api.get(`/wellness/recommendations/${user._id}`),
-          ]);
-      
-          console.log("Resources Fetched:", resourcesRes.data); // Ensure correct structure is logged
-          console.log("Recommendations Fetched:", recommendationsRes.data);
-      
-          setResources(resourcesRes.data); // Correctly set global resources
-          setRecommendations(recommendationsRes.data);
-        } catch (error) {
-          console.error("Error fetching resources or recommendations:", error);
-        }
-      };      
+      try {
+        const resourceEndpoint = "/wellness/resources";
+        const recommendationEndpoint = ["CEO", "Manager"].includes(user.role)
+          ? "/wellness/recommendations" // Fetch all recommendations for higher roles
+          : `/wellness/recommendations/${user._id}`; // Fetch only user's recommendations for other roles
+    
+        const [resourcesRes, recommendationsRes] = await Promise.all([
+          api.get(resourceEndpoint),
+          api.get(recommendationEndpoint),
+        ]);
+    
+        console.log('Resources:', resourcesRes.data);
+        console.log('Recommendations:', recommendationsRes.data);
+    
+        setResources(resourcesRes.data);
+        setRecommendations(recommendationsRes.data);
+      } catch (error) {
+        console.error("Error fetching resources or recommendations:", error);
+      }
+    };    
 
     if (user) {
       fetchMetrics();
@@ -353,7 +358,7 @@ const WellnessDashboard = () => {
                   Wellness Resources
                 </h2>
                 <ul className="space-y-4 bg-gray-100 p-4 rounded-lg">
-                  {resources.length ? (
+                  {resources.length > 0 ? (
                     resources.map((resource) => (
                       <li
                         key={resource._id}
@@ -419,7 +424,7 @@ const WellnessDashboard = () => {
                   Personalized Recommendations
                 </h2>
                 <ul className="space-y-4 bg-gray-100 p-4 rounded-lg">
-                  {recommendations.length ? (
+                  {recommendations.length > 0 ? (
                     recommendations.map((recommendation) => (
                       <li
                         key={recommendation._id}
