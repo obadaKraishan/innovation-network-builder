@@ -33,6 +33,16 @@ const getAllResources = asyncHandler(async (req, res) => {
   }
 });
 
+const getWellnessResourceById = asyncHandler(async (req, res) => {
+    console.log("Fetching resource with ID:", req.params.resourceId); // Add this log
+    const resource = await WellnessResource.findById(req.params.resourceId);
+    if (!resource) {
+      res.status(404);
+      throw new Error('Resource not found');
+    }
+    res.status(200).json(resource);
+});
+
 // Delete a resource by ID
 const deleteResource = asyncHandler(async (req, res) => {
   const resource = await WellnessResource.findById(req.params.resourceId);
@@ -47,4 +57,9 @@ const deleteResource = asyncHandler(async (req, res) => {
   res.status(200).json({ message: 'Resource deleted' });
 });
 
-module.exports = { createResource, getAllResources, deleteResource };
+module.exports = { 
+    createResource, 
+    getAllResources,
+    getWellnessResourceById, 
+    deleteResource 
+};

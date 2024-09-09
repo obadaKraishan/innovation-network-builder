@@ -16,6 +16,7 @@ const {
 const {
     createResource,
     getAllResources,
+    getWellnessResourceById,
     deleteResource,
 } = require('../controllers/WellnessResourceController');
 const {
@@ -38,7 +39,7 @@ router.route('/user-feedback/:userId').get(protect, getUserFeedback); // User-sp
 router.route('/metrics').get(protect, admin, getDashboardMetrics);
 // Resources routes
 router.route('/resources').get(protect, getAllResources).post(protect, admin, createResource);
-router.route('/resources/:resourceId').delete(protect, admin, deleteResource);
+router.route('/resources/:resourceId').get(protect, getWellnessResourceById).delete(protect, admin, deleteResource);
 
 // Personalized Recommendations routes
 router.route('/recommendations/:userId').get(protect, getUserRecommendations);
