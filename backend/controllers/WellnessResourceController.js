@@ -11,7 +11,8 @@ const createResource = asyncHandler(async (req, res) => {
     resourceCategory,
     resourceURL,
     createdBy: req.user._id, // Created by the current user
-  });
+    createdAt: Date.now(), // Ensure the date is set correctly
+  });  
 
   console.log("Resource Created:", newResource);
   res.status(201).json(newResource);
@@ -20,17 +21,11 @@ const createResource = asyncHandler(async (req, res) => {
 // Get all resources (with user details)
 const getAllResources = asyncHandler(async (req, res) => {
   try {
-    const resources = await WellnessResource.find({})
-      .populate("createdBy", "name email") // Populate user data
+    const resources = await WellnessResource.find({}) // Use the correct model
+      .populate("createdBy", "name email") // Populate user info
       .exec();
 
-    // Log resource data for debugging
-    console.log("All Resources Fetched:", resources);
-
-    if (!resources || resources.length === 0) {
-      console.log("No resources found");
-    }
-
+    console.log("Resources fetched:", resources);
     res.status(200).json(resources);
   } catch (error) {
     console.error("Error fetching resources:", error);

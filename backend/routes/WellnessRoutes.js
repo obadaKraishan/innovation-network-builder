@@ -35,7 +35,6 @@ router.route('/feedback/:feedbackId').get(protect, getFeedbackById);
 router.route('/anonymous-feedback').get(protect, admin, getAnonymousFeedback);
 router.route('/non-anonymous-feedback').get(protect, admin, getNonAnonymousFeedback); // Non-anonymous feedback for managers
 router.route('/user-feedback/:userId').get(protect, getUserFeedback); // User-specific feedback
-router.route('/resources').get(protect, getWellnessResources);
 router.route('/metrics').get(protect, admin, getDashboardMetrics);
 // Resources routes
 router.route('/resources').get(protect, getAllResources).post(protect, admin, createResource);

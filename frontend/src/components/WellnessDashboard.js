@@ -101,21 +101,21 @@ const WellnessDashboard = () => {
     };
 
     const fetchResourcesAndRecommendations = async () => {
-      try {
-        const [resourcesRes, recommendationsRes] = await Promise.all([
-          api.get("/wellness/resources"),
-          api.get(`/wellness/recommendations/${user._id}`),
-        ]);
-
-        console.log("Resources Fetched:", resourcesRes.data);
-        console.log("Recommendations Fetched:", recommendationsRes.data);
-
-        setResources(resourcesRes.data);
-        setRecommendations(recommendationsRes.data);
-      } catch (error) {
-        console.error("Error fetching resources or recommendations:", error);
-      }
-    };
+        try {
+          const [resourcesRes, recommendationsRes] = await Promise.all([
+            api.get("/wellness/resources"), // Fetches from `WellnessResource`
+            api.get(`/wellness/recommendations/${user._id}`),
+          ]);
+      
+          console.log("Resources Fetched:", resourcesRes.data); // Ensure correct structure is logged
+          console.log("Recommendations Fetched:", recommendationsRes.data);
+      
+          setResources(resourcesRes.data); // Correctly set global resources
+          setRecommendations(recommendationsRes.data);
+        } catch (error) {
+          console.error("Error fetching resources or recommendations:", error);
+        }
+      };      
 
     if (user) {
       fetchMetrics();
@@ -361,15 +361,22 @@ const WellnessDashboard = () => {
                       >
                         <div>
                           <h3 className="text-xl font-bold">
-                            {resource.resourceTitle}
+                            {resource.resourceTitle || "Unknown Title"}
                           </h3>
-                          <p>Category: {resource.resourceCategory}</p>
+                          <p>
+                            Category:{" "}
+                            {resource.resourceCategory || "Unknown Category"}
+                          </p>
                           <p>
                             Created By: {resource.createdBy?.name || "Unknown"}
-                          </p>{" "}
+                          </p>
                           <p>
                             Created On:{" "}
-                            {new Date(resource.createdAt).toLocaleDateString()}
+                            {resource.createdAt
+                              ? new Date(
+                                  resource.createdAt
+                                ).toLocaleDateString()
+                              : "Invalid Date"}
                           </p>
                           <a
                             href={resource.resourceURL}

@@ -190,9 +190,14 @@ const getUserFeedback = asyncHandler(async (req, res) => {
 
 // Fetch wellness resources for employees
 const getWellnessResources = asyncHandler(async (req, res) => {
-  const resources = await WellnessSurvey.find({}).select('resources');
-  res.status(200).json(resources);
-});
+    try {
+      const resources = await WellnessResource.find({});
+      res.status(200).json(resources);
+    } catch (error) {
+      console.error('Error fetching resources:', error);
+      res.status(500).json({ message: 'Error fetching resources' });
+    }
+  });  
 
 // Get wellness dashboard metrics for management
 const getDashboardMetrics = asyncHandler(async (req, res) => {
