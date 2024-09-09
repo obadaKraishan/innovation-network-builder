@@ -106,10 +106,14 @@ const WellnessDashboard = () => {
           api.get("/wellness/resources"),
           api.get(`/wellness/recommendations/${user._id}`),
         ]);
+
+        console.log("Resources Fetched:", resourcesRes.data);
+        console.log("Recommendations Fetched:", recommendationsRes.data);
+
         setResources(resourcesRes.data);
         setRecommendations(recommendationsRes.data);
       } catch (error) {
-        console.error("Failed to fetch resources and recommendations", error);
+        console.error("Error fetching resources or recommendations:", error);
       }
     };
 
@@ -178,7 +182,7 @@ const WellnessDashboard = () => {
     }
   };
 
-  // New helper function to handle rendering feedback responses
+  // Helper function to handle rendering feedback responses
   const renderFeedbackResponses = (feedback) => {
     return feedback
       .map((fb) => {
@@ -363,7 +367,6 @@ const WellnessDashboard = () => {
                           <p>
                             Created By: {resource.createdBy?.name || "Unknown"}
                           </p>{" "}
-                          {/* Display creator name */}
                           <p>
                             Created On:{" "}
                             {new Date(resource.createdAt).toLocaleDateString()}
@@ -420,8 +423,7 @@ const WellnessDashboard = () => {
                           <p>
                             Created By:{" "}
                             {recommendation.employeeId?.name || "Unknown"}
-                          </p>{" "}
-                          {/* Display employee name */}
+                          </p>
                           <p>
                             Created On:{" "}
                             {new Date(
@@ -600,7 +602,7 @@ const WellnessDashboard = () => {
                         key={recommendation._id}
                         className="p-2 bg-white shadow rounded"
                       >
-                        {recommendation.text}
+                        {recommendation.recommendationText}
                       </li>
                     ))
                   ) : (
