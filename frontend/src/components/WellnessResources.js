@@ -7,6 +7,7 @@ import Swal from 'sweetalert2';
 import { FaEdit, FaTrashAlt, FaPlusSquare } from 'react-icons/fa';
 import Modal from 'react-modal';
 import { useNavigate } from 'react-router-dom';
+import ReactPaginate from 'react-paginate'; // For pagination
 
 // Make sure to set up Modal's root element
 Modal.setAppElement('#root');
@@ -34,6 +35,10 @@ const WellnessResources = () => {
   const [resources, setResources] = useState([]);
   const [newResource, setNewResource] = useState({ title: '', category: '', url: '' });
   const [isModalOpen, setIsModalOpen] = useState(false);
+  const [searchTerm, setSearchTerm] = useState(''); // State for search
+  const [filterCategory, setFilterCategory] = useState(''); // State for category filter
+  const [pageNumber, setPageNumber] = useState(0); // Pagination state
+  const resourcesPerPage = 5; // Number of resources per page
   const navigate = useNavigate();
 
   useEffect(() => {
@@ -87,10 +92,31 @@ const WellnessResources = () => {
     }
   };
 
-  // Check if user exists before accessing its properties
-  if (!user) {
-    return <div>Loading...</div>; // You can display a loading spinner or message
-  }
+  const filteredResources = resources
+    .filter((resource) => {
+      // Filter by search term
+      if (!searchTerm) return true;
+      return (
+        resource.resourceTitle.toLowerCase().includes(searchTerm.toLowerCase()) ||
+        resource.resourceCategory.toLowerCase().includes(searchTerm.toLowerCase())
+      );
+    })
+    .filter((resource) => {
+      // Filter by category
+      if (!filterCategory) return true;
+      return resource.resourceCategory === filterCategory;
+    });
+
+  // Pagination logic
+  const pageCount = Math.ceil(filteredResources.length / resourcesPerPage);
+  const displayResources = filteredResources.slice(
+    pageNumber * resourcesPerPage,
+    (pageNumber + 1) * resourcesPerPage
+  );
+
+  const handlePageClick = ({ selected }) => {
+    setPageNumber(selected);
+  };
 
   return (
     <div className="flex h-screen">
@@ -164,9 +190,35 @@ const WellnessResources = () => {
             </>
           )}
 
+          {/* Search and filter */}
+          <div className="mb-4 flex justify-between items-center">
+            <input
+              type="text"
+              placeholder="Search resources..."
+              value={searchTerm}
+              onChange={(e) => setSearchTerm(e.target.value)}
+              className="p-2 border rounded-lg w-1/3"
+            />
+            <select
+              value={filterCategory}
+              onChange={(e) => setFilterCategory(e.target.value)}
+              className="p-2 border rounded-lg"
+            >
+              <option value="">All Categories</option>
+              {Array.from(new Set(resources.map((resource) => resource.resourceCategory))).map(
+                (category) => (
+                  <option key={category} value={category}>
+                    {category}
+                  </option>
+                )
+              )}
+            </select>
+          </div>
+
+          {/* Display resources */}
           <div>
             <ul className="space-y-4">
-              {resources.map((resource) => (
+              {displayResources.map((resource) => (
                 <li key={resource._id} className="p-4 bg-gray-100 shadow rounded-lg flex justify-between items-center">
                   <div>
                     <h2 className="text-xl font-bold">{resource.resourceTitle || 'Unknown Title'}</h2>
@@ -195,6 +247,19 @@ const WellnessResources = () => {
               ))}
             </ul>
           </div>
+
+          {/* Pagination */}
+          <ReactPaginate
+            previousLabel={'Previous'}
+            nextLabel={'Next'}
+            pageCount={pageCount}
+            onPageChange={handlePageClick}
+            containerClassName={'paginationBtns'}
+            previousLinkClassName={'previousBtn'}
+            nextLinkClassName={'nextBtn'}
+            disabledClassName={'paginationDisabled'}
+            activeClassName={'paginationActive'}
+          />
         </div>
       </div>
     </div>
