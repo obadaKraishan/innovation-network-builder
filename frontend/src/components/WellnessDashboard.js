@@ -106,21 +106,21 @@ const WellnessDashboard = () => {
         const recommendationEndpoint = ["CEO", "Manager"].includes(user.role)
           ? "/wellness/recommendations" // Fetch all recommendations for higher roles
           : `/wellness/recommendations/${user._id}`; // Fetch only user's recommendations for other roles
-    
+
         const [resourcesRes, recommendationsRes] = await Promise.all([
           api.get(resourceEndpoint),
           api.get(recommendationEndpoint),
         ]);
-    
-        console.log('Resources:', resourcesRes.data);
-        console.log('Recommendations:', recommendationsRes.data);
-    
+
+        console.log("Resources:", resourcesRes.data);
+        console.log("Recommendations:", recommendationsRes.data);
+
         setResources(resourcesRes.data);
         setRecommendations(recommendationsRes.data);
       } catch (error) {
         console.error("Error fetching resources or recommendations:", error);
       }
-    };    
+    };
 
     if (user) {
       fetchMetrics();
