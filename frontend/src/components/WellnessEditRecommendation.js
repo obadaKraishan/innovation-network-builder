@@ -14,29 +14,28 @@ const WellnessEditRecommendation = () => {
   const [loading, setLoading] = useState(true);
   const navigate = useNavigate();
 
-  // Fetch single recommendation data
   useEffect(() => {
-    console.log(`Fetching recommendation with ID: ${recommendationId}`);
+    console.log(`Fetching recommendation with ID: ${recommendationId}`); // Log the recommendationId
 
     const fetchRecommendation = async () => {
       try {
         const response = await api.get(`/wellness/recommendations/${recommendationId}`);
-        console.log("API response for fetching recommendation:", response.data);
-
+        console.log("API response for fetching recommendation:", response.data); // Log the API response
+        
         if (response.data && response.data._id) {
           setRecommendation({
             title: response.data.title || "",
             recommendationText: response.data.recommendationText || "",
             resourceUrl: response.data.resourceUrl || "",
           });
-          console.log("Set recommendation state successfully:", response.data);
+          console.log("Recommendation state set successfully:", response.data); // Log the recommendation state
         } else {
           toast.error("No recommendation found");
-          console.log("No recommendation found with this ID.");
+          console.log("No recommendation found with this ID:", recommendationId); // Log if no recommendation is found
         }
       } catch (error) {
         toast.error("Failed to fetch recommendation details");
-        console.error("Error fetching recommendation:", error);
+        console.error("Error fetching recommendation:", error); // Log the error
       } finally {
         setLoading(false);
       }
@@ -45,19 +44,17 @@ const WellnessEditRecommendation = () => {
     fetchRecommendation();
   }, [recommendationId]);
 
-  // Handle recommendation update
   const handleUpdateRecommendation = async () => {
     try {
-      console.log("Updating recommendation:", recommendation);
-
+      console.log("Updating recommendation with data:", recommendation); // Log the recommendation data being updated
       const response = await api.put(`/wellness/recommendations/${recommendationId}`, recommendation);
-      console.log("API response for updating recommendation:", response.data);
-
+      console.log("API response for updating recommendation:", response.data); // Log the update response
+      
       toast.success("Recommendation updated successfully");
       navigate("/wellness/dashboard");
     } catch (error) {
       toast.error("Failed to update recommendation");
-      console.error("Error updating recommendation:", error);
+      console.error("Error updating recommendation:", error); // Log the error
     }
   };
 
@@ -67,7 +64,7 @@ const WellnessEditRecommendation = () => {
 
   return (
     <div className="flex h-screen">
-      <Sidebar /> {/* Sidebar added */}
+      <Sidebar />
       <div className="flex-1 p-6 bg-gray-100 overflow-y-auto">
         <div className="p-6 bg-white shadow rounded-lg">
           <button
@@ -78,7 +75,6 @@ const WellnessEditRecommendation = () => {
           </button>
           <h1 className="text-3xl font-bold mb-6">Edit Recommendation</h1>
 
-          {/* Form */}
           <form className="space-y-6">
             <div>
               <label className="block text-lg text-gray-700 font-medium mb-2">
@@ -126,7 +122,7 @@ const WellnessEditRecommendation = () => {
 
             <button
               onClick={(e) => {
-                e.preventDefault();  // Prevent form from submitting
+                e.preventDefault();
                 handleUpdateRecommendation();
               }}
               className="w-full bg-blue-500 text-white py-3 rounded-lg hover:bg-blue-600 transition duration-200"

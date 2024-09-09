@@ -6,7 +6,7 @@ import { toast } from "react-toastify";
 import Swal from "sweetalert2";
 import { FaEdit, FaTrashAlt, FaPlusSquare } from "react-icons/fa";
 import Modal from "react-modal";
-import ReactPaginate from "react-paginate"; // For pagination
+import ReactPaginate from "react-paginate";
 import { useNavigate } from "react-router-dom";
 
 // Set up modal root
@@ -35,15 +35,15 @@ const PersonalizedRecommendations = () => {
   const [recommendations, setRecommendations] = useState([]);
   const [newRecommendation, setNewRecommendation] = useState({
     employeeId: "",
-    title: "", // New title field
+    title: "",
     recommendationText: "",
     resourceUrl: "",
   });
   const [employees, setEmployees] = useState([]);
-  const [searchTerm, setSearchTerm] = useState(""); // Search term state
-  const [pageNumber, setPageNumber] = useState(0); // Pagination state
-  const recommendationsPerPage = 5; // Items per page
-  const [isModalOpen, setIsModalOpen] = useState(false); // Modal state
+  const [searchTerm, setSearchTerm] = useState("");
+  const [pageNumber, setPageNumber] = useState(0);
+  const recommendationsPerPage = 5;
+  const [isModalOpen, setIsModalOpen] = useState(false);
   const navigate = useNavigate();
 
   useEffect(() => {
@@ -53,16 +53,22 @@ const PersonalizedRecommendations = () => {
           const endpoint = ["CEO", "Manager"].includes(user.role)
             ? "/wellness/recommendations"
             : `/wellness/recommendations/${user._id}`;
+          
+          console.log("Fetching data from endpoint:", endpoint); // Log endpoint
 
           const [usersRes, recRes] = await Promise.all([
             api.get("/users/message-recipients"),
             api.get(endpoint),
           ]);
 
+          console.log("Fetched employees:", usersRes.data); // Log fetched employees
+          console.log("Fetched recommendations:", recRes.data); // Log fetched recommendations
+          
           setEmployees(usersRes.data);
           setRecommendations(recRes.data);
         } catch (error) {
           toast.error("Failed to fetch data");
+          console.error("Error fetching recommendations and employees:", error); // Log errors
         }
       };
 
@@ -72,6 +78,7 @@ const PersonalizedRecommendations = () => {
 
   const handleAddRecommendation = async () => {
     try {
+      console.log("Adding new recommendation:", newRecommendation); // Log new recommendation data
       const { data } = await api.post(
         "/wellness/recommendations",
         newRecommendation
@@ -81,10 +88,13 @@ const PersonalizedRecommendations = () => {
       setIsModalOpen(false);
     } catch (error) {
       toast.error("Failed to add recommendation");
+      console.error("Error adding recommendation:", error); // Log error
     }
   };
 
   const handleDeleteRecommendation = async (recommendationId) => {
+    console.log("Deleting recommendation with ID:", recommendationId); // Log the recommendation ID
+
     const result = await Swal.fire({
       title: "Are you sure?",
       text: "Do you really want to delete this recommendation?",
@@ -106,23 +116,22 @@ const PersonalizedRecommendations = () => {
           "The recommendation has been deleted.",
           "success"
         );
+        console.log("Recommendation deleted successfully"); // Log successful deletion
       } catch (error) {
         Swal.fire("Error!", "Failed to delete the recommendation.", "error");
+        console.error("Error deleting recommendation:", error); // Log error
       }
     }
   };
 
-  // Check if user object is loaded before rendering
   if (!user) {
     return <div>Loading...</div>;
   }
 
-  // Filtering recommendations
   const filteredRecommendations = recommendations.filter((rec) =>
     rec.recommendationText.toLowerCase().includes(searchTerm.toLowerCase())
   );
 
-  // Pagination logic
   const pageCount = Math.ceil(
     filteredRecommendations.length / recommendationsPerPage
   );
@@ -133,6 +142,7 @@ const PersonalizedRecommendations = () => {
 
   const handlePageClick = ({ selected }) => {
     setPageNumber(selected);
+    console.log("Navigating to page:", selected); // Log the current page
   };
 
   return (
@@ -141,7 +151,7 @@ const PersonalizedRecommendations = () => {
       <div className="flex-1 p-6 bg-gray-100 overflow-y-auto">
         <button
           className="bg-blue-500 text-white px-4 py-2 rounded mb-6"
-          onClick={() => navigate(-1)} // Back button functionality
+          onClick={() => navigate(-1)}
         >
           Back
         </button>
@@ -150,7 +160,6 @@ const PersonalizedRecommendations = () => {
             Personalized Wellness Recommendations
           </h1>
 
-          {/* Admin can add new recommendations */}
           {["CEO", "Manager"].includes(user.role) && (
             <>
               <button
@@ -232,7 +241,6 @@ const PersonalizedRecommendations = () => {
             </>
           )}
 
-          {/* Search bar */}
           <div className="mb-4">
             <input
               type="text"
@@ -243,7 +251,6 @@ const PersonalizedRecommendations = () => {
             />
           </div>
 
-          {/* Display recommendations */}
           <ul className="space-y-4">
             {displayRecommendations.map((rec, index) => (
               <li
@@ -268,12 +275,16 @@ const PersonalizedRecommendations = () => {
                   <button
                     className="text-blue-500 flex items-center"
                     onClick={() => {
-                      console.log(rec); // Check the recommendation object
+                      console.log(
+                        "Navigating to edit page for recommendation ID:",
+                        rec._id
+                      );
                       navigate(`/wellness/edit-recommendation/${rec._id}`);
                     }}
                   >
                     <FaEdit className="mr-2" /> Edit
                   </button>
+
                   <button
                     className="text-red-500 flex items-center"
                     onClick={() => handleDeleteRecommendation(rec._id)}
@@ -285,7 +296,6 @@ const PersonalizedRecommendations = () => {
             ))}
           </ul>
 
-          {/* Pagination */}
           <ReactPaginate
             previousLabel={"Previous"}
             nextLabel={"Next"}
