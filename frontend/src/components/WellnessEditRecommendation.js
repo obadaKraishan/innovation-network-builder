@@ -49,7 +49,7 @@ const WellnessEditRecommendation = () => {
       const response = await api.put(`/wellness/recommendations/${recommendationId}`, recommendation);
       if (response.status === 200) {
         toast.success("Recommendation updated successfully");
-        navigate("/wellness/personalized-recommendations"); // Ensure correct route
+        navigate("/wellness/recommendations"); // Ensure correct route
       }
     } catch (error) {
       if (error.response && error.response.status === 401) {

@@ -54,21 +54,18 @@ const PersonalizedRecommendations = () => {
             ? "/wellness/recommendations"
             : `/wellness/recommendations/${user._id}`;
           
-          console.log("Fetching data from endpoint:", endpoint); // Log endpoint
+          console.log("Fetching data from endpoint:", endpoint);
 
           const [usersRes, recRes] = await Promise.all([
-            api.get("/users/message-recipients"),
-            api.get(endpoint),
+            api.get("/users/message-recipients"),  // Fetch employees list
+            api.get(endpoint),  // Fetch recommendations
           ]);
 
-          console.log("Fetched employees:", usersRes.data); // Log fetched employees
-          console.log("Fetched recommendations:", recRes.data); // Log fetched recommendations
-          
-          setEmployees(usersRes.data);
-          setRecommendations(recRes.data);
+          setEmployees(usersRes.data);  // Set employees list
+          setRecommendations(recRes.data);  // Set recommendations list
         } catch (error) {
           toast.error("Failed to fetch data");
-          console.error("Error fetching recommendations and employees:", error); // Log errors
+          console.error("Error fetching recommendations and employees:", error);
         }
       };
 
@@ -78,23 +75,23 @@ const PersonalizedRecommendations = () => {
 
   const handleAddRecommendation = async () => {
     try {
-      console.log("Adding new recommendation:", newRecommendation); // Log new recommendation data
-      const { data } = await api.post(
-        "/wellness/recommendations",
-        newRecommendation
-      );
+      if (!newRecommendation.employeeId) {
+        toast.error("Please select an employee");
+        return;
+      }
+
+      console.log("Adding new recommendation:", newRecommendation);
+      const { data } = await api.post("/wellness/recommendations", newRecommendation);
       setRecommendations([...recommendations, data]);
       toast.success("Recommendation added successfully");
       setIsModalOpen(false);
     } catch (error) {
       toast.error("Failed to add recommendation");
-      console.error("Error adding recommendation:", error); // Log error
+      console.error("Error adding recommendation:", error);
     }
   };
 
   const handleDeleteRecommendation = async (recommendationId) => {
-    console.log("Deleting recommendation with ID:", recommendationId); // Log the recommendation ID
-
     const result = await Swal.fire({
       title: "Are you sure?",
       text: "Do you really want to delete this recommendation?",
@@ -108,18 +105,11 @@ const PersonalizedRecommendations = () => {
     if (result.isConfirmed) {
       try {
         await api.delete(`/wellness/recommendations/${recommendationId}`);
-        setRecommendations(
-          recommendations.filter((rec) => rec._id !== recommendationId)
-        );
-        Swal.fire(
-          "Deleted!",
-          "The recommendation has been deleted.",
-          "success"
-        );
-        console.log("Recommendation deleted successfully"); // Log successful deletion
+        setRecommendations(recommendations.filter((rec) => rec._id !== recommendationId));
+        Swal.fire("Deleted!", "The recommendation has been deleted.", "success");
       } catch (error) {
         Swal.fire("Error!", "Failed to delete the recommendation.", "error");
-        console.error("Error deleting recommendation:", error); // Log error
+        console.error("Error deleting recommendation:", error);
       }
     }
   };
@@ -132,9 +122,7 @@ const PersonalizedRecommendations = () => {
     rec.recommendationText.toLowerCase().includes(searchTerm.toLowerCase())
   );
 
-  const pageCount = Math.ceil(
-    filteredRecommendations.length / recommendationsPerPage
-  );
+  const pageCount = Math.ceil(filteredRecommendations.length / recommendationsPerPage);
   const displayRecommendations = filteredRecommendations.slice(
     pageNumber * recommendationsPerPage,
     (pageNumber + 1) * recommendationsPerPage
@@ -142,7 +130,6 @@ const PersonalizedRecommendations = () => {
 
   const handlePageClick = ({ selected }) => {
     setPageNumber(selected);
-    console.log("Navigating to page:", selected); // Log the current page
   };
 
   return (
@@ -181,6 +168,29 @@ const PersonalizedRecommendations = () => {
                 <div className="space-y-4">
                   <div>
                     <label className="block text-gray-700 font-medium mb-2">
+                      Employee
+                    </label>
+                    <select
+                      value={newRecommendation.employeeId}
+                      onChange={(e) =>
+                        setNewRecommendation({
+                          ...newRecommendation,
+                          employeeId: e.target.value,
+                        })
+                      }
+                      className="w-full p-2 border rounded"
+                    >
+                      <option value="">Select Employee</option>
+                      {employees.map((emp) => (
+                        <option key={emp._id} value={emp._id}>
+                          {emp.name} - {emp.email}
+                        </option>
+                      ))}
+                    </select>
+                  </div>
+
+                  <div>
+                    <label className="block text-gray-700 font-medium mb-2">
                       Title
                     </label>
                     <input
@@ -213,6 +223,7 @@ const PersonalizedRecommendations = () => {
                       className="w-full p-2 border rounded-lg"
                     />
                   </div>
+
                   <div>
                     <label className="block text-gray-700 font-medium mb-2">
                       Resource URL (Optional)
@@ -230,6 +241,7 @@ const PersonalizedRecommendations = () => {
                       className="w-full p-2 border rounded-lg"
                     />
                   </div>
+
                   <button
                     className="w-full bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-600 transition duration-200"
                     onClick={handleAddRecommendation}
@@ -274,13 +286,7 @@ const PersonalizedRecommendations = () => {
                 <div className="flex space-x-2">
                   <button
                     className="text-blue-500 flex items-center"
-                    onClick={() => {
-                      console.log(
-                        "Navigating to edit page for recommendation ID:",
-                        rec._id
-                      );
-                      navigate(`/wellness/edit-recommendation/${rec._id}`);
-                    }}
+                    onClick={() => navigate(`/wellness/edit-recommendation/${rec._id}`)}
                   >
                     <FaEdit className="mr-2" /> Edit
                   </button>

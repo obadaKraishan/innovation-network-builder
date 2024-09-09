@@ -7,9 +7,9 @@ const createRecommendation = asyncHandler(async (req, res) => {
 
   const { employeeId, title, recommendationText, resourceUrl } = req.body;
 
-  if (!title || !recommendationText) {
+  if (!employeeId || !title || !recommendationText) {
     res.status(400);
-    throw new Error("Title and Recommendation Text are required");
+    throw new Error("Employee, Title, and Recommendation Text are required");
   }
 
   const newRecommendation = await PersonalizedRecommendation.create({

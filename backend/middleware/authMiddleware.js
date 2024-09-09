@@ -5,7 +5,6 @@ const asyncHandler = require('express-async-handler');
 const User = require('../models/userModel');
 
 // Middleware to protect routes with JWT authentication
-// Middleware to protect routes with JWT authentication
 const protect = asyncHandler(async (req, res, next) => {
   let token;
 
