@@ -24,6 +24,7 @@ const {
     getUserRecommendations, 
     getRecommendationById,
     updateRecommendation,
+    deleteRecommendation,
 } = require('../controllers/PersonalizedRecommendationController');
 const { protect, admin } = require('../middleware/authMiddleware');
 
@@ -54,7 +55,8 @@ router.route('/recommendations/user/:userId').get(protect, getUserRecommendation
 
 router.route('/recommendations/:recommendationId')
   .get(protect, getRecommendationById)   // Fetch a single recommendation by ID
-  .put(protect, admin, updateRecommendation);
+  .put(protect, admin, updateRecommendation)
+  .delete(protect, admin, deleteRecommendation);  // Add delete route
 
-  
+
 module.exports = router;

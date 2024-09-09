@@ -92,6 +92,8 @@ const PersonalizedRecommendations = () => {
   };
 
   const handleDeleteRecommendation = async (recommendationId) => {
+    console.log("Deleting recommendation with ID:", recommendationId); // Log the recommendation ID
+  
     const result = await Swal.fire({
       title: "Are you sure?",
       text: "Do you really want to delete this recommendation?",
@@ -101,18 +103,18 @@ const PersonalizedRecommendations = () => {
       cancelButtonColor: "#3085d6",
       confirmButtonText: "Yes, delete it!",
     });
-
+  
     if (result.isConfirmed) {
       try {
-        await api.delete(`/wellness/recommendations/${recommendationId}`);
+        await api.delete(`/wellness/recommendations/${recommendationId}`);  // Correct API endpoint
         setRecommendations(recommendations.filter((rec) => rec._id !== recommendationId));
         Swal.fire("Deleted!", "The recommendation has been deleted.", "success");
       } catch (error) {
         Swal.fire("Error!", "Failed to delete the recommendation.", "error");
-        console.error("Error deleting recommendation:", error);
+        console.error("Error deleting recommendation:", error); // Log the error
       }
     }
-  };
+  };  
 
   if (!user) {
     return <div>Loading...</div>;

@@ -81,9 +81,27 @@ const updateRecommendation = asyncHandler(async (req, res) => {
   res.status(200).json(updatedRecommendation);
 });
 
+// Delete a recommendation
+const deleteRecommendation = asyncHandler(async (req, res) => {
+  console.log("Deleting recommendation with ID:", req.params.recommendationId);
+
+  const recommendation = await PersonalizedRecommendation.findByIdAndDelete(req.params.recommendationId);
+
+  if (!recommendation) {
+    console.log("Recommendation not found for deletion");
+    res.status(404);
+    throw new Error("Recommendation not found");
+  }
+
+  console.log("Recommendation deleted successfully");
+  res.status(200).json({ message: "Recommendation removed" });
+});
+
+
 module.exports = {
   createRecommendation,
   getUserRecommendations,
   getRecommendationById,
   updateRecommendation,
+  deleteRecommendation,
 };
