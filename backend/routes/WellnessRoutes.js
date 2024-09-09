@@ -22,6 +22,7 @@ const {
 const {
     createRecommendation, 
     getUserRecommendations, 
+    getRecommendationById,
     updateRecommendation,
 } = require('../controllers/PersonalizedRecommendationController');
 const { protect, admin } = require('../middleware/authMiddleware');
@@ -48,6 +49,9 @@ router.route('/recommendations')
   .post(protect, admin, createRecommendation)
   .get(protect, admin, getUserRecommendations);
 router.route('/recommendations/:userId').get(protect, getUserRecommendations);
-router.route('/recommendations/:recommendationId').put(protect, admin, updateRecommendation);
+router.route('/recommendations/:recommendationId')
+  .get(protect, getRecommendationById)   // Fetch a single recommendation by ID
+  .put(protect, admin, updateRecommendation);
+
 
 module.exports = router;

@@ -251,7 +251,6 @@ const PersonalizedRecommendations = () => {
                 className="p-4 bg-gray-100 shadow rounded-lg flex justify-between items-center"
               >
                 <div>
-                  {/* Show title instead of "Recommendation {index + 1}" */}
                   <h2 className="text-xl font-bold">{rec.title}</h2>
                   <p>{rec.recommendationText}</p>
                   {rec.resourceUrl && (
@@ -268,9 +267,10 @@ const PersonalizedRecommendations = () => {
                 <div className="flex space-x-2">
                   <button
                     className="text-blue-500 flex items-center"
-                    onClick={() =>
-                      navigate(`/wellness/edit-recommendation/${rec._id}`)
-                    }
+                    onClick={() => {
+                      console.log(rec); // Check the recommendation object
+                      navigate(`/wellness/edit-recommendation/${rec._id}`);
+                    }}
                   >
                     <FaEdit className="mr-2" /> Edit
                   </button>
