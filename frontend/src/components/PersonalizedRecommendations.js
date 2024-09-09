@@ -46,25 +46,31 @@ const PersonalizedRecommendations = () => {
   const navigate = useNavigate();
 
   useEffect(() => {
-    const fetchEmployeesAndRecommendations = async () => {
-      try {
-        const [empRes, recRes] = await Promise.all([
-          api.get("/wellness/employees"),
-          api.get(`/wellness/recommendations/${user._id}`),
-        ]);
-        setEmployees(empRes.data);
-        setRecommendations(recRes.data);
-      } catch (error) {
-        toast.error("Failed to fetch data");
-      }
-    };
+    if (user) {
+      const fetchUsersAndRecommendations = async () => {
+        try {
+          // Use the correct endpoint to fetch users
+          const [usersRes, recRes] = await Promise.all([
+            api.get("/users/message-recipients"), // Fetch users, not employees
+            api.get(`/wellness/recommendations/${user._id}`),
+          ]);
+          setEmployees(usersRes.data); // Store users as employees
+          setRecommendations(recRes.data);
+        } catch (error) {
+          toast.error("Failed to fetch data");
+        }
+      };
 
-    fetchEmployeesAndRecommendations();
+      fetchUsersAndRecommendations();
+    }
   }, [user]);
 
   const handleAddRecommendation = async () => {
     try {
-      const { data } = await api.post("/wellness/recommendations", newRecommendation);
+      const { data } = await api.post(
+        "/wellness/recommendations",
+        newRecommendation
+      );
       setRecommendations([...recommendations, data]);
       toast.success("Recommendation added successfully");
       setIsModalOpen(false);
@@ -87,13 +93,24 @@ const PersonalizedRecommendations = () => {
     if (result.isConfirmed) {
       try {
         await api.delete(`/wellness/recommendations/${recommendationId}`);
-        setRecommendations(recommendations.filter((rec) => rec._id !== recommendationId));
-        Swal.fire("Deleted!", "The recommendation has been deleted.", "success");
+        setRecommendations(
+          recommendations.filter((rec) => rec._id !== recommendationId)
+        );
+        Swal.fire(
+          "Deleted!",
+          "The recommendation has been deleted.",
+          "success"
+        );
       } catch (error) {
         Swal.fire("Error!", "Failed to delete the recommendation.", "error");
       }
     }
   };
+
+  // Check if user object is loaded before rendering
+  if (!user) {
+    return <div>Loading...</div>;
+  }
 
   // Filtering recommendations
   const filteredRecommendations = recommendations.filter((rec) =>
@@ -101,7 +118,9 @@ const PersonalizedRecommendations = () => {
   );
 
   // Pagination logic
-  const pageCount = Math.ceil(filteredRecommendations.length / recommendationsPerPage);
+  const pageCount = Math.ceil(
+    filteredRecommendations.length / recommendationsPerPage
+  );
   const displayRecommendations = filteredRecommendations.slice(
     pageNumber * recommendationsPerPage,
     (pageNumber + 1) * recommendationsPerPage
@@ -116,7 +135,9 @@ const PersonalizedRecommendations = () => {
       <Sidebar />
       <div className="flex-1 p-6 bg-gray-100 overflow-y-auto">
         <div className="p-6 bg-white shadow rounded-lg">
-          <h1 className="text-2xl font-bold mb-4">Personalized Wellness Recommendations</h1>
+          <h1 className="text-2xl font-bold mb-4">
+            Personalized Wellness Recommendations
+          </h1>
 
           {/* Admin can add new recommendations */}
           {["CEO", "Manager"].includes(user.role) && (
@@ -134,14 +155,21 @@ const PersonalizedRecommendations = () => {
                 style={customModalStyles}
                 contentLabel="Add Recommendation"
               >
-                <h2 className="text-xl font-bold mb-4">Add New Recommendation</h2>
+                <h2 className="text-xl font-bold mb-4">
+                  Add New Recommendation
+                </h2>
                 <div className="space-y-4">
                   <div>
-                    <label className="block text-gray-700 font-medium mb-2">Select Employee</label>
+                    <label className="block text-gray-700 font-medium mb-2">
+                      Select Employee
+                    </label>
                     <select
                       value={newRecommendation.employeeId}
                       onChange={(e) =>
-                        setNewRecommendation({ ...newRecommendation, employeeId: e.target.value })
+                        setNewRecommendation({
+                          ...newRecommendation,
+                          employeeId: e.target.value,
+                        })
                       }
                       className="w-full p-2 border rounded"
                     >
@@ -154,24 +182,34 @@ const PersonalizedRecommendations = () => {
                     </select>
                   </div>
                   <div>
-                    <label className="block text-gray-700 font-medium mb-2">Recommendation Text</label>
+                    <label className="block text-gray-700 font-medium mb-2">
+                      Recommendation Text
+                    </label>
                     <textarea
                       value={newRecommendation.recommendationText}
                       onChange={(e) =>
-                        setNewRecommendation({ ...newRecommendation, recommendationText: e.target.value })
+                        setNewRecommendation({
+                          ...newRecommendation,
+                          recommendationText: e.target.value,
+                        })
                       }
                       placeholder="Recommendation Text"
                       className="w-full p-2 border rounded-lg"
                     />
                   </div>
                   <div>
-                    <label className="block text-gray-700 font-medium mb-2">Resource URL (Optional)</label>
+                    <label className="block text-gray-700 font-medium mb-2">
+                      Resource URL (Optional)
+                    </label>
                     <input
                       type="url"
                       placeholder="Resource URL"
                       value={newRecommendation.resourceUrl}
                       onChange={(e) =>
-                        setNewRecommendation({ ...newRecommendation, resourceUrl: e.target.value })
+                        setNewRecommendation({
+                          ...newRecommendation,
+                          resourceUrl: e.target.value,
+                        })
                       }
                       className="w-full p-2 border rounded-lg"
                     />
@@ -201,12 +239,22 @@ const PersonalizedRecommendations = () => {
           {/* Display recommendations */}
           <ul className="space-y-4">
             {displayRecommendations.map((rec, index) => (
-              <li key={index} className="p-4 bg-gray-100 shadow rounded-lg flex justify-between items-center">
+              <li
+                key={index}
+                className="p-4 bg-gray-100 shadow rounded-lg flex justify-between items-center"
+              >
                 <div>
-                  <h2 className="text-xl font-bold">{`Recommendation ${index + 1}`}</h2>
+                  <h2 className="text-xl font-bold">{`Recommendation ${
+                    index + 1
+                  }`}</h2>
                   <p>{rec.recommendationText}</p>
                   {rec.resourceUrl && (
-                    <a href={rec.resourceUrl} className="text-blue-500 hover:underline" target="_blank" rel="noopener noreferrer">
+                    <a
+                      href={rec.resourceUrl}
+                      className="text-blue-500 hover:underline"
+                      target="_blank"
+                      rel="noopener noreferrer"
+                    >
                       View Related Resource
                     </a>
                   )}
@@ -214,7 +262,9 @@ const PersonalizedRecommendations = () => {
                 <div className="flex space-x-2">
                   <button
                     className="text-blue-500 flex items-center"
-                    onClick={() => navigate(`/wellness/edit-recommendation/${rec._id}`)}
+                    onClick={() =>
+                      navigate(`/wellness/edit-recommendation/${rec._id}`)
+                    }
                   >
                     <FaEdit className="mr-2" /> Edit
                   </button>
