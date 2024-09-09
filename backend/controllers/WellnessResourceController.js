@@ -53,9 +53,10 @@ const deleteResource = asyncHandler(async (req, res) => {
     throw new Error('Resource not found');
   }
 
-  await resource.remove();
+  await WellnessResource.deleteOne({ _id: req.params.resourceId });  // Correct method for deletion
   res.status(200).json({ message: 'Resource deleted' });
 });
+
 
 module.exports = { 
     createResource, 
