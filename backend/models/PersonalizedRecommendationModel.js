@@ -6,8 +6,17 @@ const personalizedRecommendationSchema = new mongoose.Schema({
     ref: 'User',
     required: true,
   },
-  recommendationText: { type: String, required: true },
-  resourceUrl: { type: String }, // Optional link to related wellness resource
+  title: { 
+    type: String, 
+    required: true  // Make this field required 
+  },
+  recommendationText: { 
+    type: String, 
+    required: true 
+  },
+  resourceUrl: { 
+    type: String  // Optional link to related wellness resource
+  }, 
   createdAt: {
     type: Date,
     default: Date.now,

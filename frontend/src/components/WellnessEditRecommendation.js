@@ -6,16 +6,23 @@ import Sidebar from "./Sidebar"; // Import Sidebar
 
 const WellnessEditRecommendation = () => {
   const { recommendationId } = useParams();
-  const [recommendation, setRecommendation] = useState({ text: "", url: "" });
+  const [recommendation, setRecommendation] = useState({
+    title: "",
+    recommendationText: "",
+    resourceUrl: "",
+  });
   const navigate = useNavigate();
 
   useEffect(() => {
     const fetchRecommendation = async () => {
       try {
-        const { data } = await api.get(`/wellness/recommendations/${recommendationId}`);
+        const { data } = await api.get(
+          `/wellness/recommendations/${recommendationId}`
+        );
         setRecommendation({
-          text: data.recommendationText,
-          url: data.resourceUrl || "",
+          title: data.title || "", // Fetch title
+          recommendationText: data.recommendationText,
+          resourceUrl: data.resourceUrl || "",
         });
       } catch (error) {
         toast.error("Failed to fetch recommendation details");
@@ -27,7 +34,10 @@ const WellnessEditRecommendation = () => {
 
   const handleUpdateRecommendation = async () => {
     try {
-      await api.put(`/wellness/recommendations/${recommendationId}`, recommendation);
+      await api.put(
+        `/wellness/recommendations/${recommendationId}`,
+        recommendation
+      );
       toast.success("Recommendation updated successfully");
       navigate("/wellness/dashboard");
     } catch (error) {
@@ -51,22 +61,54 @@ const WellnessEditRecommendation = () => {
           {/* Form */}
           <form className="space-y-6">
             <div>
-              <label className="block text-lg text-gray-700 font-medium mb-2">Recommendation Text</label>
-              <textarea
-                placeholder="Recommendation Text"
-                value={recommendation.text}
-                onChange={(e) => setRecommendation({ ...recommendation, text: e.target.value })}
+              <label className="block text-lg text-gray-700 font-medium mb-2">
+                Title
+              </label>
+              <input
+                type="text"
+                placeholder="Recommendation Title"
+                value={recommendation.title}
+                onChange={(e) =>
+                  setRecommendation({
+                    ...recommendation,
+                    title: e.target.value,
+                  })
+                }
                 className="w-full p-3 border rounded-lg focus:outline-none focus:border-blue-500"
               />
             </div>
 
             <div>
-              <label className="block text-lg text-gray-700 font-medium mb-2">Resource URL (Optional)</label>
+              <label className="block text-lg text-gray-700 font-medium mb-2">
+                Recommendation Text
+              </label>
+              <textarea
+                placeholder="Recommendation Text"
+                value={recommendation.recommendationText}
+                onChange={(e) =>
+                  setRecommendation({
+                    ...recommendation,
+                    recommendationText: e.target.value,
+                  })
+                }
+                className="w-full p-3 border rounded-lg focus:outline-none focus:border-blue-500"
+              />
+            </div>
+
+            <div>
+              <label className="block text-lg text-gray-700 font-medium mb-2">
+                Resource URL (Optional)
+              </label>
               <input
                 type="url"
                 placeholder="Resource URL"
-                value={recommendation.url}
-                onChange={(e) => setRecommendation({ ...recommendation, url: e.target.value })}
+                value={recommendation.resourceUrl}
+                onChange={(e) =>
+                  setRecommendation({
+                    ...recommendation,
+                    resourceUrl: e.target.value,
+                  })
+                }
                 className="w-full p-3 border rounded-lg focus:outline-none focus:border-blue-500"
               />
             </div>

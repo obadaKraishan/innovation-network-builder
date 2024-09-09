@@ -44,7 +44,9 @@ router.route('/resources').get(protect, getAllResources).post(protect, admin, cr
 router.route('/resources/:resourceId').get(protect, getWellnessResourceById).delete(protect, admin, deleteResource);
 
 // Personalized Recommendations routes
-router.route('/recommendations').post(protect, admin, createRecommendation);
+router.route('/recommendations')
+  .post(protect, admin, createRecommendation)
+  .get(protect, admin, getUserRecommendations);
 router.route('/recommendations/:userId').get(protect, getUserRecommendations);
 router.route('/recommendations/:recommendationId').put(protect, admin, updateRecommendation);
 

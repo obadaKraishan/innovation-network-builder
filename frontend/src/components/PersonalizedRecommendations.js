@@ -35,6 +35,7 @@ const PersonalizedRecommendations = () => {
   const [recommendations, setRecommendations] = useState([]);
   const [newRecommendation, setNewRecommendation] = useState({
     employeeId: "",
+    title: "", // New title field
     recommendationText: "",
     resourceUrl: "",
   });
@@ -47,21 +48,25 @@ const PersonalizedRecommendations = () => {
 
   useEffect(() => {
     if (user) {
-      const fetchUsersAndRecommendations = async () => {
+      const fetchRecommendations = async () => {
         try {
-          // Use the correct endpoint to fetch users
+          const endpoint = ["CEO", "Manager"].includes(user.role)
+            ? "/wellness/recommendations"
+            : `/wellness/recommendations/${user._id}`;
+
           const [usersRes, recRes] = await Promise.all([
-            api.get("/users/message-recipients"), // Fetch users, not employees
-            api.get(`/wellness/recommendations/${user._id}`),
+            api.get("/users/message-recipients"),
+            api.get(endpoint),
           ]);
-          setEmployees(usersRes.data); // Store users as employees
+
+          setEmployees(usersRes.data);
           setRecommendations(recRes.data);
         } catch (error) {
           toast.error("Failed to fetch data");
         }
       };
 
-      fetchUsersAndRecommendations();
+      fetchRecommendations();
     }
   }, [user]);
 
@@ -134,6 +139,12 @@ const PersonalizedRecommendations = () => {
     <div className="flex h-screen">
       <Sidebar />
       <div className="flex-1 p-6 bg-gray-100 overflow-y-auto">
+        <button
+          className="bg-blue-500 text-white px-4 py-2 rounded mb-6"
+          onClick={() => navigate(-1)} // Back button functionality
+        >
+          Back
+        </button>
         <div className="p-6 bg-white shadow rounded-lg">
           <h1 className="text-2xl font-bold mb-4">
             Personalized Wellness Recommendations
@@ -161,26 +172,22 @@ const PersonalizedRecommendations = () => {
                 <div className="space-y-4">
                   <div>
                     <label className="block text-gray-700 font-medium mb-2">
-                      Select Employee
+                      Title
                     </label>
-                    <select
-                      value={newRecommendation.employeeId}
+                    <input
+                      type="text"
+                      value={newRecommendation.title}
                       onChange={(e) =>
                         setNewRecommendation({
                           ...newRecommendation,
-                          employeeId: e.target.value,
+                          title: e.target.value,
                         })
                       }
+                      placeholder="Recommendation Title"
                       className="w-full p-2 border rounded"
-                    >
-                      <option value="">Select Employee</option>
-                      {employees.map((emp) => (
-                        <option key={emp._id} value={emp._id}>
-                          {emp.name}
-                        </option>
-                      ))}
-                    </select>
+                    />
                   </div>
+
                   <div>
                     <label className="block text-gray-700 font-medium mb-2">
                       Recommendation Text
