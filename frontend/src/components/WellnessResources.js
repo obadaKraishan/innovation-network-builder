@@ -5,11 +5,29 @@ import AuthContext from '../context/AuthContext';
 import { toast } from 'react-toastify';
 import Swal from 'sweetalert2';
 import { FaEdit, FaTrashAlt, FaPlusSquare } from 'react-icons/fa';
-import Modal from 'react-modal'; // Modal for adding a new resource
+import Modal from 'react-modal';
 import { useNavigate } from 'react-router-dom';
 
 // Make sure to set up Modal's root element
 Modal.setAppElement('#root');
+
+const customStyles = {
+  content: {
+    top: '50%',
+    left: '50%',
+    right: 'auto',
+    bottom: 'auto',
+    marginRight: '-50%',
+    transform: 'translate(-50%, -50%)',
+    width: '400px',
+    padding: '20px',
+    borderRadius: '10px',
+    boxShadow: '0 4px 8px rgba(0, 0, 0, 0.1)',
+  },
+  overlay: {
+    backgroundColor: 'rgba(0, 0, 0, 0.5)',
+  },
+};
 
 const WellnessResources = () => {
   const { user } = useContext(AuthContext);
@@ -32,10 +50,16 @@ const WellnessResources = () => {
 
   const handleAddResource = async () => {
     try {
-      const { data } = await api.post('/wellness/resources', newResource);
+      const resourceData = {
+        resourceTitle: newResource.title,
+        resourceCategory: newResource.category,
+        resourceURL: newResource.url,
+      };
+
+      const { data } = await api.post('/wellness/resources', resourceData);
       setResources([...resources, data]);
       toast.success('Resource added successfully');
-      setIsModalOpen(false); // Close modal after adding
+      setIsModalOpen(false);
     } catch (error) {
       toast.error('Failed to add resource');
     }
@@ -63,6 +87,11 @@ const WellnessResources = () => {
     }
   };
 
+  // Check if user exists before accessing its properties
+  if (!user) {
+    return <div>Loading...</div>; // You can display a loading spinner or message
+  }
+
   return (
     <div className="flex h-screen">
       <Sidebar />
@@ -89,9 +118,8 @@ const WellnessResources = () => {
               <Modal
                 isOpen={isModalOpen}
                 onRequestClose={() => setIsModalOpen(false)}
+                style={customStyles}
                 contentLabel="Add Resource"
-                className="modal bg-white p-6 rounded shadow-lg max-w-lg mx-auto"
-                overlayClassName="modal-overlay"
               >
                 <h2 className="text-xl font-bold mb-4">Add New Resource</h2>
                 <div className="space-y-4">
