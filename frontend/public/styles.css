@@ -1,41 +1,139 @@
 .paginationBtns {
-    margin: 40px 0px 20px 0px;
-    display: flex;
-    justify-content: center;
-    list-style: none;
-    padding: 0;
+  margin: 20px 0px 20px 0px;
+  display: flex;
+  justify-content: center;
+  list-style: none;
+  padding: 0;
+}
+
+.paginationBtns li {
+  margin: 0 5px;
+}
+
+.paginationBtns a {
+  padding: 30px 45px;
+  margin: 0 5px;
+  border-radius: 5px;
+  border: 1px solid #007bff;
+  color: #007bff;
+  cursor: pointer;
+  transition: background-color 0.2s ease, color 0.2s ease;
+}
+
+.paginationBtns a:hover {
+  background-color: #007bff;
+  color: white;
+}
+
+.paginationActive a {
+  background-color: #007bff;
+  color: white;
+}
+
+.paginationDisabled a {
+  color: #d3d3d3;
+  cursor: not-allowed;
+}
+
+.previousBtn,
+.nextBtn {
+  font-weight: bold;
+}
+
+/* Dashboard Design */
+/* Custom gradient backgrounds */
+.bg-card0 {
+  background: linear-gradient(45deg, #ec7bf9 0%, #f5576c 100%);
+  background-size: cover;
+}
+
+.bg-card1 {
+  background: linear-gradient(45deg, #39c0b7 0%, #b490ca 100%);
+  background-size: cover;
+}
+
+.bg-card2 {
+  background: linear-gradient(45deg, #d994c5 0%, #a6c1ee 100%);
+  background-size: cover;
+}
+
+.bg-card3 {
+  background: linear-gradient(45deg, #eeb179 0%, #915e39 100%);
+  background-size: cover;
+}
+
+/* New card designs for cards 4 through 8 */
+.bg-card4 {
+  background: linear-gradient(45deg, #b7dd8e 0%, #50985b 99%, #45ac5c 100%);
+  background-size: cover;
+}
+
+.bg-card5 {
+  background: linear-gradient(45deg, #94b6ff 0%, #5b6ca8 100%);
+  background-size: cover;
+}
+
+.bg-card6 {
+  background: linear-gradient(45deg, #f093fb 0%, #f5576c 100%);
+  background-size: cover;
+}
+
+.bg-card7 {
+  background: linear-gradient(45deg, #43e97b 0%, #38f9d7 100%);
+  background-size: cover;
+}
+
+.bg-card8 {
+  background: linear-gradient(45deg, #30cfd0 0%, #330867 100%);
+  background-size: cover;
+}
+
+/* Animation for the background lines */
+.card-animation {
+  position: relative;
+  overflow: hidden;
+  z-index: 1;
+}
+
+.card-animation:before {
+  content: '';
+  position: absolute;
+  top: -50%;
+  left: -50%;
+  width: 200%;
+  height: 200%;
+  background: repeating-linear-gradient(45deg,
+      rgba(255, 255, 255, 0.1) 0px,
+      rgba(255, 255, 255, 0.1) 1px,
+      transparent 1px,
+      transparent 50px);
+  z-index: -1;
+  opacity: 0.5;
+  animation: animateLines 5s linear infinite;
+}
+
+@keyframes animateLines {
+  0% {
+    transform: translate(0, 0);
   }
-  
-  .paginationBtns li {
-    margin: 0 5px;
+
+  100% {
+    transform: translate(50px, 50px);
   }
-  
-  .paginationBtns a {
-    padding: 10px 15px;
-    margin: 0 5px;
-    border-radius: 5px;
-    border: 1px solid #007bff;
-    color: #007bff;
-    cursor: pointer;
-    transition: background-color 0.2s ease, color 0.2s ease;
-  }
-  
-  .paginationBtns a:hover {
-    background-color: #007bff;
-    color: white;
-  }
-  
-  .paginationActive a {
-    background-color: #007bff;
-    color: white;
-  }
-  
-  .paginationDisabled a {
-    color: #d3d3d3;
-    cursor: not-allowed;
-  }
-  
-  .previousBtn, .nextBtn {
-    font-weight: bold;
-  }
-  
+}
+
+/* Updated card styles */
+.bg-card0,
+.bg-card1,
+.bg-card2,
+.bg-card3,
+.bg-card4,
+.bg-card5,
+.bg-card6,
+.bg-card7,
+.bg-card8 {
+  border-radius: 20px;
+  color: white;
+  font-size: 18px;
+  padding: 70px;
+}

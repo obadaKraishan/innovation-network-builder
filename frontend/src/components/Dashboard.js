@@ -1,4 +1,4 @@
-import React, { useContext, useEffect, useState } from "react";
+import React, { useContext } from "react";
 import { Link } from "react-router-dom";
 import {
   FaUser,
@@ -13,44 +13,12 @@ import {
 } from "react-icons/fa";
 import AuthContext from "../context/AuthContext";
 import Sidebar from "./Sidebar";
-import axios from "axios";
 
 const Dashboard = () => {
   const { user } = useContext(AuthContext);
-  const [recentMessages, setRecentMessages] = useState([]);
-  const [upcomingMeetings, setUpcomingMeetings] = useState([]);
-
-  // Fetch dynamic data based on user role
-  useEffect(() => {
-    // Fetch recent messages or tasks based on user role
-    const fetchRecentMessages = async () => {
-      try {
-        const response = await axios.get("/api/messages/recent", {
-          params: { userId: user._id },
-        });
-        setRecentMessages(response.data);
-      } catch (error) {
-        console.error("Error fetching recent messages:", error);
-      }
-    };
-
-    const fetchUpcomingMeetings = async () => {
-      try {
-        const response = await axios.get("/api/meetings/upcoming", {
-          params: { userId: user._id },
-        });
-        setUpcomingMeetings(response.data);
-      } catch (error) {
-        console.error("Error fetching upcoming meetings:", error);
-      }
-    };
-
-    fetchRecentMessages();
-    fetchUpcomingMeetings();
-  }, [user]);
 
   if (!user) {
-    return null;
+    return <div>Loading...</div>; // Fallback UI
   }
 
   // Welcome message based on role
@@ -65,65 +33,65 @@ const Dashboard = () => {
     "Customer Support Specialist": "Welcome Support Specialist! Here are the tools to handle customer cases.",
   };
 
-  // Additional links and categories for each role
+  // Additional links and descriptions for each role
   const roleShortcuts = {
     Employee: [
-      { name: "Profile", icon: <FaUser />, path: "/profile" },
-      { name: "My Team", icon: <FaUsers />, path: "/my-team" },
-      { name: "Messages", icon: <FaEnvelope />, path: "/messages" },
-      { name: "Wellness System", icon: <FaHeartbeat />, path: "/wellness-dashboard" },
-      { name: "Decision Rooms", icon: <FaVoteYea />, path: "/decision-rooms" },
-      { name: "Meetings", icon: <FaCalendarAlt />, path: "/meeting-booking" },
+      { name: "Profile", description: "Manage your profile details.", icon: <FaUser />, path: "/profile" },
+      { name: "My Team", description: "See your team and manage tasks.", icon: <FaUsers />, path: "/my-team" },
+      { name: "Messages", description: "Check your messages.", icon: <FaEnvelope />, path: "/messages" },
+      { name: "Wellness System", description: "Access wellness resources.", icon: <FaHeartbeat />, path: "/wellness-dashboard" },
+      { name: "Decision Rooms", description: "Participate in decisions.", icon: <FaVoteYea />, path: "/decision-rooms" },
+      { name: "Meetings", description: "Manage your meetings.", icon: <FaCalendarAlt />, path: "/meeting-booking" },
     ],
     "Team Leader": [
-      { name: "Manage Team", icon: <FaUsers />, path: "/manage-team" },
-      { name: "Team Overview", icon: <FaChartLine />, path: "/team-overview" },
-      { name: "Meetings", icon: <FaCalendarAlt />, path: "/meeting-booking" },
-      { name: "Wellness System", icon: <FaHeartbeat />, path: "/wellness-dashboard" },
-      { name: "Collaborator Finder", icon: <FaCogs />, path: "/collaborator-finder" },
-      { name: "Messages", icon: <FaEnvelope />, path: "/messages" },
+      { name: "Manage Team", description: "Oversee team tasks and members.", icon: <FaUsers />, path: "/manage-team" },
+      { name: "Team Overview", description: "View your team's progress.", icon: <FaChartLine />, path: "/team-overview" },
+      { name: "Meetings", description: "Set up team meetings.", icon: <FaCalendarAlt />, path: "/meeting-booking" },
+      { name: "Wellness System", description: "Access wellness tools for your team.", icon: <FaHeartbeat />, path: "/wellness-dashboard" },
+      { name: "Collaborator Finder", description: "Find collaborators.", icon: <FaCogs />, path: "/collaborator-finder" },
+      { name: "Messages", description: "Check team messages.", icon: <FaEnvelope />, path: "/messages" },
     ],
     CEO: [
-      { name: "Company Reports", icon: <FaChartLine />, path: "/company-reports" },
-      { name: "Manage Departments", icon: <FaBuilding />, path: "/manage-departments" },
-      { name: "Manage Users", icon: <FaUsers />, path: "/manage-users" },
-      { name: "Collaborator Finder", icon: <FaCogs />, path: "/collaborator-finder" },
-      { name: "Wellness System", icon: <FaHeartbeat />, path: "/wellness-dashboard" },
-      { name: "Messages", icon: <FaEnvelope />, path: "/messages" },
+      { name: "Company Reports", description: "View detailed reports.", icon: <FaChartLine />, path: "/company-reports" },
+      { name: "Manage Departments", description: "Oversee all departments.", icon: <FaBuilding />, path: "/manage-departments" },
+      { name: "Manage Users", description: "Oversee all users and roles.", icon: <FaUsers />, path: "/manage-users" },
+      { name: "Collaborator Finder", description: "Find collaborators.", icon: <FaCogs />, path: "/collaborator-finder" },
+      { name: "Wellness System", description: "Ensure the company's well-being.", icon: <FaHeartbeat />, path: "/wellness-dashboard" },
+      { name: "Messages", description: "Review all communications.", icon: <FaEnvelope />, path: "/messages" },
     ],
     CTO: [
-      { name: "Technology Overview", icon: <FaChartLine />, path: "/technology-overview" },
-      { name: "Manage IT", icon: <FaCogs />, path: "/manage-it" },
-      { name: "Collaborator Finder", icon: <FaCogs />, path: "/collaborator-finder" },
-      { name: "Wellness System", icon: <FaHeartbeat />, path: "/wellness-dashboard" },
-      { name: "Messages", icon: <FaEnvelope />, path: "/messages" },
+      { name: "Technology Overview", description: "Monitor the IT infrastructure.", icon: <FaChartLine />, path: "/technology-overview" },
+      { name: "Manage IT", description: "Oversee IT management.", icon: <FaCogs />, path: "/manage-it" },
+      { name: "Collaborator Finder", description: "Find technology partners.", icon: <FaCogs />, path: "/collaborator-finder" },
+      { name: "Wellness System", description: "Access IT wellness resources.", icon: <FaHeartbeat />, path: "/wellness-dashboard" },
+      { name: "Messages", description: "Check IT-related messages.", icon: <FaEnvelope />, path: "/messages" },
     ],
     "Director of HR": [
-      { name: "HR Overview", icon: <FaChartLine />, path: "/hr-overview" },
-      { name: "Manage Users", icon: <FaUsers />, path: "/manage-users" },
-      { name: "Collaborator Finder", icon: <FaCogs />, path: "/collaborator-finder" },
-      { name: "Wellness System", icon: <FaHeartbeat />, path: "/wellness-dashboard" },
-      { name: "Messages", icon: <FaEnvelope />, path: "/messages" },
+      { name: "HR Overview", description: "Manage HR tasks.", icon: <FaChartLine />, path: "/hr-overview" },
+      { name: "Manage Users", description: "Manage user profiles.", icon: <FaUsers />, path: "/manage-users" },
+      { name: "Collaborator Finder", description: "Find HR partners.", icon: <FaCogs />, path: "/collaborator-finder" },
+      { name: "Wellness System", description: "Oversee employee wellness.", icon: <FaHeartbeat />, path: "/wellness-dashboard" },
+      { name: "Messages", description: "Handle employee messages.", icon: <FaEnvelope />, path: "/messages" },
     ],
     "Director of Finance": [
-      { name: "Finance Overview", icon: <FaChartLine />, path: "/finance-overview" },
-      { name: "Budget Reports", icon: <FaChartLine />, path: "/budget-reports" },
-      { name: "Collaborator Finder", icon: <FaCogs />, path: "/collaborator-finder" },
-      { name: "Wellness System", icon: <FaHeartbeat />, path: "/wellness-dashboard" },
-      { name: "Messages", icon: <FaEnvelope />, path: "/messages" },
+      { name: "Finance Overview", description: "Manage finance tasks.", icon: <FaChartLine />, path: "/finance-overview" },
+      { name: "Budget Reports", description: "View detailed budget reports.", icon: <FaChartLine />, path: "/budget-reports" },
+      { name: "Collaborator Finder", description: "Find financial partners.", icon: <FaCogs />, path: "/collaborator-finder" },
+      { name: "Wellness System", description: "Monitor financial wellness.", icon: <FaHeartbeat />, path: "/wellness-dashboard" },
+      { name: "Messages", description: "Handle finance messages.", icon: <FaEnvelope />, path: "/messages" },
     ],
     "Research Scientist": [
-      { name: "Research Projects", icon: <FaChartLine />, path: "/research-projects" },
-      { name: "Collaborator Finder", icon: <FaCogs />, path: "/collaborator-finder" },
-      { name: "Wellness System", icon: <FaHeartbeat />, path: "/wellness-dashboard" },
-      { name: "Messages", icon: <FaEnvelope />, path: "/messages" },
+      { name: "Research Projects", description: "Access your research tasks.", icon: <FaChartLine />, path: "/research-projects" },
+      { name: "Collaborator Finder", description: "Find research collaborators.", icon: <FaCogs />, path: "/collaborator-finder" },
+      { name: "Wellness System", description: "Manage research wellness.", icon: <FaHeartbeat />, path: "/wellness-dashboard" },
+      { name: "Messages", description: "Check research-related messages.", icon: <FaEnvelope />, path: "/messages" },
     ],
     "Customer Support Specialist": [
-      { name: "Customer Cases", icon: <FaUsers />, path: "/customer-cases" },
-      { name: "Messages", icon: <FaEnvelope />, path: "/messages" },
-      { name: "Collaborator Finder", icon: <FaCogs />, path: "/collaborator-finder" },
-      { name: "Wellness System", icon: <FaHeartbeat />, path: "/wellness-dashboard" },
-      { name: "Meetings", icon: <FaCalendarAlt />, path: "/meeting-booking" },
+      { name: "Customer Cases", description: "Manage customer support cases.", icon: <FaUsers />, path: "/customer-cases" },
+      { name: "Messages", description: "Check support messages.", icon: <FaEnvelope />, path: "/messages" },
+      { name: "Collaborator Finder", description: "Find support collaborators.", icon: <FaCogs />, path: "/collaborator-finder" },
+      { name: "Wellness System", description: "Access wellness resources.", icon: <FaHeartbeat />, path: "/wellness-dashboard" },
+      { name: "Meetings", description: "Handle support-related meetings.", icon: <FaCalendarAlt />, path: "/meeting-booking" },
     ],
   };
 
@@ -135,51 +103,20 @@ const Dashboard = () => {
           {roleWelcomeMessages[user.role]}
         </h1>
 
-        {/* Dynamic section: Upcoming Meetings */}
-        <div className="mb-12">
-          <h2 className="text-2xl font-semibold mb-4">Upcoming Meetings</h2>
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
-            {upcomingMeetings.map((meeting, index) => (
-              <div
-                key={index}
-                className="bg-white shadow-lg p-6 rounded-lg transform hover:scale-105 transition-transform duration-300 hover:shadow-2xl"
-              >
-                <h3 className="text-lg font-semibold">{meeting.agenda}</h3>
-                <p className="text-gray-600">{meeting.date}</p>
-                <p className="text-gray-600">{meeting.time}</p>
-                <p className="text-gray-600">Status: {meeting.status}</p>
-              </div>
-            ))}
-          </div>
-        </div>
-
-        {/* Dynamic section: Recent Messages */}
-        <div className="mb-12">
-          <h2 className="text-2xl font-semibold mb-4">Recent Messages</h2>
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
-            {recentMessages.map((message, index) => (
-              <div
-                key={index}
-                className="bg-white shadow-lg p-6 rounded-lg transform hover:scale-105 transition-transform duration-300 hover:shadow-2xl"
-              >
-                <h3 className="text-lg font-semibold">{message.subject}</h3>
-                <p className="text-gray-600">From: {message.sender.name}</p>
-                <p className="text-gray-600">{message.body.slice(0, 50)}...</p>
-              </div>
-            ))}
-          </div>
-        </div>
-
-        {/* Role-specific shortcuts */}
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-8">
+        {/* Role-specific shortcuts with dynamic grid handling for more cards */}
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-2 xl:grid-cols-3 gap-4">
           {roleShortcuts[user.role]?.map((shortcut, index) => (
             <Link to={shortcut.path} key={index}>
-              <div className="bg-white shadow-lg p-8 rounded-xl transform hover:scale-105 transition-transform duration-300 hover:shadow-2xl">
-                <div className="flex items-center space-x-4">
-                  <div className="text-indigo-600 text-5xl">{shortcut.icon}</div>
-                  <div className="text-xl font-semibold text-gray-800">
-                    {shortcut.name}
-                  </div>
+              <div
+                className={`relative p-14 rounded-xl bg-card${index % 8} shadow-lg hover:shadow-xl transform hover:scale-105 transition-transform duration-300 card-animation`}
+              >
+                <div className="absolute top-0 right-0 p-2 text-white text-lg">
+                  {shortcut.icon}
+                </div>
+                <h3 className="text-white text-2xl font-bold">{shortcut.name}</h3>
+                <p className="text-white mt-2 text-lg">{shortcut.description}</p>
+                <div className="absolute bottom-0 right-0 p-2">
+                  <span className="inline-block bg-white text-gray-700 text-sm px-3 py-1 rounded-full">Explore</span>
                 </div>
               </div>
             </Link>
