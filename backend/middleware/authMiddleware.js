@@ -5,6 +5,7 @@ const asyncHandler = require('express-async-handler');
 const User = require('../models/userModel');
 
 // Middleware to protect routes with JWT authentication
+// Middleware to protect routes with JWT authentication
 const protect = asyncHandler(async (req, res, next) => {
   let token;
 
@@ -18,12 +19,17 @@ const protect = asyncHandler(async (req, res, next) => {
       const decoded = jwt.verify(token, process.env.JWT_SECRET);
       console.log('Decoded token:', decoded);
 
+      // Check if token is expired
+      const currentTime = Math.floor(Date.now() / 1000); // Current time in seconds
+      if (decoded.exp < currentTime) {
+        return res.status(401).json({ message: 'Token expired, please log in again' });
+      }
+
       // Get user from the token
       req.user = await User.findById(decoded.id).select('-password');
       console.log('User retrieved in middleware:', req.user);
 
       if (!req.user) {
-        console.error('User not found for the given token');
         return res.status(404).json({ message: 'User not found' });
       }
 
@@ -34,7 +40,6 @@ const protect = asyncHandler(async (req, res, next) => {
       return res.status(401).json({ message: 'Not authorized, token failed' });
     }
   } else {
-    console.warn('No token provided in request.');
     return res.status(401).json({ message: 'Not authorized, no token' });
   }
 });

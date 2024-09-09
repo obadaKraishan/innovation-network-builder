@@ -15,51 +15,54 @@ const WellnessEditRecommendation = () => {
   const navigate = useNavigate();
 
   useEffect(() => {
-    console.log(`Fetching recommendation with ID: ${recommendationId}`); // Log the recommendationId
-
     const fetchRecommendation = async () => {
       try {
         const response = await api.get(`/wellness/recommendations/${recommendationId}`);
-        console.log("API response for fetching recommendation:", response.data); // Log the API response
-        
-        if (response.data && response.data._id) {
+        if (response.data && typeof response.data === "object" && !Array.isArray(response.data)) {
           setRecommendation({
             title: response.data.title || "",
             recommendationText: response.data.recommendationText || "",
             resourceUrl: response.data.resourceUrl || "",
           });
-          console.log("Recommendation state set successfully:", response.data); // Log the recommendation state
         } else {
-          toast.error("No recommendation found");
-          console.log("No recommendation found with this ID:", recommendationId); // Log if no recommendation is found
+          toast.error("Invalid recommendation data");
         }
       } catch (error) {
-        toast.error("Failed to fetch recommendation details");
-        console.error("Error fetching recommendation:", error); // Log the error
+        if (error.response && error.response.status === 401) {
+          // Handle expired or invalid token
+          toast.error("Session expired. Please log in again.");
+          navigate("/login"); // Redirect to login if unauthorized
+        } else {
+          toast.error("Failed to fetch recommendation details");
+        }
       } finally {
         setLoading(false);
       }
     };
 
     fetchRecommendation();
-  }, [recommendationId]);
+  }, [recommendationId, navigate]);
 
-  const handleUpdateRecommendation = async () => {
+  const handleUpdateRecommendation = async (e) => {
+    e.preventDefault();
     try {
-      console.log("Updating recommendation with data:", recommendation); // Log the recommendation data being updated
       const response = await api.put(`/wellness/recommendations/${recommendationId}`, recommendation);
-      console.log("API response for updating recommendation:", response.data); // Log the update response
-      
-      toast.success("Recommendation updated successfully");
-      navigate("/wellness/dashboard");
+      if (response.status === 200) {
+        toast.success("Recommendation updated successfully");
+        navigate("/wellness/personalized-recommendations"); // Ensure correct route
+      }
     } catch (error) {
-      toast.error("Failed to update recommendation");
-      console.error("Error updating recommendation:", error); // Log the error
+      if (error.response && error.response.status === 401) {
+        toast.error("Session expired. Please log in again.");
+        navigate("/login"); // Redirect to login if unauthorized
+      } else {
+        toast.error("Failed to update recommendation");
+      }
     }
   };
 
   if (loading) {
-    return <div>Loading...</div>; // Show loading state while data is being fetched
+    return <div>Loading...</div>; // Show loading spinner
   }
 
   return (
@@ -75,7 +78,7 @@ const WellnessEditRecommendation = () => {
           </button>
           <h1 className="text-3xl font-bold mb-6">Edit Recommendation</h1>
 
-          <form className="space-y-6">
+          <form className="space-y-6" onSubmit={handleUpdateRecommendation}>
             <div>
               <label className="block text-lg text-gray-700 font-medium mb-2">
                 Title
@@ -88,6 +91,7 @@ const WellnessEditRecommendation = () => {
                   setRecommendation({ ...recommendation, title: e.target.value })
                 }
                 className="w-full p-3 border rounded-lg focus:outline-none focus:border-blue-500"
+                required
               />
             </div>
 
@@ -99,9 +103,13 @@ const WellnessEditRecommendation = () => {
                 placeholder="Recommendation Text"
                 value={recommendation.recommendationText}
                 onChange={(e) =>
-                  setRecommendation({ ...recommendation, recommendationText: e.target.value })
+                  setRecommendation({
+                    ...recommendation,
+                    recommendationText: e.target.value,
+                  })
                 }
                 className="w-full p-3 border rounded-lg focus:outline-none focus:border-blue-500"
+                required
               />
             </div>
 
@@ -114,17 +122,17 @@ const WellnessEditRecommendation = () => {
                 placeholder="Resource URL"
                 value={recommendation.resourceUrl}
                 onChange={(e) =>
-                  setRecommendation({ ...recommendation, resourceUrl: e.target.value })
+                  setRecommendation({
+                    ...recommendation,
+                    resourceUrl: e.target.value,
+                  })
                 }
                 className="w-full p-3 border rounded-lg focus:outline-none focus:border-blue-500"
               />
             </div>
 
             <button
-              onClick={(e) => {
-                e.preventDefault();
-                handleUpdateRecommendation();
-              }}
+              type="submit"
               className="w-full bg-blue-500 text-white py-3 rounded-lg hover:bg-blue-600 transition duration-200"
             >
               Update Recommendation

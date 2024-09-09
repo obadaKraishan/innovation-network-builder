@@ -48,10 +48,13 @@ router.route('/resources/:resourceId').get(protect, getWellnessResourceById).del
 router.route('/recommendations')
   .post(protect, admin, createRecommendation)
   .get(protect, admin, getUserRecommendations);
-router.route('/recommendations/:userId').get(protect, getUserRecommendations);
+
+// Add a specific route for fetching recommendations by userId
+router.route('/recommendations/user/:userId').get(protect, getUserRecommendations);
+
 router.route('/recommendations/:recommendationId')
   .get(protect, getRecommendationById)   // Fetch a single recommendation by ID
   .put(protect, admin, updateRecommendation);
 
-
+  
 module.exports = router;
