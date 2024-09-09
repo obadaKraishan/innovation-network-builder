@@ -263,20 +263,22 @@ const Sidebar = () => {
   const isActive = (path) => location.pathname === path;
 
   return (
-    <aside className="w-64 bg-gradient-to-b from-blue-500 to-indigo-600 text-white p-6 h-full flex flex-col justify-between">
+    <aside className="w-65 bg-gradient-to-b from-blue-500 to-indigo-600 text-white p-6 h-full flex flex-col justify-between shadow-lg">
       <div>
-        <h2 className="text-2xl font-semibold mb-6 text-white">Welcome Back...</h2>
-        <ul className="space-y-4">
+        <h2 className="text-2xl font-semibold mb-6 text-white transition-colors">Welcome Back...</h2>
+        <ul className="space-y-3">
           {links[user.role]?.map((category, index) => (
-            <li key={index}>
+            <li key={index} className="border-b border-indigo-400 pb-1">
               <h3 className="text-lg font-bold text-gray-200 mb-2">{category.category}</h3>
-              <ul className="space-y-1 pl-4">
+              <ul className="space-y-1 pl-1">
                 {category.items.map((link, i) => (
                   <li key={i}>
                     <Link
                       to={link.path}
-                      className={`flex items-center space-x-3 text-lg ${
-                        isActive(link.path) ? "text-white bg-indigo-700 rounded-md p-2" : "text-gray-200 hover:text-white"
+                      className={`flex items-center space-x-2 text-lg transition-all duration-300 ease-in-out ${
+                        isActive(link.path)
+                          ? "text-white bg-indigo-700 rounded-md p-2 shadow-md"
+                          : "text-gray-200 hover:text-white hover:bg-indigo-600 p-2 rounded-md"
                       }`}
                     >
                       {link.icon}
@@ -291,7 +293,7 @@ const Sidebar = () => {
       </div>
       <button
         onClick={logout}
-        className="w-full bg-red-600 text-white p-3 rounded flex items-center justify-center hover:bg-red-700 mt-6 transition"
+        className="w-full bg-red-600 text-white p-3 rounded flex items-center justify-center hover:bg-red-700 mt-6 transition-all ease-in-out"
       >
         <FaSignOutAlt className="mr-2" />
         Logout
