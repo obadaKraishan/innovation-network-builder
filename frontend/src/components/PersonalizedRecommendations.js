@@ -251,9 +251,8 @@ const PersonalizedRecommendations = () => {
                 className="p-4 bg-gray-100 shadow rounded-lg flex justify-between items-center"
               >
                 <div>
-                  <h2 className="text-xl font-bold">{`Recommendation ${
-                    index + 1
-                  }`}</h2>
+                  {/* Show title instead of "Recommendation {index + 1}" */}
+                  <h2 className="text-xl font-bold">{rec.title}</h2>
                   <p>{rec.recommendationText}</p>
                   {rec.resourceUrl && (
                     <a

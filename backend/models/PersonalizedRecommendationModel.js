@@ -8,14 +8,14 @@ const personalizedRecommendationSchema = new mongoose.Schema({
   },
   title: { 
     type: String, 
-    required: true  // Make this field required 
+    required: true  
   },
   recommendationText: { 
     type: String, 
     required: true 
   },
   resourceUrl: { 
-    type: String  // Optional link to related wellness resource
+    type: String  
   }, 
   createdAt: {
     type: Date,

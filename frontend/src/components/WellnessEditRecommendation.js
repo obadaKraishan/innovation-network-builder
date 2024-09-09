@@ -11,39 +11,41 @@ const WellnessEditRecommendation = () => {
     recommendationText: "",
     resourceUrl: "",
   });
+  const [loading, setLoading] = useState(true); // Add a loading state
   const navigate = useNavigate();
 
   useEffect(() => {
     const fetchRecommendation = async () => {
       try {
-        const { data } = await api.get(
-          `/wellness/recommendations/${recommendationId}`
-        );
+        const { data } = await api.get(`/wellness/recommendations/${recommendationId}`);
         setRecommendation({
           title: data.title || "", // Fetch title
-          recommendationText: data.recommendationText,
+          recommendationText: data.recommendationText || "",
           resourceUrl: data.resourceUrl || "",
         });
+        setLoading(false); // Data has been fetched, stop loading
       } catch (error) {
         toast.error("Failed to fetch recommendation details");
+        setLoading(false); // Stop loading even if there was an error
       }
     };
-
+  
     fetchRecommendation();
-  }, [recommendationId]);
+  }, [recommendationId]);  
 
   const handleUpdateRecommendation = async () => {
     try {
-      await api.put(
-        `/wellness/recommendations/${recommendationId}`,
-        recommendation
-      );
+      await api.put(`/wellness/recommendations/${recommendationId}`, recommendation);
       toast.success("Recommendation updated successfully");
       navigate("/wellness/dashboard");
     } catch (error) {
       toast.error("Failed to update recommendation");
     }
   };
+
+  if (loading) {
+    return <div>Loading...</div>; // Show loading state
+  }
 
   return (
     <div className="flex h-screen">

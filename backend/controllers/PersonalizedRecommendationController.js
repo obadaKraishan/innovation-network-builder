@@ -22,14 +22,14 @@ const createRecommendation = asyncHandler(async (req, res) => {
 
 // Get recommendations for a specific user or all recommendations if role is CEO/Manager
 const getUserRecommendations = asyncHandler(async (req, res) => {
-  const role = req.user.role;
-  const query = ["CEO", "Manager"].includes(role) ? {} : { employeeId: req.params.userId };
-
-  const recommendations = await PersonalizedRecommendation.find(query)
-    .populate('employeeId', 'name email');
+    const role = req.user.role;
+    const query = ["CEO", "Manager"].includes(role) ? {} : { employeeId: req.params.userId };
   
-  res.status(200).json(recommendations);
-});
+    const recommendations = await PersonalizedRecommendation.find(query)
+      .populate('employeeId', 'name email'); // Ensure 'title' is included here
+    
+    res.status(200).json(recommendations);
+  });  
 
 // Update a recommendation
 const updateRecommendation = asyncHandler(async (req, res) => {
