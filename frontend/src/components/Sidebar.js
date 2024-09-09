@@ -1,7 +1,21 @@
-import React, { useContext } from 'react';
-import { Link, useLocation } from 'react-router-dom';
-import { FaUser, FaSignOutAlt, FaTachometerAlt, FaUsers, FaChartLine, FaBuilding, FaCogs, FaUserShield, FaEnvelope, FaCalendarAlt, FaLayerGroup, FaPlusSquare, FaVoteYea, FaHeartbeat } from 'react-icons/fa'; 
-import AuthContext from '../context/AuthContext';
+import React, { useContext } from "react";
+import { Link, useLocation } from "react-router-dom";
+import {
+  FaUser,
+  FaSignOutAlt,
+  FaTachometerAlt,
+  FaUsers,
+  FaChartLine,
+  FaBuilding,
+  FaCogs,
+  FaUserShield,
+  FaEnvelope,
+  FaCalendarAlt,
+  FaLayerGroup,
+  FaVoteYea,
+  FaHeartbeat,
+} from "react-icons/fa";
+import AuthContext from "../context/AuthContext";
 
 const Sidebar = () => {
   const { user, logout } = useContext(AuthContext);
@@ -11,106 +25,238 @@ const Sidebar = () => {
     return null;
   }
 
+  // Sidebar links categorized by functionality
   const links = {
     Employee: [
-      { name: 'Profile', icon: <FaUser />, path: '/profile' },
-      { name: 'My Team', icon: <FaUsers />, path: '/my-team' },
-      { name: 'Decision Rooms', icon: <FaVoteYea />, path: '/decision-rooms' },
-      { name: 'Interest Groups', icon: <FaLayerGroup />, path: '/interest-groups' }, 
-      { name: 'My Meetings', icon: <FaCalendarAlt />, path: '/meeting-booking' },
-      { name: 'Messages', icon: <FaEnvelope />, path: '/messages' },
-      { name: 'Collaborator Finder', icon: <FaCogs />, path: '/collaborator-finder' },
-      { name: 'Wellness System', icon: <FaHeartbeat />, path: '/wellness-dashboard' },  // Wellness dashboard for employees
+      {
+        category: "Main",
+        items: [
+          { name: "Dashboard", icon: <FaTachometerAlt />, path: "/dashboard" },
+          { name: "Profile", icon: <FaUser />, path: "/profile" },
+        ],
+      },
+      {
+        category: "Team",
+        items: [
+          { name: "My Team", icon: <FaUsers />, path: "/my-team" },
+          { name: "Decision Rooms", icon: <FaVoteYea />, path: "/decision-rooms" },
+        ],
+      },
+      {
+        category: "Collaboration",
+        items: [
+          { name: "Interest Groups", icon: <FaLayerGroup />, path: "/interest-groups" },
+          { name: "Meetings", icon: <FaCalendarAlt />, path: "/meeting-booking" },
+          { name: "Messages", icon: <FaEnvelope />, path: "/messages" },
+          { name: "Collaborator Finder", icon: <FaCogs />, path: "/collaborator-finder" },
+        ],
+      },
+      {
+        category: "Wellness",
+        items: [{ name: "Wellness System", icon: <FaHeartbeat />, path: "/wellness-dashboard" }],
+      },
     ],
-    'Team Leader': [
-      { name: 'Profile', icon: <FaUser />, path: '/profile' },
-      { name: 'My Team', icon: <FaUsers />, path: '/my-team' },
-      { name: 'Manage Team', icon: <FaUsers />, path: '/manage-team' },
-      { name: 'Team Overview', icon: <FaChartLine />, path: '/team-overview' },
-      { name: 'Decision Rooms', icon: <FaVoteYea />, path: '/decision-rooms' },
-      { name: 'Interest Groups', icon: <FaLayerGroup />, path: '/interest-groups' }, 
-      { name: 'My Meetings', icon: <FaCalendarAlt />, path: '/meeting-booking' },
-      { name: 'Messages', icon: <FaEnvelope />, path: '/messages' },
-      { name: 'Collaborator Finder', icon: <FaCogs />, path: '/collaborator-finder' },
-      { name: 'Wellness System', icon: <FaHeartbeat />, path: '/wellness-dashboard' },  // Wellness dashboard for Team Leaders
-    ],
-    'Department Manager': [
-      { name: 'Profile', icon: <FaUser />, path: '/profile' },
-      { name: 'Manage Team', icon: <FaUsers />, path: '/manage-team' },
-      { name: 'Reports', icon: <FaChartLine />, path: '/reports' },
-      { name: 'Decision Rooms', icon: <FaVoteYea />, path: '/decision-rooms' },
-      { name: 'Interest Groups', icon: <FaLayerGroup />, path: '/interest-groups' },  
-      { name: 'My Meetings', icon: <FaCalendarAlt />, path: '/meeting-booking' },
-      { name: 'Messages', icon: <FaEnvelope />, path: '/messages' },
-      { name: 'Collaborator Finder', icon: <FaCogs />, path: '/collaborator-finder' },
-      { name: 'Wellness System', icon: <FaHeartbeat />, path: '/wellness-dashboard' },
+    "Team Leader": [
+      {
+        category: "Main",
+        items: [
+          { name: "Dashboard", icon: <FaTachometerAlt />, path: "/dashboard" },
+          { name: "Profile", icon: <FaUser />, path: "/profile" },
+        ],
+      },
+      {
+        category: "Team Management",
+        items: [
+          { name: "My Team", icon: <FaUsers />, path: "/my-team" },
+          { name: "Manage Team", icon: <FaUsers />, path: "/manage-team" },
+          { name: "Team Overview", icon: <FaChartLine />, path: "/team-overview" },
+        ],
+      },
+      {
+        category: "Collaboration",
+        items: [
+          { name: "Interest Groups", icon: <FaLayerGroup />, path: "/interest-groups" },
+          { name: "Meetings", icon: <FaCalendarAlt />, path: "/meeting-booking" },
+          { name: "Messages", icon: <FaEnvelope />, path: "/messages" },
+          { name: "Collaborator Finder", icon: <FaCogs />, path: "/collaborator-finder" },
+        ],
+      },
+      {
+        category: "Wellness",
+        items: [{ name: "Wellness System", icon: <FaHeartbeat />, path: "/wellness-dashboard" }],
+      },
     ],
     CEO: [
-      { name: 'Profile', icon: <FaUser />, path: '/profile' },
-      { name: 'Overview', icon: <FaTachometerAlt />, path: '/overview' },
-      { name: 'Company Reports', icon: <FaChartLine />, path: '/company-reports' },
-      { name: 'Manage Departments', icon: <FaBuilding />, path: '/manage-departments' },
-      { name: 'Manage Users', icon: <FaUserShield />, path: '/manage-users' },
-      { name: 'Decision Rooms', icon: <FaVoteYea />, path: '/decision-rooms' },
-      { name: 'Interest Groups', icon: <FaLayerGroup />, path: '/interest-groups' },  
-      { name: 'My Meetings', icon: <FaCalendarAlt />, path: '/meeting-booking' },
-      { name: 'Messages', icon: <FaEnvelope />, path: '/messages' },
-      { name: 'Collaborator Finder', icon: <FaCogs />, path: '/collaborator-finder' },
-      { name: 'Wellness System', icon: <FaHeartbeat />, path: '/wellness-dashboard' },
+      {
+        category: "Main",
+        items: [
+          { name: "Dashboard", icon: <FaTachometerAlt />, path: "/dashboard" },
+          { name: "Profile", icon: <FaUser />, path: "/profile" },
+          { name: "Company Reports", icon: <FaChartLine />, path: "/company-reports" },
+        ],
+      },
+      {
+        category: "Management",
+        items: [
+          { name: "Manage Departments", icon: <FaBuilding />, path: "/manage-departments" },
+          { name: "Manage Users", icon: <FaUserShield />, path: "/manage-users" },
+        ],
+      },
+      {
+        category: "Collaboration",
+        items: [
+          { name: "Interest Groups", icon: <FaLayerGroup />, path: "/interest-groups" },
+          { name: "Meetings", icon: <FaCalendarAlt />, path: "/meeting-booking" },
+          { name: "Messages", icon: <FaEnvelope />, path: "/messages" },
+          { name: "Collaborator Finder", icon: <FaCogs />, path: "/collaborator-finder" },
+        ],
+      },
+      {
+        category: "Wellness",
+        items: [{ name: "Wellness System", icon: <FaHeartbeat />, path: "/wellness-dashboard" }],
+      },
     ],
     CTO: [
-      { name: 'Profile', icon: <FaUser />, path: '/profile' },
-      { name: 'Technology Overview', icon: <FaTachometerAlt />, path: '/technology-overview' },
-      { name: 'Manage IT', icon: <FaCogs />, path: '/manage-it' },
-      { name: 'Decision Rooms', icon: <FaVoteYea />, path: '/decision-rooms' },
-      { name: 'Interest Groups', icon: <FaLayerGroup />, path: '/interest-groups' },  
-      { name: 'My Meetings', icon: <FaCalendarAlt />, path: '/meeting-booking' },
-      { name: 'Messages', icon: <FaEnvelope />, path: '/messages' },
-      { name: 'Collaborator Finder', icon: <FaCogs />, path: '/collaborator-finder' },
-      { name: 'Wellness System', icon: <FaHeartbeat />, path: '/wellness-dashboard' },
+      {
+        category: "Main",
+        items: [
+          { name: "Dashboard", icon: <FaTachometerAlt />, path: "/dashboard" },
+          { name: "Profile", icon: <FaUser />, path: "/profile" },
+        ],
+      },
+      {
+        category: "Technology",
+        items: [
+          { name: "Technology Overview", icon: <FaTachometerAlt />, path: "/technology-overview" },
+          { name: "Manage IT", icon: <FaCogs />, path: "/manage-it" },
+        ],
+      },
+      {
+        category: "Collaboration",
+        items: [
+          { name: "Interest Groups", icon: <FaLayerGroup />, path: "/interest-groups" },
+          { name: "Meetings", icon: <FaCalendarAlt />, path: "/meeting-booking" },
+          { name: "Messages", icon: <FaEnvelope />, path: "/messages" },
+          { name: "Collaborator Finder", icon: <FaCogs />, path: "/collaborator-finder" },
+        ],
+      },
+      {
+        category: "Wellness",
+        items: [{ name: "Wellness System", icon: <FaHeartbeat />, path: "/wellness-dashboard" }],
+      },
     ],
-    'Director of HR': [
-      { name: 'Profile', icon: <FaUser />, path: '/profile' },
-      { name: 'HR Overview', icon: <FaTachometerAlt />, path: '/hr-overview' },
-      { name: 'Manage Recruitment', icon: <FaUsers />, path: '/manage-recruitment' },
-      { name: 'Manage Users', icon: <FaUserShield />, path: '/manage-users' },
-      { name: 'Decision Rooms', icon: <FaVoteYea />, path: '/decision-rooms' },
-      { name: 'Interest Groups', icon: <FaLayerGroup />, path: '/interest-groups' },  
-      { name: 'My Meetings', icon: <FaCalendarAlt />, path: '/meeting-booking' },
-      { name: 'Messages', icon: <FaEnvelope />, path: '/messages' },
-      { name: 'Collaborator Finder', icon: <FaCogs />, path: '/collaborator-finder' },
-      { name: 'Wellness System', icon: <FaHeartbeat />, path: '/wellness-dashboard' },
+    "Director of HR": [
+      {
+        category: "Main",
+        items: [
+          { name: "Dashboard", icon: <FaTachometerAlt />, path: "/dashboard" },
+          { name: "Profile", icon: <FaUser />, path: "/profile" },
+        ],
+      },
+      {
+        category: "HR Management",
+        items: [
+          { name: "HR Overview", icon: <FaTachometerAlt />, path: "/hr-overview" },
+          { name: "Manage Recruitment", icon: <FaUsers />, path: "/manage-recruitment" },
+          { name: "Manage Users", icon: <FaUserShield />, path: "/manage-users" },
+        ],
+      },
+      {
+        category: "Collaboration",
+        items: [
+          { name: "Interest Groups", icon: <FaLayerGroup />, path: "/interest-groups" },
+          { name: "Meetings", icon: <FaCalendarAlt />, path: "/meeting-booking" },
+          { name: "Messages", icon: <FaEnvelope />, path: "/messages" },
+          { name: "Collaborator Finder", icon: <FaCogs />, path: "/collaborator-finder" },
+        ],
+      },
+      {
+        category: "Wellness",
+        items: [{ name: "Wellness System", icon: <FaHeartbeat />, path: "/wellness-dashboard" }],
+      },
     ],
-    'Director of Finance': [
-      { name: 'Profile', icon: <FaUser />, path: '/profile' },
-      { name: 'Finance Overview', icon: <FaChartLine />, path: '/finance-overview' },
-      { name: 'Budget Reports', icon: <FaChartLine />, path: '/budget-reports' },
-      { name: 'Decision Rooms', icon: <FaVoteYea />, path: '/decision-rooms' },
-      { name: 'Interest Groups', icon: <FaLayerGroup />, path: '/interest-groups' },  
-      { name: 'My Meetings', icon: <FaCalendarAlt />, path: '/meeting-booking' },
-      { name: 'Messages', icon: <FaEnvelope />, path: '/messages' },
-      { name: 'Collaborator Finder', icon: <FaCogs />, path: '/collaborator-finder' },
-      { name: 'Wellness System', icon: <FaHeartbeat />, path: '/wellness-dashboard' },
+    "Director of Finance": [
+      {
+        category: "Main",
+        items: [
+          { name: "Dashboard", icon: <FaTachometerAlt />, path: "/dashboard" },
+          { name: "Profile", icon: <FaUser />, path: "/profile" },
+        ],
+      },
+      {
+        category: "Finance",
+        items: [
+          { name: "Finance Overview", icon: <FaChartLine />, path: "/finance-overview" },
+          { name: "Budget Reports", icon: <FaChartLine />, path: "/budget-reports" },
+        ],
+      },
+      {
+        category: "Collaboration",
+        items: [
+          { name: "Interest Groups", icon: <FaLayerGroup />, path: "/interest-groups" },
+          { name: "Meetings", icon: <FaCalendarAlt />, path: "/meeting-booking" },
+          { name: "Messages", icon: <FaEnvelope />, path: "/messages" },
+          { name: "Collaborator Finder", icon: <FaCogs />, path: "/collaborator-finder" },
+        ],
+      },
+      {
+        category: "Wellness",
+        items: [{ name: "Wellness System", icon: <FaHeartbeat />, path: "/wellness-dashboard" }],
+      },
     ],
-    'Research Scientist': [
-      { name: 'Profile', icon: <FaUser />, path: '/profile' },
-      { name: 'Research Projects', icon: <FaChartLine />, path: '/research-projects' },
-      { name: 'Decision Rooms', icon: <FaVoteYea />, path: '/decision-rooms' },
-      { name: 'Interest Groups', icon: <FaLayerGroup />, path: '/interest-groups' }, 
-      { name: 'My Meetings', icon: <FaCalendarAlt />, path: '/meeting-booking' },
-      { name: 'Messages', icon: <FaEnvelope />, path: '/messages' },
-      { name: 'Collaborator Finder', icon: <FaCogs />, path: '/collaborator-finder' },
-      { name: 'Wellness System', icon: <FaHeartbeat />, path: '/wellness-dashboard' },
+    "Research Scientist": [
+      {
+        category: "Main",
+        items: [
+          { name: "Dashboard", icon: <FaTachometerAlt />, path: "/dashboard" },
+          { name: "Profile", icon: <FaUser />, path: "/profile" },
+        ],
+      },
+      {
+        category: "Research",
+        items: [
+          { name: "Research Projects", icon: <FaChartLine />, path: "/research-projects" },
+        ],
+      },
+      {
+        category: "Collaboration",
+        items: [
+          { name: "Interest Groups", icon: <FaLayerGroup />, path: "/interest-groups" },
+          { name: "Meetings", icon: <FaCalendarAlt />, path: "/meeting-booking" },
+          { name: "Messages", icon: <FaEnvelope />, path: "/messages" },
+          { name: "Collaborator Finder", icon: <FaCogs />, path: "/collaborator-finder" },
+        ],
+      },
+      {
+        category: "Wellness",
+        items: [{ name: "Wellness System", icon: <FaHeartbeat />, path: "/wellness-dashboard" }],
+      },
     ],
-    'Customer Support Specialist': [
-      { name: 'Profile', icon: <FaUser />, path: '/profile' },
-      { name: 'Customer Cases', icon: <FaUsers />, path: '/customer-cases' },
-      { name: 'Decision Rooms', icon: <FaVoteYea />, path: '/decision-rooms' },
-      { name: 'Interest Groups', icon: <FaLayerGroup />, path: '/interest-groups' },  
-      { name: 'My Meetings', icon: <FaCalendarAlt />, path: '/meeting-booking' },
-      { name: 'Messages', icon: <FaEnvelope />, path: '/messages' },
-      { name: 'Collaborator Finder', icon: <FaCogs />, path: '/collaborator-finder' },
-      { name: 'Wellness System', icon: <FaHeartbeat />, path: '/wellness-dashboard' },
+    "Customer Support Specialist": [
+      {
+        category: "Main",
+        items: [
+          { name: "Dashboard", icon: <FaTachometerAlt />, path: "/dashboard" },
+          { name: "Profile", icon: <FaUser />, path: "/profile" },
+        ],
+      },
+      {
+        category: "Support",
+        items: [{ name: "Customer Cases", icon: <FaUsers />, path: "/customer-cases" }],
+      },
+      {
+        category: "Collaboration",
+        items: [
+          { name: "Interest Groups", icon: <FaLayerGroup />, path: "/interest-groups" },
+          { name: "Meetings", icon: <FaCalendarAlt />, path: "/meeting-booking" },
+          { name: "Messages", icon: <FaEnvelope />, path: "/messages" },
+          { name: "Collaborator Finder", icon: <FaCogs />, path: "/collaborator-finder" },
+        ],
+      },
+      {
+        category: "Wellness",
+        items: [{ name: "Wellness System", icon: <FaHeartbeat />, path: "/wellness-dashboard" }],
+      },
     ],
   };
 
@@ -121,28 +267,24 @@ const Sidebar = () => {
       <div>
         <h2 className="text-2xl font-semibold mb-6 text-white">Welcome Back...</h2>
         <ul className="space-y-4">
-          <li>
-            <Link
-              to="/dashboard"
-              className={`flex items-center space-x-3 text-lg ${
-                isActive('/dashboard') ? 'text-white bg-indigo-700 rounded-md p-2' : 'text-gray-200 hover:text-white'
-              }`}
-            >
-              <FaTachometerAlt />
-              <span>Dashboard</span>
-            </Link>
-          </li>
-          {links[user.role]?.map((link, index) => (
+          {links[user.role]?.map((category, index) => (
             <li key={index}>
-              <Link
-                to={link.path}
-                className={`flex items-center space-x-3 text-lg ${
-                  isActive(link.path) ? 'text-white bg-indigo-700 rounded-md p-2' : 'text-gray-200 hover:text-white'
-                }`}
-              >
-                {link.icon}
-                <span>{link.name}</span>
-              </Link>
+              <h3 className="text-lg font-bold text-gray-200 mb-2">{category.category}</h3>
+              <ul className="space-y-1 pl-4">
+                {category.items.map((link, i) => (
+                  <li key={i}>
+                    <Link
+                      to={link.path}
+                      className={`flex items-center space-x-3 text-lg ${
+                        isActive(link.path) ? "text-white bg-indigo-700 rounded-md p-2" : "text-gray-200 hover:text-white"
+                      }`}
+                    >
+                      {link.icon}
+                      <span>{link.name}</span>
+                    </Link>
+                  </li>
+                ))}
+              </ul>
             </li>
           ))}
         </ul>
