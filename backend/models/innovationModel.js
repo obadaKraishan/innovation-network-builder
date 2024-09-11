@@ -14,6 +14,22 @@ const innovationSchema = new mongoose.Schema({
     type: String,
     required: true,
   },
+  problem: {
+    type: String,
+    required: true,
+  },
+  solution: {
+    type: String,
+    required: true,
+  },
+  expectedImpact: {
+    type: String,
+    required: true,
+  },
+  impactType: {
+    type: String, // Financial, Operational, Customer Satisfaction
+    required: true,
+  },
   employeeId: {
     type: mongoose.Schema.Types.ObjectId,
     ref: 'User',
@@ -24,26 +40,65 @@ const innovationSchema = new mongoose.Schema({
     ref: 'Department',
   },
   resources: {
-    budget: {
+    budgetMin: {
       type: Number,
       required: true,
     },
-    time: {
+    budgetMax: {
+      type: Number,
+      required: true,
+    },
+    totalTime: {
       type: String,
       required: true,
+    },
+    deliveryDate: {
+      type: String,
+      default: null,
     },
     manpower: {
       type: Number,
       required: true,
+    },
+    fullTimeEmployees: {
+      type: Number,
+      default: 0,
+    },
+    contractors: {
+      type: Number,
+      default: 0,
     },
     toolsAndInfrastructure: {
       type: String,
       required: true,
     },
   },
+  roiEstimate: {
+    type: Number, // ROI in percentage
+    default: null,
+  },
+  businessGoalAlignment: {
+    type: [String], // Array of business goals
+  },
+  riskAssessment: {
+    type: String,
+    default: '',
+  },
+  successMetrics: {
+    type: String,
+    default: '',
+  },
+  expertiseRequired: {
+    type: String,
+    default: '',
+  },
+  externalResources: {
+    type: String,
+    default: '',
+  },
   stage: {
     type: String,
-    enum: ['submission', 'review', 'development', 'implementation'],
+    enum: ['submission', 'review', 'development', 'implementation', 'withdrawn'],
     default: 'submission',
   },
   impactScore: {
@@ -64,7 +119,7 @@ const innovationSchema = new mongoose.Schema({
   },
   priority: {
     type: Number,
-    default: 0,  // Calculated based on other scores
+    default: 0, // Calculated based on other scores
   },
   submittedAt: {
     type: Date,

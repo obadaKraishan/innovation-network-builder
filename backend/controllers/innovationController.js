@@ -4,16 +4,29 @@ const ResourceAllocation = require('../models/resourceAllocationModel');
 
 // Submit a new innovation idea
 const submitIdea = asyncHandler(async (req, res) => {
-  const { title, description, department, resources } = req.body;
-  const employeeId = req.user._id;  // Assuming the user is logged in
+  const {
+    title, description, problem, solution, expectedImpact, impactType, department, resources,
+    roiEstimate, businessGoalAlignment, riskAssessment, successMetrics, expertiseRequired, externalResources
+  } = req.body;
+  const employeeId = req.user._id;
 
   const idea = new Innovation({
     ideaId: `ID-${Date.now()}`,
     title,
     description,
+    problem,
+    solution,
+    expectedImpact,
+    impactType,
     employeeId,
     department,
     resources,
+    roiEstimate,
+    businessGoalAlignment,
+    riskAssessment,
+    successMetrics,
+    expertiseRequired,
+    externalResources,
   });
 
   const savedIdea = await idea.save();
@@ -41,7 +54,7 @@ const getAllIdeas = asyncHandler(async (req, res) => {
 
   if (department) query.department = department;
   if (stage) query.stage = stage;
-  if (priority) query.priority = { $gte: priority };  // Example filter for minimum priority
+  if (priority) query.priority = { $gte: priority };
 
   const ideas = await Innovation.find(query)
     .populate('employeeId', 'name')
