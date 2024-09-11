@@ -12,8 +12,8 @@ const IdeaSubmissionForm = () => {
   const [problem, setProblem] = useState('');
   const [solution, setSolution] = useState('');
   const [expectedImpact, setExpectedImpact] = useState('');
-  const [impactType, setImpactType] = useState('');
-  const [department, setDepartment] = useState(null);
+  const [impactType, setImpactType] = useState([]);
+  const [department, setDepartment] = useState([]);
   const [departments, setDepartments] = useState([]);
   const [resources, setResources] = useState({
     budgetMin: 0,
@@ -65,11 +65,11 @@ const IdeaSubmissionForm = () => {
     formData.append('problem', problem);
     formData.append('solution', solution);
     formData.append('expectedImpact', expectedImpact);
-    formData.append('impactType', impactType);
-    formData.append('department', department?.value);
+    formData.append('impactType', impactType.map((option) => option.value).join(', '));
+    formData.append('department', department.map((option) => option.value).join(', '));
     formData.append('resources', JSON.stringify(resources));
     formData.append('roiEstimate', roiEstimate);
-    formData.append('businessGoalAlignment', businessGoalAlignment.join(', '));
+    formData.append('businessGoalAlignment', businessGoalAlignment.map(option => option.value).join(', '));
     formData.append('riskAssessment', riskAssessment);
     formData.append('successMetrics', successMetrics);
     formData.append('expertiseRequired', expertiseRequired);
@@ -92,11 +92,23 @@ const IdeaSubmissionForm = () => {
     }
   };
 
+  const impactTypes = [
+    { label: 'Financial', value: 'Financial' },
+    { label: 'Operational', value: 'Operational' },
+    { label: 'Customer Satisfaction', value: 'Customer Satisfaction' },
+    { label: 'Environmental', value: 'Environmental' },
+    { label: 'Technological', value: 'Technological' },
+    { label: 'Social', value: 'Social' },
+    { label: 'Legal', value: 'Legal' }
+  ];
+
   const businessGoals = [
     { label: 'Increase Revenue', value: 'Increase Revenue' },
     { label: 'Reduce Costs', value: 'Reduce Costs' },
     { label: 'Improve Customer Experience', value: 'Improve Customer Experience' },
     { label: 'Operational Efficiency', value: 'Operational Efficiency' },
+    { label: 'Product Innovation', value: 'Product Innovation' },
+    { label: 'Expand Market Share', value: 'Expand Market Share' }
   ];
 
   return (
@@ -181,15 +193,12 @@ const IdeaSubmissionForm = () => {
             <div className="mb-4">
               <label className="block mb-2 font-semibold">Impact Type</label>
               <Select
-                value={{ label: impactType, value: impactType }}
-                onChange={option => setImpactType(option.value)}
-                options={[
-                  { label: 'Financial', value: 'Financial' },
-                  { label: 'Operational', value: 'Operational' },
-                  { label: 'Customer Satisfaction', value: 'Customer Satisfaction' },
-                ]}
+                value={impactType}
+                onChange={setImpactType}
+                options={impactTypes}
                 placeholder="Select impact type"
                 className="w-full"
+                isMulti
                 isClearable
               />
             </div>
@@ -201,8 +210,9 @@ const IdeaSubmissionForm = () => {
                 value={department}
                 onChange={setDepartment}
                 options={departments}
-                placeholder="Select department"
+                placeholder="Select departments"
                 className="w-full"
+                isMulti
                 isClearable
               />
             </div>
@@ -283,7 +293,7 @@ const IdeaSubmissionForm = () => {
               <label className="block mb-2 font-semibold">Business Goal Alignment</label>
               <Select
                 value={businessGoalAlignment}
-                onChange={options => setBusinessGoalAlignment(options.map(option => option.value))}
+                onChange={setBusinessGoalAlignment}
                 options={businessGoals}
                 placeholder="Select business goals"
                 className="w-full"
