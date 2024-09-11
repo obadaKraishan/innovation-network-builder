@@ -9,47 +9,64 @@ import Select from 'react-select';
 const IdeaSubmissionForm = () => {
   const [title, setTitle] = useState('');
   const [description, setDescription] = useState('');
-  const [department, setDepartment] = useState(null);  // Use null initially for Select
-  const [departments, setDepartments] = useState([]);  // Store departments from API
+  const [problem, setProblem] = useState('');
+  const [solution, setSolution] = useState('');
+  const [expectedImpact, setExpectedImpact] = useState('');
+  const [department, setDepartment] = useState(null);
+  const [departments, setDepartments] = useState([]);
   const [resources, setResources] = useState({
     budget: 0,
     time: '',
     manpower: 0,
     toolsAndInfrastructure: '',
   });
+  const [attachments, setAttachments] = useState(null);
   const navigate = useNavigate();
 
-  // Fetch all parent departments and their sub-departments
   useEffect(() => {
     const fetchDepartments = async () => {
       try {
-        const { data } = await api.get('/departments/full');  // Fetching departments and sub-departments
+        const { data } = await api.get('/departments/full');
         const departmentOptions = data.map(department => ({
           label: department.name,
           options: department.subDepartments.map(subDept => ({
-            value: subDept._id,  // Ensure the value is the ID for submission
+            value: subDept._id,
             label: subDept.name,
           })),
         }));
-        setDepartments(departmentOptions);  // Setting the options for the Select component
+        setDepartments(departmentOptions);
       } catch (error) {
         console.error('Failed to fetch departments', error);
       }
     };
-
     fetchDepartments();
   }, []);
 
+  const handleFileUpload = (e) => {
+    setAttachments(e.target.files);
+  };
+
   const handleSubmit = async (e) => {
     e.preventDefault();
+    const formData = new FormData();
+    formData.append('title', title);
+    formData.append('description', description);
+    formData.append('problem', problem);
+    formData.append('solution', solution);
+    formData.append('expectedImpact', expectedImpact);
+    formData.append('department', department?.value);
+    formData.append('resources', JSON.stringify(resources));
+
+    if (attachments) {
+      for (const file of attachments) {
+        formData.append('attachments', file);
+      }
+    }
+
     try {
-      const newIdea = { 
-        title, 
-        description, 
-        department: department?.value,  // Extract the department ID (value)
-        resources 
-      };
-      await api.post('/innovation/submit-idea', newIdea);
+      await api.post('/innovation/submit-idea', formData, {
+        headers: { 'Content-Type': 'multipart/form-data' }
+      });
       toast.success('Idea submitted successfully!');
       navigate('/innovation-dashboard');
     } catch (error) {
@@ -92,13 +109,46 @@ const IdeaSubmissionForm = () => {
                 required
               ></textarea>
             </div>
+            <div className="mb-4">
+              <label className="block mb-2 font-semibold">Problem/Opportunity</label>
+              <textarea
+                value={problem}
+                onChange={e => setProblem(e.target.value)}
+                placeholder="Describe the problem or opportunity"
+                className="w-full p-3 border rounded-lg"
+                rows="3"
+                required
+              />
+            </div>
+            <div className="mb-4">
+              <label className="block mb-2 font-semibold">Suggested Solution</label>
+              <textarea
+                value={solution}
+                onChange={e => setSolution(e.target.value)}
+                placeholder="Describe your suggested solution"
+                className="w-full p-3 border rounded-lg"
+                rows="3"
+                required
+              />
+            </div>
+            <div className="mb-4">
+              <label className="block mb-2 font-semibold">Expected Impact</label>
+              <textarea
+                value={expectedImpact}
+                onChange={e => setExpectedImpact(e.target.value)}
+                placeholder="What impact do you expect from this idea?"
+                className="w-full p-3 border rounded-lg"
+                rows="3"
+                required
+              />
+            </div>
 
             <div className="mb-4">
               <label className="block mb-2 font-semibold">Department</label>
               <Select
                 value={department}
                 onChange={setDepartment}
-                options={departments}  // Using fetched departments
+                options={departments}
                 placeholder="Select department"
                 className="w-full"
                 isClearable
@@ -151,6 +201,16 @@ const IdeaSubmissionForm = () => {
                 placeholder="Enter tools & infrastructure required"
                 className="w-full p-3 border rounded-lg"
                 required
+              />
+            </div>
+
+            <div className="mb-4">
+              <label className="block mb-2 font-semibold">File Attachments</label>
+              <input
+                type="file"
+                onChange={handleFileUpload}
+                multiple
+                className="w-full p-3 border rounded-lg"
               />
             </div>
 
