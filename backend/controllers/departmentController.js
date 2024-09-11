@@ -1,5 +1,26 @@
 const Department = require('../models/departmentModel');
 const User = require('../models/userModel'); // Assuming you have a user model
+const Notification = require('../models/notificationModel');
+const { sendNotification } = require('../services/notificationService');
+
+// Utility function to send notifications to users
+const sendDepartmentNotifications = async (users, message, link, senderId) => {
+  try {
+    for (const user of users) {
+      const newNotification = new Notification({
+        recipient: user,
+        sender: senderId,
+        message,
+        type: 'info',
+        link,
+      });
+      await newNotification.save();
+      sendNotification(user, newNotification); // Send real-time notification
+    }
+  } catch (error) {
+    console.error('Error sending notifications:', error.message);
+  }
+};
 
 // @desc    Get all main departments (excluding sub-departments)
 // @route   GET /api/departments
@@ -67,6 +88,15 @@ const addParentDepartment = async (req, res) => {
     const { name } = req.body;
     const department = new Department({ name });
     await department.save();
+
+    console.log(`New parent department created: ${department.name}`); // Log the new department
+
+    // Send notifications to users about the new department
+    const allUsers = await User.find().select('_id');
+    const userIds = allUsers.map(user => user._id);
+    const notificationMessage = `A new parent department named "${department.name}" has been added.`;
+    await sendDepartmentNotifications(userIds, notificationMessage, `/departments/${department._id}`, req.user._id);
+
     res.status(201).json(department);
   } catch (error) {
     res.status(500).json({ message: error.message }); // Return the error message
@@ -94,6 +124,14 @@ const addSubDepartment = async (req, res) => {
     parentDepartment.subDepartments.push(department._id);
     await parentDepartment.save();
 
+    console.log(`Sub-department "${name}" added under "${parentDepartment.name}"`); // Log sub-department
+
+    // Send notifications to users about the new sub-department
+    const allUsers = await User.find().select('_id');
+    const userIds = allUsers.map(user => user._id);
+    const notificationMessage = `A new sub-department named "${department.name}" has been added under "${parentDepartment.name}".`;
+    await sendDepartmentNotifications(userIds, notificationMessage, `/departments/${department._id}`, req.user._id);
+
     res.status(201).json(department);
   } catch (error) {
     res.status(500).json({ message: error.message }); // Return the error message
@@ -114,6 +152,15 @@ const editDepartment = async (req, res) => {
       department.parentDepartment = parent || department.parentDepartment;
 
       await department.save();
+
+      console.log(`Department "${department.name}" updated`); // Log the department update
+
+      // Send notifications to users about the updated department
+      const allUsers = await User.find().select('_id');
+      const userIds = allUsers.map(user => user._id);
+      const notificationMessage = `The department "${department.name}" has been updated.`;
+      await sendDepartmentNotifications(userIds, notificationMessage, `/departments/${department._id}`, req.user._id);
+
       res.json(department);
     } else {
       res.status(404).json({ message: 'Department not found' }); // Return the error message
@@ -145,6 +192,12 @@ const deleteDepartment = async (req, res) => {
 
     // Use `findByIdAndDelete` method to delete the department
     await Department.findByIdAndDelete(req.params.id);
+
+    // Send notifications to users about the deleted department
+    const allUsers = await User.find().select('_id');
+    const userIds = allUsers.map(user => user._id);
+    const notificationMessage = `The department "${department.name}" has been deleted.`;
+    await sendDepartmentNotifications(userIds, notificationMessage, '/departments', req.user._id);
 
     res.json({ message: 'Department removed' }); // Return the success message
   } catch (error) {
