@@ -1,3 +1,4 @@
+// File: frontend/src/components/Sidebar.js
 import React, { useContext } from "react";
 import { Link, useLocation } from "react-router-dom";
 import {
@@ -15,6 +16,7 @@ import {
   FaVoteYea,
   FaHeartbeat,
   FaBell,
+  FaLightbulb,
 } from "react-icons/fa";
 import AuthContext from "../context/AuthContext";
 
@@ -51,6 +53,7 @@ const Sidebar = () => {
           { name: "Meetings", icon: <FaCalendarAlt />, path: "/meeting-booking" },
           { name: "Messages", icon: <FaEnvelope />, path: "/messages" },
           { name: "Collaborator Finder", icon: <FaCogs />, path: "/collaborator-finder" },
+          { name: "Innovation Dashboard", icon: <FaLightbulb />, path: "/innovation-dashboard" },
         ],
       },
       {
@@ -83,6 +86,7 @@ const Sidebar = () => {
           { name: "Meetings", icon: <FaCalendarAlt />, path: "/meeting-booking" },
           { name: "Messages", icon: <FaEnvelope />, path: "/messages" },
           { name: "Collaborator Finder", icon: <FaCogs />, path: "/collaborator-finder" },
+          { name: "Innovation Dashboard", icon: <FaLightbulb />, path: "/innovation-dashboard" },
         ],
       },
       {
@@ -115,6 +119,7 @@ const Sidebar = () => {
           { name: "Meetings", icon: <FaCalendarAlt />, path: "/meeting-booking" },
           { name: "Messages", icon: <FaEnvelope />, path: "/messages" },
           { name: "Collaborator Finder", icon: <FaCogs />, path: "/collaborator-finder" },
+          { name: "Innovation Dashboard", icon: <FaLightbulb />, path: "/innovation-dashboard" },
         ],
       },
       {
@@ -147,6 +152,7 @@ const Sidebar = () => {
           { name: "Meetings", icon: <FaCalendarAlt />, path: "/meeting-booking" },
           { name: "Messages", icon: <FaEnvelope />, path: "/messages" },
           { name: "Collaborator Finder", icon: <FaCogs />, path: "/collaborator-finder" },
+          { name: "Innovation Dashboard", icon: <FaLightbulb />, path: "/innovation-dashboard" },
         ],
       },
       {
@@ -178,6 +184,7 @@ const Sidebar = () => {
           { name: "Meetings", icon: <FaCalendarAlt />, path: "/meeting-booking" },
           { name: "Messages", icon: <FaEnvelope />, path: "/messages" },
           { name: "Collaborator Finder", icon: <FaCogs />, path: "/collaborator-finder" },
+          { name: "Innovation Dashboard", icon: <FaLightbulb />, path: "/innovation-dashboard" },
         ],
       },
       {
@@ -210,6 +217,7 @@ const Sidebar = () => {
           { name: "Meetings", icon: <FaCalendarAlt />, path: "/meeting-booking" },
           { name: "Messages", icon: <FaEnvelope />, path: "/messages" },
           { name: "Collaborator Finder", icon: <FaCogs />, path: "/collaborator-finder" },
+          { name: "Innovation Dashboard", icon: <FaLightbulb />, path: "/innovation-dashboard" },
         ],
       },
       {
@@ -241,6 +249,7 @@ const Sidebar = () => {
           { name: "Meetings", icon: <FaCalendarAlt />, path: "/meeting-booking" },
           { name: "Messages", icon: <FaEnvelope />, path: "/messages" },
           { name: "Collaborator Finder", icon: <FaCogs />, path: "/collaborator-finder" },
+          { name: "Innovation Dashboard", icon: <FaLightbulb />, path: "/innovation-dashboard" },
         ],
       },
       {
@@ -271,6 +280,7 @@ const Sidebar = () => {
           { name: "Meetings", icon: <FaCalendarAlt />, path: "/meeting-booking" },
           { name: "Messages", icon: <FaEnvelope />, path: "/messages" },
           { name: "Collaborator Finder", icon: <FaCogs />, path: "/collaborator-finder" },
+          { name: "Innovation Dashboard", icon: <FaLightbulb />, path: "/innovation-dashboard" },
         ],
       },
       {
@@ -299,6 +309,7 @@ const Sidebar = () => {
           { name: "Meetings", icon: <FaCalendarAlt />, path: "/meeting-booking" },
           { name: "Messages", icon: <FaEnvelope />, path: "/messages" },
           { name: "Collaborator Finder", icon: <FaCogs />, path: "/collaborator-finder" },
+          { name: "Innovation Dashboard", icon: <FaLightbulb />, path: "/innovation-dashboard" },
         ],
       },
       {
