@@ -2,6 +2,51 @@ const mongoose = require('mongoose');
 const asyncHandler = require('express-async-handler');
 const WellnessSurvey = require('../models/WellnessModel');
 const WellnessFeedback = require('../models/WellnessFeedbackModel');
+const Notification = require('../models/notificationModel');
+const { sendNotification } = require('../services/notificationService');
+const Connection = require('../models/connectionModel');
+
+
+// Utility function to create a new connection between two users
+const createConnection = async (userA, userB, context) => {
+  try {
+    console.log(`Attempting to create connection between ${userA} and ${userB} with context: ${context}`);
+
+    const newConnection = new Connection({
+      userA,
+      userB,
+      context,
+      interactionCount: 1,
+      lastInteractedAt: Date.now(),
+    });
+
+    const savedConnection = await newConnection.save();
+    console.log(`Connection successfully created:`, savedConnection);
+
+    return savedConnection;
+  } catch (error) {
+    console.error(`Error creating connection between ${userA} and ${userB} for context: ${context}:`, error.message);
+  }
+};
+
+// Utility function to send notifications to users
+const sendWellnessNotifications = async (users, message, link, senderId) => {
+  try {
+    for (const user of users) {
+      const newNotification = new Notification({
+        recipient: user,
+        sender: senderId,
+        message,
+        type: 'info',
+        link,
+      });
+      await newNotification.save();
+      sendNotification(user, newNotification);  // Send real-time notification
+    }
+  } catch (error) {
+    console.error('Error sending notifications:', error.message);
+  }
+};
 
 // Create a wellness survey
 const createSurvey = asyncHandler(async (req, res) => {
@@ -13,6 +58,10 @@ const createSurvey = asyncHandler(async (req, res) => {
     surveyQuestions: questions, // Advanced questions with types and options
     isAnonymous,
   });
+
+  // Notify all employees about the new survey
+  const notificationMessage = `A new wellness survey "${title}" has been created. Please participate.`;
+  await sendWellnessNotifications([req.user._id], notificationMessage, `/surveys/${newSurvey._id}`, req.user._id);
 
   res.status(201).json(newSurvey);
 });
@@ -40,39 +89,49 @@ const getSurveyById = asyncHandler(async (req, res) => {
     res.status(200).json(survey);
 });
   
-  // Update a survey
-  const updateSurvey = asyncHandler(async (req, res) => {
-    const { title, questions, isAnonymous } = req.body;
-    const survey = await WellnessSurvey.findById(req.params.surveyId);
-  
-    if (!survey) {
-      res.status(404);
-      throw new Error('Survey not found');
-    }
-  
-    survey.title = title || survey.title;
-    survey.surveyQuestions = questions || survey.surveyQuestions;
-    survey.isAnonymous = isAnonymous !== undefined ? isAnonymous : survey.isAnonymous;
-  
-    await survey.save();
-    res.status(200).json(survey);
-  });
-  
-  // Delete a survey
-  const deleteSurvey = asyncHandler(async (req, res) => {
-    const survey = await WellnessSurvey.findById(req.params.surveyId);
-  
-    if (!survey) {
-      res.status(404);
-      throw new Error('Survey not found');
-    }
-  
-    await survey.remove();
-    res.status(200).json({ message: 'Survey deleted' });
-  });  
+// Update a survey
+const updateSurvey = asyncHandler(async (req, res) => {
+  const { title, questions, isAnonymous } = req.body;
+  const survey = await WellnessSurvey.findById(req.params.surveyId);
 
-// Submit feedback for a wellness survey
-const submitFeedback = asyncHandler(async (req, res) => {
+  if (!survey) {
+    res.status(404);
+    throw new Error('Survey not found');
+  }
+
+  survey.title = title || survey.title;
+  survey.surveyQuestions = questions || survey.surveyQuestions;
+  survey.isAnonymous = isAnonymous !== undefined ? isAnonymous : survey.isAnonymous;
+
+  const updatedSurvey = await survey.save();
+
+  // Notify employees about the survey update
+  const notificationMessage = `The wellness survey "${updatedSurvey.title}" has been updated.`;
+  await sendWellnessNotifications([req.user._id], notificationMessage, `/surveys/${updatedSurvey._id}`, req.user._id);
+
+  res.status(200).json(updatedSurvey);
+});
+  
+// Delete a survey
+const deleteSurvey = asyncHandler(async (req, res) => {
+  const survey = await WellnessSurvey.findById(req.params.surveyId);
+
+  if (!survey) {
+    res.status(404);
+    throw new Error('Survey not found');
+  }
+
+  await survey.remove();
+
+  // Notify employees about the deleted survey
+  const notificationMessage = `The wellness survey "${survey.title}" has been deleted.`;
+  await sendWellnessNotifications([req.user._id], notificationMessage, `/surveys`, req.user._id);
+
+  res.status(200).json({ message: 'Survey deleted' });
+});
+
+  // Submit feedback for a wellness survey
+  const submitFeedback = asyncHandler(async (req, res) => {
     const { surveyId, feedback, anonymous } = req.body;
   
     console.log('Submitting feedback: ', { surveyId, feedback, anonymous });
@@ -81,8 +140,8 @@ const submitFeedback = asyncHandler(async (req, res) => {
   
     if (!survey) {
       console.error('Survey not found with ID:', surveyId);
-      res.status(404);
-      throw new Error('Survey not found');
+        res.status(404);
+        throw new Error('Survey not found');
     }
   
     const feedbackData = {
@@ -92,15 +151,19 @@ const submitFeedback = asyncHandler(async (req, res) => {
         ...fb,
         _id: new mongoose.Types.ObjectId(), // Ensure each feedback item has a unique _id
       })),
-      anonymous, // Store the anonymous value in the feedback
+      anonymous,
     };
   
     console.log('Adding feedback to new WellnessFeedback collection:', feedbackData);
     const newFeedback = await WellnessFeedback.create(feedbackData);
   
+    // Notify the creator of the survey about the new feedback
+    const notificationMessage = `New feedback has been submitted for the wellness survey "${survey.title}".`;
+    await sendWellnessNotifications([survey.createdBy], notificationMessage, `/feedback/${newFeedback._id}`, req.user._id);
+  
     console.log('Feedback submitted successfully');
     res.status(201).json({ message: 'Feedback submitted successfully', feedbackId: newFeedback._id });
-  });  
+  }); 
 
 // Fetch feedback details by feedbackId
 const getFeedbackById = asyncHandler(async (req, res) => {
