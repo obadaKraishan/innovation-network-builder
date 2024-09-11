@@ -1,4 +1,3 @@
-// File: frontend/src/components/IdeaDetails.js
 import React, { useState, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import Sidebar from './Sidebar';
@@ -53,6 +52,9 @@ const IdeaDetails = () => {
         <div className="bg-white p-6 rounded-lg shadow-lg">
           <h2 className="text-2xl font-bold mb-6">{idea.title}</h2>
           <p><strong>Description:</strong> {idea.description}</p>
+          <p><strong>Problem:</strong> {idea.problem}</p>
+          <p><strong>Suggested Solution:</strong> {idea.solution}</p>
+          <p><strong>Expected Impact:</strong> {idea.expectedImpact}</p>
           <p><strong>Stage:</strong> {idea.stage}</p>
           <p><strong>Department:</strong> {idea.department?.name || 'N/A'}</p>
           <p><strong>Submitted By:</strong> {idea.employeeId?.name}</p>
