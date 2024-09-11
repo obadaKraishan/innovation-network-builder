@@ -14,6 +14,7 @@ import {
   FaLayerGroup,
   FaVoteYea,
   FaHeartbeat,
+  FaBell,
 } from "react-icons/fa";
 import AuthContext from "../context/AuthContext";
 
@@ -33,6 +34,7 @@ const Sidebar = () => {
         items: [
           { name: "Dashboard", icon: <FaTachometerAlt />, path: "/dashboard" },
           { name: "Profile", icon: <FaUser />, path: "/profile" },
+          { name: "Notifications", icon: <FaBell />, path: "/notifications" }
         ],
       },
       {
@@ -62,6 +64,7 @@ const Sidebar = () => {
         items: [
           { name: "Dashboard", icon: <FaTachometerAlt />, path: "/dashboard" },
           { name: "Profile", icon: <FaUser />, path: "/profile" },
+          { name: "Notifications", icon: <FaBell />, path: "/notifications" }
         ],
       },
       {
@@ -93,6 +96,7 @@ const Sidebar = () => {
           { name: "Dashboard", icon: <FaTachometerAlt />, path: "/dashboard" },
           { name: "Profile", icon: <FaUser />, path: "/profile" },
           { name: "Company Reports", icon: <FaChartLine />, path: "/company-reports" },
+          { name: "Notifications", icon: <FaBell />, path: "/notifications" }
         ],
       },
       {
@@ -122,6 +126,7 @@ const Sidebar = () => {
         items: [
           { name: "Dashboard", icon: <FaTachometerAlt />, path: "/dashboard" },
           { name: "Profile", icon: <FaUser />, path: "/profile" },
+          { name: "Notifications", icon: <FaBell />, path: "/notifications" }
         ],
       },
       {
@@ -151,6 +156,7 @@ const Sidebar = () => {
         items: [
           { name: "Dashboard", icon: <FaTachometerAlt />, path: "/dashboard" },
           { name: "Profile", icon: <FaUser />, path: "/profile" },
+          { name: "Notifications", icon: <FaBell />, path: "/notifications" }
         ],
       },
       {
@@ -181,6 +187,7 @@ const Sidebar = () => {
         items: [
           { name: "Dashboard", icon: <FaTachometerAlt />, path: "/dashboard" },
           { name: "Profile", icon: <FaUser />, path: "/profile" },
+          { name: "Notifications", icon: <FaBell />, path: "/notifications" }
         ],
       },
       {
@@ -210,6 +217,7 @@ const Sidebar = () => {
         items: [
           { name: "Dashboard", icon: <FaTachometerAlt />, path: "/dashboard" },
           { name: "Profile", icon: <FaUser />, path: "/profile" },
+          { name: "Notifications", icon: <FaBell />, path: "/notifications" }
         ],
       },
       {
@@ -238,6 +246,7 @@ const Sidebar = () => {
         items: [
           { name: "Dashboard", icon: <FaTachometerAlt />, path: "/dashboard" },
           { name: "Profile", icon: <FaUser />, path: "/profile" },
+          { name: "Notifications", icon: <FaBell />, path: "/notifications" }
         ],
       },
       {
