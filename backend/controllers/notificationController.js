@@ -52,6 +52,20 @@ const markAsRead = asyncHandler(async (req, res) => {
   }
 });
 
+// @desc    Get notification details by ID
+// @route   GET /api/notifications/:id
+// @access  Private
+const getNotificationById = asyncHandler(async (req, res) => {
+    const notification = await Notification.findById(req.params.id);
+  
+    if (!notification) {
+      res.status(404);
+      throw new Error('Notification not found');
+    }
+  
+    res.json(notification);
+  });
+
 // @desc    Mark all notifications as read
 // @route   PUT /api/notifications/read-all
 // @access  Private
@@ -60,4 +74,9 @@ const markAllAsRead = asyncHandler(async (req, res) => {
   res.json({ message: 'All notifications marked as read' });
 });
 
-module.exports = { createNotification, getUserNotifications, markAsRead, markAllAsRead };
+module.exports = { 
+    createNotification, 
+    getUserNotifications, 
+    getNotificationById,
+    markAsRead, 
+    markAllAsRead };
