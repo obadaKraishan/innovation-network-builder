@@ -1,5 +1,6 @@
 const asyncHandler = require('express-async-handler');
 const Notification = require('../models/notificationModel');
+const { sendNotification } = require('../server');  // Import the sendNotification function
 
 // @desc    Create a notification
 // @route   POST /api/notifications
@@ -9,13 +10,17 @@ const createNotification = asyncHandler(async (req, res) => {
 
   const notification = new Notification({
     recipient,
-    sender: req.user._id, // Assume the user sending the notification is logged in
+    sender: req.user._id,  // Assume the user sending the notification is logged in
     message,
     type,
     link,
   });
 
   const createdNotification = await notification.save();
+
+  // Emit the notification to the recipient in real-time using Socket.IO
+  sendNotification(recipient, createdNotification);
+
   res.status(201).json(createdNotification);
 });
 
