@@ -1,4 +1,4 @@
-const { sendNotification } = require('../server');
+const { sendNotification } = require('../services/notificationService');
 const Message = require('../models/messageModel');
 const Connection = require('../models/connectionModel');
 
@@ -65,7 +65,7 @@ const sendMessage = async (req, res) => {
         type: 'info',
         link: `/messages/${newMessage._id}`, // Link to the message details
       };
-      sendNotification(recipientId, notification);
+      sendNotification(recipientId, notification);  // Now uses correct service
     }
 
     if (cc && cc.length > 0) {
@@ -82,7 +82,7 @@ const sendMessage = async (req, res) => {
           type: 'info',
           link: `/messages/${newMessage._id}`,
         };
-        sendNotification(ccId, notification);
+        sendNotification(ccId, notification);  // Now uses correct service
       }
     }
 
@@ -285,7 +285,7 @@ const replyToMessage = async (req, res) => {
         type: 'info',
         link: `/messages/${newMessage._id}`,
       };
-      sendNotification(recipientId, notification);
+      sendNotification(recipientId, notification);  // Now uses correct service
     }
 
     if (cc && cc.length > 0) {
@@ -302,7 +302,7 @@ const replyToMessage = async (req, res) => {
           type: 'info',
           link: `/messages/${newMessage._id}`,
         };
-        sendNotification(ccId, notification);
+        sendNotification(ccId, notification);  // Now uses correct service
       }
     }
 

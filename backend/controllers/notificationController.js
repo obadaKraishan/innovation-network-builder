@@ -1,6 +1,8 @@
+// File: backend/controllers/notificationController.js
+
 const asyncHandler = require('express-async-handler');
 const Notification = require('../models/notificationModel');
-const { sendNotification } = require('../server');  // Import the sendNotification function
+const { sendNotification } = require('../services/notificationService');  // Import from the service
 
 // @desc    Create a notification
 // @route   POST /api/notifications
@@ -10,7 +12,7 @@ const createNotification = asyncHandler(async (req, res) => {
 
   const notification = new Notification({
     recipient,
-    sender: req.user._id,  // Assume the user sending the notification is logged in
+    sender: req.user._id,
     message,
     type,
     link,
@@ -30,7 +32,7 @@ const createNotification = asyncHandler(async (req, res) => {
 const getUserNotifications = asyncHandler(async (req, res) => {
   const notifications = await Notification.find({ recipient: req.user._id })
     .sort({ createdAt: -1 })
-    .limit(20);  // Limit to the latest 20 notifications
+    .limit(20);
   res.json(notifications);
 });
 
