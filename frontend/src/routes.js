@@ -52,6 +52,13 @@ import WellnessFeedbackDetails from './components/WellnessFeedbackDetails';
 import WellnessEditResource from './components/WellnessEditResource';
 import WellnessEditRecommendation from './components/WellnessEditRecommendation'; 
 
+// New Components for Innovation Pipeline System
+import InnovationDashboard from './components/InnovationDashboard';
+import IdeaSubmissionForm from './components/IdeaSubmissionForm';
+import IdeaDetails from './components/IdeaDetails';
+import InnovationRoadmap from './components/InnovationRoadmap';
+import InnovationLeaderboard from './components/InnovationLeaderboard';
+
 // Notification components
 import NotificationsDashboard from './components/NotificationsDashboard';
 import NotificationDetails from './components/NotificationDetails';
@@ -109,6 +116,13 @@ const AppRoutes = () => {
           <Route path="/wellness/edit-resource/:resourceId" element={<WellnessEditResource />} />
           <Route path="/wellness/edit-recommendation/:recommendationId" element={<WellnessEditRecommendation />} />
 
+          {/* New Routes for Innovation Pipeline System */}
+          <Route path="/innovation-dashboard" element={<InnovationDashboard />} />
+          <Route path="/submit-idea" element={<IdeaSubmissionForm />} />
+          <Route path="/innovation/idea/:id" element={<IdeaDetails />} />
+          <Route path="/innovation-roadmap" element={<InnovationRoadmap />} />
+          <Route path="/innovation-leaderboard" element={<InnovationLeaderboard />} />
+          
           {/* Notifications Routes */}
           <Route path="/notifications" element={<NotificationsDashboard />} />
           <Route path="/notifications/:id" element={<NotificationDetails />} />
