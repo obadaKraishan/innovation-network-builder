@@ -79,4 +79,5 @@ module.exports = {
     getUserNotifications, 
     getNotificationById,
     markAsRead, 
-    markAllAsRead };
+    markAllAsRead 
+};

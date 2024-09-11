@@ -2,8 +2,9 @@ import React, { useEffect, useState } from 'react';
 import { Link } from 'react-router-dom';
 import Sidebar from './Sidebar';
 import api from '../utils/api';
-import { FaBell, FaCheckCircle, FaTimesCircle } from 'react-icons/fa';
+import { FaBell, FaCheckCircle, FaTimesCircle, FaExclamationTriangle, FaInfoCircle } from 'react-icons/fa';
 import Select from 'react-select';
+import moment from 'moment';
 
 const NotificationsDashboard = () => {
   const [notifications, setNotifications] = useState([]);
@@ -90,6 +91,19 @@ const NotificationsDashboard = () => {
     setFilteredNotifications(filtered);
   };
 
+  const getNotificationIcon = (type) => {
+    switch (type) {
+      case 'warning':
+        return <FaExclamationTriangle className="text-yellow-500" />;
+      case 'success':
+        return <FaCheckCircle className="text-green-500" />;
+      case 'error':
+        return <FaTimesCircle className="text-red-500" />;
+      default:
+        return <FaInfoCircle className="text-blue-500" />;
+    }
+  };
+
   if (loading) {
     return <p>Loading notifications...</p>;
   }
@@ -142,10 +156,13 @@ const NotificationsDashboard = () => {
               <li key={notification._id} className={`p-4 rounded-lg shadow-sm ${notification.read ? 'bg-gray-100' : 'bg-gray-50'}`}>
                 <div className="flex justify-between">
                   <div className="flex items-center space-x-3">
-                    <FaBell className={`text-xl ${notification.read ? 'text-green-600' : 'text-yellow-500'}`} />
-                    <Link to={`/notifications/${notification._id}`} className="text-lg text-gray-800 hover:underline">
-                      {notification.message}
-                    </Link>
+                    {getNotificationIcon(notification.type)}
+                    <div className="flex flex-col">
+                      <Link to={`/notifications/${notification._id}`} className="text-lg text-gray-800 hover:underline">
+                        {notification.message}
+                      </Link>
+                      <p className="text-sm text-gray-500">Sent by: {notification.sender?.name || 'System'} on {moment(notification.createdAt).format('MMMM Do YYYY, h:mm:ss a')}</p>
+                    </div>
                   </div>
                   <div className="flex space-x-2">
                     <span className={`text-sm ${notification.read ? 'text-green-500' : 'text-yellow-500'}`}>
