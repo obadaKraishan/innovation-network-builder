@@ -20,6 +20,7 @@ const interestGroupRoutes = require('./routes/interestGroupRoutes');
 const GroupDecisionRoutes = require('./routes/GroupDecisionRoutes');
 const wellnessRoutes = require('./routes/WellnessRoutes');
 const notificationRoutes = require('./routes/notificationRoutes');
+const innovationRoutes = require('./routes/innovationRoutes'); // Import Innovation Pipeline routes
 
 // Initialize Express
 const app = express();
@@ -76,6 +77,7 @@ app.use('/api/groups', interestGroupRoutes);
 app.use('/api/decisions', GroupDecisionRoutes);
 app.use('/api/wellness', wellnessRoutes);
 app.use('/api/notifications', notificationRoutes);
+app.use('/api/innovation', innovationRoutes);  // Added Innovation Pipeline routes
 
 // Error Handling Middleware
 app.use((err, req, res, next) => {
