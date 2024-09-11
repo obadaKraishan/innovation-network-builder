@@ -1,5 +1,50 @@
 const asyncHandler = require("express-async-handler");
 const PersonalizedRecommendation = require("../models/PersonalizedRecommendationModel");
+const Notification = require('../models/notificationModel');
+const { sendNotification } = require('../services/notificationService');
+const Connection = require('../models/connectionModel');
+
+
+// Utility function to create a new connection between two users
+const createConnection = async (userA, userB, context) => {
+  try {
+    console.log(`Attempting to create connection between ${userA} and ${userB} with context: ${context}`);
+
+    const newConnection = new Connection({
+      userA,
+      userB,
+      context,
+      interactionCount: 1,
+      lastInteractedAt: Date.now(),
+    });
+
+    const savedConnection = await newConnection.save();
+    console.log(`Connection successfully created:`, savedConnection);
+
+    return savedConnection;
+  } catch (error) {
+    console.error(`Error creating connection between ${userA} and ${userB} for context: ${context}:`, error.message);
+  }
+};
+
+// Utility function to send notifications to users
+const sendRecommendationNotifications = async (users, message, link, senderId) => {
+  try {
+    for (const user of users) {
+      const newNotification = new Notification({
+        recipient: user,
+        sender: senderId,
+        message,
+        type: 'info',
+        link,
+      });
+      await newNotification.save();
+      sendNotification(user, newNotification);  // Send real-time notification
+    }
+  } catch (error) {
+    console.error('Error sending notifications:', error.message);
+  }
+};
 
 // Create a personalized recommendation
 const createRecommendation = asyncHandler(async (req, res) => {
@@ -20,6 +65,14 @@ const createRecommendation = asyncHandler(async (req, res) => {
   });
 
   console.log("Recommendation created:", newRecommendation);
+
+  // Create a connection between the sender and the employee receiving the recommendation
+  await createConnection(req.user._id, employeeId, 'personalized recommendation');
+
+  // Send a notification to the employee
+  const notificationMessage = `You have received a new personalized recommendation: ${title}`;
+  await sendRecommendationNotifications([employeeId], notificationMessage, `/recommendations/${newRecommendation._id}`, req.user._id);
+
   res.status(201).json(newRecommendation);
 });
 
@@ -78,6 +131,11 @@ const updateRecommendation = asyncHandler(async (req, res) => {
 
   const updatedRecommendation = await recommendation.save();
   console.log("Recommendation updated:", updatedRecommendation);
+
+  // Send a notification to the employee about the update
+  const notificationMessage = `Your personalized recommendation: ${updatedRecommendation.title} has been updated.`;
+  await sendRecommendationNotifications([updatedRecommendation.employeeId], notificationMessage, `/recommendations/${updatedRecommendation._id}`, req.user._id);
+
   res.status(200).json(updatedRecommendation);
 });
 
@@ -94,6 +152,11 @@ const deleteRecommendation = asyncHandler(async (req, res) => {
   }
 
   console.log("Recommendation deleted successfully");
+
+  // Send a notification to the employee about the deletion
+  const notificationMessage = `Your personalized recommendation titled: "${recommendation.title}" has been deleted.`;
+  await sendRecommendationNotifications([recommendation.employeeId], notificationMessage, `/recommendations`, req.user._id);
+
   res.status(200).json({ message: "Recommendation removed" });
 });
 
