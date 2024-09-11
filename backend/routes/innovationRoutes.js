@@ -7,6 +7,7 @@ const {
   updateIdeaStage,
   evaluateIdea,
   allocateResources,
+  withdrawIdea,
 } = require('../controllers/innovationController');
 const { protect, admin } = require('../middleware/authMiddleware');
 
@@ -32,5 +33,8 @@ router.post('/evaluate-idea/:id', protect, admin, evaluateIdea);
 
 // Allocate resources for a project
 router.post('/allocate-resources', protect, admin, allocateResources);
+
+// Withdraw an idea
+router.post('/withdraw-idea/:id', protect, withdrawIdea);
 
 module.exports = router;

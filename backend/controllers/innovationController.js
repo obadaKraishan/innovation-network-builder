@@ -122,6 +122,28 @@ const allocateResources = asyncHandler(async (req, res) => {
   res.status(201).json(savedAllocation);
 });
 
+// Withdraw an idea (idea owner only)
+const withdrawIdea = asyncHandler(async (req, res) => {
+    const { id } = req.params;
+    const idea = await Innovation.findById(id);
+  
+    if (!idea) {
+      res.status(404);
+      throw new Error('Idea not found');
+    }
+  
+    // Ensure only the idea owner can withdraw the idea
+    if (idea.employeeId.toString() !== req.user._id.toString()) {
+      res.status(403);
+      throw new Error('You do not have permission to withdraw this idea');
+    }
+  
+    // Mark idea as withdrawn
+    idea.stage = 'withdrawn';
+    await idea.save();
+    res.json({ message: 'Idea withdrawn successfully' });
+  });
+
 module.exports = {
   submitIdea,
   getIdeaById,
@@ -130,4 +152,5 @@ module.exports = {
   updateIdeaStage,
   evaluateIdea,
   allocateResources,
+  withdrawIdea,
 };
