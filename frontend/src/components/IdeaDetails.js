@@ -22,6 +22,7 @@ const IdeaDetails = () => {
         const { data } = await api.get(`/innovation/idea/${id}`);
         setIdea(data);
         setLoading(false);
+        setAttachments(data.attachments || []);
       } catch (error) {
         toast.error('Failed to load idea details');
         setLoading(false);
@@ -79,9 +80,26 @@ const IdeaDetails = () => {
           <p><strong>Problem:</strong> {idea.problem}</p>
           <p><strong>Suggested Solution:</strong> {idea.solution}</p>
           <p><strong>Expected Impact:</strong> {idea.expectedImpact}</p>
+          <p><strong>Impact Type:</strong> {idea.impactType}</p>
+          <p><strong>ROI Estimate:</strong> {idea.roiEstimate}%</p>
+          <p><strong>Risk Assessment:</strong> {idea.riskAssessment}</p>
+          <p><strong>Success Metrics:</strong> {idea.successMetrics}</p>
+          <p><strong>Expertise Required:</strong> {idea.expertiseRequired}</p>
+          <p><strong>External Resources:</strong> {idea.externalResources}</p>
           <p><strong>Stage:</strong> {idea.stage}</p>
           <p><strong>Department:</strong> {idea.department?.name || 'N/A'}</p>
           <p><strong>Submitted By:</strong> {idea.employeeId?.name}</p>
+          <p><strong>Business Goal Alignment:</strong> {idea.businessGoalAlignment?.join(', ')}</p>
+          <p><strong>Resource Estimates:</strong></p>
+          <ul className="list-disc pl-6">
+            <li>Budget: {idea.resources?.budgetMin} - {idea.resources?.budgetMax}</li>
+            <li>Total Time: {idea.resources?.totalTime}</li>
+            <li>Delivery Date: {idea.resources?.deliveryDate || 'N/A'}</li>
+            <li>Manpower: {idea.resources?.manpower}</li>
+            <li>Full-Time Employees: {idea.resources?.fullTimeEmployees}</li>
+            <li>Contractors: {idea.resources?.contractors}</li>
+            <li>Tools & Infrastructure: {idea.resources?.toolsAndInfrastructure}</li>
+          </ul>
           <p><strong>Scores:</strong></p>
           <ul className="list-disc pl-6">
             <li>Impact: {idea.impactScore}</li>
