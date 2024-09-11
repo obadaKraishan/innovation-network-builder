@@ -4,6 +4,7 @@ const ResourceAllocation = require('../models/resourceAllocationModel');
 
 // Submit a new innovation idea
 const submitIdea = asyncHandler(async (req, res) => {
+    console.log(req.body);
   const {
     title, description, problem, solution, expectedImpact, impactType, department, resources,
     roiEstimate, businessGoalAlignment, riskAssessment, successMetrics, expertiseRequired, externalResources

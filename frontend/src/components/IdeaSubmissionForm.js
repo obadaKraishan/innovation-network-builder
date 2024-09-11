@@ -16,16 +16,16 @@ const IdeaSubmissionForm = () => {
   const [department, setDepartment] = useState([]);
   const [departments, setDepartments] = useState([]);
   const [resources, setResources] = useState({
-    budgetMin: 0,
-    budgetMax: 0,
-    totalTime: '',
-    deliveryDate: '',
-    manpower: 0,
-    fullTimeEmployees: 0,
-    contractors: 0,
-    toolsAndInfrastructure: '',
+    budgetMin: '',
+    budgetMax: '',
+    totalTime: '', 
+    deliveryDate: '', 
+    manpower: '', 
+    fullTimeEmployees: '', 
+    contractors: '', 
+    toolsAndInfrastructure: '', 
   });
-  const [roiEstimate, setRoiEstimate] = useState(null);
+  const [roiEstimate, setRoiEstimate] = useState(''); 
   const [businessGoalAlignment, setBusinessGoalAlignment] = useState([]);
   const [riskAssessment, setRiskAssessment] = useState('');
   const [successMetrics, setSuccessMetrics] = useState('');
@@ -40,10 +40,7 @@ const IdeaSubmissionForm = () => {
         const { data } = await api.get('/departments/full');
         const departmentOptions = data.map(department => ({
           label: department.name,
-          options: department.subDepartments.map(subDept => ({
-            value: subDept._id,
-            label: subDept.name,
-          })),
+          value: department._id,
         }));
         setDepartments(departmentOptions);
       } catch (error) {
@@ -59,6 +56,25 @@ const IdeaSubmissionForm = () => {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
+  
+    // Check if all required fields are filled
+    if (!title || !description || !problem || !solution || !expectedImpact || impactType.length === 0 || department.length === 0) {
+      toast.error('Please fill all required fields.');
+      return;
+    }
+  
+    // Ensure no missing values for required fields in resources
+    const resourceData = {
+      budgetMin: resources.budgetMin || 0,
+      budgetMax: resources.budgetMax || 0,
+      totalTime: resources.totalTime || '0 hours',
+      deliveryDate: resources.deliveryDate || 'N/A',
+      manpower: resources.manpower || 0,
+      fullTimeEmployees: resources.fullTimeEmployees || 0,
+      contractors: resources.contractors || 0,
+      toolsAndInfrastructure: resources.toolsAndInfrastructure || 'N/A',
+    };
+  
     const formData = new FormData();
     formData.append('title', title);
     formData.append('description', description);
@@ -67,30 +83,31 @@ const IdeaSubmissionForm = () => {
     formData.append('expectedImpact', expectedImpact);
     formData.append('impactType', impactType.map((option) => option.value).join(', '));
     formData.append('department', department.map((option) => option.value).join(', '));
-    formData.append('resources', JSON.stringify(resources));
-    formData.append('roiEstimate', roiEstimate);
+    formData.append('resources', JSON.stringify(resourceData));
+    formData.append('roiEstimate', roiEstimate || 0); // Handle empty values
     formData.append('businessGoalAlignment', businessGoalAlignment.map(option => option.value).join(', '));
-    formData.append('riskAssessment', riskAssessment);
-    formData.append('successMetrics', successMetrics);
-    formData.append('expertiseRequired', expertiseRequired);
-    formData.append('externalResources', externalResources);
-
+    formData.append('riskAssessment', riskAssessment || 'N/A');
+    formData.append('successMetrics', successMetrics || 'N/A');
+    formData.append('expertiseRequired', expertiseRequired || 'N/A');
+    formData.append('externalResources', externalResources || 'N/A');
+  
     if (attachments) {
       for (const file of attachments) {
         formData.append('attachments', file);
       }
     }
-
+  
     try {
       await api.post('/innovation/submit-idea', formData, {
-        headers: { 'Content-Type': 'multipart/form-data' }
+        headers: { 'Content-Type': 'multipart/form-data' },
       });
       toast.success('Idea submitted successfully!');
       navigate('/innovation-dashboard');
     } catch (error) {
+      console.error('Error submitting idea:', error);
       toast.error('Failed to submit idea');
     }
-  };
+  };  
 
   const impactTypes = [
     { label: 'Financial', value: 'Financial' },
@@ -99,7 +116,7 @@ const IdeaSubmissionForm = () => {
     { label: 'Environmental', value: 'Environmental' },
     { label: 'Technological', value: 'Technological' },
     { label: 'Social', value: 'Social' },
-    { label: 'Legal', value: 'Legal' }
+    { label: 'Legal', value: 'Legal' },
   ];
 
   const businessGoals = [
@@ -108,7 +125,7 @@ const IdeaSubmissionForm = () => {
     { label: 'Improve Customer Experience', value: 'Improve Customer Experience' },
     { label: 'Operational Efficiency', value: 'Operational Efficiency' },
     { label: 'Product Innovation', value: 'Product Innovation' },
-    { label: 'Expand Market Share', value: 'Expand Market Share' }
+    { label: 'Expand Market Share', value: 'Expand Market Share' },
   ];
 
   return (
@@ -225,7 +242,7 @@ const IdeaSubmissionForm = () => {
                 <input
                   type="number"
                   value={resources.budgetMin}
-                  onChange={e => setResources({ ...resources, budgetMin: e.target.value })}
+                  onChange={e => setResources({ ...resources, budgetMin: e.target.value || '' })} // Empty string if null
                   placeholder="Min Budget"
                   className="w-full p-3 border rounded-lg"
                   required
@@ -233,7 +250,7 @@ const IdeaSubmissionForm = () => {
                 <input
                   type="number"
                   value={resources.budgetMax}
-                  onChange={e => setResources({ ...resources, budgetMax: e.target.value })}
+                  onChange={e => setResources({ ...resources, budgetMax: e.target.value || '' })} // Empty string if null
                   placeholder="Max Budget"
                   className="w-full p-3 border rounded-lg"
                   required
@@ -246,7 +263,7 @@ const IdeaSubmissionForm = () => {
               <input
                 type="text"
                 value={resources.totalTime}
-                onChange={e => setResources({ ...resources, totalTime: e.target.value })}
+                onChange={e => setResources({ ...resources, totalTime: e.target.value || '' })} // Empty string if null
                 placeholder="Estimated total time"
                 className="w-full p-3 border rounded-lg"
                 required
@@ -258,7 +275,7 @@ const IdeaSubmissionForm = () => {
               <input
                 type="text"
                 value={resources.deliveryDate}
-                onChange={e => setResources({ ...resources, deliveryDate: e.target.value })}
+                onChange={e => setResources({ ...resources, deliveryDate: e.target.value || '' })} // Empty string if null
                 placeholder="Expected delivery date"
                 className="w-full p-3 border rounded-lg"
               />
@@ -269,12 +286,46 @@ const IdeaSubmissionForm = () => {
               <input
                 type="number"
                 value={resources.manpower}
-                onChange={e => setResources({ ...resources, manpower: e.target.value })}
+                onChange={e => setResources({ ...resources, manpower: e.target.value || '' })} // Empty string if null
                 placeholder="Total manpower"
                 className="w-full p-3 border rounded-lg"
                 required
               />
             </div>
+
+            <div className="mb-4">
+                <label className="block mb-2 font-semibold">Full-Time Employees</label>
+                <input
+                    type="number"
+                    value={resources.fullTimeEmployees}
+                    onChange={e => setResources({ ...resources, fullTimeEmployees: e.target.value || '' })}
+                    placeholder="Number of Full-Time Employees"
+                    className="w-full p-3 border rounded-lg"
+                />
+                </div>
+
+                <div className="mb-4">
+                <label className="block mb-2 font-semibold">Contractors</label>
+                <input
+                    type="number"
+                    value={resources.contractors}
+                    onChange={e => setResources({ ...resources, contractors: e.target.value || '' })}
+                    placeholder="Number of Contractors"
+                    className="w-full p-3 border rounded-lg"
+                />
+                </div>
+
+                <div className="mb-4">
+                <label className="block mb-2 font-semibold">Tools and Infrastructure</label>
+                <input
+                    type="text"
+                    value={resources.toolsAndInfrastructure}
+                    onChange={e => setResources({ ...resources, toolsAndInfrastructure: e.target.value || '' })}
+                    placeholder="Tools and Infrastructure required"
+                    className="w-full p-3 border rounded-lg"
+                />
+                </div>
+
 
             {/* ROI Estimate */}
             <div className="mb-4">
@@ -282,7 +333,7 @@ const IdeaSubmissionForm = () => {
               <input
                 type="number"
                 value={roiEstimate}
-                onChange={e => setRoiEstimate(e.target.value)}
+                onChange={e => setRoiEstimate(e.target.value || '')} // Empty string if null
                 placeholder="Enter ROI estimate"
                 className="w-full p-3 border rounded-lg"
               />
