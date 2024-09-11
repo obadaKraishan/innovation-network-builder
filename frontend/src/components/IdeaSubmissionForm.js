@@ -71,6 +71,7 @@ const IdeaSubmissionForm = () => {
                 type="text"
                 value={title}
                 onChange={e => setTitle(e.target.value)}
+                placeholder="Enter the idea title"
                 className="w-full p-3 border rounded-lg"
                 required
               />
@@ -80,6 +81,7 @@ const IdeaSubmissionForm = () => {
               <textarea
                 value={description}
                 onChange={e => setDescription(e.target.value)}
+                placeholder="Describe your idea"
                 className="w-full p-3 border rounded-lg"
                 rows="4"
                 required
@@ -92,6 +94,7 @@ const IdeaSubmissionForm = () => {
                 value={department}
                 onChange={setDepartment}
                 options={departments}  // Using fetched departments
+                placeholder="Select department"
                 className="w-full"
                 isClearable
               />
@@ -104,6 +107,7 @@ const IdeaSubmissionForm = () => {
                 type="number"
                 value={resources.budget}
                 onChange={e => setResources({ ...resources, budget: e.target.value })}
+                placeholder="Enter estimated budget"
                 className="w-full p-3 border rounded-lg"
                 required
               />
@@ -115,6 +119,7 @@ const IdeaSubmissionForm = () => {
                 type="text"
                 value={resources.time}
                 onChange={e => setResources({ ...resources, time: e.target.value })}
+                placeholder="Estimated time to complete"
                 className="w-full p-3 border rounded-lg"
                 required
               />
@@ -126,6 +131,7 @@ const IdeaSubmissionForm = () => {
                 type="number"
                 value={resources.manpower}
                 onChange={e => setResources({ ...resources, manpower: e.target.value })}
+                placeholder="Estimated manpower required"
                 className="w-full p-3 border rounded-lg"
                 required
               />
@@ -137,6 +143,7 @@ const IdeaSubmissionForm = () => {
                 type="text"
                 value={resources.toolsAndInfrastructure}
                 onChange={e => setResources({ ...resources, toolsAndInfrastructure: e.target.value })}
+                placeholder="Enter tools & infrastructure required"
                 className="w-full p-3 border rounded-lg"
                 required
               />
