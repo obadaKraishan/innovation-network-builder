@@ -1,10 +1,9 @@
-// File: frontend/src/components/InnovationRoadmap.js
 import React, { useState, useEffect } from 'react';
 import Sidebar from './Sidebar';
 import { useNavigate } from 'react-router-dom';
 import api from '../utils/api';
 import Select from 'react-select';
-import { FrappeGantt } from 'frappe-gantt-react'; // Corrected import
+import { FrappeGantt } from 'frappe-gantt-react'; // Import Gantt Chart Component
 
 const InnovationRoadmap = () => {
   const [ideas, setIdeas] = useState([]);
@@ -43,7 +42,6 @@ const InnovationRoadmap = () => {
     handleFilterChange();
   }, [departmentFilter, stageFilter]);
 
-  // Format ideas into tasks for the Gantt chart
   const formatIdeasForGantt = () => {
     return filteredIdeas.map(idea => ({
       id: idea._id,
