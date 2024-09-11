@@ -4,7 +4,28 @@ const mongoose = require('mongoose');
 const User = require('../models/userModel');
 const Department = require('../models/departmentModel');
 const Team = require('../models/teamModel');
+const Notification = require('../models/notificationModel');
 const bcrypt = require('bcryptjs');
+const { sendNotification } = require('../services/notificationService');
+
+// Utility function to send notifications to users
+const sendUserNotifications = async (users, message, link, senderId) => {
+  try {
+    for (const user of users) {
+      const newNotification = new Notification({
+        recipient: user,
+        sender: senderId,
+        message,
+        type: 'info',
+        link,
+      });
+      await newNotification.save();
+      sendNotification(user, newNotification);  // Send real-time notification
+    }
+  } catch (error) {
+    console.error('Error sending notifications:', error.message);
+  }
+};
 
 // @desc    Get all users
 // @route   GET /api/users
@@ -135,7 +156,13 @@ const updateUserInfo = async (req, res) => {
       user.skills = skills || user.skills;
 
       const updatedUser = await user.save();
+
       console.log('User information updated successfully:', updatedUser);
+
+      // Send notification to the user about the update
+      const notificationMessage = `Your information has been updated.`;
+      await sendUserNotifications([user._id], notificationMessage, `/users/${user._id}`, req.user._id);
+
       res.json(updatedUser);
     } else {
       console.log('User not found:', req.params.id);
@@ -163,6 +190,11 @@ const updateUserPassword = async (req, res) => {
 
       await user.save();
       console.log('User password updated successfully');
+
+      // Send notification to the user about the password change
+      const notificationMessage = `Your password has been updated successfully.`;
+      await sendUserNotifications([user._id], notificationMessage, `/users/${user._id}`, req.user._id);
+
       res.json({ message: 'Password updated successfully' });
     } else {
       console.log('User not found:', req.params.id);
@@ -370,6 +402,12 @@ const addUser = async (req, res) => {
 
     // Save the user to the database
     const createdUser = await user.save();
+
+    console.log('User added successfully:', createdUser);
+
+    // Send notification to the new user
+    const notificationMessage = `Welcome to the team, ${name}! Your account has been created successfully.`;
+    await sendUserNotifications([createdUser._id], notificationMessage, `/users/${createdUser._id}`, req.user._id);
 
     res.status(201).json(createdUser);
   } catch (error) {
