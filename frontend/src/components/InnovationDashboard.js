@@ -1,4 +1,3 @@
-// File: frontend/src/components/InnovationDashboard.js
 import React, { useState, useEffect } from 'react';
 import Sidebar from './Sidebar';
 import { useNavigate } from 'react-router-dom';
@@ -10,8 +9,8 @@ const InnovationDashboard = () => {
   const [ideas, setIdeas] = useState([]);
   const [searchTerm, setSearchTerm] = useState('');
   const [stageFilter, setStageFilter] = useState('');
-  const [loading, setLoading] = useState(true); // New state for loading
-  const [error, setError] = useState(null); // New state for errors
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(null);
   const navigate = useNavigate();
 
   useEffect(() => {
@@ -19,10 +18,10 @@ const InnovationDashboard = () => {
       try {
         const { data } = await api.get('/innovation/ideas');
         setIdeas(data);
-        setLoading(false); // Stop loading after the request is successful
+        setLoading(false);
       } catch (error) {
         setError('Failed to fetch ideas');
-        setLoading(false); // Stop loading after the request fails
+        setLoading(false);
       }
     };
     fetchIdeas();
@@ -93,6 +92,11 @@ const InnovationDashboard = () => {
                 <th className="py-2 px-4 border-b">Title</th>
                 <th className="py-2 px-4 border-b">Stage</th>
                 <th className="py-2 px-4 border-b">Department</th>
+                <th className="py-2 px-4 border-b">Impact</th>
+                <th className="py-2 px-4 border-b">Feasibility</th>
+                <th className="py-2 px-4 border-b">Cost</th>
+                <th className="py-2 px-4 border-b">Alignment</th>
+                <th className="py-2 px-4 border-b">Priority</th>
                 <th className="py-2 px-4 border-b">Actions</th>
               </tr>
             </thead>
@@ -102,6 +106,11 @@ const InnovationDashboard = () => {
                   <td className="py-2 px-4 border-b">{idea.title}</td>
                   <td className="py-2 px-4 border-b">{idea.stage}</td>
                   <td className="py-2 px-4 border-b">{idea.department?.name || 'N/A'}</td>
+                  <td className="py-2 px-4 border-b">{idea.impactScore}</td>
+                  <td className="py-2 px-4 border-b">{idea.feasibilityScore}</td>
+                  <td className="py-2 px-4 border-b">{idea.costScore}</td>
+                  <td className="py-2 px-4 border-b">{idea.alignmentScore}</td>
+                  <td className="py-2 px-4 border-b">{idea.priority}</td>
                   <td className="py-2 px-4 border-b">
                     <button
                       onClick={() => navigate(`/innovation/idea/${idea._id}`)}
@@ -109,6 +118,14 @@ const InnovationDashboard = () => {
                     >
                       View Details
                     </button>
+                    {idea.stage === 'development' && (
+                      <button
+                        onClick={() => navigate(`/innovation/resource-allocation/${idea._id}`)}
+                        className="bg-green-500 text-white px-2 py-1 ml-2 rounded"
+                      >
+                        Allocate Resources
+                      </button>
+                    )}
                   </td>
                 </tr>
               ))}
