@@ -2,48 +2,82 @@ const asyncHandler = require('express-async-handler');
 const Innovation = require('../models/innovationModel');
 const ResourceAllocation = require('../models/resourceAllocationModel');
 const multer = require('multer');
-const upload = multer();
+const mongoose = require("mongoose");
 
 // Submit a new innovation idea
 const submitIdea = asyncHandler(async (req, res) => {
-  console.log('Received form-data:', req.body);
-  console.log('Received files:', req.files);
+  console.log('Received form-data:', req.body); // Log the request body
 
   const {
     title, description, problem, solution, expectedImpact, impactType, department, resources,
     roiEstimate, businessGoalAlignment, riskAssessment, successMetrics, expertiseRequired, externalResources
   } = req.body;
 
-  const employeeId = req.user._id;
-
-  if (!title || !description || !problem || !solution || !expectedImpact || !impactType) {
-    res.status(400);
-    throw new Error('All required fields must be filled');
-  }
-
-  const requiredResources = JSON.parse(resources); // Resources sent as JSON string
-
-  const idea = new Innovation({
-    ideaId: `ID-${Date.now()}`,
-    title,
-    description,
-    problem,
-    solution,
-    expectedImpact,
-    impactType,
-    employeeId,
-    department,
-    resources: requiredResources,
-    roiEstimate: roiEstimate || 0,
-    businessGoalAlignment,
-    riskAssessment,
-    successMetrics,
-    expertiseRequired,
-    externalResources,
+  console.log("Parsed Data:");
+  console.log({
+    title, description, problem, solution, expectedImpact, impactType, department, resources,
+    roiEstimate, businessGoalAlignment, riskAssessment, successMetrics, expertiseRequired, externalResources
   });
 
-  const savedIdea = await idea.save();
-  res.status(201).json(savedIdea);
+  // Ensure department is received as a stringified array
+  let departmentArray;
+  try {
+    console.log('Department before parsing:', department);
+    departmentArray = JSON.parse(department);
+    console.log('Parsed Department Array:', departmentArray);
+
+    if (!Array.isArray(departmentArray)) {
+      throw new Error('Department must be an array.');
+    }
+
+    // Convert department IDs to ObjectId
+    departmentArray = departmentArray.map(dept => {
+      console.log(`Converting department ID: ${dept}`);
+      return mongoose.Types.ObjectId(dept); // Convert to ObjectId
+    });
+  } catch (error) {
+    console.error("Department conversion error: ", error.message);
+    return res.status(400).json({ message: 'Invalid department data format.' });
+  }
+
+  // Parse resources
+  let parsedResources;
+  try {
+    parsedResources = JSON.parse(resources);
+    console.log("Resources parsed successfully");
+  } catch (error) {
+    console.error("Resource parsing error: ", error.message);
+    return res.status(400).json({ message: 'Invalid resources data format.' });
+  }
+
+  // Create a new innovation document
+  try {
+    const idea = new Innovation({
+      ideaId: `ID-${Date.now()}`,
+      title,
+      description,
+      problem,
+      solution,
+      expectedImpact,
+      impactType,
+      employeeId: req.user._id,
+      department: departmentArray,
+      resources: parsedResources,
+      roiEstimate: roiEstimate || 0,
+      businessGoalAlignment,
+      riskAssessment,
+      successMetrics,
+      expertiseRequired,
+      externalResources,
+    });
+
+    const savedIdea = await idea.save();
+    console.log("Idea saved successfully");
+    return res.status(201).json(savedIdea);
+  } catch (error) {
+    console.error("Error saving idea: ", error.message);
+    return res.status(500).json({ message: 'Server error saving the idea', error: error.message });
+  }
 });
 
 // Get details of a specific idea by ID

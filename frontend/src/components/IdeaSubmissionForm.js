@@ -7,25 +7,25 @@ import { toast } from 'react-toastify';
 import Select from 'react-select';
 
 const IdeaSubmissionForm = () => {
-  const [title, setTitle] = useState('');
+    const [title, setTitle] = useState('');
   const [description, setDescription] = useState('');
   const [problem, setProblem] = useState('');
   const [solution, setSolution] = useState('');
   const [expectedImpact, setExpectedImpact] = useState('');
   const [impactType, setImpactType] = useState([]);
-  const [department, setDepartment] = useState([]);
+  const [department, setDepartment] = useState([]); // Ensure it's an array
   const [departments, setDepartments] = useState([]);
   const [resources, setResources] = useState({
     budgetMin: '',
     budgetMax: '',
-    totalTime: '', 
-    deliveryDate: '', 
-    manpower: '', 
-    fullTimeEmployees: '', 
-    contractors: '', 
-    toolsAndInfrastructure: '', 
+    totalTime: '',
+    deliveryDate: '',
+    manpower: '',
+    fullTimeEmployees: '',
+    contractors: '',
+    toolsAndInfrastructure: '',
   });
-  const [roiEstimate, setRoiEstimate] = useState(''); 
+  const [roiEstimate, setRoiEstimate] = useState('');
   const [businessGoalAlignment, setBusinessGoalAlignment] = useState([]);
   const [riskAssessment, setRiskAssessment] = useState('');
   const [successMetrics, setSuccessMetrics] = useState('');
@@ -56,14 +56,7 @@ const IdeaSubmissionForm = () => {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    
-    // Check if all required fields are filled
-    if (!title || !description || !problem || !solution || !expectedImpact || impactType.length === 0 || department.length === 0) {
-      toast.error('Please fill all required fields.');
-      return;
-    }
-    
-    // Ensure no missing values for required fields in resources
+
     const resourceData = {
       budgetMin: resources.budgetMin || 0,
       budgetMax: resources.budgetMax || 0,
@@ -74,24 +67,10 @@ const IdeaSubmissionForm = () => {
       contractors: resources.contractors || 0,
       toolsAndInfrastructure: resources.toolsAndInfrastructure || 'N/A',
     };
-  
-    console.log('Form Data to Submit: ', {
-      title,
-      description,
-      problem,
-      solution,
-      expectedImpact,
-      impactType: impactType.map(option => option.value),
-      department: department.map(option => option.value),
-      resources: resourceData,
-      roiEstimate,
-      businessGoalAlignment: businessGoalAlignment.map(option => option.value),
-      riskAssessment,
-      successMetrics,
-      expertiseRequired,
-      externalResources,
-    });
-  
+
+    const departmentArray = department.map(option => option.value); // Ensure it's an array of IDs
+    console.log('Selected Department IDs:', departmentArray); // Log department IDs
+
     const formData = new FormData();
     formData.append('title', title);
     formData.append('description', description);
@@ -99,7 +78,7 @@ const IdeaSubmissionForm = () => {
     formData.append('solution', solution);
     formData.append('expectedImpact', expectedImpact);
     formData.append('impactType', impactType.map(option => option.value).join(', '));
-    formData.append('department', department.map(option => option.value).join(', '));
+    formData.append('department', JSON.stringify(departmentArray)); // Send department as an array
     formData.append('resources', JSON.stringify(resourceData));
     formData.append('roiEstimate', roiEstimate || 0);
     formData.append('businessGoalAlignment', businessGoalAlignment.map(option => option.value).join(', '));
@@ -107,13 +86,20 @@ const IdeaSubmissionForm = () => {
     formData.append('successMetrics', successMetrics || 'N/A');
     formData.append('expertiseRequired', expertiseRequired || 'N/A');
     formData.append('externalResources', externalResources || 'N/A');
-  
+
     if (attachments) {
       for (const file of attachments) {
         formData.append('attachments', file);
       }
     }
-  
+
+    console.log('FormData about to be sent:', {
+      title,
+      description,
+      department: departmentArray,
+      resources: resourceData
+    }); // Log the entire form data
+
     try {
       const response = await api.post('/innovation/submit-idea', formData, {
         headers: { 'Content-Type': 'multipart/form-data' },
@@ -124,7 +110,8 @@ const IdeaSubmissionForm = () => {
       console.error('Error submitting idea:', error.response?.data || error.message);
       toast.error('Failed to submit idea');
     }
-  };   
+  };
+   
 
   const impactTypes = [
     { label: 'Financial', value: 'Financial' },

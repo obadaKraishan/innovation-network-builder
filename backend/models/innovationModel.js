@@ -35,10 +35,10 @@ const innovationSchema = new mongoose.Schema({
     ref: 'User',
     required: true,
   },
-  department: {
+  department: [{
     type: mongoose.Schema.Types.ObjectId,
-    ref: 'Department',
-  },
+    ref: 'Department', // Updated to an array of ObjectId
+  }],
   resources: {
     budgetMin: {
       type: Number,
