@@ -52,6 +52,10 @@ import WellnessFeedbackDetails from './components/WellnessFeedbackDetails';
 import WellnessEditResource from './components/WellnessEditResource';
 import WellnessEditRecommendation from './components/WellnessEditRecommendation'; 
 
+// Notification components
+import NotificationsDashboard from './components/NotificationsDashboard';
+import NotificationDetails from './components/NotificationDetails';
+
 const AppRoutes = () => {
   return (
       <AuthProvider>
@@ -105,9 +109,14 @@ const AppRoutes = () => {
           <Route path="/wellness/edit-resource/:resourceId" element={<WellnessEditResource />} />
           <Route path="/wellness/edit-recommendation/:recommendationId" element={<WellnessEditRecommendation />} />
 
+          {/* Notifications Routes */}
+          <Route path="/notifications" element={<NotificationsDashboard />} />
+          <Route path="/notifications/:id" element={<NotificationDetails />} />
+
           {/* Default redirect to login */}
           <Route path="/" element={<Navigate to="/login" />} />
           <Route path="*" element={<Navigate to="/" />} />
+
         </Routes>
       </AuthProvider>
   );
