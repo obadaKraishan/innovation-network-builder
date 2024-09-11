@@ -1,3 +1,4 @@
+const { sendNotification } = require('../server');
 const Message = require('../models/messageModel');
 const Connection = require('../models/connectionModel');
 
@@ -24,9 +25,9 @@ const createConnection = async (userA, userB, context) => {
   }
 };
 
-// @desc    Send a new message
-// @route   POST /api/messages
-// @access  Private
+// @desc Send a new message
+// @route POST /api/messages
+// @access Private
 const sendMessage = async (req, res) => {
   const { recipients, cc, subject, body, attachments, parentMessage } = req.body;
 
@@ -38,12 +39,12 @@ const sendMessage = async (req, res) => {
       subject,
       body,
       attachments,
-      parentMessage, // Store reference to the parent message
+      parentMessage,
     });
 
     await newMessage.save();
 
-    // If this is a reply, update the original message to include this as a child
+    // Update the parent message if it's a reply
     if (parentMessage) {
       await Message.findByIdAndUpdate(parentMessage, {
         $push: { childMessages: newMessage._id },
@@ -54,12 +55,34 @@ const sendMessage = async (req, res) => {
     for (const recipientId of recipients) {
       const savedConnection = await createConnection(req.user._id, recipientId, 'message');
       console.log('Saved Connection:', savedConnection);
+
+      // Send a real-time notification to each recipient
+      const notificationMessage = `${req.user.name} sent you a message: "${subject}"`;
+      const notification = {
+        recipient: recipientId,
+        sender: req.user._id,
+        message: notificationMessage,
+        type: 'info',
+        link: `/messages/${newMessage._id}`, // Link to the message details
+      };
+      sendNotification(recipientId, notification);
     }
 
     if (cc && cc.length > 0) {
       for (const ccId of cc) {
         const savedConnection = await createConnection(req.user._id, ccId, 'message');
         console.log('Saved Connection:', savedConnection);
+
+        // Send a notification to CC'd users
+        const notificationMessage = `${req.user.name} CC'd you in a message: "${subject}"`;
+        const notification = {
+          recipient: ccId,
+          sender: req.user._id,
+          message: notificationMessage,
+          type: 'info',
+          link: `/messages/${newMessage._id}`,
+        };
+        sendNotification(ccId, notification);
       }
     }
 
@@ -218,9 +241,9 @@ const getMessageDetails = async (req, res) => {
   }
 };
 
-// @desc    Reply to a message
-// @route   POST /api/messages/:id/reply
-// @access  Private
+// @desc Reply to a message
+// @route POST /api/messages/:id/reply
+// @access Private
 const replyToMessage = async (req, res) => {
   const { body, recipients, cc, subject, attachments } = req.body;
 
@@ -238,7 +261,7 @@ const replyToMessage = async (req, res) => {
       subject,
       body,
       attachments,
-      parentMessage: originalMessage._id, // Set the parentMessage reference
+      parentMessage: originalMessage._id,
     });
 
     await newMessage.save();
@@ -248,16 +271,38 @@ const replyToMessage = async (req, res) => {
       $push: { childMessages: newMessage._id },
     });
 
-    // Create new connections for reply
+    // Create new connections and send notifications
     for (const recipientId of recipients) {
       const savedConnection = await createConnection(req.user._id, recipientId, 'message reply');
       console.log('Saved Connection:', savedConnection);
+
+      // Send notification to each recipient
+      const notificationMessage = `${req.user.name} replied to a message: "${subject}"`;
+      const notification = {
+        recipient: recipientId,
+        sender: req.user._id,
+        message: notificationMessage,
+        type: 'info',
+        link: `/messages/${newMessage._id}`,
+      };
+      sendNotification(recipientId, notification);
     }
 
     if (cc && cc.length > 0) {
       for (const ccId of cc) {
         const savedConnection = await createConnection(req.user._id, ccId, 'message reply');
         console.log('Saved Connection:', savedConnection);
+
+        // Send notification to CC'd users
+        const notificationMessage = `${req.user.name} CC'd you in a reply: "${subject}"`;
+        const notification = {
+          recipient: ccId,
+          sender: req.user._id,
+          message: notificationMessage,
+          type: 'info',
+          link: `/messages/${newMessage._id}`,
+        };
+        sendNotification(ccId, notification);
       }
     }
 
