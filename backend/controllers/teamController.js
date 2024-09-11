@@ -3,6 +3,8 @@ const Task = require('../models/taskModel');
 const User = require('../models/userModel');
 const Department = require('../models/departmentModel');
 const Connection = require('../models/connectionModel');
+const Notification = require('../models/notificationModel');
+const { sendNotification } = require('../services/notificationService');
 
 // Utility function to create a new connection between two users
 const createConnection = async (userA, userB, context) => {
@@ -78,6 +80,26 @@ const updateDiscussionConnections = async (team, commenterId, parentCommentId) =
   }
 };
 
+// Utility function to send notifications to team members
+const sendTeamNotifications = async (team, message, link) => {
+  try {
+    for (const member of team.members) {
+      const notificationMessage = message;
+      const newNotification = new Notification({
+        recipient: member,
+        sender: team.teamLeader,
+        message: notificationMessage,
+        type: 'info',
+        link,
+      });
+      await newNotification.save();
+      sendNotification(member, newNotification); // Send real-time notification
+    }
+  } catch (error) {
+    console.error('Error sending team notifications:', error.message);
+  }
+};
+
 // Create a new team
 const createTeam = async (req, res) => {
   try {
@@ -106,6 +128,10 @@ const createTeam = async (req, res) => {
 
     // Create connections for the team members
     await updateTeamConnections(team);
+
+    // Notify members of the new team creation
+    const notificationMessage = `You have been added to a new team: ${team.name}`;
+    await sendTeamNotifications(team, notificationMessage, `/teams/${team._id}`);
 
     console.log('Team created successfully:', team);
     res.status(201).json(team);
@@ -235,6 +261,18 @@ const addTask = async (req, res) => {
     // Create a new connection for task assignment
     await createConnection(req.user._id, assignedTo, 'task assign');
 
+    // Notify the assigned user
+    const notificationMessage = `You have been assigned a new task in team: ${team.name}`;
+    const newNotification = new Notification({
+      recipient: assignedTo,
+      sender: req.user._id,
+      message: notificationMessage,
+      type: 'info',
+      link: `/tasks/${task._id}`,
+    });
+    await newNotification.save();
+    sendNotification(assignedTo, newNotification); // Send real-time notification
+
     res.status(201).json(task);
   } catch (error) {
     console.error('Error adding task:', error);
@@ -266,6 +304,10 @@ const addComment = async (req, res) => {
 
     // Create connections between the commenter and other participants in the discussion
     await updateDiscussionConnections(team, req.user._id, parent);
+
+    // Notify team members of a new comment
+    const notificationMessage = `New comment added in the team discussion: ${team.name}`;
+    await sendTeamNotifications(team, notificationMessage, `/teams/${team._id}/discussions`);
 
     console.log('Comment added successfully to team:', team);
     res.json(team);
@@ -362,6 +404,18 @@ const updateTaskStatus = async (req, res) => {
     // Create a new connection for task status update
     const team = await Team.findById(req.params.id).populate('teamLeader');
     await createConnection(req.user._id, team.teamLeader._id, 'task status update');
+
+    // Notify the team leader of the task status update
+    const notificationMessage = `Task status updated for task: ${task.description}`;
+    const newNotification = new Notification({
+      recipient: team.teamLeader._id,
+      sender: req.user._id,
+      message: notificationMessage,
+      type: 'info',
+      link: `/tasks/${task._id}`,
+    });
+    await newNotification.save();
+    sendNotification(team.teamLeader._id, newNotification); // Send real-time notification
 
     console.log('Task status updated successfully:', task);
     res.json(task);
