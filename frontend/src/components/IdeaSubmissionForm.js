@@ -9,7 +9,7 @@ import Select from 'react-select';
 const IdeaSubmissionForm = () => {
   const [title, setTitle] = useState('');
   const [description, setDescription] = useState('');
-  const [department, setDepartment] = useState('');
+  const [department, setDepartment] = useState(null);  // Use null initially for Select
   const [departments, setDepartments] = useState([]);  // Store departments from API
   const [resources, setResources] = useState({
     budget: 0,
@@ -27,7 +27,7 @@ const IdeaSubmissionForm = () => {
         const departmentOptions = data.map(department => ({
           label: department.name,
           options: department.subDepartments.map(subDept => ({
-            value: subDept._id,
+            value: subDept._id,  // Ensure the value is the ID for submission
             label: subDept.name,
           })),
         }));
@@ -43,7 +43,12 @@ const IdeaSubmissionForm = () => {
   const handleSubmit = async (e) => {
     e.preventDefault();
     try {
-      const newIdea = { title, description, department, resources };
+      const newIdea = { 
+        title, 
+        description, 
+        department: department?.value,  // Extract the department ID (value)
+        resources 
+      };
       await api.post('/innovation/submit-idea', newIdea);
       toast.success('Idea submitted successfully!');
       navigate('/innovation-dashboard');
