@@ -4,7 +4,7 @@ import Sidebar from './Sidebar';
 import { useNavigate } from 'react-router-dom';
 import api from '../utils/api';
 import Select from 'react-select';
-import GanttChart from './GanttChart'; // Assume you have a GanttChart component
+import { FrappeGantt } from 'frappe-gantt-react'; // Corrected import
 
 const InnovationRoadmap = () => {
   const [ideas, setIdeas] = useState([]);
@@ -43,6 +43,18 @@ const InnovationRoadmap = () => {
     handleFilterChange();
   }, [departmentFilter, stageFilter]);
 
+  // Format ideas into tasks for the Gantt chart
+  const formatIdeasForGantt = () => {
+    return filteredIdeas.map(idea => ({
+      id: idea._id,
+      name: idea.title,
+      start: idea.startDate || new Date(),
+      end: idea.endDate || new Date(),
+      progress: idea.progress || 0,
+      dependencies: idea.dependencies || ''
+    }));
+  };
+
   return (
     <div className="flex h-screen">
       <Sidebar />
@@ -75,7 +87,7 @@ const InnovationRoadmap = () => {
             </div>
           </div>
 
-          <GanttChart data={filteredIdeas} /> {/* Gantt chart for tracking progress */}
+          <FrappeGantt tasks={formatIdeasForGantt()} /> {/* Render Gantt chart with filtered ideas */}
         </div>
       </div>
     </div>
