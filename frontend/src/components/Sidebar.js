@@ -53,7 +53,7 @@ const Sidebar = () => {
           { name: "Meetings", icon: <FaCalendarAlt />, path: "/meeting-booking" },
           { name: "Messages", icon: <FaEnvelope />, path: "/messages" },
           { name: "Collaborator Finder", icon: <FaCogs />, path: "/collaborator-finder" },
-          { name: "Innovation Dashboard", icon: <FaLightbulb />, path: "/innovation-dashboard" },
+          { name: "Innovation Hub", icon: <FaLightbulb />, path: "/innovation-dashboard" },
         ],
       },
       {
@@ -86,7 +86,7 @@ const Sidebar = () => {
           { name: "Meetings", icon: <FaCalendarAlt />, path: "/meeting-booking" },
           { name: "Messages", icon: <FaEnvelope />, path: "/messages" },
           { name: "Collaborator Finder", icon: <FaCogs />, path: "/collaborator-finder" },
-          { name: "Innovation Dashboard", icon: <FaLightbulb />, path: "/innovation-dashboard" },
+          { name: "Innovation Hub", icon: <FaLightbulb />, path: "/innovation-dashboard" },
         ],
       },
       {
@@ -119,7 +119,7 @@ const Sidebar = () => {
           { name: "Meetings", icon: <FaCalendarAlt />, path: "/meeting-booking" },
           { name: "Messages", icon: <FaEnvelope />, path: "/messages" },
           { name: "Collaborator Finder", icon: <FaCogs />, path: "/collaborator-finder" },
-          { name: "Innovation Dashboard", icon: <FaLightbulb />, path: "/innovation-dashboard" },
+          { name: "Innovation Hub", icon: <FaLightbulb />, path: "/innovation-dashboard" },
         ],
       },
       {
@@ -152,7 +152,7 @@ const Sidebar = () => {
           { name: "Meetings", icon: <FaCalendarAlt />, path: "/meeting-booking" },
           { name: "Messages", icon: <FaEnvelope />, path: "/messages" },
           { name: "Collaborator Finder", icon: <FaCogs />, path: "/collaborator-finder" },
-          { name: "Innovation Dashboard", icon: <FaLightbulb />, path: "/innovation-dashboard" },
+          { name: "Innovation Hub", icon: <FaLightbulb />, path: "/innovation-dashboard" },
         ],
       },
       {
@@ -184,7 +184,7 @@ const Sidebar = () => {
           { name: "Meetings", icon: <FaCalendarAlt />, path: "/meeting-booking" },
           { name: "Messages", icon: <FaEnvelope />, path: "/messages" },
           { name: "Collaborator Finder", icon: <FaCogs />, path: "/collaborator-finder" },
-          { name: "Innovation Dashboard", icon: <FaLightbulb />, path: "/innovation-dashboard" },
+          { name: "Innovation Hub", icon: <FaLightbulb />, path: "/innovation-dashboard" },
         ],
       },
       {
@@ -217,7 +217,7 @@ const Sidebar = () => {
           { name: "Meetings", icon: <FaCalendarAlt />, path: "/meeting-booking" },
           { name: "Messages", icon: <FaEnvelope />, path: "/messages" },
           { name: "Collaborator Finder", icon: <FaCogs />, path: "/collaborator-finder" },
-          { name: "Innovation Dashboard", icon: <FaLightbulb />, path: "/innovation-dashboard" },
+          { name: "Innovation Hub", icon: <FaLightbulb />, path: "/innovation-dashboard" },
         ],
       },
       {
@@ -249,7 +249,7 @@ const Sidebar = () => {
           { name: "Meetings", icon: <FaCalendarAlt />, path: "/meeting-booking" },
           { name: "Messages", icon: <FaEnvelope />, path: "/messages" },
           { name: "Collaborator Finder", icon: <FaCogs />, path: "/collaborator-finder" },
-          { name: "Innovation Dashboard", icon: <FaLightbulb />, path: "/innovation-dashboard" },
+          { name: "Innovation Hub", icon: <FaLightbulb />, path: "/innovation-dashboard" },
         ],
       },
       {
@@ -280,7 +280,7 @@ const Sidebar = () => {
           { name: "Meetings", icon: <FaCalendarAlt />, path: "/meeting-booking" },
           { name: "Messages", icon: <FaEnvelope />, path: "/messages" },
           { name: "Collaborator Finder", icon: <FaCogs />, path: "/collaborator-finder" },
-          { name: "Innovation Dashboard", icon: <FaLightbulb />, path: "/innovation-dashboard" },
+          { name: "Innovation Hub", icon: <FaLightbulb />, path: "/innovation-dashboard" },
         ],
       },
       {
@@ -309,7 +309,7 @@ const Sidebar = () => {
           { name: "Meetings", icon: <FaCalendarAlt />, path: "/meeting-booking" },
           { name: "Messages", icon: <FaEnvelope />, path: "/messages" },
           { name: "Collaborator Finder", icon: <FaCogs />, path: "/collaborator-finder" },
-          { name: "Innovation Dashboard", icon: <FaLightbulb />, path: "/innovation-dashboard" },
+          { name: "Innovation Hub", icon: <FaLightbulb />, path: "/innovation-dashboard" },
         ],
       },
       {
@@ -322,8 +322,9 @@ const Sidebar = () => {
   const isActive = (path) => location.pathname === path;
 
   return (
-    <aside className="w-65 bg-gradient-to-b from-blue-500 to-indigo-600 text-white p-6 h-full flex flex-col justify-between shadow-lg">
-      <div><ul className="space-y-3">
+    <aside className="w-65 bg-gradient-to-b from-blue-500 to-indigo-600 text-white h-screen flex flex-col justify-between shadow-lg">
+      <div className="overflow-y-auto max-h-[100vh] sidebar-container"> {/* Added custom class */}
+        <ul className="space-y-3 p-6">
           {links[user.role]?.map((category, index) => (
             <li key={index} className="border-b border-indigo-400 pb-1">
               <h3 className="text-lg font-bold text-gray-200 mb-2">{category.category}</h3>
@@ -348,13 +349,15 @@ const Sidebar = () => {
           ))}
         </ul>
       </div>
-      <button
-        onClick={logout}
-        className="w-full bg-red-600 text-white p-3 rounded flex items-center justify-center hover:bg-red-700 mt-6 transition-all ease-in-out"
-      >
-        <FaSignOutAlt className="mr-2" />
-        Logout
-      </button>
+      <div className="p-6">
+        <button
+          onClick={logout}
+          className="w-full bg-red-600 text-white p-3 rounded flex items-center justify-center hover:bg-red-700 transition-all ease-in-out"
+        >
+          <FaSignOutAlt className="mr-2" />
+          Logout
+        </button>
+      </div>
     </aside>
   );
 };

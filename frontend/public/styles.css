@@ -1,3 +1,26 @@
+/* Sidebar Scroll */
+/* Custom scrollbar for the sidebar */
+.sidebar-container {
+  scrollbar-width: thin;
+  scrollbar-color: #ffffff85 #2d374800;
+}
+
+/* For WebKit-based browsers (Chrome, Safari, etc.) */
+.sidebar-container::-webkit-scrollbar {
+  width: 4px;
+}
+
+.sidebar-container::-webkit-scrollbar-track {
+  background: #d2d2d2; /* Dark background */
+}
+
+.sidebar-container::-webkit-scrollbar-thumb {
+  background-color: #4c51bf; /* Indigo thumb */
+  border-radius: 6px;
+  border: 2px solid #2d3748; /* Adds space around the thumb */
+}
+
+/* Pagination Design */
 .paginationBtns {
   margin: 40px 0px 10px 0px;
   display: flex;
