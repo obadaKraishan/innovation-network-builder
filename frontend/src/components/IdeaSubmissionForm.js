@@ -1,5 +1,4 @@
-// File: frontend/src/components/IdeaSubmissionForm.js
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import Sidebar from './Sidebar';
 import { FaArrowLeft, FaCheck } from 'react-icons/fa';
@@ -11,6 +10,7 @@ const IdeaSubmissionForm = () => {
   const [title, setTitle] = useState('');
   const [description, setDescription] = useState('');
   const [department, setDepartment] = useState('');
+  const [departments, setDepartments] = useState([]);  // Store departments from API
   const [resources, setResources] = useState({
     budget: 0,
     time: '',
@@ -18,6 +18,27 @@ const IdeaSubmissionForm = () => {
     toolsAndInfrastructure: '',
   });
   const navigate = useNavigate();
+
+  // Fetch all parent departments and their sub-departments
+  useEffect(() => {
+    const fetchDepartments = async () => {
+      try {
+        const { data } = await api.get('/departments/full');  // Fetching departments and sub-departments
+        const departmentOptions = data.map(department => ({
+          label: department.name,
+          options: department.subDepartments.map(subDept => ({
+            value: subDept._id,
+            label: subDept.name,
+          })),
+        }));
+        setDepartments(departmentOptions);  // Setting the options for the Select component
+      } catch (error) {
+        console.error('Failed to fetch departments', error);
+      }
+    };
+
+    fetchDepartments();
+  }, []);
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -34,14 +55,14 @@ const IdeaSubmissionForm = () => {
   return (
     <div className="flex h-screen">
       <Sidebar />
-      <div className="flex-1 p-6 bg-gray-100 overflow-auto"> {/* Ensure scrolling when needed */}
+      <div className="flex-1 p-6 bg-gray-100 overflow-auto">
         <button
           onClick={() => navigate(-1)}
           className="bg-gray-500 text-white px-4 py-2 rounded-lg mb-6 flex items-center hover:bg-gray-600"
         >
           <FaArrowLeft className="mr-2" /> Back
         </button>
-        <div className="bg-white p-6 shadow-lg rounded-lg max-w-4xl mx-auto"> {/* Added max-width and centering */}
+        <div className="bg-white p-6 shadow-lg rounded-lg max-w-4xl mx-auto">
           <h2 className="text-2xl font-bold mb-6">Submit New Idea</h2>
           <form onSubmit={handleSubmit}>
             <div className="mb-4">
@@ -70,7 +91,7 @@ const IdeaSubmissionForm = () => {
               <Select
                 value={department}
                 onChange={setDepartment}
-                options={[{ value: 'IT', label: 'IT' }, { value: 'HR', label: 'HR' }]}
+                options={departments}  // Using fetched departments
                 className="w-full"
                 isClearable
               />
