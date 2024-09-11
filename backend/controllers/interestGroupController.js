@@ -1,6 +1,8 @@
-const InterestGroup = require('../models/interestGroupModel');
-const User = require('../models/userModel');
-const mongoose = require('mongoose');
+const InterestGroup = require("../models/interestGroupModel");
+const User = require("../models/userModel");
+const Notification = require("../models/notificationModel");
+const { sendNotification } = require("../services/notificationService");
+const mongoose = require("mongoose");
 
 // Utility function to add a member to a group
 const addMemberToGroup = async (group, userId) => {
@@ -10,12 +12,16 @@ const addMemberToGroup = async (group, userId) => {
 };
 
 // Utility function to create connections between discussion participants
-const createDiscussionConnections = async (group, commenterId, parentCommentId) => {
+const createDiscussionConnections = async (
+  group,
+  commenterId,
+  parentCommentId
+) => {
   const participants = new Set();
   participants.add(commenterId.toString());
 
   // Collect all participants in the discussion
-  group.interestGroupDiscussions.forEach(discussion => {
+  group.interestGroupDiscussions.forEach((discussion) => {
     if (discussion._id.toString() === parentCommentId?.toString()) {
       participants.add(discussion.user.toString()); // Add the parent comment author
     }
@@ -33,23 +39,46 @@ const createDiscussionConnections = async (group, commenterId, parentCommentId) 
   }
 };
 
+// Utility function to send notifications to group members
+const sendGroupNotifications = async (group, message, link) => {
+  try {
+    for (const member of group.members) {
+      const notificationMessage = message;
+      const newNotification = new Notification({
+        recipient: member,
+        sender: group.createdBy,
+        message: notificationMessage,
+        type: "info",
+        link,
+      });
+      await newNotification.save();
+      sendNotification(member, newNotification); // Send real-time notification
+    }
+  } catch (error) {
+    console.error("Error sending group notifications:", error.message);
+  }
+};
+
 // @desc    Get all users in a specific group
 // @route   GET /api/groups/:id/users
 // @access  Private (All employees)
 const getAllUsersInGroup = async (req, res) => {
-    try {
-      const group = await InterestGroup.findById(req.params.id).populate('members', 'name email'); // Populating users with name and email
-  
-      if (!group) {
-        return res.status(404).json({ message: 'Group not found' });
-      }
-  
-      res.status(200).json(group.members);
-    } catch (error) {
-      console.error('Error fetching users:', error.message);
-      res.status(500).json({ message: 'Server Error' });
+  try {
+    const group = await InterestGroup.findById(req.params.id).populate(
+      "members",
+      "name email"
+    ); // Populating users with name and email
+
+    if (!group) {
+      return res.status(404).json({ message: "Group not found" });
     }
-  };
+
+    res.status(200).json(group.members);
+  } catch (error) {
+    console.error("Error fetching users:", error.message);
+    res.status(500).json({ message: "Server Error" });
+  }
+};
 
 // @desc    Create a new interest group
 // @route   POST /api/groups/create
@@ -68,10 +97,19 @@ const createGroup = async (req, res) => {
     });
 
     const savedGroup = await group.save();
+
+    // Send notifications to all the members added to the group
+    const notificationMessage = `You have been added to a new interest group: ${group.name}`;
+    await sendGroupNotifications(
+      group,
+      notificationMessage,
+      `/groups/${group._id}`
+    );
+
     res.status(201).json(savedGroup);
   } catch (error) {
-    console.error('Error creating group:', error.message);
-    res.status(500).json({ message: 'Server Error' });
+    console.error("Error creating group:", error.message);
+    res.status(500).json({ message: "Server Error" });
   }
 };
 
@@ -83,24 +121,24 @@ const getGroups = async (req, res) => {
     const { filter } = req.query;
     let groups;
 
-    if (filter === 'created') {
+    if (filter === "created") {
       groups = await InterestGroup.find({ createdBy: req.user._id })
-        .populate('members', 'name')
-        .populate('createdBy', 'name'); // Populate createdBy field
-    } else if (filter === 'joined') {
+        .populate("members", "name")
+        .populate("createdBy", "name"); // Populate createdBy field
+    } else if (filter === "joined") {
       groups = await InterestGroup.find({ members: req.user._id })
-        .populate('members', 'name')
-        .populate('createdBy', 'name'); // Populate createdBy field
+        .populate("members", "name")
+        .populate("createdBy", "name"); // Populate createdBy field
     } else {
       groups = await InterestGroup.find()
-        .populate('members', 'name')
-        .populate('createdBy', 'name'); // Populate createdBy field
+        .populate("members", "name")
+        .populate("createdBy", "name"); // Populate createdBy field
     }
 
     res.status(200).json(groups);
   } catch (error) {
-    console.error('Error fetching groups:', error.message);
-    res.status(500).json({ message: 'Server Error' });
+    console.error("Error fetching groups:", error.message);
+    res.status(500).json({ message: "Server Error" });
   }
 };
 
@@ -108,25 +146,25 @@ const getGroups = async (req, res) => {
 // @route   GET /api/groups/:id
 // @access  Private
 const getGroupById = async (req, res) => {
-    try {
-        const group = await InterestGroup.findById(req.params.id)
-        .populate('members', 'name email') // Populate both name and email
-        .populate('createdBy', 'name')
-        .populate({
-            path: 'interestGroupDiscussions',
-            populate: { path: 'user', select: 'name' }
-        });
+  try {
+    const group = await InterestGroup.findById(req.params.id)
+      .populate("members", "name email") // Populate both name and email
+      .populate("createdBy", "name")
+      .populate({
+        path: "interestGroupDiscussions",
+        populate: { path: "user", select: "name" },
+      });
 
-        if (!group) {
-        return res.status(404).json({ message: 'Group not found' });
-        }
-
-        res.status(200).json(group);
-    } catch (error) {
-        console.error('Error fetching group details:', error.message);
-        res.status(500).json({ message: 'Server Error' });
+    if (!group) {
+      return res.status(404).json({ message: "Group not found" });
     }
-};  
+
+    res.status(200).json(group);
+  } catch (error) {
+    console.error("Error fetching group details:", error.message);
+    res.status(500).json({ message: "Server Error" });
+  }
+};
 
 // @desc    Update group details (for group owners)
 // @route   PUT /api/groups/:id
@@ -136,11 +174,11 @@ const updateGroup = async (req, res) => {
     const group = await InterestGroup.findById(req.params.id);
 
     if (!group) {
-      return res.status(404).json({ message: 'Group not found' });
+      return res.status(404).json({ message: "Group not found" });
     }
 
     if (group.createdBy.toString() !== req.user._id.toString()) {
-      return res.status(401).json({ message: 'Not authorized' });
+      return res.status(401).json({ message: "Not authorized" });
     }
 
     const updatedGroup = await InterestGroup.findByIdAndUpdate(
@@ -151,8 +189,8 @@ const updateGroup = async (req, res) => {
 
     res.status(200).json(updatedGroup);
   } catch (error) {
-    console.error('Error updating group:', error.message);
-    res.status(500).json({ message: 'Server Error' });
+    console.error("Error updating group:", error.message);
+    res.status(500).json({ message: "Server Error" });
   }
 };
 
@@ -160,177 +198,210 @@ const updateGroup = async (req, res) => {
 // @route   DELETE /api/groups/:id
 // @access  Private
 const deleteGroup = async (req, res) => {
-    try {
-        const group = await InterestGroup.findById(req.params.id);
+  try {
+    const group = await InterestGroup.findById(req.params.id);
 
-        if (!group) {
-        return res.status(404).json({ message: 'Group not found' });
-        }
-
-        if (group.createdBy.toString() !== req.user._id.toString()) {
-        return res.status(401).json({ message: 'Not authorized' });
-        }
-
-        await InterestGroup.findByIdAndDelete(req.params.id); // Use findByIdAndDelete for deletion
-
-        res.status(200).json({ message: 'Group removed successfully' });
-    } catch (error) {
-        console.error('Error deleting group:', error.message);
-        res.status(500).json({ message: 'Server Error' });
+    if (!group) {
+      return res.status(404).json({ message: "Group not found" });
     }
-};  
+
+    if (group.createdBy.toString() !== req.user._id.toString()) {
+      return res.status(401).json({ message: "Not authorized" });
+    }
+
+    await InterestGroup.findByIdAndDelete(req.params.id); // Use findByIdAndDelete for deletion
+
+    res.status(200).json({ message: "Group removed successfully" });
+  } catch (error) {
+    console.error("Error deleting group:", error.message);
+    res.status(500).json({ message: "Server Error" });
+  }
+};
 
 // @desc    Leave a group
 // @route   PUT /api/groups/:id/leave
 // @access  Private
 const leaveGroup = async (req, res) => {
-    try {
-        console.log(`Leave group request received for ID: ${req.params.id}`); // Log the ID
-        const group = await InterestGroup.findById(req.params.id);
+  try {
+    console.log(`Leave group request received for ID: ${req.params.id}`); // Log the ID
+    const group = await InterestGroup.findById(req.params.id);
 
-        if (!group) {
-            return res.status(404).json({ message: 'Group not found' });
-        }
-
-        // Check if the user is a member of the group
-        if (!group.members.includes(req.user._id)) {
-            return res.status(400).json({ message: 'You are not a member of this group' });
-        }
-
-        // Remove the user from the members array
-        group.members = group.members.filter(member => member.toString() !== req.user._id.toString());
-
-        await group.save();
-
-        res.status(200).json({ message: 'Successfully left the group' });
-    } catch (error) {
-        console.error('Error leaving group:', error.message);
-        res.status(500).json({ message: 'Server Error' });
+    if (!group) {
+      return res.status(404).json({ message: "Group not found" });
     }
+
+    // Check if the user is a member of the group
+    if (!group.members.includes(req.user._id)) {
+      return res
+        .status(400)
+        .json({ message: "You are not a member of this group" });
+    }
+
+    // Remove the user from the members array
+    group.members = group.members.filter(
+      (member) => member.toString() !== req.user._id.toString()
+    );
+
+    await group.save();
+
+    res.status(200).json({ message: "Successfully left the group" });
+  } catch (error) {
+    console.error("Error leaving group:", error.message);
+    res.status(500).json({ message: "Server Error" });
+  }
 };
 
 // @desc    Get received invitations for the logged-in user
 // @route   GET /api/groups/invitations/received
 // @access  Private
 const getReceivedInvitations = async (req, res) => {
-    try {
-      // Find all groups where the logged-in user has received an invitation
-      const groups = await InterestGroup.find({ 'invitations.userId': req.user._id })
-        .populate('createdBy', 'name') // Populate the group's creator
-        .populate({
-          path: 'invitations.userId',
-          select: 'name',
-          model: 'User', // Ensure the correct model is used for population
-        });
-  
-      // Filter and structure the response for received invitations
-      const receivedInvitations = groups
-        .flatMap(group =>
-          group.invitations
-            .filter(invitation => invitation.userId.equals(req.user._id) && invitation.status === 'pending')
-            .map(invitation => ({
-              _id: invitation._id,
-              status: invitation.status,
-              group: {
-                _id: group._id,
-                name: group.name,
-              },
-              from: group.createdBy,
-            }))
-        );
-  
-      res.status(200).json(receivedInvitations);
-    } catch (error) {
-      console.error('Error fetching received invitations:', error.message);
-      res.status(500).json({ message: 'Server Error' });
-    }
-  };  
-  
+  try {
+    // Find all groups where the logged-in user has received an invitation
+    const groups = await InterestGroup.find({
+      "invitations.userId": req.user._id,
+    })
+      .populate("createdBy", "name") // Populate the group's creator
+      .populate({
+        path: "invitations.userId",
+        select: "name",
+        model: "User", // Ensure the correct model is used for population
+      });
+
+    // Filter and structure the response for received invitations
+    const receivedInvitations = groups.flatMap((group) =>
+      group.invitations
+        .filter(
+          (invitation) =>
+            invitation.userId.equals(req.user._id) &&
+            invitation.status === "pending"
+        )
+        .map((invitation) => ({
+          _id: invitation._id,
+          status: invitation.status,
+          group: {
+            _id: group._id,
+            name: group.name,
+          },
+          from: group.createdBy,
+        }))
+    );
+
+    res.status(200).json(receivedInvitations);
+  } catch (error) {
+    console.error("Error fetching received invitations:", error.message);
+    res.status(500).json({ message: "Server Error" });
+  }
+};
+
 // @desc    Get sent invitations by the logged-in user
 // @route   GET /api/groups/invitations/sent
 // @access  Private
 const getSentInvitations = async (req, res) => {
-    try {
-      // Find all groups created by the logged-in user
-      const groups = await InterestGroup.find({ createdBy: req.user._id })
-        .populate('createdBy', 'name')
-        .populate({
-          path: 'invitations.userId',
-          select: 'name',
-          model: 'User', // Ensure the correct model is used for population
-        });
-  
-      // Filter and structure the response for sent invitations
-      const sentInvitations = groups
-        .flatMap(group =>
-          group.invitations
-            .filter(invitation => invitation.status === 'pending')
-            .map(invitation => ({
-              _id: invitation._id,
-              status: invitation.status,
-              group: {
-                _id: group._id,
-                name: group.name,
-              },
-              user: invitation.userId,
-            }))
-        );
-  
-      res.status(200).json(sentInvitations);
-    } catch (error) {
-      console.error('Error fetching sent invitations:', error.message);
-      res.status(500).json({ message: 'Server Error' });
-    }
-  };    
+  try {
+    // Find all groups created by the logged-in user
+    const groups = await InterestGroup.find({ createdBy: req.user._id })
+      .populate("createdBy", "name")
+      .populate({
+        path: "invitations.userId",
+        select: "name",
+        model: "User", // Ensure the correct model is used for population
+      });
+
+    // Filter and structure the response for sent invitations
+    const sentInvitations = groups.flatMap((group) =>
+      group.invitations
+        .filter((invitation) => invitation.status === "pending")
+        .map((invitation) => ({
+          _id: invitation._id,
+          status: invitation.status,
+          group: {
+            _id: group._id,
+            name: group.name,
+          },
+          user: invitation.userId,
+        }))
+    );
+
+    res.status(200).json(sentInvitations);
+  } catch (error) {
+    console.error("Error fetching sent invitations:", error.message);
+    res.status(500).json({ message: "Server Error" });
+  }
+};
 
 // @desc    Invite members to the group
 // @route   POST /api/groups/:id/invite
 // @access  Private
 const sendInvitation = async (req, res) => {
-    try {
-        const group = await InterestGroup.findById(req.params.id);
+  try {
+    const group = await InterestGroup.findById(req.params.id);
 
-        if (!group) {
-            console.log("Group not found when trying to send invitation.");
-            return res.status(404).json({ message: 'Group not found' });
-        }
-
-        if (group.createdBy.toString() !== req.user._id.toString()) {
-            return res.status(401).json({ message: 'Not authorized' });
-        }
-
-        const { userIds } = req.body;
-
-        if (!userIds || userIds.length === 0) {
-            console.log("No users provided for invitation.");
-            return res.status(400).json({ message: 'No users provided for invitation.' });
-        }
-
-        if (!userIds.every(userId => mongoose.Types.ObjectId.isValid(userId))) {
-            console.log("One or more invalid user IDs.");
-            return res.status(400).json({ message: 'One or more invalid user IDs.' });
-        }
-
-        userIds.forEach(userId => {
-            if (!group.members.includes(userId) && !group.invitations.some(inv => inv.userId.toString() === userId.toString())) {
-                group.invitations.push({ userId, groupId: group._id, status: 'pending' });
-                console.log(`Invitation added for user ${userId} to group ${group.name}.`);
-            }
-        });
-
-        // Attempt to save and catch potential errors
-        try {
-            await group.save();
-            console.log("Group saved successfully with invitations.");
-            res.status(200).json(group);
-        } catch (saveError) {
-            console.error('Error during save operation:', saveError.message);
-            res.status(500).json({ message: 'Server Error during save operation.' });
-        }
-    } catch (error) {
-        console.error('Error sending invitations:', error.message);
-        res.status(500).json({ message: 'Server Error' });
+    if (!group) {
+      console.log("Group not found when trying to send invitation.");
+      return res.status(404).json({ message: "Group not found" });
     }
+
+    if (group.createdBy.toString() !== req.user._id.toString()) {
+      return res.status(401).json({ message: "Not authorized" });
+    }
+
+    const { userIds } = req.body;
+
+    if (!userIds || userIds.length === 0) {
+      console.log("No users provided for invitation.");
+      return res
+        .status(400)
+        .json({ message: "No users provided for invitation." });
+    }
+
+    if (!userIds.every((userId) => mongoose.Types.ObjectId.isValid(userId))) {
+      console.log("One or more invalid user IDs.");
+      return res.status(400).json({ message: "One or more invalid user IDs." });
+    }
+
+    userIds.forEach(async (userId) => {
+      if (
+        !group.members.includes(userId) &&
+        !group.invitations.some(
+          (inv) => inv.userId.toString() === userId.toString()
+        )
+      ) {
+        group.invitations.push({
+          userId,
+          groupId: group._id,
+          status: "pending",
+        });
+        console.log(
+          `Invitation added for user ${userId} to group ${group.name}.`
+        );
+
+        // Send notification to the invited users
+        const notificationMessage = `You have been invited to join the interest group: ${group.name}`;
+        const newNotification = new Notification({
+          recipient: userId,
+          sender: req.user._id,
+          message: notificationMessage,
+          type: "info",
+          link: `/groups/${group._id}/invitation`,
+        });
+        await newNotification.save();
+        sendNotification(userId, newNotification); // Send real-time notification
+      }
+    });
+
+    // Attempt to save and catch potential errors
+    try {
+      await group.save();
+      console.log("Group saved successfully with invitations.");
+      res.status(200).json(group);
+    } catch (saveError) {
+      console.error("Error during save operation:", saveError.message);
+      res.status(500).json({ message: "Server Error during save operation." });
+    }
+  } catch (error) {
+    console.error("Error sending invitations:", error.message);
+    res.status(500).json({ message: "Server Error" });
+  }
 };
 
 // @desc    Get all join requests made by the logged-in user
@@ -339,39 +410,41 @@ const sendInvitation = async (req, res) => {
 const getJoinRequests = async (req, res) => {
   try {
     const groups = await InterestGroup.find({
-      'invitations.userId': req.user._id,
-      'invitations.status': 'pending',
+      "invitations.userId": req.user._id,
+      "invitations.status": "pending",
     })
-      .populate('createdBy', 'name') // Populate the group's creator
+      .populate("createdBy", "name") // Populate the group's creator
       .populate({
-        path: 'invitations.userId',
-        select: 'name',
-        model: 'User',
+        path: "invitations.userId",
+        select: "name",
+        model: "User",
       });
 
     // Ensure there are invitations to map over
-    const joinRequests = groups.map((group) => {
-      const invitation = group.invitations.find(
-        (inv) => inv.userId.toString() === req.user._id.toString()
-      );
-      
-      if (invitation) {
-        return {
-          _id: invitation._id,
-          group: {
-            _id: group._id,
-            name: group.name,
-          },
-          status: invitation.status,
-          createdAt: invitation.createdAt,
-        };
-      }
-    }).filter(Boolean); // Filter out any undefined results
+    const joinRequests = groups
+      .map((group) => {
+        const invitation = group.invitations.find(
+          (inv) => inv.userId.toString() === req.user._id.toString()
+        );
+
+        if (invitation) {
+          return {
+            _id: invitation._id,
+            group: {
+              _id: group._id,
+              name: group.name,
+            },
+            status: invitation.status,
+            createdAt: invitation.createdAt,
+          };
+        }
+      })
+      .filter(Boolean); // Filter out any undefined results
 
     res.status(200).json(joinRequests);
   } catch (error) {
-    console.error('Error fetching join requests:', error.message);
-    res.status(500).json({ message: 'Server Error' });
+    console.error("Error fetching join requests:", error.message);
+    res.status(500).json({ message: "Server Error" });
   }
 };
 
@@ -380,60 +453,116 @@ const getJoinRequests = async (req, res) => {
 // @access  Private
 const requestToJoinGroup = async (req, res) => {
   try {
-    console.log(`User ${req.user._id} is trying to join group ${req.params.id}`);
-    
+    console.log(
+      `User ${req.user._id} is trying to join group ${req.params.id}`
+    );
+
     const group = await InterestGroup.findById(req.params.id);
 
     if (!group) {
-      console.log('Group not found');
-      return res.status(404).json({ message: 'Group not found' });
+      console.log("Group not found");
+      return res.status(404).json({ message: "Group not found" });
     }
 
     // Case 1: If the user is the group creator, they can invite others
     if (group.createdBy.toString() === req.user._id.toString()) {
-      console.log('User is the group creator');
+      console.log("User is the group creator");
       const { userId } = req.body;
 
       if (!userId) {
-        console.log('No user ID provided');
-        return res.status(400).json({ message: 'User ID is required for sending invitations' });
+        console.log("No user ID provided");
+        return res
+          .status(400)
+          .json({ message: "User ID is required for sending invitations" });
       }
 
       if (group.members.includes(userId)) {
-        console.log('User is already a member');
-        return res.status(400).json({ message: 'User is already a member' });
+        console.log("User is already a member");
+        return res.status(400).json({ message: "User is already a member" });
       }
 
-      if (!group.invitations.some(inv => inv.userId.toString() === userId.toString() && inv.status === 'pending')) {
-        group.invitations.push({ userId, groupId: group._id, status: 'pending' }); // Add groupId here
+      if (
+        !group.invitations.some(
+          (inv) =>
+            inv.userId.toString() === userId.toString() &&
+            inv.status === "pending"
+        )
+      ) {
+        group.invitations.push({
+          userId,
+          groupId: group._id,
+          status: "pending",
+        });
         await group.save();
-        console.log('Invitation sent successfully');
-        return res.status(200).json({ message: 'Invitation sent successfully' });
+        console.log("Invitation sent successfully");
+
+        // Notify the invited user
+        const notificationMessage = `You have been invited to join the interest group: ${group.name}`;
+        const newNotification = new Notification({
+          recipient: userId,
+          sender: req.user._id,
+          message: notificationMessage,
+          type: "info",
+          link: `/groups/${group._id}/invitation`,
+        });
+        await newNotification.save();
+        sendNotification(userId, newNotification); // Send real-time notification
+
+        return res
+          .status(200)
+          .json({ message: "Invitation sent successfully" });
       } else {
-        console.log('Invitation already sent');
-        return res.status(400).json({ message: 'Invitation already sent' });
+        console.log("Invitation already sent");
+        return res.status(400).json({ message: "Invitation already sent" });
       }
     }
 
     // Case 2: If the user is requesting to join the group (not the creator)
     if (!group.members.includes(req.user._id)) {
-      console.log('User is requesting to join');
-      if (!group.invitations.some(inv => inv.userId.toString() === req.user._id.toString() && inv.status === 'pending')) {
-        group.invitations.push({ userId: req.user._id, groupId: group._id, status: 'pending' }); // Add groupId here
+      console.log("User is requesting to join");
+      if (
+        !group.invitations.some(
+          (inv) =>
+            inv.userId.toString() === req.user._id.toString() &&
+            inv.status === "pending"
+        )
+      ) {
+        group.invitations.push({
+          userId: req.user._id,
+          groupId: group._id,
+          status: "pending",
+        });
         await group.save();
-        console.log('Join request sent successfully');
-        return res.status(200).json({ message: 'Join request sent successfully' });
+        console.log("Join request sent successfully");
+
+        // Notify the group creator about the join request
+        const notificationMessage = `${req.user.name} has requested to join your interest group: ${group.name}`;
+        const newNotification = new Notification({
+          recipient: group.createdBy,
+          sender: req.user._id,
+          message: notificationMessage,
+          type: "info",
+          link: `/groups/${group._id}/join-requests`,
+        });
+        await newNotification.save();
+        sendNotification(group.createdBy, newNotification); // Send real-time notification
+
+        return res
+          .status(200)
+          .json({ message: "Join request sent successfully" });
       } else {
-        console.log('Join request already sent');
-        return res.status(400).json({ message: 'Join request already sent' });
+        console.log("Join request already sent");
+        return res.status(400).json({ message: "Join request already sent" });
       }
     } else {
-      console.log('User is already a member');
-      return res.status(400).json({ message: 'You are already a member of this group' });
+      console.log("User is already a member");
+      return res
+        .status(400)
+        .json({ message: "You are already a member of this group" });
     }
   } catch (error) {
-    console.error('Error handling join request or invitation:', error.message);
-    res.status(500).json({ message: 'Server Error', error: error.message });
+    console.error("Error handling join request or invitation:", error.message);
+    res.status(500).json({ message: "Server Error", error: error.message });
   }
 };
 
@@ -441,40 +570,42 @@ const requestToJoinGroup = async (req, res) => {
 // @route   PUT /api/groups/invitation/:invitationId
 // @access  Private
 const manageInvitation = async (req, res) => {
-    try {
-      const { invitationId } = req.params;
-      const { status } = req.body;
-  
-      const group = await InterestGroup.findOne({ 'invitations._id': invitationId });
-  
-      if (!group) {
-        return res.status(404).json({ message: 'Group not found' });
-      }
-  
-      const invitation = group.invitations.id(invitationId);
-  
-      if (!invitation) {
-        return res.status(404).json({ message: 'Invitation not found' });
-      }
-  
-      if (invitation.userId.toString() !== req.user._id.toString()) {
-        return res.status(401).json({ message: 'Not authorized' });
-      }
-  
-      invitation.status = status;
-  
-      if (status === 'accepted') {
-        await addMemberToGroup(group, req.user._id);
-      }
-  
-      await group.save();
-  
-      res.status(200).json(group);
-    } catch (error) {
-      console.error('Error managing invitation:', error.message);
-      res.status(500).json({ message: 'Server Error' });
+  try {
+    const { invitationId } = req.params;
+    const { status } = req.body;
+
+    const group = await InterestGroup.findOne({
+      "invitations._id": invitationId,
+    });
+
+    if (!group) {
+      return res.status(404).json({ message: "Group not found" });
     }
-  };  
+
+    const invitation = group.invitations.id(invitationId);
+
+    if (!invitation) {
+      return res.status(404).json({ message: "Invitation not found" });
+    }
+
+    if (invitation.userId.toString() !== req.user._id.toString()) {
+      return res.status(401).json({ message: "Not authorized" });
+    }
+
+    invitation.status = status;
+
+    if (status === "accepted") {
+      await addMemberToGroup(group, req.user._id);
+    }
+
+    await group.save();
+
+    res.status(200).json(group);
+  } catch (error) {
+    console.error("Error managing invitation:", error.message);
+    res.status(500).json({ message: "Server Error" });
+  }
+};
 
 // @desc    Add a comment or reply to an interest group discussion
 // @route   POST /api/groups/:id/comments
@@ -485,7 +616,7 @@ const addInterestGroupComment = async (req, res) => {
     const group = await InterestGroup.findById(req.params.id);
 
     if (!group) {
-      return res.status(404).json({ message: 'Group not found' });
+      return res.status(404).json({ message: "Group not found" });
     }
 
     const newComment = {
@@ -501,10 +632,18 @@ const addInterestGroupComment = async (req, res) => {
     // Create connections between participants
     await createDiscussionConnections(group, req.user._id, parent);
 
+    // Send notifications to group members
+    const notificationMessage = `New comment added in the interest group discussion: ${group.name}`;
+    await sendGroupNotifications(
+      group,
+      notificationMessage,
+      `/groups/${group._id}/discussions`
+    );
+
     res.status(201).json(newComment);
   } catch (error) {
-    console.error('Error adding comment:', error.message);
-    res.status(500).json({ message: 'Server Error' });
+    console.error("Error adding comment:", error.message);
+    res.status(500).json({ message: "Server Error" });
   }
 };
 
@@ -517,16 +656,18 @@ const updateInterestGroupComment = async (req, res) => {
     const group = await InterestGroup.findById(req.params.id);
 
     if (!group) {
-      return res.status(404).json({ message: 'Group not found' });
+      return res.status(404).json({ message: "Group not found" });
     }
 
     const discussion = group.interestGroupDiscussions.id(req.params.commentId);
     if (!discussion) {
-      return res.status(404).json({ message: 'Comment not found' });
+      return res.status(404).json({ message: "Comment not found" });
     }
 
     if (discussion.user.toString() !== req.user._id.toString()) {
-      return res.status(403).json({ message: 'Not authorized to update this comment' });
+      return res
+        .status(403)
+        .json({ message: "Not authorized to update this comment" });
     }
 
     discussion.comment = comment;
@@ -534,8 +675,8 @@ const updateInterestGroupComment = async (req, res) => {
 
     res.status(200).json(discussion);
   } catch (error) {
-    console.error('Error updating comment:', error.message);
-    res.status(500).json({ message: 'Server Error' });
+    console.error("Error updating comment:", error.message);
+    res.status(500).json({ message: "Server Error" });
   }
 };
 
@@ -547,25 +688,27 @@ const deleteInterestGroupComment = async (req, res) => {
     const group = await InterestGroup.findById(req.params.id);
 
     if (!group) {
-      return res.status(404).json({ message: 'Group not found' });
+      return res.status(404).json({ message: "Group not found" });
     }
 
     const discussion = group.interestGroupDiscussions.id(req.params.commentId);
     if (!discussion) {
-      return res.status(404).json({ message: 'Comment not found' });
+      return res.status(404).json({ message: "Comment not found" });
     }
 
     if (discussion.user.toString() !== req.user._id.toString()) {
-      return res.status(403).json({ message: 'Not authorized to delete this comment' });
+      return res
+        .status(403)
+        .json({ message: "Not authorized to delete this comment" });
     }
 
     group.interestGroupDiscussions.pull(discussion._id);
     await group.save();
 
-    res.status(200).json({ message: 'Comment deleted successfully' });
+    res.status(200).json({ message: "Comment deleted successfully" });
   } catch (error) {
-    console.error('Error deleting comment:', error.message);
-    res.status(500).json({ message: 'Server Error' });
+    console.error("Error deleting comment:", error.message);
+    res.status(500).json({ message: "Server Error" });
   }
 };
 
@@ -583,7 +726,7 @@ module.exports = {
   getJoinRequests,
   requestToJoinGroup,
   manageInvitation,
-  addInterestGroupComment,    
-  updateInterestGroupComment, 
-  deleteInterestGroupComment, 
+  addInterestGroupComment,
+  updateInterestGroupComment,
+  deleteInterestGroupComment,
 };
