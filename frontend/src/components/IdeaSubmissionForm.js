@@ -12,14 +12,25 @@ const IdeaSubmissionForm = () => {
   const [problem, setProblem] = useState('');
   const [solution, setSolution] = useState('');
   const [expectedImpact, setExpectedImpact] = useState('');
+  const [impactType, setImpactType] = useState('');
   const [department, setDepartment] = useState(null);
   const [departments, setDepartments] = useState([]);
   const [resources, setResources] = useState({
-    budget: 0,
-    time: '',
+    budgetMin: 0,
+    budgetMax: 0,
+    totalTime: '',
+    deliveryDate: '',
     manpower: 0,
+    fullTimeEmployees: 0,
+    contractors: 0,
     toolsAndInfrastructure: '',
   });
+  const [roiEstimate, setRoiEstimate] = useState(null);
+  const [businessGoalAlignment, setBusinessGoalAlignment] = useState([]);
+  const [riskAssessment, setRiskAssessment] = useState('');
+  const [successMetrics, setSuccessMetrics] = useState('');
+  const [expertiseRequired, setExpertiseRequired] = useState('');
+  const [externalResources, setExternalResources] = useState('');
   const [attachments, setAttachments] = useState(null);
   const navigate = useNavigate();
 
@@ -54,8 +65,15 @@ const IdeaSubmissionForm = () => {
     formData.append('problem', problem);
     formData.append('solution', solution);
     formData.append('expectedImpact', expectedImpact);
+    formData.append('impactType', impactType);
     formData.append('department', department?.value);
     formData.append('resources', JSON.stringify(resources));
+    formData.append('roiEstimate', roiEstimate);
+    formData.append('businessGoalAlignment', businessGoalAlignment.join(', '));
+    formData.append('riskAssessment', riskAssessment);
+    formData.append('successMetrics', successMetrics);
+    formData.append('expertiseRequired', expertiseRequired);
+    formData.append('externalResources', externalResources);
 
     if (attachments) {
       for (const file of attachments) {
@@ -74,6 +92,13 @@ const IdeaSubmissionForm = () => {
     }
   };
 
+  const businessGoals = [
+    { label: 'Increase Revenue', value: 'Increase Revenue' },
+    { label: 'Reduce Costs', value: 'Reduce Costs' },
+    { label: 'Improve Customer Experience', value: 'Improve Customer Experience' },
+    { label: 'Operational Efficiency', value: 'Operational Efficiency' },
+  ];
+
   return (
     <div className="flex h-screen">
       <Sidebar />
@@ -87,6 +112,7 @@ const IdeaSubmissionForm = () => {
         <div className="bg-white p-6 shadow-lg rounded-lg max-w-4xl mx-auto">
           <h2 className="text-2xl font-bold mb-6">Submit New Idea</h2>
           <form onSubmit={handleSubmit}>
+            {/* Title */}
             <div className="mb-4">
               <label className="block mb-2 font-semibold">Title</label>
               <input
@@ -98,6 +124,8 @@ const IdeaSubmissionForm = () => {
                 required
               />
             </div>
+
+            {/* Description */}
             <div className="mb-4">
               <label className="block mb-2 font-semibold">Description</label>
               <textarea
@@ -109,6 +137,8 @@ const IdeaSubmissionForm = () => {
                 required
               ></textarea>
             </div>
+
+            {/* Problem/Opportunity */}
             <div className="mb-4">
               <label className="block mb-2 font-semibold">Problem/Opportunity</label>
               <textarea
@@ -120,6 +150,8 @@ const IdeaSubmissionForm = () => {
                 required
               />
             </div>
+
+            {/* Suggested Solution */}
             <div className="mb-4">
               <label className="block mb-2 font-semibold">Suggested Solution</label>
               <textarea
@@ -131,6 +163,8 @@ const IdeaSubmissionForm = () => {
                 required
               />
             </div>
+
+            {/* Expected Impact */}
             <div className="mb-4">
               <label className="block mb-2 font-semibold">Expected Impact</label>
               <textarea
@@ -143,6 +177,24 @@ const IdeaSubmissionForm = () => {
               />
             </div>
 
+            {/* Impact Type */}
+            <div className="mb-4">
+              <label className="block mb-2 font-semibold">Impact Type</label>
+              <Select
+                value={{ label: impactType, value: impactType }}
+                onChange={option => setImpactType(option.value)}
+                options={[
+                  { label: 'Financial', value: 'Financial' },
+                  { label: 'Operational', value: 'Operational' },
+                  { label: 'Customer Satisfaction', value: 'Customer Satisfaction' },
+                ]}
+                placeholder="Select impact type"
+                className="w-full"
+                isClearable
+              />
+            </div>
+
+            {/* Department */}
             <div className="mb-4">
               <label className="block mb-2 font-semibold">Department</label>
               <Select
@@ -155,55 +207,140 @@ const IdeaSubmissionForm = () => {
               />
             </div>
 
+            {/* Resource Estimates */}
             <h3 className="text-lg font-semibold mb-4">Resource Estimates</h3>
             <div className="mb-4">
-              <label className="block mb-2 font-semibold">Budget</label>
-              <input
-                type="number"
-                value={resources.budget}
-                onChange={e => setResources({ ...resources, budget: e.target.value })}
-                placeholder="Enter estimated budget"
-                className="w-full p-3 border rounded-lg"
-                required
-              />
+              <label className="block mb-2 font-semibold">Budget (Min/Max)</label>
+              <div className="flex space-x-4">
+                <input
+                  type="number"
+                  value={resources.budgetMin}
+                  onChange={e => setResources({ ...resources, budgetMin: e.target.value })}
+                  placeholder="Min Budget"
+                  className="w-full p-3 border rounded-lg"
+                  required
+                />
+                <input
+                  type="number"
+                  value={resources.budgetMax}
+                  onChange={e => setResources({ ...resources, budgetMax: e.target.value })}
+                  placeholder="Max Budget"
+                  className="w-full p-3 border rounded-lg"
+                  required
+                />
+              </div>
             </div>
 
             <div className="mb-4">
-              <label className="block mb-2 font-semibold">Time</label>
+              <label className="block mb-2 font-semibold">Total Time</label>
               <input
                 type="text"
-                value={resources.time}
-                onChange={e => setResources({ ...resources, time: e.target.value })}
-                placeholder="Estimated time to complete"
+                value={resources.totalTime}
+                onChange={e => setResources({ ...resources, totalTime: e.target.value })}
+                placeholder="Estimated total time"
                 className="w-full p-3 border rounded-lg"
                 required
               />
             </div>
 
             <div className="mb-4">
-              <label className="block mb-2 font-semibold">Manpower</label>
+              <label className="block mb-2 font-semibold">Expected Delivery Date</label>
+              <input
+                type="text"
+                value={resources.deliveryDate}
+                onChange={e => setResources({ ...resources, deliveryDate: e.target.value })}
+                placeholder="Expected delivery date"
+                className="w-full p-3 border rounded-lg"
+              />
+            </div>
+
+            <div className="mb-4">
+              <label className="block mb-2 font-semibold">Manpower (Total)</label>
               <input
                 type="number"
                 value={resources.manpower}
                 onChange={e => setResources({ ...resources, manpower: e.target.value })}
-                placeholder="Estimated manpower required"
+                placeholder="Total manpower"
                 className="w-full p-3 border rounded-lg"
                 required
               />
             </div>
 
+            {/* ROI Estimate */}
             <div className="mb-4">
-              <label className="block mb-2 font-semibold">Tools & Infrastructure</label>
+              <label className="block mb-2 font-semibold">ROI Estimate (%)</label>
+              <input
+                type="number"
+                value={roiEstimate}
+                onChange={e => setRoiEstimate(e.target.value)}
+                placeholder="Enter ROI estimate"
+                className="w-full p-3 border rounded-lg"
+              />
+            </div>
+
+            {/* Business Goal Alignment */}
+            <div className="mb-4">
+              <label className="block mb-2 font-semibold">Business Goal Alignment</label>
+              <Select
+                value={businessGoalAlignment}
+                onChange={options => setBusinessGoalAlignment(options.map(option => option.value))}
+                options={businessGoals}
+                placeholder="Select business goals"
+                className="w-full"
+                isMulti
+                isClearable
+              />
+            </div>
+
+            {/* Risk Assessment */}
+            <div className="mb-4">
+              <label className="block mb-2 font-semibold">Risk Assessment</label>
+              <textarea
+                value={riskAssessment}
+                onChange={e => setRiskAssessment(e.target.value)}
+                placeholder="Describe any potential risks"
+                className="w-full p-3 border rounded-lg"
+                rows="3"
+              />
+            </div>
+
+            {/* Success Metrics */}
+            <div className="mb-4">
+              <label className="block mb-2 font-semibold">Success Metrics</label>
+              <textarea
+                value={successMetrics}
+                onChange={e => setSuccessMetrics(e.target.value)}
+                placeholder="Define success metrics"
+                className="w-full p-3 border rounded-lg"
+                rows="3"
+              />
+            </div>
+
+            {/* Expertise Required */}
+            <div className="mb-4">
+              <label className="block mb-2 font-semibold">Expertise Required</label>
               <input
                 type="text"
-                value={resources.toolsAndInfrastructure}
-                onChange={e => setResources({ ...resources, toolsAndInfrastructure: e.target.value })}
-                placeholder="Enter tools & infrastructure required"
+                value={expertiseRequired}
+                onChange={e => setExpertiseRequired(e.target.value)}
+                placeholder="Enter expertise required"
                 className="w-full p-3 border rounded-lg"
-                required
               />
             </div>
 
+            {/* External Resources */}
+            <div className="mb-4">
+              <label className="block mb-2 font-semibold">External Resources</label>
+              <input
+                type="text"
+                value={externalResources}
+                onChange={e => setExternalResources(e.target.value)}
+                placeholder="Enter external resources"
+                className="w-full p-3 border rounded-lg"
+              />
+            </div>
+
+            {/* File Attachments */}
             <div className="mb-4">
               <label className="block mb-2 font-semibold">File Attachments</label>
               <input
@@ -214,6 +351,7 @@ const IdeaSubmissionForm = () => {
               />
             </div>
 
+            {/* Submit Button */}
             <button type="submit" className="bg-green-500 text-white px-4 py-2 rounded-lg flex items-center hover:bg-green-600">
               <FaCheck className="mr-2" /> Submit Idea
             </button>

@@ -1,6 +1,4 @@
-// File: frontend/src/context/AuthContext.js
-
-import React, { createContext, useState, useEffect } from 'react';
+import React, { createContext, useState, useContext, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import axios from 'axios';
 
@@ -47,5 +45,8 @@ export const AuthProvider = ({ children }) => {
     </AuthContext.Provider>
   );
 };
+
+// Custom hook to use the AuthContext
+export const useAuth = () => useContext(AuthContext);
 
 export default AuthContext;
