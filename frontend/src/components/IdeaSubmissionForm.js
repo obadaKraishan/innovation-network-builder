@@ -34,14 +34,14 @@ const IdeaSubmissionForm = () => {
   return (
     <div className="flex h-screen">
       <Sidebar />
-      <div className="flex-1 p-6 bg-gray-100">
+      <div className="flex-1 p-6 bg-gray-100 overflow-auto"> {/* Ensure scrolling when needed */}
         <button
           onClick={() => navigate(-1)}
           className="bg-gray-500 text-white px-4 py-2 rounded-lg mb-6 flex items-center hover:bg-gray-600"
         >
           <FaArrowLeft className="mr-2" /> Back
         </button>
-        <div className="bg-white p-6 shadow-lg rounded-lg">
+        <div className="bg-white p-6 shadow-lg rounded-lg max-w-4xl mx-auto"> {/* Added max-width and centering */}
           <h2 className="text-2xl font-bold mb-6">Submit New Idea</h2>
           <form onSubmit={handleSubmit}>
             <div className="mb-4">
