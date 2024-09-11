@@ -2,7 +2,9 @@ const Department = require("../models/departmentModel");
 const User = require("../models/userModel");
 const MeetingBooking = require("../models/meetingBookingModel");
 const Connection = require('../models/connectionModel');
+const Notification = require('../models/notificationModel');
 const moment = require("moment");
+const { sendNotification } = require('../services/notificationService');
 
 
 // Utility function to create a new connection between two users
@@ -24,6 +26,25 @@ const createConnection = async (userA, userB, context) => {
     return savedConnection;
   } catch (error) {
     console.error(`Error creating connection between ${userA} and ${userB} for context: ${context}:`, error.message);
+  }
+};
+
+// Utility function to send notifications to users
+const sendMeetingNotifications = async (users, message, link, senderId) => {
+  try {
+    for (const user of users) {
+      const newNotification = new Notification({
+        recipient: user,
+        sender: senderId,
+        message,
+        type: 'info',
+        link,
+      });
+      await newNotification.save();
+      sendNotification(user, newNotification);  // Send real-time notification
+    }
+  } catch (error) {
+    console.error('Error sending notifications:', error.message);
   }
 };
 
@@ -83,13 +104,12 @@ const createBooking = async (req, res) => {
       return res.status(400).json({ message: "User ID (bookedBy) is required" });
     }
 
-    // Format time to 12-hour with AM/PM
     const formattedTime = moment(time, 'h:mm A').format('h:mm A');
 
     const existingBooking = await MeetingBooking.findOne({
       user: selectedUser,
       date: moment(date).format("YYYY-MM-DD"),
-      time: formattedTime, // Use the formatted time
+      time: formattedTime,
     });
 
     if (existingBooking) {
@@ -100,7 +120,7 @@ const createBooking = async (req, res) => {
       user: selectedUser,
       bookedBy: userId,
       date: moment(date).format("YYYY-MM-DD"),
-      time: formattedTime, // Store the formatted time
+      time: formattedTime,
       duration,
       type,
       phoneNumber,
@@ -109,8 +129,12 @@ const createBooking = async (req, res) => {
 
     await booking.save();
 
-    // Always create a new connection regardless of existing connections
+    // Create a connection between the user and the selected user
     await createConnection(userId, selectedUser, 'meeting booking');
+
+    // Send notifications to both users about the booking
+    const notificationMessage = `A meeting has been booked between you and ${req.user.name}`;
+    await sendMeetingNotifications([selectedUser, userId], notificationMessage, `/meetings/${booking._id}`, req.user._id);
 
     res.status(201).json(booking);
   } catch (error) {
@@ -296,12 +320,26 @@ const updateUserAvailability = async (req, res) => {
 
     console.log("User availability updated successfully");
 
+    // Notify the user about the updated availability
+    const notificationMessage = `Your availability has been updated. Please review your schedule.`;
+    const newNotification = new Notification({
+      recipient: userId,
+      sender: req.user._id,
+      message: notificationMessage,
+      type: 'info',
+      link: '/user/profile',  // Assume this is the link to the user's profile
+    });
+
+    await newNotification.save();
+    sendNotification(userId, newNotification); // Send real-time notification
+
     res.json({ message: "User availability updated successfully" });
   } catch (error) {
     console.error("Error updating user availability:", error.message);
     res.status(500).json({ message: error.message });
   }
 };
+
 
 // @desc    Update meeting status
 // @route   PUT /api/booking/status/:id
@@ -318,6 +356,10 @@ const updateMeetingStatus = async (req, res) => {
 
     booking.status = status;
     await booking.save();
+
+    // Notify users about the meeting status update
+    const notificationMessage = `The meeting status has been updated to ${status}`;
+    await sendMeetingNotifications([booking.user, booking.bookedBy], notificationMessage, `/meetings/${booking._id}`, req.user._id);
 
     res.status(200).json({ message: "Meeting status updated successfully" });
   } catch (error) {
