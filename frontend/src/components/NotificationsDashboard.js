@@ -174,7 +174,7 @@ const NotificationsDashboard = () => {
         <ul className="space-y-4">
           {displayNotifications.length > 0 ? (
             displayNotifications.map((notification) => (
-              <li key={notification._id} className={`p-4 rounded-lg shadow-sm ${notification.read ? 'bg-gray-100' : 'bg-gray-50'}`}>
+              <li key={notification._id} className={`p-4 rounded-lg shadow-sm border ${notification.read ? 'bg-gray-100 border-gray-300' : 'bg-white border-gray-300'}`}>
                 <div className="flex justify-between items-center">
                   <div className="flex items-center space-x-3">
                     {getNotificationIcon(notification.type)}
