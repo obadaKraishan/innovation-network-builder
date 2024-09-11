@@ -1,4 +1,5 @@
 const express = require('express');
+const multer = require('multer');
 const {
   submitIdea,
   getIdeaById,
@@ -13,8 +14,11 @@ const { protect, admin } = require('../middleware/authMiddleware');
 
 const router = express.Router();
 
-// Submit a new innovation idea
-router.post('/submit-idea', protect, submitIdea);
+// Initialize multer for handling multipart/form-data
+const upload = multer(); // Using .none() since you're dealing with form fields and potentially files later
+
+// Submit a new innovation idea with form data handling
+router.post('/submit-idea', protect, upload.none(), submitIdea);
 
 // Retrieve all ideas (with filtering support)
 router.get('/ideas', protect, getAllIdeas);

@@ -1,15 +1,27 @@
 const asyncHandler = require('express-async-handler');
 const Innovation = require('../models/innovationModel');
 const ResourceAllocation = require('../models/resourceAllocationModel');
+const multer = require('multer');
+const upload = multer();
 
 // Submit a new innovation idea
 const submitIdea = asyncHandler(async (req, res) => {
-    console.log(req.body);
+  console.log('Received form-data:', req.body);
+  console.log('Received files:', req.files);
+
   const {
     title, description, problem, solution, expectedImpact, impactType, department, resources,
     roiEstimate, businessGoalAlignment, riskAssessment, successMetrics, expertiseRequired, externalResources
   } = req.body;
+
   const employeeId = req.user._id;
+
+  if (!title || !description || !problem || !solution || !expectedImpact || !impactType) {
+    res.status(400);
+    throw new Error('All required fields must be filled');
+  }
+
+  const requiredResources = JSON.parse(resources); // Resources sent as JSON string
 
   const idea = new Innovation({
     ideaId: `ID-${Date.now()}`,
@@ -21,8 +33,8 @@ const submitIdea = asyncHandler(async (req, res) => {
     impactType,
     employeeId,
     department,
-    resources,
-    roiEstimate,
+    resources: requiredResources,
+    roiEstimate: roiEstimate || 0,
     businessGoalAlignment,
     riskAssessment,
     successMetrics,

@@ -56,13 +56,13 @@ const IdeaSubmissionForm = () => {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-  
+    
     // Check if all required fields are filled
     if (!title || !description || !problem || !solution || !expectedImpact || impactType.length === 0 || department.length === 0) {
       toast.error('Please fill all required fields.');
       return;
     }
-  
+    
     // Ensure no missing values for required fields in resources
     const resourceData = {
       budgetMin: resources.budgetMin || 0,
@@ -75,16 +75,33 @@ const IdeaSubmissionForm = () => {
       toolsAndInfrastructure: resources.toolsAndInfrastructure || 'N/A',
     };
   
+    console.log('Form Data to Submit: ', {
+      title,
+      description,
+      problem,
+      solution,
+      expectedImpact,
+      impactType: impactType.map(option => option.value),
+      department: department.map(option => option.value),
+      resources: resourceData,
+      roiEstimate,
+      businessGoalAlignment: businessGoalAlignment.map(option => option.value),
+      riskAssessment,
+      successMetrics,
+      expertiseRequired,
+      externalResources,
+    });
+  
     const formData = new FormData();
     formData.append('title', title);
     formData.append('description', description);
     formData.append('problem', problem);
     formData.append('solution', solution);
     formData.append('expectedImpact', expectedImpact);
-    formData.append('impactType', impactType.map((option) => option.value).join(', '));
-    formData.append('department', department.map((option) => option.value).join(', '));
+    formData.append('impactType', impactType.map(option => option.value).join(', '));
+    formData.append('department', department.map(option => option.value).join(', '));
     formData.append('resources', JSON.stringify(resourceData));
-    formData.append('roiEstimate', roiEstimate || 0); // Handle empty values
+    formData.append('roiEstimate', roiEstimate || 0);
     formData.append('businessGoalAlignment', businessGoalAlignment.map(option => option.value).join(', '));
     formData.append('riskAssessment', riskAssessment || 'N/A');
     formData.append('successMetrics', successMetrics || 'N/A');
@@ -98,16 +115,16 @@ const IdeaSubmissionForm = () => {
     }
   
     try {
-      await api.post('/innovation/submit-idea', formData, {
+      const response = await api.post('/innovation/submit-idea', formData, {
         headers: { 'Content-Type': 'multipart/form-data' },
       });
       toast.success('Idea submitted successfully!');
       navigate('/innovation-dashboard');
     } catch (error) {
-      console.error('Error submitting idea:', error);
+      console.error('Error submitting idea:', error.response?.data || error.message);
       toast.error('Failed to submit idea');
     }
-  };  
+  };   
 
   const impactTypes = [
     { label: 'Financial', value: 'Financial' },
