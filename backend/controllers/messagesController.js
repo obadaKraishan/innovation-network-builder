@@ -1,6 +1,7 @@
 const { sendNotification } = require('../services/notificationService');
 const Message = require('../models/messageModel');
 const Connection = require('../models/connectionModel');
+const Notification = require('../models/notificationModel');
 
 // Utility function to create a new connection between two users
 const createConnection = async (userA, userB, context) => {
@@ -56,16 +57,20 @@ const sendMessage = async (req, res) => {
       const savedConnection = await createConnection(req.user._id, recipientId, 'message');
       console.log('Saved Connection:', savedConnection);
 
-      // Send a real-time notification to each recipient
+      // Create and save notification in the database
       const notificationMessage = `${req.user.name} sent you a message: "${subject}"`;
-      const notification = {
+      const newNotification = new Notification({
         recipient: recipientId,
         sender: req.user._id,
         message: notificationMessage,
         type: 'info',
-        link: `/messages/${newMessage._id}`, // Link to the message details
-      };
-      sendNotification(recipientId, notification);  // Now uses correct service
+        link: `/messages/${newMessage._id}`,  // Link to the message details
+      });
+
+      await newNotification.save();
+
+      // Send a real-time notification to each recipient
+      sendNotification(recipientId, newNotification);
     }
 
     if (cc && cc.length > 0) {
@@ -73,16 +78,20 @@ const sendMessage = async (req, res) => {
         const savedConnection = await createConnection(req.user._id, ccId, 'message');
         console.log('Saved Connection:', savedConnection);
 
-        // Send a notification to CC'd users
+        // Create and save notification for CC'd users
         const notificationMessage = `${req.user.name} CC'd you in a message: "${subject}"`;
-        const notification = {
+        const newNotification = new Notification({
           recipient: ccId,
           sender: req.user._id,
           message: notificationMessage,
           type: 'info',
           link: `/messages/${newMessage._id}`,
-        };
-        sendNotification(ccId, notification);  // Now uses correct service
+        });
+
+        await newNotification.save();
+
+        // Send a real-time notification to CC'd users
+        sendNotification(ccId, newNotification);
       }
     }
 
@@ -276,16 +285,20 @@ const replyToMessage = async (req, res) => {
       const savedConnection = await createConnection(req.user._id, recipientId, 'message reply');
       console.log('Saved Connection:', savedConnection);
 
-      // Send notification to each recipient
+      // Create and save notification in the database
       const notificationMessage = `${req.user.name} replied to a message: "${subject}"`;
-      const notification = {
+      const newNotification = new Notification({
         recipient: recipientId,
         sender: req.user._id,
         message: notificationMessage,
         type: 'info',
         link: `/messages/${newMessage._id}`,
-      };
-      sendNotification(recipientId, notification);  // Now uses correct service
+      });
+
+      await newNotification.save();
+
+      // Send real-time notification
+      sendNotification(recipientId, newNotification);
     }
 
     if (cc && cc.length > 0) {
@@ -293,16 +306,20 @@ const replyToMessage = async (req, res) => {
         const savedConnection = await createConnection(req.user._id, ccId, 'message reply');
         console.log('Saved Connection:', savedConnection);
 
-        // Send notification to CC'd users
+        // Create and save notification for CC'd users
         const notificationMessage = `${req.user.name} CC'd you in a reply: "${subject}"`;
-        const notification = {
+        const newNotification = new Notification({
           recipient: ccId,
           sender: req.user._id,
           message: notificationMessage,
           type: 'info',
           link: `/messages/${newMessage._id}`,
-        };
-        sendNotification(ccId, notification);  // Now uses correct service
+        });
+
+        await newNotification.save();
+
+        // Send real-time notification
+        sendNotification(ccId, newNotification);
       }
     }
 

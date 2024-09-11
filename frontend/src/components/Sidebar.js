@@ -58,6 +58,37 @@ const Sidebar = () => {
         items: [{ name: "Wellness System", icon: <FaHeartbeat />, path: "/wellness-dashboard" }],
       },
     ],
+    "Department Manager": [
+      {
+        category: "Main",
+        items: [
+          { name: "Dashboard", icon: <FaTachometerAlt />, path: "/dashboard" },
+          { name: "Profile", icon: <FaUser />, path: "/profile" },
+          { name: "Notifications", icon: <FaBell />, path: "/notifications" }
+        ],
+      },
+      {
+        category: "Team Management",
+        items: [
+          { name: "My Team", icon: <FaUsers />, path: "/my-team" },
+          { name: "Manage Team", icon: <FaUsers />, path: "/manage-team" },
+          { name: "Team Overview", icon: <FaChartLine />, path: "/team-overview" },
+        ],
+      },
+      {
+        category: "Collaboration",
+        items: [
+          { name: "Interest Groups", icon: <FaLayerGroup />, path: "/interest-groups" },
+          { name: "Meetings", icon: <FaCalendarAlt />, path: "/meeting-booking" },
+          { name: "Messages", icon: <FaEnvelope />, path: "/messages" },
+          { name: "Collaborator Finder", icon: <FaCogs />, path: "/collaborator-finder" },
+        ],
+      },
+      {
+        category: "Wellness",
+        items: [{ name: "Wellness System", icon: <FaHeartbeat />, path: "/wellness-dashboard" }],
+      },
+    ],
     "Team Leader": [
       {
         category: "Main",

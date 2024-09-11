@@ -24,6 +24,7 @@ const Dashboard = () => {
   // Welcome message based on role
   const roleWelcomeMessages = {
     Employee: "Welcome back! Here are your essential tools for staying connected and productive.",
+    "Department Manager": "Welcome Department Manager! Manage your team and stay on top of everything.",
     "Team Leader": "Welcome Team Leader! Manage your team and stay on top of everything.",
     CEO: "Welcome CEO! Here are the latest insights and management tools for the company.",
     CTO: "Welcome CTO! Oversee the technology infrastructure and manage IT.",
@@ -44,6 +45,14 @@ const Dashboard = () => {
       { name: "Meetings", description: "Manage your meetings.", icon: <FaCalendarAlt />, path: "/meeting-booking" },
     ],
     "Team Leader": [
+      { name: "Manage Team", description: "Oversee team tasks and members.", icon: <FaUsers />, path: "/manage-team" },
+      { name: "Team Overview", description: "View your team's progress.", icon: <FaChartLine />, path: "/team-overview" },
+      { name: "Meetings", description: "Set up team meetings.", icon: <FaCalendarAlt />, path: "/meeting-booking" },
+      { name: "Wellness System", description: "Access wellness tools for your team.", icon: <FaHeartbeat />, path: "/wellness-dashboard" },
+      { name: "Collaborator Finder", description: "Find collaborators.", icon: <FaCogs />, path: "/collaborator-finder" },
+      { name: "Messages", description: "Check team messages.", icon: <FaEnvelope />, path: "/messages" },
+    ],
+    "Department Manager": [
       { name: "Manage Team", description: "Oversee team tasks and members.", icon: <FaUsers />, path: "/manage-team" },
       { name: "Team Overview", description: "View your team's progress.", icon: <FaChartLine />, path: "/team-overview" },
       { name: "Meetings", description: "Set up team meetings.", icon: <FaCalendarAlt />, path: "/meeting-booking" },
