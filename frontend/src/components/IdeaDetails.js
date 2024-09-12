@@ -31,14 +31,14 @@ const IdeaDetails = () => {
   const navigate = useNavigate();
 
   // Fetch idea details
-useEffect(() => {
+  useEffect(() => {
     const fetchIdeaDetails = async () => {
       try {
         const { data } = await api.get(`/innovation/idea/${id}`);
         setIdea(data);
         setLoading(false);
         setAttachments(data.attachments || []);
-  
+
         // Ensure voters array and user are present before checking if the user has voted
         if (data.voters && user && user._id) {
           setHasVoted(data.voters.includes(user._id));
@@ -48,8 +48,21 @@ useEffect(() => {
         setLoading(false);
       }
     };
+
+    // Fetch allocated resources
+    const fetchAllocatedResources = async () => {
+      try {
+        const { data } = await api.get(`/innovation/allocated-resources/${id}`);
+        setAllocatedResources(data);
+      } catch (error) {
+        toast.error("Failed to load allocated resources");
+      }
+    };
+
     fetchIdeaDetails();
-  }, [id, user]);  
+    fetchAllocatedResources(); // Fetch allocated resources when the component loads
+  }, [id, user]);
+
 
   // Handle updating the idea's stage
   const handleStageUpdate = async () => {
@@ -335,6 +348,25 @@ useEffect(() => {
             </button>
           </div>
         )}
+
+        {/* Allocated Resources Section */}
+{(isIdeaOwner || ["Team Leader", "Department Manager", "CEO", "CTO", "Executive"].includes(user.role)) && (
+  <div className="bg-white p-6 rounded-lg shadow-lg mt-6">
+    <h3 className="text-xl font-bold mb-4">Allocated Resources</h3>
+    <ul className="list-disc pl-6">
+      {allocatedResources.length > 0 ? (
+        allocatedResources.map((resource, index) => (
+          <li key={index}>
+            Budget: ${resource.budget}, Time: {resource.resourcesUsed.time}, Manpower: {resource.resourcesUsed.manpower}
+          </li>
+        ))
+      ) : (
+        <li>No resources have been allocated yet.</li>
+      )}
+    </ul>
+  </div>
+)}
+
 
         {/* Allocate Resources Section for Executives */}
 {["CEO", "CTO", "Executive"].includes(user.role) && (
