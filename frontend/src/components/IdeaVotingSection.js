@@ -1,6 +1,6 @@
-import React, { useState } from 'react';
-import { toast } from 'react-toastify';
-import api from '../utils/api';
+import React, { useState } from "react";
+import { toast } from "react-toastify";
+import api from "../utils/api";
 
 const IdeaVotingSection = ({ ideaId, onVoteSubmitted }) => {
   const [impact, setImpact] = useState(0);
@@ -17,15 +17,18 @@ const IdeaVotingSection = ({ ideaId, onVoteSubmitted }) => {
         cost,
         alignment,
       });
-      toast.success('Vote submitted successfully');
+      toast.success("Vote submitted successfully");
       onVoteSubmitted(data);
     } catch (error) {
-      toast.error(error.response?.data?.message || 'Error submitting vote');
+      toast.error(error.response?.data?.message || "Error submitting vote");
     }
   };
 
   return (
-    <form onSubmit={handleSubmit} className="p-6 bg-gray-50 rounded-lg shadow-md">
+    <form
+      onSubmit={handleSubmit}
+      className="p-6 bg-gray-50 rounded-lg shadow-md"
+    >
       <div className="mb-4">
         <label className="block text-gray-700 font-bold mb-1">Impact</label>
         <input
@@ -38,7 +41,9 @@ const IdeaVotingSection = ({ ideaId, onVoteSubmitted }) => {
         />
       </div>
       <div className="mb-4">
-        <label className="block text-gray-700 font-bold mb-1">Feasibility</label>
+        <label className="block text-gray-700 font-bold mb-1">
+          Feasibility
+        </label>
         <input
           type="number"
           value={feasibility}

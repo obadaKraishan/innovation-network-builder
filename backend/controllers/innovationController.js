@@ -266,9 +266,10 @@ const submitVote = asyncHandler(async (req, res) => {
     const idea = await Innovation.findById(id);
   
     if (!idea) {
-      res.status(404);
-      throw new Error('Idea not found');
-    }
+        console.error(`Idea with ID ${id} not found`);
+        res.status(404).json({ message: 'Idea not found' });
+        return;
+      }
   
     // Check if the user is eligible to vote
     const eligibleRoles = ["CEO", "CTO", "Executive", "Team Leader", "Product Manager"];

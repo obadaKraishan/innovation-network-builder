@@ -52,7 +52,7 @@ router.get('/feedback/:ideaId', protect, getFeedback);
 router.put('/feedback/:feedbackId', protect, updateFeedback);
 router.delete('/feedback/:feedbackId', protect, deleteFeedback);
 
-// Voting routes
+// Voting route
 router.post('/idea/:id/vote', protect, submitVote);
 
 module.exports = router;
