@@ -186,6 +186,19 @@ const allocateResources = asyncHandler(async (req, res) => {
   res.status(201).json(savedAllocation);
 });
 
+// Get allocated resources for a specific project by projectId
+const getAllocatedResources = asyncHandler(async (req, res) => {
+    const resources = await ResourceAllocation.find({ projectId: req.params.id })
+      .populate('teamMembers', 'name'); // Populate team members' names
+  
+    if (!resources) {
+      res.status(404);
+      throw new Error('No resources found for this project');
+    }
+  
+    res.json(resources);
+  });  
+
 // Withdraw an idea (idea owner only)
 const withdrawIdea = asyncHandler(async (req, res) => {
     const { id } = req.params;
@@ -322,6 +335,7 @@ module.exports = {
   updateIdeaStage,
   evaluateIdea,
   allocateResources,
+  getAllocatedResources,
   withdrawIdea,
   addFeedback,
   getFeedback,
