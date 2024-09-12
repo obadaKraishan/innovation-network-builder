@@ -7,6 +7,8 @@ import {
   FaPlus,
   FaMapSigns,
   FaMedal,
+  FaCalendarAlt,
+  FaUserFriends,
 } from "react-icons/fa";
 import api from "../utils/api";
 import Select from "react-select";
@@ -112,69 +114,71 @@ const InnovationDashboard = () => {
         ) : filteredIdeas.length === 0 ? (
           <div className="text-center text-gray-500">No ideas available.</div>
         ) : (
-          <table className="min-w-full bg-white shadow-lg rounded-lg">
-            <thead>
-              <tr>
-                <th className="py-2 px-4 border-b">Title</th>
-                <th className="py-2 px-4 border-b">Stage</th>
-                <th className="py-2 px-4 border-b">Department(s)</th>
-                <th className="py-2 px-4 border-b">ROI Estimate</th>
-                <th className="py-2 px-4 border-b">Resources</th>
-                <th className="py-2 px-4 border-b">Submitted Date</th>
-                <th className="py-2 px-4 border-b">Priority</th>
-                <th className="py-2 px-4 border-b">Actions</th>
-              </tr>
-            </thead>
-            <tbody>
-              {filteredIdeas.map((idea) => (
-                <tr key={idea._id}>
-                  <td className="py-2 px-4 border-b">{idea.title}</td>
-                  <td className="py-2 px-4 border-b">{idea.stage}</td>
-
-                  {/* Handle displaying multiple departments */}
-                  <td className="py-2 px-4 border-b">
-                    {idea.department && idea.department.length
-                      ? idea.department.map((dept) => dept.name).join(", ")
-                      : "N/A"}
-                  </td>
-
-                  <td className="py-2 px-4 border-b">{idea.roiEstimate}%</td>
-
-                  {/* Displaying budget range */}
-                  <td className="py-2 px-4 border-b">
-                    {`$${idea.resources?.budgetMin} - $${idea.resources?.budgetMax}`}
-                  </td>
-
-                  <td className="py-2 px-4 border-b">
-                    {new Date(idea.submittedAt).toLocaleDateString()}
-                  </td>
-
-                  <td className="py-2 px-4 border-b">{idea.priority}</td>
-
-                  <td className="py-2 px-4 border-b">
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+            {filteredIdeas.map((idea) => (
+              <div
+                key={idea._id}
+                className="bg-white shadow-lg rounded-lg p-6"
+              >
+                <h2 className="text-xl font-bold mb-4">{idea.title}</h2>
+                <p className="text-gray-600 mb-2">
+                  <strong>Stage:</strong> {idea.stage || "N/A"}
+                </p>
+                <p className="text-gray-600 mb-2">
+                  <strong>Departments:</strong>{" "}
+                  {idea.department && idea.department.length
+                    ? idea.department.map((dept) => dept.name).join(", ")
+                    : "N/A"}
+                </p>
+                <p className="text-gray-600 mb-2">
+                  <strong>ROI Estimate:</strong> {idea.roiEstimate || 0}%
+                </p>
+                <p className="text-gray-600 mb-2">
+                  <strong>Resources:</strong>{" "}
+                  {`$${idea.resources?.budgetMin || 0} - $${
+                    idea.resources?.budgetMax || 0
+                  }`}
+                </p>
+                <p className="text-gray-600 mb-2">
+                  <strong>Submitted Date:</strong>{" "}
+                  {idea.submittedAt
+                    ? new Date(idea.submittedAt).toLocaleDateString()
+                    : "N/A"}
+                </p>
+                <p className="text-gray-600 mb-2">
+                  <strong>Priority:</strong> {idea.priority || 0}
+                </p>
+                <p className="text-gray-600 mb-2">
+                  <FaUserFriends className="inline-block mr-1" />
+                  <strong>Team Members:</strong>{" "}
+                  {idea.teamMembers?.length || 0}
+                </p>
+                <p className="text-gray-600 mb-4">
+                  <FaCalendarAlt className="inline-block mr-1" />
+                  <strong>Estimated Completion Time:</strong>{" "}
+                  {idea.estimatedCompletionTime || "N/A"}
+                </p>
+                <div className="flex justify-between items-center">
+                  <button
+                    onClick={() => navigate(`/innovation/idea/${idea._id}`)}
+                    className="bg-blue-500 text-white px-4 py-2 rounded-lg"
+                  >
+                    View Details
+                  </button>
+                  {idea.stage === "development" && (
                     <button
-                      onClick={() => navigate(`/innovation/idea/${idea._id}`)}
-                      className="bg-blue-500 text-white px-2 py-1 rounded"
+                      onClick={() =>
+                        navigate(`/innovation/resource-allocation/${idea._id}`)
+                      }
+                      className="bg-green-500 text-white px-4 py-2 rounded-lg"
                     >
-                      View Details
+                      Allocate Resources
                     </button>
-                    {idea.stage === "development" && (
-                      <button
-                        onClick={() =>
-                          navigate(
-                            `/innovation/resource-allocation/${idea._id}`
-                          )
-                        }
-                        className="bg-green-500 text-white px-2 py-1 ml-2 rounded"
-                      >
-                        Allocate Resources
-                      </button>
-                    )}
-                  </td>
-                </tr>
-              ))}
-            </tbody>
-          </table>
+                  )}
+                </div>
+              </div>
+            ))}
+          </div>
         )}
       </div>
     </div>
