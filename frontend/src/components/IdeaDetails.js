@@ -144,7 +144,7 @@ const IdeaDetails = () => {
         <div className="flex justify-between items-center mb-4">
           <button
             onClick={() => navigate(-1)}
-            className="bg-gray-500 text-white py-2 px-4 rounded-lg inline-flex items-center hover:bg-gray-600 transition"
+            className="bg-blue-500 text-white py-2 px-4 rounded-lg inline-flex items-center hover:bg-gray-600 transition"
           >
             <FaArrowLeft className="mr-2" /> Back
           </button>
@@ -250,29 +250,32 @@ const IdeaDetails = () => {
           </div>
         )}
 
-        {/* Feedback Section */}
-        <div className="bg-white p-6 rounded-lg shadow-lg mt-6">
-          {/* Title and description for the feedback section */}
-          <h3 className="text-xl font-bold mb-4">Provide Your Feedback</h3>
-          <p className="text-gray-600 mb-6">
-            Share your thoughts, suggestions, or concerns about this idea. Your
-            feedback is valuable in refining the idea and ensuring that it
-            aligns with our strategic goals. If you are the idea owner or an
-            eligible role, you can provide feedback.
-          </p>
+       {/* Feedback Section */}
+{(isIdeaOwner ||
+  [
+    "Team Leader",
+    "Department Manager",
+    "Product Manager",
+    "Research Scientist",
+    "CEO",
+    "CTO",
+    "Executive",
+  ].includes(user.role)) && (
+  <div className="bg-white p-6 rounded-lg shadow-lg mt-6">
+    {/* Title and description for the feedback section */}
+    <h3 className="text-xl font-bold mb-4">Provide Your Feedback</h3>
+    <p className="text-gray-600 mb-6">
+      Share your thoughts, suggestions, or concerns about this idea. Your
+      feedback is valuable in refining the idea and ensuring that it
+      aligns with our strategic goals. If you are the idea owner or an
+      eligible role, you can provide feedback.
+    </p>
 
-          {/* Render Feedback Component for Eligible Users */}
-          {(isIdeaOwner ||
-            [
-              "Team Leader",
-              "Department Manager",
-              "Product Manager",
-              "Research Scientist",
-              "CEO",
-              "CTO",
-              "Executive",
-            ].includes(user.role)) && <InnovationFeedbacks ideaId={id} />}
-        </div>
+    {/* Render Feedback Component for Eligible Users */}
+    <InnovationFeedbacks ideaId={id} />
+  </div>
+)}
+
 
         {/* Voting Section for Eligible Roles */}
 {["CEO", "CTO", "Executive", "Team Leader", "Product Manager"].includes(user.role) && (
@@ -298,7 +301,7 @@ const IdeaDetails = () => {
 
 
         {/* Manager or higher role functionalities */}
-        {[
+        {["CEO", "CTO", "Executive",
           "Team Leader",
           "Department Manager",
           "Product Manager",
