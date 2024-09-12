@@ -25,28 +25,30 @@ const IdeaDetails = () => {
   const [loading, setLoading] = useState(true);
   const [newStage, setNewStage] = useState("");
   const [attachments, setAttachments] = useState([]);
-  const [feedback, setFeedback] = useState(""); // For executives to add feedback
   const [hasVoted, setHasVoted] = useState(false);
   const [allocatedResources, setAllocatedResources] = useState(""); // For resources allocation
   const navigate = useNavigate();
 
   // Fetch idea details
-  useEffect(() => {
+useEffect(() => {
     const fetchIdeaDetails = async () => {
       try {
         const { data } = await api.get(`/innovation/idea/${id}`);
         setIdea(data);
         setLoading(false);
         setAttachments(data.attachments || []);
-        // Check if the current user has voted
-        setHasVoted(data.voters.includes(user._id));
+  
+        // Ensure voters array and user are present before checking if the user has voted
+        if (data.voters && user && user._id) {
+          setHasVoted(data.voters.includes(user._id));
+        }
       } catch (error) {
         toast.error("Failed to load idea details");
         setLoading(false);
       }
     };
     fetchIdeaDetails();
-  }, [id]);
+  }, [id, user]);  
 
   // Handle updating the idea's stage
   const handleStageUpdate = async () => {
@@ -149,50 +151,29 @@ const IdeaDetails = () => {
             {/* Idea Title and Description */}
             <div>
               <h2 className="text-2xl font-bold mb-4">{idea.title}</h2>
-              <p>
-                <FaLightbulb className="inline-block mr-2" />
-                <strong>Description:</strong> {idea.description}
-              </p>
-              <p>
-                <FaExclamationTriangle className="inline-block mr-2" />
-                <strong>Problem:</strong> {idea.problem}
-              </p>
-              <p>
-                <FaTools className="inline-block mr-2" />
-                <strong>Suggested Solution:</strong> {idea.solution}
-              </p>
-              <p>
-                <FaChartLine className="inline-block mr-2" />
-                <strong>Expected Impact:</strong> {idea.expectedImpact}
-              </p>
-              <p>
-                <strong>ROI Estimate:</strong> {idea.roiEstimate}%
-              </p>
-              <p>
-                <strong>Business Goal Alignment:</strong>{" "}
-                {idea.businessGoalAlignment?.join(", ")}
-              </p>
+              <p><FaLightbulb className="inline-block mr-2" /><strong>Description:</strong> {idea.description}</p>
+              <p><FaExclamationTriangle className="inline-block mr-2" /><strong>Problem:</strong> {idea.problem}</p>
+              <p><FaTools className="inline-block mr-2" /><strong>Solution:</strong> {idea.solution}</p>
+              <p><FaChartLine className="inline-block mr-2" /><strong>Expected Impact:</strong> {idea.expectedImpact}</p>
+              <p><strong>ROI Estimate:</strong> {idea.roiEstimate}%</p>
+              <p><strong>Business Goal Alignment:</strong> {idea.businessGoalAlignment?.join(", ")}</p>
+              <p><strong>Risk Assessment:</strong> {idea.riskAssessment}</p>
+              <p><strong>Success Metrics:</strong> {idea.successMetrics}</p>
+              <p><strong>Expertise Required:</strong> {idea.expertiseRequired}</p>
+              <p><strong>External Resources:</strong> {idea.externalResources}</p>
             </div>
 
             {/* Resource Estimates */}
             <div className="border p-4 rounded-md bg-gray-50">
               <h3 className="font-bold">Resource Estimates</h3>
               <ul className="list-disc pl-6">
-                <li>
-                  Budget: {idea.resources?.budgetMin} -{" "}
-                  {idea.resources?.budgetMax}
-                </li>
+                <li>Budget: {idea.resources?.budgetMin} - {idea.resources?.budgetMax}</li>
                 <li>Total Time: {idea.resources?.totalTime}</li>
                 <li>Delivery Date: {idea.resources?.deliveryDate || "N/A"}</li>
                 <li>Manpower: {idea.resources?.manpower}</li>
-                <li>
-                  Full-Time Employees: {idea.resources?.fullTimeEmployees}
-                </li>
+                <li>Full-Time Employees: {idea.resources?.fullTimeEmployees}</li>
                 <li>Contractors: {idea.resources?.contractors}</li>
-                <li>
-                  Tools & Infrastructure:{" "}
-                  {idea.resources?.toolsAndInfrastructure}
-                </li>
+                <li>Tools & Infrastructure: {idea.resources?.toolsAndInfrastructure}</li>
               </ul>
             </div>
           </div>
@@ -272,28 +253,27 @@ const IdeaDetails = () => {
         </div>
 
         {/* Voting Section for Eligible Roles */}
-        {["CEO", "CTO", "Executive", "Team Leader", "Product Manager"].includes(
-          user.role
-        ) &&
-          !hasVoted && (
-            <div className="bg-white p-6 rounded-lg shadow-lg mt-6">
-              {/* Title and description for the voting section */}
-              <h2 className="text-xl font-bold mb-4">Idea Evaluation Voting</h2>
-              <p className="text-gray-600 mb-6">
-                As a high-level decision maker, you can evaluate this idea based
-                on four criteria: Impact, Feasibility, Cost, and Alignment.
-                Please score each category on a scale of 0-10, where 0 is the
-                lowest and 10 is the highest. Your vote will help us prioritize
-                ideas with the most potential and strategic alignment.
-              </p>
+{["CEO", "CTO", "Executive", "Team Leader", "Product Manager"].includes(user.role) && (
+  <div className="bg-white p-6 rounded-lg shadow-lg mt-6">
+    {/* Title and description for the voting section */}
+    <h2 className="text-xl font-bold mb-4">Idea Evaluation Voting</h2>
+    <p className="text-gray-600 mb-6">
+      As a high-level decision maker, you can evaluate this idea based
+      on four criteria: Impact, Feasibility, Cost, and Alignment.
+      Please score each category on a scale of 0-10, where 0 is the
+      lowest and 10 is the highest. Your vote will help us prioritize
+      ideas with the most potential and strategic alignment.
+    </p>
 
-              {/* Idea Voting Section */}
-              <IdeaVotingSection
-                ideaId={id}
-                onVoteSubmitted={handleVoteSubmitted}
-              />
-            </div>
-          )}
+    {/* Idea Voting Section */}
+    <IdeaVotingSection
+      ideaId={id}
+      onVoteSubmitted={handleVoteSubmitted}
+      hasVoted={hasVoted} // Pass the hasVoted state here
+    />
+  </div>
+)}
+
 
         {/* Manager or higher role functionalities */}
         {[
