@@ -1,8 +1,8 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { toast } from "react-toastify";
 import api from "../utils/api";
 
-const IdeaVotingSection = ({ ideaId, onVoteSubmitted }) => {
+const IdeaVotingSection = ({ ideaId, onVoteSubmitted, hasVoted }) => {
   const [impact, setImpact] = useState(0);
   const [feasibility, setFeasibility] = useState(0);
   const [cost, setCost] = useState(0);
@@ -29,6 +29,14 @@ const IdeaVotingSection = ({ ideaId, onVoteSubmitted }) => {
       onSubmit={handleSubmit}
       className="p-6 bg-gray-50 rounded-lg shadow-md"
     >
+      {hasVoted ? (
+        <p className="text-green-500 mb-4">You have already voted on this idea.</p>
+      ) : (
+        <p className="text-gray-600 mb-4">
+          You can evaluate this idea by assigning scores to Impact, Feasibility,
+          Cost, and Alignment. Each score should be between 0 and 10.
+        </p>
+      )}
       <div className="mb-4">
         <label className="block text-gray-700 font-bold mb-1">Impact</label>
         <input
@@ -37,6 +45,7 @@ const IdeaVotingSection = ({ ideaId, onVoteSubmitted }) => {
           onChange={(e) => setImpact(e.target.value)}
           min="0"
           max="10"
+          disabled={hasVoted}
           className="w-full p-2 bg-gray-100 border border-gray-300 rounded-lg"
         />
       </div>
@@ -50,6 +59,7 @@ const IdeaVotingSection = ({ ideaId, onVoteSubmitted }) => {
           onChange={(e) => setFeasibility(e.target.value)}
           min="0"
           max="10"
+          disabled={hasVoted}
           className="w-full p-2 bg-gray-100 border border-gray-300 rounded-lg"
         />
       </div>
@@ -61,6 +71,7 @@ const IdeaVotingSection = ({ ideaId, onVoteSubmitted }) => {
           onChange={(e) => setCost(e.target.value)}
           min="0"
           max="10"
+          disabled={hasVoted}
           className="w-full p-2 bg-gray-100 border border-gray-300 rounded-lg"
         />
       </div>
@@ -72,14 +83,18 @@ const IdeaVotingSection = ({ ideaId, onVoteSubmitted }) => {
           onChange={(e) => setAlignment(e.target.value)}
           min="0"
           max="10"
+          disabled={hasVoted}
           className="w-full p-2 bg-gray-100 border border-gray-300 rounded-lg"
         />
       </div>
       <button
         type="submit"
-        className="w-full bg-blue-500 text-white py-2 px-4 rounded-lg hover:bg-blue-600 transition-all duration-200"
+        disabled={hasVoted}
+        className={`w-full py-2 px-4 rounded-lg transition-all duration-200 ${
+          hasVoted ? "bg-gray-300 cursor-not-allowed" : "bg-blue-500 text-white hover:bg-blue-600"
+        }`}
       >
-        Submit Vote
+        {hasVoted ? "Vote Submitted" : "Submit Vote"}
       </button>
     </form>
   );
