@@ -115,6 +115,14 @@ const InnovationFeedbacks = ({ ideaId }) => {
 
   return (
     <div>
+        {/* Placeholder for no feedback */}
+      {loading ? (
+        <div>Loading feedback...</div>
+      ) : feedback.length === 0 ? (
+        <div className="mt-6 text-gray-500">No feedback yet. Be the first to provide feedback!</div>
+      ) : (
+        <div className="mt-6">{renderFeedback(feedback)}</div>
+      )}
       {/* Textarea for adding feedback */}
       <textarea
         value={newFeedback}
@@ -130,14 +138,6 @@ const InnovationFeedbacks = ({ ideaId }) => {
         {editFeedbackId ? 'Update Feedback' : replyToUser ? `Reply to ${replyToUser}'s feedback` : 'Add Feedback'}
       </button>
 
-      {/* Placeholder for no feedback */}
-      {loading ? (
-        <div>Loading feedback...</div>
-      ) : feedback.length === 0 ? (
-        <div className="mt-6 text-gray-500">No feedback yet. Be the first to provide feedback!</div>
-      ) : (
-        <div className="mt-6">{renderFeedback(feedback)}</div>
-      )}
     </div>
   );
 };
