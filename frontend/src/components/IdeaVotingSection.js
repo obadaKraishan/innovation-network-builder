@@ -12,7 +12,10 @@ const IdeaVotingSection = ({ ideaId, onVoteSubmitted }) => {
     e.preventDefault();
     try {
       const { data } = await api.post(`/innovation/idea/${ideaId}/vote`, {
-        impact, feasibility, cost, alignment,
+        impact,
+        feasibility,
+        cost,
+        alignment,
       });
       toast.success('Vote submitted successfully');
       onVoteSubmitted(data);
@@ -22,24 +25,57 @@ const IdeaVotingSection = ({ ideaId, onVoteSubmitted }) => {
   };
 
   return (
-    <form onSubmit={handleSubmit}>
-      <div>
-        <label>Impact: </label>
-        <input type="number" value={impact} onChange={(e) => setImpact(e.target.value)} min="0" max="10" />
+    <form onSubmit={handleSubmit} className="p-6 bg-gray-50 rounded-lg shadow-md">
+      <div className="mb-4">
+        <label className="block text-gray-700 font-bold mb-1">Impact</label>
+        <input
+          type="number"
+          value={impact}
+          onChange={(e) => setImpact(e.target.value)}
+          min="0"
+          max="10"
+          className="w-full p-2 bg-gray-100 border border-gray-300 rounded-lg"
+        />
       </div>
-      <div>
-        <label>Feasibility: </label>
-        <input type="number" value={feasibility} onChange={(e) => setFeasibility(e.target.value)} min="0" max="10" />
+      <div className="mb-4">
+        <label className="block text-gray-700 font-bold mb-1">Feasibility</label>
+        <input
+          type="number"
+          value={feasibility}
+          onChange={(e) => setFeasibility(e.target.value)}
+          min="0"
+          max="10"
+          className="w-full p-2 bg-gray-100 border border-gray-300 rounded-lg"
+        />
       </div>
-      <div>
-        <label>Cost: </label>
-        <input type="number" value={cost} onChange={(e) => setCost(e.target.value)} min="0" max="10" />
+      <div className="mb-4">
+        <label className="block text-gray-700 font-bold mb-1">Cost</label>
+        <input
+          type="number"
+          value={cost}
+          onChange={(e) => setCost(e.target.value)}
+          min="0"
+          max="10"
+          className="w-full p-2 bg-gray-100 border border-gray-300 rounded-lg"
+        />
       </div>
-      <div>
-        <label>Alignment: </label>
-        <input type="number" value={alignment} onChange={(e) => setAlignment(e.target.value)} min="0" max="10" />
+      <div className="mb-4">
+        <label className="block text-gray-700 font-bold mb-1">Alignment</label>
+        <input
+          type="number"
+          value={alignment}
+          onChange={(e) => setAlignment(e.target.value)}
+          min="0"
+          max="10"
+          className="w-full p-2 bg-gray-100 border border-gray-300 rounded-lg"
+        />
       </div>
-      <button type="submit" className="bg-blue-500 text-white px-4 py-2">Submit Vote</button>
+      <button
+        type="submit"
+        className="w-full bg-blue-500 text-white py-2 px-4 rounded-lg hover:bg-blue-600 transition-all duration-200"
+      >
+        Submit Vote
+      </button>
     </form>
   );
 };

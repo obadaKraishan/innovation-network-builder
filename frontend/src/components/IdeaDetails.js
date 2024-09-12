@@ -14,7 +14,7 @@ import {
 import { toast } from "react-toastify";
 import Sidebar from "./Sidebar";
 import InnovationFeedbacks from "./InnovationFeedbacks"; // Feedback component
-import IdeaVotingSection from './IdeaVotingSection';
+import IdeaVotingSection from "./IdeaVotingSection";
 import api from "../utils/api";
 import { useAuth } from "../context/AuthContext"; // Assuming there's an AuthContext for managing roles
 
@@ -217,9 +217,48 @@ const IdeaDetails = () => {
           )}
         </div>
 
+        {/* Scores Overview */}
+        {(isIdeaOwner ||
+          [
+            "Team Leader",
+            "Department Manager",
+            "CEO",
+            "CTO",
+            "Executive",
+          ].includes(user.role)) && (
+          <div className="bg-white p-6 rounded-lg shadow-lg mt-6">
+            {/* Title and description for Scores Overview */}
+            <h3 className="text-xl font-bold mb-4">Scores Overview</h3>
+            <p className="text-gray-600 mb-6">
+              Review the overall evaluation scores for this idea, including key
+              criteria such as Impact, Feasibility, Cost, and Alignment. These
+              scores help prioritize the idea based on the collective feedback
+              from leadership.
+            </p>
+
+            {/* Score List */}
+            <ul className="list-disc pl-6 text-gray-700">
+              <li>Impact: {idea.impactScore}</li>
+              <li>Feasibility: {idea.feasibilityScore}</li>
+              <li>Cost: {idea.costScore}</li>
+              <li>Alignment: {idea.alignmentScore}</li>
+              <li>Total Priority Score: {idea.priority}</li>
+            </ul>
+          </div>
+        )}
+
         {/* Feedback Section */}
         <div className="bg-white p-6 rounded-lg shadow-lg mt-6">
-          <h3 className="font-bold mb-4">Feedback</h3>
+          {/* Title and description for the feedback section */}
+          <h3 className="text-xl font-bold mb-4">Provide Your Feedback</h3>
+          <p className="text-gray-600 mb-6">
+            Share your thoughts, suggestions, or concerns about this idea. Your
+            feedback is valuable in refining the idea and ensuring that it
+            aligns with our strategic goals. If you are the idea owner or an
+            eligible role, you can provide feedback.
+          </p>
+
+          {/* Render Feedback Component for Eligible Users */}
           {(isIdeaOwner ||
             [
               "Team Leader",
@@ -233,11 +272,28 @@ const IdeaDetails = () => {
         </div>
 
         {/* Voting Section for Eligible Roles */}
-        {['CEO', 'CTO', 'Executive', 'Team Leader', 'Product Manager'].includes(user.role) && !hasVoted && (
-          <div className="bg-white p-6 rounded-lg shadow-lg mt-6">
-            <IdeaVotingSection ideaId={id} onVoteSubmitted={handleVoteSubmitted} />
-          </div>
-        )}
+        {["CEO", "CTO", "Executive", "Team Leader", "Product Manager"].includes(
+          user.role
+        ) &&
+          !hasVoted && (
+            <div className="bg-white p-6 rounded-lg shadow-lg mt-6">
+              {/* Title and description for the voting section */}
+              <h2 className="text-xl font-bold mb-4">Idea Evaluation Voting</h2>
+              <p className="text-gray-600 mb-6">
+                As a high-level decision maker, you can evaluate this idea based
+                on four criteria: Impact, Feasibility, Cost, and Alignment.
+                Please score each category on a scale of 0-10, where 0 is the
+                lowest and 10 is the highest. Your vote will help us prioritize
+                ideas with the most potential and strategic alignment.
+              </p>
+
+              {/* Idea Voting Section */}
+              <IdeaVotingSection
+                ideaId={id}
+                onVoteSubmitted={handleVoteSubmitted}
+              />
+            </div>
+          )}
 
         {/* Manager or higher role functionalities */}
         {[
@@ -272,8 +328,16 @@ const IdeaDetails = () => {
         {/* Approve for Development Section for Executives */}
         {["CEO", "CTO", "Executive"].includes(user.role) && (
           <div className="bg-white p-6 rounded-lg shadow-lg mt-6">
-            <h3 className="font-bold mb-4">Actions</h3>
+            {/* Title and description for Approve for Development section */}
+            <h3 className="text-xl font-bold mb-4">Approve for Development</h3>
+            <p className="text-gray-600 mb-6">
+              As an executive, you have the authority to move this idea to the
+              development phase. Review the idea carefully and approve if it
+              aligns with the organization's goals and is ready for the next
+              stage.
+            </p>
 
+            {/* Approve for Development Button */}
             <button
               onClick={handleStageUpdate}
               className="bg-blue-500 text-white px-4 py-2 rounded-lg flex items-center hover:bg-blue-600 transition mt-4"
@@ -286,44 +350,33 @@ const IdeaDetails = () => {
         {/* Allocate Resources Section for Executives */}
         {["CEO", "CTO", "Executive"].includes(user.role) && (
           <div className="bg-white p-6 rounded-lg shadow-lg mt-6">
-            <h3 className="font-bold mb-4">Allocate Resources</h3>
+            {/* Title and description for Allocate Resources section */}
+            <h3 className="text-xl font-bold mb-4">Allocate Resources</h3>
+            <p className="text-gray-600 mb-6">
+              As a high-level executive, you can allocate resources to this
+              idea. Provide the necessary resources such as budget, manpower,
+              and time allocation for the successful implementation of the idea.
+            </p>
 
+            {/* Allocate Resources Form */}
             <label className="block text-gray-700 font-semibold mb-2">
               Allocate Resources
             </label>
             <textarea
               value={allocatedResources}
               onChange={(e) => setAllocatedResources(e.target.value)}
-              className="w-full p-3 border rounded-lg mb-4"
+              className="w-full p-3 bg-gray-100 border rounded-lg mb-4"
               rows="3"
-              placeholder="Allocate resources"
+              placeholder="Provide details for resource allocation"
             />
+
+            {/* Submit Button */}
             <button
               onClick={handleResourceAllocation}
               className="bg-green-500 text-white px-4 py-2 rounded-lg flex items-center hover:bg-green-600"
             >
               <FaCheckCircle className="mr-2" /> Allocate Resources
             </button>
-          </div>
-        )}
-
-        {/* Scores Overview */}
-        {[
-          "Team Leader",
-          "Department Manager",
-          "CEO",
-          "CTO",
-          "Executive",
-        ].includes(user.role) && (
-          <div className="bg-white p-6 rounded-lg shadow-lg mt-6">
-            <h3 className="font-bold">Scores Overview</h3>
-            <ul className="list-disc pl-6">
-              <li>Impact: {idea.impactScore}</li>
-              <li>Feasibility: {idea.feasibilityScore}</li>
-              <li>Cost: {idea.costScore}</li>
-              <li>Alignment: {idea.alignmentScore}</li>
-              <li>Total Priority Score: {idea.priority}</li>
-            </ul>
           </div>
         )}
 
