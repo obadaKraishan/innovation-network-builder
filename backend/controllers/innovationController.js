@@ -1,7 +1,6 @@
 const asyncHandler = require('express-async-handler');
 const Innovation = require('../models/innovationModel');
 const ResourceAllocation = require('../models/resourceAllocationModel');
-const multer = require('multer');
 const mongoose = require("mongoose");
 
 // Submit a new innovation idea
@@ -30,10 +29,10 @@ const submitIdea = asyncHandler(async (req, res) => {
       throw new Error('Department must be an array.');
     }
 
-    // Convert department IDs to ObjectId
+    // Convert department IDs to ObjectId using `new` keyword
     departmentArray = departmentArray.map(dept => {
       console.log(`Converting department ID: ${dept}`);
-      return mongoose.Types.ObjectId(dept); // Convert to ObjectId
+      return new mongoose.Types.ObjectId(dept); // Use `new` keyword with ObjectId
     });
   } catch (error) {
     console.error("Department conversion error: ", error.message);
