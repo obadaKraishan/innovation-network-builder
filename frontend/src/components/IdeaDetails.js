@@ -178,6 +178,14 @@ useEffect(() => {
             </div>
           </div>
 
+          {/* Additional Idea Information */}
+          <div className="mt-6">
+            <h3 className="text-lg font-semibold">Additional Information</h3>
+            <p><strong>Submitted By:</strong> {idea.employeeId?.name || "Unknown"}</p>
+            <p><strong>Submitted At:</strong> {new Date(idea.submittedAt).toLocaleDateString()}</p>
+            <p><strong>Departments:</strong> {idea.department?.map(dept => dept.name).join(", ") || "None"}</p>
+          </div>
+
           {/* Attachments Section */}
           {attachments.length > 0 && (
             <div className="mt-6">
