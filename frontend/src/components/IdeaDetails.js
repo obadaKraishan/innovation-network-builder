@@ -1,8 +1,9 @@
 import React, { useState, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
-import { FaArrowLeft, FaCheckCircle, FaEdit, FaTimesCircle, FaDownload, FaChartLine, FaLightbulb, FaExclamationTriangle, FaTools, FaUser } from 'react-icons/fa';
+import { FaArrowLeft, FaCheckCircle, FaEdit, FaTimesCircle, FaDownload, FaChartLine, FaLightbulb, FaExclamationTriangle, FaTools } from 'react-icons/fa';
 import { toast } from 'react-toastify';
 import Sidebar from './Sidebar';
+import InnovationFeedbacks from './InnovationFeedbacks'; // Feedback component
 import api from '../utils/api';
 import { useAuth } from '../context/AuthContext'; // Assuming there's an AuthContext for managing roles
 
@@ -120,10 +121,10 @@ const IdeaDetails = () => {
           </span>
         </div>
 
-        {/* Main Content */}
-        <div className="bg-white p-6 rounded-lg shadow-lg">
+        {/* Idea Details and Resource Estimates Section */}
+        <div className="bg-white p-6 rounded-lg shadow-lg space-y-6">
           <div className="grid grid-cols-2 gap-4">
-            {/* Left Column: Idea Title and Description */}
+            {/* Idea Title and Description */}
             <div>
               <h2 className="text-2xl font-bold mb-4">{idea.title}</h2>
               <p><FaLightbulb className="inline-block mr-2" /><strong>Description:</strong> {idea.description}</p>
@@ -134,24 +135,22 @@ const IdeaDetails = () => {
               <p><strong>Business Goal Alignment:</strong> {idea.businessGoalAlignment?.join(', ')}</p>
             </div>
 
-            {/* Right Column: Resource Estimates */}
-            <div>
-              <div className="border p-4 rounded-md bg-gray-50">
-                <h3 className="font-bold">Resource Estimates</h3>
-                <ul className="list-disc pl-6">
-                  <li>Budget: {idea.resources?.budgetMin} - {idea.resources?.budgetMax}</li>
-                  <li>Total Time: {idea.resources?.totalTime}</li>
-                  <li>Delivery Date: {idea.resources?.deliveryDate || 'N/A'}</li>
-                  <li>Manpower: {idea.resources?.manpower}</li>
-                  <li>Full-Time Employees: {idea.resources?.fullTimeEmployees}</li>
-                  <li>Contractors: {idea.resources?.contractors}</li>
-                  <li>Tools & Infrastructure: {idea.resources?.toolsAndInfrastructure}</li>
-                </ul>
-              </div>
+            {/* Resource Estimates */}
+            <div className="border p-4 rounded-md bg-gray-50">
+              <h3 className="font-bold">Resource Estimates</h3>
+              <ul className="list-disc pl-6">
+                <li>Budget: {idea.resources?.budgetMin} - {idea.resources?.budgetMax}</li>
+                <li>Total Time: {idea.resources?.totalTime}</li>
+                <li>Delivery Date: {idea.resources?.deliveryDate || 'N/A'}</li>
+                <li>Manpower: {idea.resources?.manpower}</li>
+                <li>Full-Time Employees: {idea.resources?.fullTimeEmployees}</li>
+                <li>Contractors: {idea.resources?.contractors}</li>
+                <li>Tools & Infrastructure: {idea.resources?.toolsAndInfrastructure}</li>
+              </ul>
             </div>
           </div>
 
-          {/* Attachments */}
+          {/* Attachments Section */}
           {attachments.length > 0 && (
             <div className="mt-6">
               <h3 className="text-lg font-semibold">Attachments</h3>
@@ -169,138 +168,134 @@ const IdeaDetails = () => {
               </ul>
             </div>
           )}
+        </div>
 
-          {/* Scores Section */}
-          <div className="mt-6">
-            <h3 className="font-bold">Scores</h3>
+        {/* Feedback Section */}
+        <div className="bg-white p-6 rounded-lg shadow-lg mt-6">
+          <h3 className="font-bold mb-4">Feedback</h3>
+          <InnovationFeedbacks ideaId={id} />
+        </div>
+
+        {/* Manager or higher role functionalities */}
+        {['Team Leader', 'Department Manager', 'Product Manager', 'Research Scientist'].includes(user.role) && (
+          <div className="bg-white p-6 rounded-lg shadow-lg mt-6">
+            <h3 className="font-bold mb-4">Update Stage</h3>
+            <label className="block text-gray-700 font-semibold mb-2">Update Stage</label>
+            <select
+              value={newStage}
+              onChange={(e) => setNewStage(e.target.value)}
+              className="w-full p-3 border rounded-lg mb-4"
+            >
+              <option value="">Select new stage</option>
+              <option value="development">Development</option>
+              <option value="implementation">Implementation</option>
+            </select>
+            <button
+              onClick={handleStageUpdate}
+              className="bg-green-500 text-white px-4 py-2 rounded-lg flex items-center hover:bg-green-600 transition"
+            >
+              <FaCheckCircle className="mr-2" /> Update Stage
+            </button>
+          </div>
+        )}
+
+        {/* Executive functionalities */}
+        {['CEO', 'CTO', 'Executive'].includes(user.role) && (
+          <div className="bg-white p-6 rounded-lg shadow-lg mt-6">
+            <h3 className="font-bold">Provide Feedback</h3>
+            <textarea
+              value={feedback}
+              onChange={(e) => setFeedback(e.target.value)}
+              className="w-full p-3 border rounded-lg mb-4"
+              rows="4"
+              placeholder="Provide feedback on this idea"
+            />
+            <button
+              onClick={handleFeedbackSubmission}
+              className="bg-blue-500 text-white px-4 py-2 rounded-lg hover:bg-blue-600"
+            >
+              <FaCheckCircle className="mr-2" /> Submit Feedback
+            </button>
+            <button
+              onClick={handleStageUpdate}
+              className="bg-blue-500 text-white px-4 py-2 rounded-lg flex items-center hover:bg-blue-600 transition mt-4"
+            >
+              <FaCheckCircle className="mr-2" /> Approve for Development
+            </button>
+
+            {/* Resource Allocation Section */}
+            <div className="mt-6">
+              <label className="block text-gray-700 font-semibold mb-2">Allocate Resources</label>
+              <textarea
+                value={allocatedResources}
+                onChange={(e) => setAllocatedResources(e.target.value)}
+                className="w-full p-3 border rounded-lg mb-4"
+                rows="3"
+                placeholder="Allocate resources"
+              />
+              <button
+                onClick={handleResourceAllocation}
+                className="bg-green-500 text-white px-4 py-2 rounded-lg flex items-center hover:bg-green-600"
+              >
+                <FaCheckCircle className="mr-2" /> Allocate Resources
+              </button>
+            </div>
+          </div>
+        )}
+
+        {/* Scores Overview */}
+        {['Team Leader', 'Department Manager', 'CEO', 'CTO', 'Executive'].includes(user.role) && (
+          <div className="bg-white p-6 rounded-lg shadow-lg mt-6">
+            <h3 className="font-bold">Scores Overview</h3>
             <ul className="list-disc pl-6">
               <li>Impact: {idea.impactScore}</li>
               <li>Feasibility: {idea.feasibilityScore}</li>
               <li>Cost: {idea.costScore}</li>
               <li>Alignment: {idea.alignmentScore}</li>
+              <li>Total Priority Score: {idea.priority}</li>
             </ul>
           </div>
+        )}
 
-          {/* User-specific buttons (Based on Role) */}
-          {isIdeaOwner && (
-            <div className="flex space-x-4 mt-6">
-              <button
-                onClick={() => navigate(`/edit-idea/${id}`)}
-                className="bg-yellow-500 text-white px-4 py-2 rounded-lg hover:bg-yellow-600"
-              >
-                <FaEdit className="mr-2" /> Edit Idea
-              </button>
-              <button
-                onClick={() => handleWithdrawIdea(id)}
-                className="bg-red-500 text-white px-4 py-2 rounded-lg hover:bg-red-600"
-              >
-                <FaTimesCircle className="mr-2" /> Withdraw Idea
-              </button>
-            </div>
-          )}
+        {/* User-specific buttons (Idea Owner Actions) */}
+        {isIdeaOwner && (
+          <div className="flex space-x-4 mt-6">
+            <button
+              onClick={() => navigate(`/edit-idea/${id}`)}
+              className="bg-yellow-500 text-white px-4 py-2 rounded-lg hover:bg-yellow-600"
+            >
+              <FaEdit className="mr-2" /> Edit Idea
+            </button>
+            <button
+              onClick={() => handleWithdrawIdea(id)}
+              className="bg-red-500 text-white px-4 py-2 rounded-lg hover:bg-red-600"
+            >
+              <FaTimesCircle className="mr-2" /> Withdraw Idea
+            </button>
+          </div>
+        )}
 
-          {/* Manager or higher role functionalities */}
-          {['Team Leader', 'Department Manager', 'Product Manager', 'Research Scientist'].includes(user.role) && (
-            <div className="mt-6 flex space-x-4">
-              <label className="block text-gray-700 font-semibold mb-2">Update Stage</label>
-              <select
-                value={newStage}
-                onChange={(e) => setNewStage(e.target.value)}
-                className="w-full p-3 border rounded-lg mb-4"
-              >
-                <option value="">Select new stage</option>
-                <option value="development">Development</option>
-                <option value="implementation">Implementation</option>
-              </select>
-              <button
-                onClick={handleStageUpdate}
-                className="bg-green-500 text-white px-4 py-2 rounded-lg flex items-center hover:bg-green-600 transition"
-              >
-                <FaCheckCircle className="mr-2" /> Update Stage
-              </button>
-            </div>
-          )}
-
-          {/* Executive functionalities */}
-          {['CEO', 'CTO', 'Executive'].includes(user.role) && (
-            <div className="mt-6">
-              <div>
-                <h3 className="font-bold">Provide Feedback</h3>
-                <textarea
-                  value={feedback}
-                  onChange={(e) => setFeedback(e.target.value)}
-                  className="w-full p-3 border rounded-lg mb-4"
-                  rows="4"
-                  placeholder="Provide feedback on this idea"
-                />
-                <button
-                  onClick={handleFeedbackSubmission}
-                  className="bg-blue-500 text-white px-4 py-2 rounded-lg hover:bg-blue-600"
-                >
-                  <FaCheckCircle className="mr-2" /> Submit Feedback
-                </button>
-              </div>
-              <button
-                onClick={handleStageUpdate}
-                className="bg-blue-500 text-white px-4 py-2 rounded-lg flex items-center hover:bg-blue-600 transition mt-4"
-              >
-                <FaCheckCircle className="mr-2" /> Approve for Development
-              </button>
-              <div className="mt-6">
-                <label className="block text-gray-700 font-semibold mb-2">Allocate Resources</label>
-                <textarea
-                  value={allocatedResources}
-                  onChange={(e) => setAllocatedResources(e.target.value)}
-                  className="w-full p-3 border rounded-lg mb-4"
-                  rows="3"
-                  placeholder="Allocate resources"
-                />
-                <button
-                  onClick={handleResourceAllocation}
-                  className="bg-green-500 text-white px-4 py-2 rounded-lg flex items-center hover:bg-green-600"
-                >
-                  <FaCheckCircle className="mr-2" /> Allocate Resources
-                </button>
-              </div>
-            </div>
-          )}
-
-          {/* Legal Advisor functionalities */}
-          {user.role === 'Legal Advisor' && (
-            <div className="mt-6">
-              <label className="block text-gray-700 font-semibold mb-2">Legal Review</label>
-              <select
-                value={newStage}
-                onChange={(e) => setNewStage(e.target.value)}
-                className="w-full p-3 border rounded-lg mb-4"
-              >
-                <option value="">Select compliance status</option>
-                <option value="approved">Approved for Compliance</option>
-                <option value="needs-review">Needs Further Review</option>
-              </select>
-              <button
-                onClick={handleStageUpdate}
-                className="bg-green-500 text-white px-4 py-2 rounded-lg flex items-center hover:bg-green-600 transition"
-              >
-                <FaCheckCircle className="mr-2" /> Submit Compliance Status
-              </button>
-            </div>
-          )}
-
-          {/* Score Overview for management roles */}
-          {['Team Leader', 'Department Manager', 'CEO', 'CTO', 'Executive'].includes(user.role) && (
-            <div className="mt-6">
-              <h3 className="font-bold">Score Overview</h3>
-              <ul className="list-disc pl-6">
-                <li>Impact: {idea.impactScore}</li>
-                <li>Feasibility: {idea.feasibilityScore}</li>
-                <li>Cost: {idea.costScore}</li>
-                <li>Alignment: {idea.alignmentScore}</li>
-                <li>Total Priority Score: {idea.priority}</li>
-              </ul>
-            </div>
-          )}
-        </div>
+        {/* Legal Advisor functionalities */}
+        {user.role === 'Legal Advisor' && (
+          <div className="mt-6 bg-white p-6 rounded-lg shadow-lg">
+            <label className="block text-gray-700 font-semibold mb-2">Legal Review</label>
+            <select
+              value={newStage}
+              onChange={(e) => setNewStage(e.target.value)}
+              className="w-full p-3 border rounded-lg mb-4"
+            >
+              <option value="">Select compliance status</option>
+              <option value="approved">Approved for Compliance</option>
+              <option value="needs-review">Needs Further Review</option>
+            </select>
+            <button
+              onClick={handleStageUpdate}
+              className="bg-green-500 text-white px-4 py-2 rounded-lg flex items-center hover:bg-green-600 transition"
+            >
+              <FaCheckCircle className="mr-2" /> Submit Compliance Status
+            </button>
+          </div>
+        )}
       </div>
     </div>
   );
