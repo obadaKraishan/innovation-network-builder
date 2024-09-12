@@ -240,8 +240,8 @@ const addFeedback = asyncHandler(async (req, res) => {
     res.json(feedback);
   });
   
-  // Delete feedback
-  const deleteFeedback = asyncHandler(async (req, res) => {
+// Delete feedback
+const deleteFeedback = asyncHandler(async (req, res) => {
     const feedback = await feedbackModel.findById(req.params.feedbackId);
     if (!feedback) {
       res.status(404);
@@ -251,9 +251,11 @@ const addFeedback = asyncHandler(async (req, res) => {
       res.status(403);
       throw new Error('Not authorized to delete this feedback');
     }
-    await feedback.remove();
-    res.json({ message: 'Feedback removed' });
-  });
+  
+    // Using deleteOne instead of remove
+    await feedbackModel.deleteOne({ _id: req.params.feedbackId });
+    res.json({ message: 'Feedback removed successfully' });
+  });  
 
 module.exports = {
   submitIdea,
