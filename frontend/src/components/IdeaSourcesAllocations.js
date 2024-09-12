@@ -29,7 +29,6 @@ const IdeaSourcesAllocations = ({ projectId, onResourcesAllocated }) => {
 
   return (
     <form onSubmit={handleAllocateResources} className="p-6 bg-white rounded-lg">
-      <h3 className="text-xl font-semibold mb-4">Allocate Resources</h3>
       <div className="mb-4">
         <label className="block font-bold mb-2">Budget</label>
         <input

@@ -337,37 +337,26 @@ useEffect(() => {
         )}
 
         {/* Allocate Resources Section for Executives */}
-        {["CEO", "CTO", "Executive"].includes(user.role) && (
-          <div className="bg-white p-6 rounded-lg shadow-lg mt-6">
-            {/* Title and description for Allocate Resources section */}
-            <h3 className="text-xl font-bold mb-4">Allocate Resources</h3>
-            <p className="text-gray-600 mb-6">
-              As a high-level executive, you can allocate resources to this
-              idea. Provide the necessary resources such as budget, manpower,
-              and time allocation for the successful implementation of the idea.
-            </p>
+{["CEO", "CTO", "Executive"].includes(user.role) && (
+  <div className="bg-white p-6 rounded-lg shadow-lg mt-6">
+    {/* Title and description for Allocate Resources section */}
+    <h3 className="text-xl font-bold mb-4">Allocate Resources</h3>
+    <p className="text-gray-600 mb-6">
+      As a high-level executive, you can allocate resources to this idea. Provide the necessary resources such as budget, manpower,
+      and time allocation for the successful implementation of the idea.
+    </p>
 
-            {/* Allocate Resources Form */}
-            <label className="block text-gray-700 font-semibold mb-2">
-              Allocate Resources
-            </label>
-            <textarea
-              value={allocatedResources}
-              onChange={(e) => setAllocatedResources(e.target.value)}
-              className="w-full p-3 bg-gray-100 border rounded-lg mb-4"
-              rows="3"
-              placeholder="Provide details for resource allocation"
-            />
-
-            {/* Submit Button */}
-            <button
-              onClick={handleResourceAllocation}
-              className="bg-green-500 text-white px-4 py-2 rounded-lg flex items-center hover:bg-green-600"
-            >
-              <FaCheckCircle className="mr-2" /> Allocate Resources
-            </button>
-          </div>
-        )}
+    {/* Replace the manual form with the IdeaSourcesAllocations component */}
+    <IdeaSourcesAllocations
+      projectId={id} // Pass the current idea's ID
+      onResourcesAllocated={(allocatedResources) => {
+        // Handle the response when resources are allocated successfully
+        setAllocatedResources(allocatedResources);
+        toast.success("Resources allocated successfully!");
+      }}
+    />
+  </div>
+)}
 
         {/* User-specific buttons (Idea Owner Actions) */}
         {isIdeaOwner && (
