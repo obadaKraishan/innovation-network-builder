@@ -1,5 +1,15 @@
 const mongoose = require('mongoose');
 
+const feedbackSchema = new mongoose.Schema({
+    user: { type: mongoose.Schema.Types.ObjectId, ref: 'User', required: true },
+    comment: { type: String, required: true },
+    parent: { type: mongoose.Schema.Types.ObjectId, ref: 'Feedback', default: null },
+    ideaId: { type: mongoose.Schema.Types.ObjectId, ref: 'Innovation', required: true },
+    createdAt: { type: Date, default: Date.now },
+  });
+  
+const feedbackModel = mongoose.model('Feedback', feedbackSchema);
+
 const innovationSchema = new mongoose.Schema({
   ideaId: {
     type: String,
@@ -138,5 +148,4 @@ const innovationSchema = new mongoose.Schema({
 });
 
 const Innovation = mongoose.model('Innovation', innovationSchema);
-
-module.exports = Innovation;
+module.exports = { Innovation, feedbackModel };
