@@ -110,7 +110,7 @@ const innovationSchema = new mongoose.Schema({
   },
   stage: {
     type: String,
-    enum: ['submission', 'review', 'development', 'implementation', 'withdrawn'],
+    enum: ['submission', 'review', 'development', 'implementation', 'completed', 'withdrawn'],
     default: 'submission',
   },
   // Voting Fields

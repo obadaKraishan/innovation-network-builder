@@ -109,25 +109,7 @@ const getAllIdeas = asyncHandler(async (req, res) => {
   res.json(ideas);
 });
 
-// Approve an idea and move it to the next stage
-const approveIdea = asyncHandler(async (req, res) => {
-  const { id } = req.params;
-  const idea = await Innovation.findById(id);
-
-  if (!idea) {
-    res.status(404);
-    throw new Error('Idea not found');
-  }
-
-  idea.stage = 'development';
-  idea.approvedBy = req.user._id;
-  idea.approvedAt = Date.now();
-
-  const updatedIdea = await idea.save();
-  res.json(updatedIdea);
-});
-
-// Update the stage of an idea
+// Update the stage of an idea (replacing approveIdea functionality)
 const updateIdeaStage = asyncHandler(async (req, res) => {
   const { id } = req.params;
   const { stage } = req.body;
@@ -137,6 +119,14 @@ const updateIdeaStage = asyncHandler(async (req, res) => {
   if (!idea) {
     res.status(404);
     throw new Error('Idea not found');
+  }
+
+  // Log the old and new stages for debugging
+  console.log(`Updating idea stage from ${idea.stage} to ${stage}`);
+
+  // Add any special handling logic here, if required for certain stages
+  if (stage === 'completed') {
+    idea.implementedAt = new Date(); // Mark implementation date when the idea is completed
   }
 
   idea.stage = stage;
@@ -331,7 +321,6 @@ module.exports = {
   submitIdea,
   getIdeaById,
   getAllIdeas,
-  approveIdea,
   updateIdeaStage,
   evaluateIdea,
   allocateResources,

@@ -4,7 +4,6 @@ const {
   submitIdea,
   getIdeaById,
   getAllIdeas,
-  approveIdea,
   updateIdeaStage,
   evaluateIdea,
   allocateResources,
@@ -31,9 +30,6 @@ router.get('/ideas', protect, getAllIdeas);
 
 // Retrieve a specific idea by ID
 router.get('/idea/:id', protect, getIdeaById);
-
-// Approve an idea (only for admins)
-router.post('/approve-idea/:id', protect, admin, approveIdea);
 
 // Update the stage of an idea
 router.post('/update-idea-stage/:id', protect, admin, updateIdeaStage);
