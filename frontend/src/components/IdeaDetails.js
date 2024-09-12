@@ -15,6 +15,7 @@ import { toast } from "react-toastify";
 import Sidebar from "./Sidebar";
 import InnovationFeedbacks from "./InnovationFeedbacks"; // Feedback component
 import IdeaVotingSection from "./IdeaVotingSection";
+import IdeaSourcesAllocations from "./IdeaSourcesAllocations";
 import api from "../utils/api";
 import { useAuth } from "../context/AuthContext"; // Assuming there's an AuthContext for managing roles
 
