@@ -55,6 +55,7 @@ const IdeaSourcesAllocations = ({ projectId, onResourcesAllocated }) => {
           value={budget}
           onChange={(e) => setBudget(e.target.value)}
           className="w-full p-2 border rounded-lg"
+          placeholder="e.g. 50000" // Example for budget input
           required
         />
       </div>
@@ -65,6 +66,7 @@ const IdeaSourcesAllocations = ({ projectId, onResourcesAllocated }) => {
           value={time}
           onChange={(e) => setTime(e.target.value)}
           className="w-full p-2 border rounded-lg"
+          placeholder="e.g. 6 months" // Example for time allocation input
           required
         />
       </div>
@@ -75,6 +77,7 @@ const IdeaSourcesAllocations = ({ projectId, onResourcesAllocated }) => {
           value={manpower}
           onChange={(e) => setManpower(e.target.value)}
           className="w-full p-2 border rounded-lg"
+          placeholder="e.g. 10" // Example for manpower input
           required
         />
       </div>
@@ -86,6 +89,7 @@ const IdeaSourcesAllocations = ({ projectId, onResourcesAllocated }) => {
           onChange={setTeamMembers}
           options={users} // Display the list of users
           className="w-full"
+          placeholder="Select team members" // Placeholder for react-select
         />
       </div>
       <div className="mb-4">
@@ -95,6 +99,7 @@ const IdeaSourcesAllocations = ({ projectId, onResourcesAllocated }) => {
           value={estimatedCompletionTime}
           onChange={(e) => setEstimatedCompletionTime(e.target.value)}
           className="w-full p-2 border rounded-lg"
+          placeholder="e.g. 3 months" // Example for estimated completion time
           required
         />
       </div>
