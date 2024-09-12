@@ -13,6 +13,7 @@ const {
   getFeedback,
   updateFeedback,
   deleteFeedback,
+  submitVote,
 } = require('../controllers/innovationController');
 const { protect, admin } = require('../middleware/authMiddleware');
 
@@ -50,5 +51,8 @@ router.post('/feedback', protect, addFeedback);
 router.get('/feedback/:ideaId', protect, getFeedback);
 router.put('/feedback/:feedbackId', protect, updateFeedback);
 router.delete('/feedback/:feedbackId', protect, deleteFeedback);
+
+// Voting routes
+router.post('/idea/:id/vote', protect, submitVote);
 
 module.exports = router;
