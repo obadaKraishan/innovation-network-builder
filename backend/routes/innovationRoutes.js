@@ -8,6 +8,7 @@ const {
   updateIdeaStage,
   evaluateIdea,
   allocateResources,
+  getAllocatedResources,
   withdrawIdea,
   addFeedback,
   getFeedback,
@@ -42,6 +43,7 @@ router.post('/evaluate-idea/:id', protect, admin, evaluateIdea);
 
 // Allocate resources for a project
 router.post('/allocate-resources', protect, admin, allocateResources);
+router.get('/allocated-resources/:id', protect, getAllocatedResources);
 
 // Withdraw an idea
 router.post('/withdraw-idea/:id', protect, withdrawIdea);
