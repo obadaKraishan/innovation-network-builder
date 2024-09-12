@@ -1,9 +1,9 @@
 import React, { useState, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
+import { FaArrowLeft, FaCheckCircle, FaEdit, FaTimesCircle, FaDownload, FaChartLine, FaLightbulb, FaExclamationTriangle, FaTools, FaUser } from 'react-icons/fa';
+import { toast } from 'react-toastify';
 import Sidebar from './Sidebar';
 import api from '../utils/api';
-import { FaArrowLeft, FaCheckCircle, FaEdit, FaTimesCircle, FaDownload } from 'react-icons/fa';
-import { toast } from 'react-toastify';
 import { useAuth } from '../context/AuthContext'; // Assuming there's an AuthContext for managing roles
 
 const IdeaDetails = () => {
@@ -63,52 +63,73 @@ const IdeaDetails = () => {
   // Determine if the user is the idea owner
   const isIdeaOwner = user._id === idea.employeeId._id;
 
+  // Utility to get color based on stage
+  const getStageColor = (stage) => {
+    switch (stage) {
+      case 'submission':
+        return 'gray';
+      case 'review':
+        return 'blue';
+      case 'development':
+        return 'green';
+      case 'implementation':
+        return 'purple';
+      default:
+        return 'gray';
+    }
+  };
+
   return (
     <div className="flex h-screen">
       <Sidebar />
       <div className="flex-1 p-6 bg-gray-100">
-        <button
-          onClick={() => navigate(-1)}
-          className="mb-4 bg-gray-500 text-white py-2 px-4 rounded-lg inline-flex items-center hover:bg-gray-600 transition"
-        >
-          <FaArrowLeft className="mr-2" /> Back
-        </button>
+        {/* Back Button */}
+        <div className="flex justify-between items-center mb-4">
+          <button
+            onClick={() => navigate(-1)}
+            className="bg-gray-500 text-white py-2 px-4 rounded-lg inline-flex items-center hover:bg-gray-600 transition"
+          >
+            <FaArrowLeft className="mr-2" /> Back
+          </button>
 
+          {/* Display Current Stage in a Badge */}
+          <span className={`badge bg-${getStageColor(idea.stage)}-500 text-white py-2 px-4 rounded-lg`}>
+            {idea.stage}
+          </span>
+        </div>
+
+        {/* Main Content */}
         <div className="bg-white p-6 rounded-lg shadow-lg">
-          <h2 className="text-2xl font-bold mb-6">{idea.title}</h2>
-          <p><strong>Description:</strong> {idea.description}</p>
-          <p><strong>Problem:</strong> {idea.problem}</p>
-          <p><strong>Suggested Solution:</strong> {idea.solution}</p>
-          <p><strong>Expected Impact:</strong> {idea.expectedImpact}</p>
-          <p><strong>Impact Type:</strong> {idea.impactType}</p>
-          <p><strong>ROI Estimate:</strong> {idea.roiEstimate}%</p>
-          <p><strong>Risk Assessment:</strong> {idea.riskAssessment}</p>
-          <p><strong>Success Metrics:</strong> {idea.successMetrics}</p>
-          <p><strong>Expertise Required:</strong> {idea.expertiseRequired}</p>
-          <p><strong>External Resources:</strong> {idea.externalResources}</p>
-          <p><strong>Stage:</strong> {idea.stage}</p>
-          <p><strong>Department:</strong> {idea.department?.name || 'N/A'}</p>
-          <p><strong>Submitted By:</strong> {idea.employeeId?.name}</p>
-          <p><strong>Business Goal Alignment:</strong> {idea.businessGoalAlignment?.join(', ')}</p>
-          <p><strong>Resource Estimates:</strong></p>
-          <ul className="list-disc pl-6">
-            <li>Budget: {idea.resources?.budgetMin} - {idea.resources?.budgetMax}</li>
-            <li>Total Time: {idea.resources?.totalTime}</li>
-            <li>Delivery Date: {idea.resources?.deliveryDate || 'N/A'}</li>
-            <li>Manpower: {idea.resources?.manpower}</li>
-            <li>Full-Time Employees: {idea.resources?.fullTimeEmployees}</li>
-            <li>Contractors: {idea.resources?.contractors}</li>
-            <li>Tools & Infrastructure: {idea.resources?.toolsAndInfrastructure}</li>
-          </ul>
-          <p><strong>Scores:</strong></p>
-          <ul className="list-disc pl-6">
-            <li>Impact: {idea.impactScore}</li>
-            <li>Feasibility: {idea.feasibilityScore}</li>
-            <li>Cost: {idea.costScore}</li>
-            <li>Alignment: {idea.alignmentScore}</li>
-          </ul>
+          <div className="grid grid-cols-2 gap-4">
+            {/* Left Column: Idea Title and Description */}
+            <div>
+              <h2 className="text-2xl font-bold mb-4">{idea.title}</h2>
+              <p><FaLightbulb className="inline-block mr-2" /><strong>Description:</strong> {idea.description}</p>
+              <p><FaExclamationTriangle className="inline-block mr-2" /><strong>Problem:</strong> {idea.problem}</p>
+              <p><FaTools className="inline-block mr-2" /><strong>Suggested Solution:</strong> {idea.solution}</p>
+              <p><FaChartLine className="inline-block mr-2" /><strong>Expected Impact:</strong> {idea.expectedImpact}</p>
+              <p><strong>ROI Estimate:</strong> {idea.roiEstimate}%</p>
+              <p><strong>Business Goal Alignment:</strong> {idea.businessGoalAlignment?.join(', ')}</p>
+            </div>
 
-          {/* Show attachments if any */}
+            {/* Right Column: Resource Estimates */}
+            <div>
+              <div className="border p-4 rounded-md bg-gray-50">
+                <h3 className="font-bold">Resource Estimates</h3>
+                <ul className="list-disc pl-6">
+                  <li>Budget: {idea.resources?.budgetMin} - {idea.resources?.budgetMax}</li>
+                  <li>Total Time: {idea.resources?.totalTime}</li>
+                  <li>Delivery Date: {idea.resources?.deliveryDate || 'N/A'}</li>
+                  <li>Manpower: {idea.resources?.manpower}</li>
+                  <li>Full-Time Employees: {idea.resources?.fullTimeEmployees}</li>
+                  <li>Contractors: {idea.resources?.contractors}</li>
+                  <li>Tools & Infrastructure: {idea.resources?.toolsAndInfrastructure}</li>
+                </ul>
+              </div>
+            </div>
+          </div>
+
+          {/* Attachments */}
           {attachments.length > 0 && (
             <div className="mt-6">
               <h3 className="text-lg font-semibold">Attachments</h3>
@@ -127,25 +148,29 @@ const IdeaDetails = () => {
             </div>
           )}
 
-          {/* Buttons based on user role and ownership */}
-          {user.role === 'Employee' && !isIdeaOwner && (
-            <div className="text-red-500 mt-6">
-              You do not have permission to edit or approve this idea.
-            </div>
-          )}
+          {/* Scores Section */}
+          <div className="mt-6">
+            <h3 className="font-bold">Scores</h3>
+            <ul className="list-disc pl-6">
+              <li>Impact: {idea.impactScore}</li>
+              <li>Feasibility: {idea.feasibilityScore}</li>
+              <li>Cost: {idea.costScore}</li>
+              <li>Alignment: {idea.alignmentScore}</li>
+            </ul>
+          </div>
 
-          {/* Idea owner-specific options (can edit, withdraw) */}
-          {isIdeaOwner && (idea.stage === 'submission' || idea.stage === 'review') && (
-            <div className="mt-6">
+          {/* User-specific buttons (Based on Role) */}
+          {isIdeaOwner && (
+            <div className="flex space-x-4 mt-6">
               <button
                 onClick={() => navigate(`/edit-idea/${id}`)}
-                className="bg-yellow-500 text-white px-4 py-2 rounded-lg flex items-center hover:bg-yellow-600 transition"
+                className="bg-yellow-500 text-white px-4 py-2 rounded-lg hover:bg-yellow-600"
               >
                 <FaEdit className="mr-2" /> Edit Idea
               </button>
               <button
-                onClick={handleWithdrawIdea}
-                className="bg-red-500 text-white px-4 py-2 rounded-lg flex items-center hover:bg-red-600 transition mt-4"
+                onClick={() => handleWithdrawIdea(id)}
+                className="bg-red-500 text-white px-4 py-2 rounded-lg hover:bg-red-600"
               >
                 <FaTimesCircle className="mr-2" /> Withdraw Idea
               </button>
@@ -153,26 +178,25 @@ const IdeaDetails = () => {
           )}
 
           {/* Manager or higher role functionalities */}
-          {['Team Leader', 'Department Manager', 'Product Manager', 'Research Scientist'].includes(user.role) &&
-            idea.stage === 'review' && (
-              <div className="mt-6">
-                <label className="block text-gray-700 font-semibold mb-2">Update Stage</label>
-                <select
-                  value={newStage}
-                  onChange={(e) => setNewStage(e.target.value)}
-                  className="w-full p-3 border rounded-lg mb-4"
-                >
-                  <option value="">Select new stage</option>
-                  <option value="development">Development</option>
-                  <option value="implementation">Implementation</option>
-                </select>
-                <button
-                  onClick={handleStageUpdate}
-                  className="bg-green-500 text-white px-4 py-2 rounded-lg flex items-center hover:bg-green-600 transition"
-                >
-                  <FaCheckCircle className="mr-2" /> Update Stage
-                </button>
-              </div>
+          {['Team Leader', 'Department Manager', 'Product Manager', 'Research Scientist'].includes(user.role) && (
+            <div className="mt-6 flex space-x-4">
+              <label className="block text-gray-700 font-semibold mb-2">Update Stage</label>
+              <select
+                value={newStage}
+                onChange={(e) => setNewStage(e.target.value)}
+                className="w-full p-3 border rounded-lg mb-4"
+              >
+                <option value="">Select new stage</option>
+                <option value="development">Development</option>
+                <option value="implementation">Implementation</option>
+              </select>
+              <button
+                onClick={handleStageUpdate}
+                className="bg-green-500 text-white px-4 py-2 rounded-lg flex items-center hover:bg-green-600 transition"
+              >
+                <FaCheckCircle className="mr-2" /> Update Stage
+              </button>
+            </div>
           )}
 
           {/* Executive functionalities */}
@@ -187,7 +211,7 @@ const IdeaDetails = () => {
             </div>
           )}
 
-          {/* Legal Advisor */}
+          {/* Legal Advisor functionalities */}
           {user.role === 'Legal Advisor' && (
             <div className="mt-6">
               <label className="block text-gray-700 font-semibold mb-2">Legal Review</label>
