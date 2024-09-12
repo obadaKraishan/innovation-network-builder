@@ -8,6 +8,7 @@ const InnovationFeedbacks = ({ ideaId }) => {
   const [newFeedback, setNewFeedback] = useState('');
   const [parentFeedbackId, setParentFeedbackId] = useState(null);
   const [editFeedbackId, setEditFeedbackId] = useState(null);
+  const [loading, setLoading] = useState(true); // Add loading state
 
   useEffect(() => {
     fetchFeedback();
@@ -17,8 +18,10 @@ const InnovationFeedbacks = ({ ideaId }) => {
     try {
       const { data } = await api.get(`/innovation/feedback/${ideaId}`);
       setFeedback(data);
+      setLoading(false); // Stop loading once feedback is fetched
     } catch (error) {
       toast.error('Failed to load feedback');
+      setLoading(false);
     }
   };
 
@@ -83,6 +86,7 @@ const InnovationFeedbacks = ({ ideaId }) => {
 
   return (
     <div>
+      {/* Textarea for adding feedback */}
       <textarea
         value={newFeedback}
         onChange={(e) => setNewFeedback(e.target.value)}
@@ -96,7 +100,15 @@ const InnovationFeedbacks = ({ ideaId }) => {
       >
         {editFeedbackId ? 'Update Feedback' : 'Add Feedback'}
       </button>
-      <div className="mt-6">{renderFeedback(feedback)}</div>
+
+      {/* Placeholder for no feedback */}
+      {loading ? (
+        <div>Loading feedback...</div>
+      ) : feedback.length === 0 ? (
+        <div className="mt-6 text-gray-500">No feedback yet. Be the first to provide feedback!</div>
+      ) : (
+        <div className="mt-6">{renderFeedback(feedback)}</div>
+      )}
     </div>
   );
 };
