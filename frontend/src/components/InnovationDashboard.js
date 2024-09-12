@@ -91,11 +91,10 @@ const InnovationDashboard = () => {
               <tr>
                 <th className="py-2 px-4 border-b">Title</th>
                 <th className="py-2 px-4 border-b">Stage</th>
-                <th className="py-2 px-4 border-b">Department</th>
-                <th className="py-2 px-4 border-b">Impact</th>
-                <th className="py-2 px-4 border-b">Feasibility</th>
-                <th className="py-2 px-4 border-b">Cost</th>
-                <th className="py-2 px-4 border-b">Alignment</th>
+                <th className="py-2 px-4 border-b">Department(s)</th>
+                <th className="py-2 px-4 border-b">ROI Estimate</th>
+                <th className="py-2 px-4 border-b">Resources</th>
+                <th className="py-2 px-4 border-b">Submitted Date</th>
                 <th className="py-2 px-4 border-b">Priority</th>
                 <th className="py-2 px-4 border-b">Actions</th>
               </tr>
@@ -105,12 +104,27 @@ const InnovationDashboard = () => {
                 <tr key={idea._id}>
                   <td className="py-2 px-4 border-b">{idea.title}</td>
                   <td className="py-2 px-4 border-b">{idea.stage}</td>
-                  <td className="py-2 px-4 border-b">{idea.department?.name || 'N/A'}</td>
-                  <td className="py-2 px-4 border-b">{idea.impactScore}</td>
-                  <td className="py-2 px-4 border-b">{idea.feasibilityScore}</td>
-                  <td className="py-2 px-4 border-b">{idea.costScore}</td>
-                  <td className="py-2 px-4 border-b">{idea.alignmentScore}</td>
+
+                  {/* Handle displaying multiple departments */}
+                  <td className="py-2 px-4 border-b">
+                    {idea.department && idea.department.length
+                      ? idea.department.map(dept => dept.name).join(', ')
+                      : 'N/A'}
+                  </td>
+
+                  <td className="py-2 px-4 border-b">{idea.roiEstimate}%</td>
+                  
+                  {/* Displaying budget range */}
+                  <td className="py-2 px-4 border-b">
+                    {`$${idea.resources?.budgetMin} - $${idea.resources?.budgetMax}`}
+                  </td>
+
+                  <td className="py-2 px-4 border-b">
+                    {new Date(idea.submittedAt).toLocaleDateString()}
+                  </td>
+
                   <td className="py-2 px-4 border-b">{idea.priority}</td>
+
                   <td className="py-2 px-4 border-b">
                     <button
                       onClick={() => navigate(`/innovation/idea/${idea._id}`)}

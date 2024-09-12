@@ -104,7 +104,7 @@ const getAllIdeas = asyncHandler(async (req, res) => {
 
   const ideas = await Innovation.find(query)
     .populate('employeeId', 'name')
-    .populate('department', 'name');
+    .populate('department', 'name'); // Populate department names
 
   res.json(ideas);
 });
