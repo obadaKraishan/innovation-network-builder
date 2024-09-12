@@ -14,6 +14,7 @@ import {
 import { toast } from "react-toastify";
 import Sidebar from "./Sidebar";
 import InnovationFeedbacks from "./InnovationFeedbacks"; // Feedback component
+import IdeaVotingSection from './IdeaVotingSection';
 import api from "../utils/api";
 import { useAuth } from "../context/AuthContext"; // Assuming there's an AuthContext for managing roles
 
@@ -25,6 +26,7 @@ const IdeaDetails = () => {
   const [newStage, setNewStage] = useState("");
   const [attachments, setAttachments] = useState([]);
   const [feedback, setFeedback] = useState(""); // For executives to add feedback
+  const [hasVoted, setHasVoted] = useState(false);
   const [allocatedResources, setAllocatedResources] = useState(""); // For resources allocation
   const navigate = useNavigate();
 
@@ -36,6 +38,8 @@ const IdeaDetails = () => {
         setIdea(data);
         setLoading(false);
         setAttachments(data.attachments || []);
+        // Check if the current user has voted
+        setHasVoted(data.voters.includes(user._id));
       } catch (error) {
         toast.error("Failed to load idea details");
         setLoading(false);
@@ -84,6 +88,15 @@ const IdeaDetails = () => {
     } catch (error) {
       toast.error("Failed to allocate resources");
     }
+  };
+
+  // Handle voting submission and refresh idea details
+  const handleVoteSubmitted = (updatedScores) => {
+    setIdea((prevIdea) => ({
+      ...prevIdea,
+      ...updatedScores,
+    }));
+    setHasVoted(true);
   };
 
   if (loading) return <div>Loading...</div>;
@@ -218,6 +231,13 @@ const IdeaDetails = () => {
               "Executive",
             ].includes(user.role)) && <InnovationFeedbacks ideaId={id} />}
         </div>
+
+        {/* Voting Section for Eligible Roles */}
+        {['CEO', 'CTO', 'Executive', 'Team Leader', 'Product Manager'].includes(user.role) && !hasVoted && (
+          <div className="bg-white p-6 rounded-lg shadow-lg mt-6">
+            <IdeaVotingSection ideaId={id} onVoteSubmitted={handleVoteSubmitted} />
+          </div>
+        )}
 
         {/* Manager or higher role functionalities */}
         {[
