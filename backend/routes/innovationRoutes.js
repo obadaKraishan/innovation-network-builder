@@ -9,6 +9,10 @@ const {
   evaluateIdea,
   allocateResources,
   withdrawIdea,
+  addFeedback,
+  getFeedback,
+  updateFeedback,
+  deleteFeedback,
 } = require('../controllers/innovationController');
 const { protect, admin } = require('../middleware/authMiddleware');
 
@@ -40,5 +44,11 @@ router.post('/allocate-resources', protect, admin, allocateResources);
 
 // Withdraw an idea
 router.post('/withdraw-idea/:id', protect, withdrawIdea);
+
+// Feedback routes
+router.post('/feedback', protect, addFeedback);
+router.get('/feedback/:ideaId', protect, getFeedback);
+router.put('/feedback/:feedbackId', protect, updateFeedback);
+router.delete('/feedback/:feedbackId', protect, deleteFeedback);
 
 module.exports = router;
