@@ -168,11 +168,16 @@ const evaluateIdea = asyncHandler(async (req, res) => {
 
 // Allocate resources to a project
 const allocateResources = asyncHandler(async (req, res) => {
-  const { projectId, budget, teamMembers, estimatedCompletionTime } = req.body;
+  const { projectId, budget, time, manpower, teamMembers, estimatedCompletionTime } = req.body;
 
   const allocation = new ResourceAllocation({
     projectId,
     budget,
+    resourcesUsed: {
+      budget,
+      time,
+      manpower,
+    },
     teamMembers,
     estimatedCompletionTime,
   });
