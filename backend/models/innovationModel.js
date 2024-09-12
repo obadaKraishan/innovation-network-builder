@@ -1,15 +1,17 @@
 const mongoose = require('mongoose');
 
+// Feedback schema
 const feedbackSchema = new mongoose.Schema({
-    user: { type: mongoose.Schema.Types.ObjectId, ref: 'User', required: true },
-    comment: { type: String, required: true },
-    parent: { type: mongoose.Schema.Types.ObjectId, ref: 'Feedback', default: null },
-    ideaId: { type: mongoose.Schema.Types.ObjectId, ref: 'Innovation', required: true },
-    createdAt: { type: Date, default: Date.now },
-  });
-  
+  user: { type: mongoose.Schema.Types.ObjectId, ref: 'User', required: true },
+  comment: { type: String, required: true },
+  parent: { type: mongoose.Schema.Types.ObjectId, ref: 'Feedback', default: null },
+  ideaId: { type: mongoose.Schema.Types.ObjectId, ref: 'Innovation', required: true },
+  createdAt: { type: Date, default: Date.now },
+});
+
 const feedbackModel = mongoose.model('Feedback', feedbackSchema);
 
+// Innovation schema with voting fields
 const innovationSchema = new mongoose.Schema({
   ideaId: {
     type: String,
@@ -111,6 +113,12 @@ const innovationSchema = new mongoose.Schema({
     enum: ['submission', 'review', 'development', 'implementation', 'withdrawn'],
     default: 'submission',
   },
+  // Voting Fields
+  impactVotes: [{ type: Number }],
+  feasibilityVotes: [{ type: Number }],
+  costVotes: [{ type: Number }],
+  alignmentVotes: [{ type: Number }],
+  voters: [{ type: mongoose.Schema.Types.ObjectId, ref: 'User' }],
   impactScore: {
     type: Number,
     default: 0,
