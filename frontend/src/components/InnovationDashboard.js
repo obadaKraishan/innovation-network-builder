@@ -2,13 +2,18 @@ import React, { useState, useEffect } from "react";
 import Sidebar from "./Sidebar";
 import { useNavigate } from "react-router-dom";
 import {
-  FaSearch,
-  FaArrowRight,
-  FaPlus,
-  FaMapSigns,
-  FaMedal,
-  FaCalendarAlt,
-  FaUserFriends,
+    FaSearch,
+    FaPlus,
+    FaMapSigns,
+    FaMedal,
+    FaCalendarAlt,
+    FaUserFriends,
+    FaFileAlt,
+    FaInfoCircle,
+    FaTag,
+    FaBuilding,
+    FaChartLine,
+    FaMoneyBillWave,
 } from "react-icons/fa";
 import api from "../utils/api";
 import Select from "react-select";
@@ -114,51 +119,46 @@ const InnovationDashboard = () => {
         ) : filteredIdeas.length === 0 ? (
           <div className="text-center text-gray-500">No ideas available.</div>
         ) : (
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
             {filteredIdeas.map((idea) => (
               <div
                 key={idea._id}
                 className="bg-white shadow-lg rounded-lg p-6"
               >
                 <h2 className="text-xl font-bold mb-4">{idea.title}</h2>
+                
                 <p className="text-gray-600 mb-2">
+                  <FaFileAlt className="inline-block mr-1" />
+                  <strong>Description:</strong> {idea.description || "N/A"}
+                </p>
+                <p className="text-gray-600 mb-2">
+                  <FaInfoCircle className="inline-block mr-1" />
                   <strong>Stage:</strong> {idea.stage || "N/A"}
                 </p>
                 <p className="text-gray-600 mb-2">
-                  <strong>Departments:</strong>{" "}
-                  {idea.department && idea.department.length
+                  <FaUserFriends className="inline-block mr-1" />
+                  <strong>Submitted By:</strong> {idea.employeeId?.name || "Unknown"}
+                </p>
+                <p className="text-gray-600 mb-2">
+                  <FaCalendarAlt className="inline-block mr-1" />
+                  <strong>Submitted At:</strong> {idea.submittedAt ? new Date(idea.submittedAt).toLocaleDateString() : "N/A"}
+                </p>
+                <p className="text-gray-600 mb-2">
+                  <FaBuilding className="inline-block mr-1" />
+                  <strong>Departments:</strong> {idea.department && idea.department.length
                     ? idea.department.map((dept) => dept.name).join(", ")
                     : "N/A"}
                 </p>
                 <p className="text-gray-600 mb-2">
+                  <FaChartLine className="inline-block mr-1" />
                   <strong>ROI Estimate:</strong> {idea.roiEstimate || 0}%
                 </p>
                 <p className="text-gray-600 mb-2">
-                  <strong>Resources:</strong>{" "}
-                  {`$${idea.resources?.budgetMin || 0} - $${
-                    idea.resources?.budgetMax || 0
-                  }`}
+                  <FaMoneyBillWave className="inline-block mr-1" />
+                  <strong>Resources:</strong> {`$${idea.resources?.budgetMin || 0} - $${idea.resources?.budgetMax || 0}`}
                 </p>
-                <p className="text-gray-600 mb-2">
-                  <strong>Submitted Date:</strong>{" "}
-                  {idea.submittedAt
-                    ? new Date(idea.submittedAt).toLocaleDateString()
-                    : "N/A"}
-                </p>
-                <p className="text-gray-600 mb-2">
-                  <strong>Priority:</strong> {idea.priority || 0}
-                </p>
-                <p className="text-gray-600 mb-2">
-                  <FaUserFriends className="inline-block mr-1" />
-                  <strong>Team Members:</strong>{" "}
-                  {idea.teamMembers?.length || 0}
-                </p>
-                <p className="text-gray-600 mb-4">
-                  <FaCalendarAlt className="inline-block mr-1" />
-                  <strong>Estimated Completion Time:</strong>{" "}
-                  {idea.estimatedCompletionTime || "N/A"}
-                </p>
-                <div className="flex justify-between items-center">
+                
+                <div className="flex justify-between items-center mt-4">
                   <button
                     onClick={() => navigate(`/innovation/idea/${idea._id}`)}
                     className="bg-blue-500 text-white px-4 py-2 rounded-lg"
