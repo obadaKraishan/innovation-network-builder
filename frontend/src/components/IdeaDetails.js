@@ -27,7 +27,7 @@ const IdeaDetails = () => {
   const [newStage, setNewStage] = useState("");
   const [attachments, setAttachments] = useState([]);
   const [hasVoted, setHasVoted] = useState(false);
-  const [allocatedResources, setAllocatedResources] = useState(""); // For resources allocation
+  const [allocatedResources, setAllocatedResources] = useState([]); // For resources allocation
   const navigate = useNavigate();
 
   // Fetch idea details
@@ -349,23 +349,46 @@ const IdeaDetails = () => {
           </div>
         )}
 
-        {/* Allocated Resources Section */}
 {(isIdeaOwner || ["Team Leader", "Department Manager", "CEO", "CTO", "Executive"].includes(user.role)) && (
   <div className="bg-white p-6 rounded-lg shadow-lg mt-6">
     <h3 className="text-xl font-bold mb-4">Allocated Resources</h3>
-    <ul className="list-disc pl-6">
-      {allocatedResources.length > 0 ? (
+    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+      {allocatedResources && allocatedResources.length > 0 ? (
         allocatedResources.map((resource, index) => (
-          <li key={index}>
-            Budget: ${resource.budget}, Time: {resource.resourcesUsed.time}, Manpower: {resource.resourcesUsed.manpower}
-          </li>
+          <div key={index} className="bg-gray-50 rounded-lg shadow-md p-4">
+            <div className="text-lg font-semibold mb-2">Resource Allocation #{index + 1}</div>
+            <div className="mb-2">
+              <strong>Budget:</strong> ${resource.resourcesUsed.budget}
+            </div>
+            <div className="mb-2">
+              <strong>Time:</strong> {resource.resourcesUsed.time}
+            </div>
+            <div className="mb-2">
+              <strong>Manpower:</strong> {resource.resourcesUsed.manpower}
+            </div>
+            <div className="mb-2">
+              <strong>Estimated Completion Time:</strong> {resource.estimatedCompletionTime}
+            </div>
+            <div className="mb-2">
+              <strong>Allocated At:</strong> {new Date(resource.createdAt).toLocaleDateString()}
+            </div>
+            <div className="mb-2">
+              <strong>Team Members:</strong>
+              <ul className="list-disc pl-6">
+                {resource.teamMembers.map((member) => (
+                  <li key={member._id}>{member.name}</li>
+                ))}
+              </ul>
+            </div>
+          </div>
         ))
       ) : (
-        <li>No resources have been allocated yet.</li>
+        <div>No resources have been allocated yet.</div>
       )}
-    </ul>
+    </div>
   </div>
 )}
+
 
 
         {/* Allocate Resources Section for Executives */}
