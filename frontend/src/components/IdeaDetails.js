@@ -13,6 +13,8 @@ const IdeaDetails = () => {
   const [loading, setLoading] = useState(true);
   const [newStage, setNewStage] = useState('');
   const [attachments, setAttachments] = useState([]);
+  const [feedback, setFeedback] = useState(''); // For executives to add feedback
+  const [allocatedResources, setAllocatedResources] = useState(''); // For resources allocation
   const navigate = useNavigate();
 
   // Fetch idea details
@@ -56,6 +58,26 @@ const IdeaDetails = () => {
   // Download attachments
   const handleDownloadAttachment = (attachmentUrl) => {
     window.open(attachmentUrl, '_blank');
+  };
+
+  // Handle resource allocation (for managers or executives)
+  const handleResourceAllocation = async () => {
+    try {
+      await api.post(`/innovation/allocate-resources`, { projectId: id, resourcesUsed: allocatedResources });
+      toast.success('Resources allocated successfully');
+    } catch (error) {
+      toast.error('Failed to allocate resources');
+    }
+  };
+
+  // Handle feedback submission (for executives)
+  const handleFeedbackSubmission = async () => {
+    try {
+      await api.post(`/innovation/add-feedback/${id}`, { feedback });
+      toast.success('Feedback added successfully');
+    } catch (error) {
+      toast.error('Failed to submit feedback');
+    }
   };
 
   if (loading) return <div>Loading...</div>;
@@ -200,14 +222,46 @@ const IdeaDetails = () => {
           )}
 
           {/* Executive functionalities */}
-          {['CEO', 'CTO', 'Executive'].includes(user.role) && idea.stage === 'review' && (
+          {['CEO', 'CTO', 'Executive'].includes(user.role) && (
             <div className="mt-6">
+              <div>
+                <h3 className="font-bold">Provide Feedback</h3>
+                <textarea
+                  value={feedback}
+                  onChange={(e) => setFeedback(e.target.value)}
+                  className="w-full p-3 border rounded-lg mb-4"
+                  rows="4"
+                  placeholder="Provide feedback on this idea"
+                />
+                <button
+                  onClick={handleFeedbackSubmission}
+                  className="bg-blue-500 text-white px-4 py-2 rounded-lg hover:bg-blue-600"
+                >
+                  <FaCheckCircle className="mr-2" /> Submit Feedback
+                </button>
+              </div>
               <button
                 onClick={handleStageUpdate}
-                className="bg-blue-500 text-white px-4 py-2 rounded-lg flex items-center hover:bg-blue-600 transition"
+                className="bg-blue-500 text-white px-4 py-2 rounded-lg flex items-center hover:bg-blue-600 transition mt-4"
               >
                 <FaCheckCircle className="mr-2" /> Approve for Development
               </button>
+              <div className="mt-6">
+                <label className="block text-gray-700 font-semibold mb-2">Allocate Resources</label>
+                <textarea
+                  value={allocatedResources}
+                  onChange={(e) => setAllocatedResources(e.target.value)}
+                  className="w-full p-3 border rounded-lg mb-4"
+                  rows="3"
+                  placeholder="Allocate resources"
+                />
+                <button
+                  onClick={handleResourceAllocation}
+                  className="bg-green-500 text-white px-4 py-2 rounded-lg flex items-center hover:bg-green-600"
+                >
+                  <FaCheckCircle className="mr-2" /> Allocate Resources
+                </button>
+              </div>
             </div>
           )}
 
@@ -230,6 +284,20 @@ const IdeaDetails = () => {
               >
                 <FaCheckCircle className="mr-2" /> Submit Compliance Status
               </button>
+            </div>
+          )}
+
+          {/* Score Overview for management roles */}
+          {['Team Leader', 'Department Manager', 'CEO', 'CTO', 'Executive'].includes(user.role) && (
+            <div className="mt-6">
+              <h3 className="font-bold">Score Overview</h3>
+              <ul className="list-disc pl-6">
+                <li>Impact: {idea.impactScore}</li>
+                <li>Feasibility: {idea.feasibilityScore}</li>
+                <li>Cost: {idea.costScore}</li>
+                <li>Alignment: {idea.alignmentScore}</li>
+                <li>Total Priority Score: {idea.priority}</li>
+              </ul>
             </div>
           )}
         </div>
