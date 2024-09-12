@@ -1,13 +1,32 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { toast } from "react-toastify";
 import api from "../utils/api";
+import Select from "react-select"; // Import react-select
 
 const IdeaSourcesAllocations = ({ projectId, onResourcesAllocated }) => {
   const [budget, setBudget] = useState("");
   const [time, setTime] = useState("");
   const [manpower, setManpower] = useState("");
-  const [teamMembers, setTeamMembers] = useState("");
+  const [teamMembers, setTeamMembers] = useState([]);
   const [estimatedCompletionTime, setEstimatedCompletionTime] = useState("");
+  const [users, setUsers] = useState([]); // For fetching users
+
+  // Fetch the users to populate the team members dropdown
+  useEffect(() => {
+    const fetchUsers = async () => {
+      try {
+        const { data } = await api.get("/users"); // Assuming your backend has a route to fetch all users
+        const formattedUsers = data.map(user => ({
+          value: user._id,
+          label: `${user.name} (${user.position})`, // Format to display name and position
+        }));
+        setUsers(formattedUsers);
+      } catch (error) {
+        toast.error("Failed to fetch users");
+      }
+    };
+    fetchUsers();
+  }, []);
 
   const handleAllocateResources = async (e) => {
     e.preventDefault();
@@ -17,7 +36,7 @@ const IdeaSourcesAllocations = ({ projectId, onResourcesAllocated }) => {
         budget,
         time,
         manpower,
-        teamMembers: teamMembers.split(",").map((member) => member.trim()),
+        teamMembers: teamMembers.map(member => member.value), // Extract only the user IDs
         estimatedCompletionTime,
       });
       toast.success("Resources allocated successfully");
@@ -60,12 +79,13 @@ const IdeaSourcesAllocations = ({ projectId, onResourcesAllocated }) => {
         />
       </div>
       <div className="mb-4">
-        <label className="block font-bold mb-2">Team Members (comma-separated)</label>
-        <input
-          type="text"
+        <label className="block font-bold mb-2">Team Members</label>
+        <Select
+          isMulti
           value={teamMembers}
-          onChange={(e) => setTeamMembers(e.target.value)}
-          className="w-full p-2 border rounded-lg"
+          onChange={setTeamMembers}
+          options={users} // Display the list of users
+          className="w-full"
         />
       </div>
       <div className="mb-4">
