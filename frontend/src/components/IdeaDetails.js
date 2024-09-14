@@ -16,6 +16,7 @@ import Sidebar from "./Sidebar";
 import InnovationFeedbacks from "./InnovationFeedbacks"; // Feedback component
 import IdeaVotingSection from "./IdeaVotingSection";
 import IdeaSourcesAllocations from "./IdeaSourcesAllocations";
+import IdeaStagesTimeline from "./IdeaStagesTimeline";
 import api from "../utils/api";
 import { useAuth } from "../context/AuthContext"; // Assuming there's an AuthContext for managing roles
 
@@ -264,7 +265,7 @@ const IdeaDetails = () => {
             </p>
           </div>
 
-          {/* Stage Update Section (For higher roles) */}
+          {/* Stage Update Section with Timeline */}
           {[
             "CEO",
             "CTO",
@@ -274,21 +275,12 @@ const IdeaDetails = () => {
           ].includes(user.role) &&
             idea.stage !== "completed" &&
             idea.stage !== "withdrawn" && (
-              <div className="border p-4 rounded-md bg-gray-50">
-                <h3 className="font-bold mb-4">Update Stage</h3>
-
-                {/* Show relevant next stage options based on the current stage */}
-                {getNextStageOptions(idea.stage).map((option) => (
-                  <button
-                    key={option.value}
-                    onClick={() => handleStageUpdate(option.value)}
-                    className="bg-green-500 text-white px-4 py-2 rounded-lg flex items-center hover:bg-green-600 transition mb-2"
-                  >
-                    <FaCheckCircle className="mr-2" /> {option.label}
-                  </button>
-                ))}
-              </div>
-            )}
+              <IdeaStagesTimeline
+                currentStage={idea.stage}
+                handleStageUpdate={handleStageUpdate}
+                getNextStageOptions={getNextStageOptions}
+              />
+          )}
 
           {/* Attachments Section */}
           {attachments.length > 0 && (
