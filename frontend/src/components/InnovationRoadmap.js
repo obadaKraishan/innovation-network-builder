@@ -42,12 +42,13 @@ const InnovationRoadmap = () => {
     handleFilterChange();
   }, [departmentFilter, stageFilter]);
 
+  // Ensure that start and end dates are valid before passing to Gantt
   const formatIdeasForGantt = () => {
     return filteredIdeas.map(idea => ({
       id: idea._id,
       name: idea.title,
-      start: idea.startDate || new Date(),
-      end: idea.endDate || new Date(),
+      start: idea.startDate ? new Date(idea.startDate) : new Date(), // Use current date if startDate is null
+      end: idea.endDate ? new Date(idea.endDate) : new Date(), // Use current date if endDate is null
       progress: idea.progress || 0,
       dependencies: idea.dependencies || ''
     }));
