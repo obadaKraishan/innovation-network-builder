@@ -45,24 +45,39 @@ const InnovationRoadmap = () => {
   // Ensure that start and end dates are valid before passing to Gantt
   const formatIdeasForGantt = () => {
     return filteredIdeas.map(idea => {
-      const startDate = idea.startDate ? new Date(idea.startDate) : null;
-      const endDate = idea.endDate ? new Date(idea.endDate) : null;
+      let startDate = idea.startDate ? new Date(idea.startDate) : null;
+      let endDate = idea.endDate ? new Date(idea.endDate) : null;
   
-      // Fallback to current date if the dates are invalid or null
-      const validStartDate = startDate instanceof Date && !isNaN(startDate) ? startDate : new Date();
-      const validEndDate = endDate instanceof Date && !isNaN(endDate) ? endDate : new Date();
+      // Validate start date
+      if (!startDate || isNaN(startDate.getTime())) {
+        console.warn(`Idea "${idea.title}" has an invalid or missing start date. Using the current date as fallback.`);
+        startDate = new Date(); // Fallback to the current date
+      }
+  
+      // Validate end date
+      if (!endDate || isNaN(endDate.getTime())) {
+        console.warn(`Idea "${idea.title}" has an invalid or missing end date. Using the current date as fallback.`);
+        endDate = new Date(); // Fallback to the current date
+      }
+  
+      // Make sure start date is before or equal to end date
+      if (startDate > endDate) {
+        console.warn(`Idea "${idea.title}" has a start date after the end date. Adjusting the end date to match start date.`);
+        endDate = new Date(startDate); // Fallback to start date
+      }
   
       return {
         id: idea._id,
         name: idea.title,
-        start: validStartDate,
-        end: validEndDate,
+        start: startDate,
+        end: endDate,
         progress: idea.progress || 0,
         dependencies: idea.dependencies || ''
       };
     });
-  };  
-
+  };
+  
+  
   return (
     <div className="flex h-screen">
       <Sidebar />
