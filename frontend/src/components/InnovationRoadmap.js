@@ -44,15 +44,24 @@ const InnovationRoadmap = () => {
 
   // Ensure that start and end dates are valid before passing to Gantt
   const formatIdeasForGantt = () => {
-    return filteredIdeas.map(idea => ({
-      id: idea._id,
-      name: idea.title,
-      start: idea.startDate ? new Date(idea.startDate) : new Date(), // Use current date if startDate is null
-      end: idea.endDate ? new Date(idea.endDate) : new Date(), // Use current date if endDate is null
-      progress: idea.progress || 0,
-      dependencies: idea.dependencies || ''
-    }));
-  };
+    return filteredIdeas.map(idea => {
+      const startDate = idea.startDate ? new Date(idea.startDate) : null;
+      const endDate = idea.endDate ? new Date(idea.endDate) : null;
+  
+      // Fallback to current date if the dates are invalid or null
+      const validStartDate = startDate instanceof Date && !isNaN(startDate) ? startDate : new Date();
+      const validEndDate = endDate instanceof Date && !isNaN(endDate) ? endDate : new Date();
+  
+      return {
+        id: idea._id,
+        name: idea.title,
+        start: validStartDate,
+        end: validEndDate,
+        progress: idea.progress || 0,
+        dependencies: idea.dependencies || ''
+      };
+    });
+  };  
 
   return (
     <div className="flex h-screen">
@@ -86,6 +95,7 @@ const InnovationRoadmap = () => {
             </div>
           </div>
 
+          {/* Ensure all tasks have valid dates */}
           <FrappeGantt tasks={formatIdeasForGantt()} /> {/* Render Gantt chart with filtered ideas */}
         </div>
       </div>
