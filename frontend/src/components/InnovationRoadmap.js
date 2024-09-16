@@ -16,6 +16,7 @@ const InnovationRoadmap = () => {
     const fetchIdeas = async () => {
       try {
         const { data } = await api.get('/innovation/ideas');
+        console.log("Fetched ideas: ", data); // Log the data to inspect it
         setIdeas(data);
         setFilteredIdeas(data);
       } catch (error) {
@@ -23,7 +24,7 @@ const InnovationRoadmap = () => {
       }
     };
     fetchIdeas();
-  }, []);
+  }, []);  
 
   const handleFilterChange = () => {
     let filtered = ideas;
