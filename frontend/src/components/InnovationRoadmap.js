@@ -48,27 +48,30 @@ const InnovationRoadmap = () => {
     return filteredIdeas.map(idea => {
       let startDate = idea.startDate ? new Date(idea.startDate) : null;
       let endDate = idea.endDate ? new Date(idea.endDate) : null;
-  
-      console.log(`Raw startDate: ${idea.startDate}, Raw endDate: ${idea.endDate} for idea: "${idea.title}"`);
-  
+
+      // Extra console logs to debug date issues
+      console.log(`Idea "${idea.title}" has startDate: ${idea.startDate}, endDate: ${idea.endDate}`);
+
       // Validate and handle invalid startDate
       if (!startDate || isNaN(startDate.getTime())) {
         console.warn(`Invalid start date for idea "${idea.title}". Using today's date as fallback.`);
         startDate = new Date();
       }
-  
+
       // Validate and handle invalid endDate
       if (!endDate || isNaN(endDate.getTime())) {
         console.warn(`Invalid end date for idea "${idea.title}". Using today's date as fallback.`);
         endDate = new Date();
       }
-  
+
       // Ensure startDate is before or equal to endDate
       if (startDate > endDate) {
         console.warn(`Start date is after end date for idea "${idea.title}". Adjusting end date to match start date.`);
         endDate = new Date(startDate); // Adjust end date to start date
       }
-  
+
+      console.log(`Formatted for Gantt: ${idea.title} starts on ${startDate} and ends on ${endDate}`);
+
       return {
         id: idea._id,
         name: idea.title,
@@ -79,7 +82,6 @@ const InnovationRoadmap = () => {
       };
     });
   };  
-  
   
   return (
     <div className="flex h-screen">
@@ -92,7 +94,7 @@ const InnovationRoadmap = () => {
             <div className="w-1/2">
               <Select
                 placeholder="Filter by Department"
-                options={ideas.map(idea => ({ value: idea.department._id, label: idea.department.name }))}
+                options={ideas.map(idea => ({ value: idea.department?._id, label: idea.department?.name || 'Unknown' }))}
                 onChange={setDepartmentFilter}
                 isClearable
               />
@@ -122,3 +124,4 @@ const InnovationRoadmap = () => {
 };
 
 export default InnovationRoadmap;
+s
