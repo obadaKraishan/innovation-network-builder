@@ -55,13 +55,13 @@ const InnovationRoadmap = () => {
       // Validate and handle invalid startDate
       if (!startDate || isNaN(startDate.getTime())) {
         console.warn(`Invalid start date for idea "${idea.title}". Using today's date as fallback.`);
-        startDate = new Date();
+        startDate = new Date(); // Fallback to current date
       }
 
       // Validate and handle invalid endDate
       if (!endDate || isNaN(endDate.getTime())) {
         console.warn(`Invalid end date for idea "${idea.title}". Using today's date as fallback.`);
-        endDate = new Date();
+        endDate = new Date(); // Fallback to current date
       }
 
       // Ensure startDate is before or equal to endDate
