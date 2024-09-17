@@ -43,43 +43,49 @@ const InnovationRoadmap = () => {
     handleFilterChange();
   }, [departmentFilter, stageFilter]);
 
-  // New utility function to ensure valid dates
-  const ensureValidDate = (date, fallback) => {
-    let parsedDate = new Date(date);
-    if (!date || isNaN(parsedDate.getTime())) {
-      console.warn(`Invalid date: ${date}, using fallback: ${fallback}`);
-      return fallback;
+  // Utility function to ensure valid dates or return a fallback
+  const ensureValidDate = (date, ideaTitle) => {
+    if (!date) {
+      console.warn(`Date is missing for "${ideaTitle}". Using fallback date.`);
+      return new Date(); // Return current date as fallback
     }
-    return parsedDate;
+    const parsedDate = new Date(date);
+    if (isNaN(parsedDate.getTime())) {
+      console.warn(`Invalid date for "${ideaTitle}": ${date}. Using fallback date.`);
+      return new Date(); // Return current date as fallback
+    }
+    return parsedDate; // Return parsed date if valid
   };
 
-  // Ensure that start and end dates are valid before passing to Gantt
+  // Format ideas for Gantt chart, skipping those with invalid dates
   const formatIdeasForGantt = () => {
-    return filteredIdeas.map(idea => {
-      // Debugging logs to capture invalid data
-      console.log(`Raw idea data for "${idea.title}":`, idea);
-      
-      let startDate = ensureValidDate(idea.startDate, new Date());
-      let endDate = ensureValidDate(idea.endDate, new Date());
+    return filteredIdeas
+      .map(idea => {
+        // Log the raw idea data
+        console.log(`Raw idea data for "${idea.title}":`, idea);
 
-      // Ensure startDate is before or equal to endDate
-      if (startDate > endDate) {
-        console.warn(`Start date (${startDate}) is after end date (${endDate}) for idea "${idea.title}". Adjusting end date.`);
-        endDate = new Date(startDate); // Adjust end date to start date
-      }
+        // Ensure valid dates
+        const startDate = ensureValidDate(idea.startDate, idea.title);
+        const endDate = ensureValidDate(idea.endDate, idea.title);
 
-      // Final check before creating the Gantt task
-      console.log(`Formatted for Gantt: ${idea.title} starts on ${startDate} and ends on ${endDate}`);
+        // Ensure startDate is before or equal to endDate
+        if (startDate > endDate) {
+          console.warn(`Start date (${startDate}) is after end date (${endDate}) for idea "${idea.title}". Adjusting end date.`);
+          endDate.setTime(startDate.getTime()); // Adjust end date to match start date
+        }
 
-      return {
-        id: idea._id,
-        name: idea.title,
-        start: startDate,
-        end: endDate,
-        progress: idea.progress || 0,
-        dependencies: idea.dependencies || ''
-      };
-    });
+        console.log(`Formatted for Gantt: ${idea.title} starts on ${startDate} and ends on ${endDate}`);
+
+        return {
+          id: idea._id,
+          name: idea.title,
+          start: startDate,
+          end: endDate,
+          progress: idea.progress || 0,
+          dependencies: idea.dependencies || ''
+        };
+      })
+      .filter(idea => idea !== null);  // Remove any null values from invalid ideas
   };
 
   return (
