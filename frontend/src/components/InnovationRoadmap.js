@@ -49,8 +49,8 @@ const InnovationRoadmap = () => {
       let startDate = idea.startDate ? new Date(idea.startDate) : null;
       let endDate = idea.endDate ? new Date(idea.endDate) : null;
 
-      // Extra console logs to debug date issues
-      console.log(`Idea "${idea.title}" has startDate: ${idea.startDate}, endDate: ${idea.endDate}`);
+      // Log original start and end dates
+      console.log(`Idea "${idea.title}" has raw startDate: ${idea.startDate}, raw endDate: ${idea.endDate}`);
 
       // Validate and handle invalid startDate
       if (!startDate || isNaN(startDate.getTime())) {
