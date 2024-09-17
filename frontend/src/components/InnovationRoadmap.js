@@ -43,33 +43,32 @@ const InnovationRoadmap = () => {
     handleFilterChange();
   }, [departmentFilter, stageFilter]);
 
+  // New utility function to ensure valid dates
+  const ensureValidDate = (date, fallback) => {
+    let parsedDate = new Date(date);
+    if (!date || isNaN(parsedDate.getTime())) {
+      console.warn(`Invalid date: ${date}, using fallback: ${fallback}`);
+      return fallback;
+    }
+    return parsedDate;
+  };
+
   // Ensure that start and end dates are valid before passing to Gantt
   const formatIdeasForGantt = () => {
     return filteredIdeas.map(idea => {
-      let startDate = idea.startDate ? new Date(idea.startDate) : null;
-      let endDate = idea.endDate ? new Date(idea.endDate) : null;
-
-      // Log original start and end dates
-      console.log(`Idea "${idea.title}" has raw startDate: ${idea.startDate}, raw endDate: ${idea.endDate}`);
-
-      // Validate and handle invalid startDate
-      if (!startDate || isNaN(startDate.getTime())) {
-        console.warn(`Invalid start date for idea "${idea.title}". Using today's date as fallback.`);
-        startDate = new Date(); // Fallback to current date
-      }
-
-      // Validate and handle invalid endDate
-      if (!endDate || isNaN(endDate.getTime())) {
-        console.warn(`Invalid end date for idea "${idea.title}". Using today's date as fallback.`);
-        endDate = new Date(); // Fallback to current date
-      }
+      // Debugging logs to capture invalid data
+      console.log(`Raw idea data for "${idea.title}":`, idea);
+      
+      let startDate = ensureValidDate(idea.startDate, new Date());
+      let endDate = ensureValidDate(idea.endDate, new Date());
 
       // Ensure startDate is before or equal to endDate
       if (startDate > endDate) {
-        console.warn(`Start date is after end date for idea "${idea.title}". Adjusting end date to match start date.`);
+        console.warn(`Start date (${startDate}) is after end date (${endDate}) for idea "${idea.title}". Adjusting end date.`);
         endDate = new Date(startDate); // Adjust end date to start date
       }
 
+      // Final check before creating the Gantt task
       console.log(`Formatted for Gantt: ${idea.title} starts on ${startDate} and ends on ${endDate}`);
 
       return {
@@ -81,8 +80,8 @@ const InnovationRoadmap = () => {
         dependencies: idea.dependencies || ''
       };
     });
-  };  
-  
+  };
+
   return (
     <div className="flex h-screen">
       <Sidebar />
@@ -115,8 +114,12 @@ const InnovationRoadmap = () => {
             </div>
           </div>
 
-          {/* Ensure all tasks have valid dates */}
-          <FrappeGantt tasks={formatIdeasForGantt()} /> {/* Render Gantt chart with filtered ideas */}
+          {/* Render Gantt chart only when tasks are valid */}
+          {filteredIdeas.length > 0 ? (
+            <FrappeGantt tasks={formatIdeasForGantt()} />
+          ) : (
+            <p>No ideas available to display in the roadmap.</p>
+          )}
         </div>
       </div>
     </div>
