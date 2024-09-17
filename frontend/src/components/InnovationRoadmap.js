@@ -49,24 +49,24 @@ const InnovationRoadmap = () => {
       let startDate = idea.startDate ? new Date(idea.startDate) : null;
       let endDate = idea.endDate ? new Date(idea.endDate) : null;
   
-      console.log(`Idea "${idea.title}" - Raw startDate: ${idea.startDate}, Raw endDate: ${idea.endDate}`);
+      console.log(`Raw startDate: ${idea.startDate}, Raw endDate: ${idea.endDate} for idea: "${idea.title}"`);
   
-      // Validate start date
+      // Validate and handle invalid startDate
       if (!startDate || isNaN(startDate.getTime())) {
-        console.warn(`Invalid or missing start date for idea "${idea.title}". Using the current date as fallback.`);
-        startDate = new Date(); // Fallback to the current date
+        console.warn(`Invalid start date for idea "${idea.title}". Using today's date as fallback.`);
+        startDate = new Date();
       }
   
-      // Validate end date
+      // Validate and handle invalid endDate
       if (!endDate || isNaN(endDate.getTime())) {
-        console.warn(`Invalid or missing end date for idea "${idea.title}". Using the current date as fallback.`);
-        endDate = new Date(); // Fallback to the current date
+        console.warn(`Invalid end date for idea "${idea.title}". Using today's date as fallback.`);
+        endDate = new Date();
       }
   
-      // Ensure start date is before or equal to end date
+      // Ensure startDate is before or equal to endDate
       if (startDate > endDate) {
-        console.warn(`Idea "${idea.title}" has a start date after the end date. Adjusting the end date to match the start date.`);
-        endDate = new Date(startDate); // Adjust end date to match the start date
+        console.warn(`Start date is after end date for idea "${idea.title}". Adjusting end date to match start date.`);
+        endDate = new Date(startDate); // Adjust end date to start date
       }
   
       return {
@@ -78,7 +78,7 @@ const InnovationRoadmap = () => {
         dependencies: idea.dependencies || ''
       };
     });
-  };    
+  };  
   
   
   return (
