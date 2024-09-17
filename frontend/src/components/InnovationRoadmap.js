@@ -49,25 +49,24 @@ const InnovationRoadmap = () => {
       let startDate = idea.startDate ? new Date(idea.startDate) : null;
       let endDate = idea.endDate ? new Date(idea.endDate) : null;
   
-      // Log the idea's dates for debugging
-      console.log(`Idea "${idea.title}" startDate:`, startDate, 'endDate:', endDate);
+      console.log(`Idea "${idea.title}" - Raw startDate: ${idea.startDate}, Raw endDate: ${idea.endDate}`);
   
       // Validate start date
       if (!startDate || isNaN(startDate.getTime())) {
-        console.warn(`Idea "${idea.title}" has an invalid or missing start date. Using the current date as fallback.`);
+        console.warn(`Invalid or missing start date for idea "${idea.title}". Using the current date as fallback.`);
         startDate = new Date(); // Fallback to the current date
       }
   
       // Validate end date
       if (!endDate || isNaN(endDate.getTime())) {
-        console.warn(`Idea "${idea.title}" has an invalid or missing end date. Using the current date as fallback.`);
+        console.warn(`Invalid or missing end date for idea "${idea.title}". Using the current date as fallback.`);
         endDate = new Date(); // Fallback to the current date
       }
   
       // Ensure start date is before or equal to end date
       if (startDate > endDate) {
-        console.warn(`Idea "${idea.title}" has a start date after the end date. Adjusting the end date to match start date.`);
-        endDate = new Date(startDate); // Fallback to start date
+        console.warn(`Idea "${idea.title}" has a start date after the end date. Adjusting the end date to match the start date.`);
+        endDate = new Date(startDate); // Adjust end date to match the start date
       }
   
       return {
@@ -79,7 +78,7 @@ const InnovationRoadmap = () => {
         dependencies: idea.dependencies || ''
       };
     });
-  };  
+  };    
   
   
   return (
