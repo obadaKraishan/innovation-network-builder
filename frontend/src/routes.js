@@ -11,7 +11,7 @@ import MyTeam from './components/MyTeam';
 import ManageTeam from './components/ManageTeam';
 import TeamDetails from './components/TeamDetails';
 import ManageDepartments from './components/ManageDepartments';
-import EditDepartment from './components/EditDepartment'; 
+import EditDepartment from './components/EditDepartment';
 import ManageUsers from './components/ManageUsers';
 import AddUser from './components/AddUser';
 import UserDetails from './components/UserDetails';
@@ -47,10 +47,10 @@ import CreateSurvey from './components/CreateSurvey';
 import SubmitFeedback from './components/SubmitFeedback';
 import WellnessResources from './components/WellnessResources';
 import PersonalizedRecommendations from './components/PersonalizedRecommendations';
-import EditWellnessSurvey from './components/EditWellnessSurvey'; 
+import EditWellnessSurvey from './components/EditWellnessSurvey';
 import WellnessFeedbackDetails from './components/WellnessFeedbackDetails';
 import WellnessEditResource from './components/WellnessEditResource';
-import WellnessEditRecommendation from './components/WellnessEditRecommendation'; 
+import WellnessEditRecommendation from './components/WellnessEditRecommendation';
 
 // New Components for Innovation Pipeline System
 import InnovationDashboard from './components/InnovationDashboard';
@@ -62,6 +62,14 @@ import InnovationLeaderboard from './components/InnovationLeaderboard';
 // Notification components
 import NotificationsDashboard from './components/NotificationsDashboard';
 import NotificationDetails from './components/NotificationDetails';
+
+// Customer Support Ticket System
+import TicketSubmission from './components/TicketSubmission';
+import TicketHistory from './components/TicketHistory';
+import OpenTickets from './components/OpenTickets';
+import SupportTicketManagement from './components/SupportTicketManagement';
+import TicketCalendar from './components/TicketCalendar';
+import RecentTickets from './components/RecentTickets';
 
 const AppRoutes = () => {
   return (
@@ -111,7 +119,7 @@ const AppRoutes = () => {
           <Route path="/wellness/submit-feedback" element={<SubmitFeedback />} />
           <Route path="/wellness/resources" element={<WellnessResources />} />
           <Route path="/wellness/recommendations" element={<PersonalizedRecommendations />} />
-          <Route path="/wellness/edit-survey/:surveyId" element={<EditWellnessSurvey />} /> 
+          <Route path="/wellness/edit-survey/:surveyId" element={<EditWellnessSurvey />} />
           <Route path="/wellness/feedback-details/:feedbackId" element={<WellnessFeedbackDetails />} />
           <Route path="/wellness/edit-resource/:resourceId" element={<WellnessEditResource />} />
           <Route path="/wellness/edit-recommendation/:recommendationId" element={<WellnessEditRecommendation />} />
@@ -127,10 +135,17 @@ const AppRoutes = () => {
           <Route path="/notifications" element={<NotificationsDashboard />} />
           <Route path="/notifications/:id" element={<NotificationDetails />} />
 
+          {/* Customer Support Ticket System */}
+          <Route path="/submit-ticket" element={<TicketSubmission />} />
+          <Route path="/ticket-history" element={<TicketHistory />} />
+          <Route path="/open-tickets" element={<OpenTickets />} />
+          <Route path="/support-management" element={<SupportTicketManagement />} />
+          <Route path="/ticket-calendar" element={<TicketCalendar />} />
+          <Route path="/recent-tickets" element={<RecentTickets />} />
+
           {/* Default redirect to login */}
           <Route path="/" element={<Navigate to="/login" />} />
           <Route path="*" element={<Navigate to="/" />} />
-
         </Routes>
       </AuthProvider>
   );
