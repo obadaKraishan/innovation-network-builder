@@ -30,6 +30,10 @@ const Sidebar = () => {
     return null;
   }
 
+  // Check if the user is in the IT department and Technical Support sub-department
+  const isITDepartment = user.department?.parentDepartment === "IT";
+  const isTechnicalSupport = user.department?.name === "Technical Support";
+
   // Sidebar links categorized by functionality
   const links = {
     Employee: [
@@ -321,12 +325,14 @@ const Sidebar = () => {
     ],
   };
 
+  // Check if current path is active for styling
   const isActive = (path) => location.pathname === path;
 
   return (
     <aside className="w-65 bg-gradient-to-b from-blue-500 to-indigo-600 text-white h-screen flex flex-col justify-between shadow-lg">
-      <div className="overflow-y-auto max-h-[100vh] sidebar-container"> {/* Added custom class */}
+      <div className="overflow-y-auto max-h-[100vh] sidebar-container"> 
         <ul className="space-y-3 p-6">
+          {/* Map through user role-based links */}
           {links[user.role]?.map((category, index) => (
             <li key={index} className="border-b border-indigo-400 pb-1">
               <h3 className="text-lg font-bold text-gray-200 mb-2">{category.category}</h3>
@@ -349,6 +355,76 @@ const Sidebar = () => {
               </ul>
             </li>
           ))}
+
+          {/* Technical Support Links - Visible to all except IT and Technical Support */}
+          {!isITDepartment && !isTechnicalSupport && (
+            <li className="border-b border-indigo-400 pb-1">
+              <h3 className="text-lg font-bold text-gray-200 mb-2">Technical Support</h3>
+              <ul className="space-y-1 pl-1">
+                <li>
+                  <Link
+                    to="/technical-support-dashboard"
+                    className={`flex items-center space-x-2 text-lg transition-all duration-300 ease-in-out ${
+                      isActive("/technical-support-dashboard")
+                        ? "text-white bg-indigo-700 rounded-md p-2 shadow-md"
+                        : "text-gray-200 hover:text-white hover:bg-indigo-600 p-2 rounded-md"
+                    }`}
+                  >
+                    <FaTools />
+                    <span>Technical Support Dashboard</span>
+                  </Link>
+                </li>
+                <li>
+                  <Link
+                    to="/submit-ticket"
+                    className={`flex items-center space-x-2 text-lg transition-all duration-300 ease-in-out ${
+                      isActive("/submit-ticket")
+                        ? "text-white bg-indigo-700 rounded-md p-2 shadow-md"
+                        : "text-gray-200 hover:text-white hover:bg-indigo-600 p-2 rounded-md"
+                    }`}
+                  >
+                    <FaTicketAlt />
+                    <span>Submit a Ticket</span>
+                  </Link>
+                </li>
+                <li>
+                  <Link
+                    to="/ticket-history"
+                    className={`flex items-center space-x-2 text-lg transition-all duration-300 ease-in-out ${
+                      isActive("/ticket-history")
+                        ? "text-white bg-indigo-700 rounded-md p-2 shadow-md"
+                        : "text-gray-200 hover:text-white hover:bg-indigo-600 p-2 rounded-md"
+                    }`}
+                  >
+                    <FaTicketAlt />
+                    <span>Ticket History</span>
+                  </Link>
+                </li>
+              </ul>
+            </li>
+          )}
+
+          {/* Support Management Links - Visible to Technical Support Sub-Department Only */}
+          {isTechnicalSupport && (
+            <li className="border-b border-indigo-400 pb-1">
+              <h3 className="text-lg font-bold text-gray-200 mb-2">Technical Support Management</h3>
+              <ul className="space-y-1 pl-1">
+                <li>
+                  <Link
+                    to="/support-management"
+                    className={`flex items-center space-x-2 text-lg transition-all duration-300 ease-in-out ${
+                      isActive("/support-management")
+                        ? "text-white bg-indigo-700 rounded-md p-2 shadow-md"
+                        : "text-gray-200 hover:text-white hover:bg-indigo-600 p-2 rounded-md"
+                    }`}
+                  >
+                    <FaTools />
+                    <span>Support Ticket Management</span>
+                  </Link>
+                </li>
+              </ul>
+            </li>
+          )}
         </ul>
       </div>
       <div className="p-6">
