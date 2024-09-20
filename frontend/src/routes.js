@@ -136,7 +136,7 @@ const AppRoutes = () => {
           <Route path="/notifications" element={<NotificationsDashboard />} />
           <Route path="/notifications/:id" element={<NotificationDetails />} />
 
-          {/* Customer Support Ticket System */}
+          {/* Technical Support Ticket System */}
           <Route path="/technical-support-dashboard" element={<TechnicalSupportDashboard />} /> 
           <Route path="/submit-ticket" element={<TicketSubmission />} />
           <Route path="/ticket-history" element={<TicketHistory />} />
