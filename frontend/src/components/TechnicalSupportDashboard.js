@@ -2,7 +2,7 @@
 
 import React, { useState, useEffect } from 'react';
 import Sidebar from './Sidebar';
-import { FaArrowLeft, FaTicketAlt, FaCalendarAlt, FaPlus, FaSearch } from 'react-icons/fa';
+import { FaTicketAlt, FaCalendarAlt, FaPlus, FaSearch } from 'react-icons/fa';
 import { useNavigate } from 'react-router-dom';
 import RecentTickets from './RecentTickets';
 import TicketCalendar from './TicketCalendar';
@@ -47,14 +47,6 @@ const TechnicalSupportDashboard = () => {
 
       {/* Main Content */}
       <div className="flex-1 p-6 bg-gray-100 overflow-auto">
-        {/* Back Button */}
-        <button
-          onClick={() => navigate(-1)}
-          className="bg-gray-300 text-gray-700 px-4 py-2 rounded-lg flex items-center mb-6 hover:bg-gray-400"
-        >
-          <FaArrowLeft className="mr-2" /> Back
-        </button>
-
         {/* Dashboard Header */}
         <div className="flex justify-between items-center mb-6">
           <h1 className="text-2xl font-bold">Technical Support Dashboard</h1>
