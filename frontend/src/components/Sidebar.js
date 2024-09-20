@@ -17,6 +17,8 @@ import {
   FaHeartbeat,
   FaBell,
   FaLightbulb,
+  FaTools,  
+  FaTicketAlt,
 } from "react-icons/fa";
 import AuthContext from "../context/AuthContext";
 

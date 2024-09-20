@@ -64,6 +64,7 @@ import NotificationsDashboard from './components/NotificationsDashboard';
 import NotificationDetails from './components/NotificationDetails';
 
 // Customer Support Ticket System
+import TechnicalSupportDashboard from './components/TechnicalSupportDashboard'; 
 import TicketSubmission from './components/TicketSubmission';
 import TicketHistory from './components/TicketHistory';
 import OpenTickets from './components/OpenTickets';
@@ -136,6 +137,7 @@ const AppRoutes = () => {
           <Route path="/notifications/:id" element={<NotificationDetails />} />
 
           {/* Customer Support Ticket System */}
+          <Route path="/technical-support-dashboard" element={<TechnicalSupportDashboard />} /> 
           <Route path="/submit-ticket" element={<TicketSubmission />} />
           <Route path="/ticket-history" element={<TicketHistory />} />
           <Route path="/open-tickets" element={<OpenTickets />} />
