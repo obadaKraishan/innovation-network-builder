@@ -32,7 +32,7 @@ const Sidebar = () => {
 
   // Check if the user is in the IT department and Technical Support sub-department
   const isITDepartment = user.department?.parentDepartment === "IT";
-  const isTechnicalSupport = user.department?.name === "Technical Support";
+  const isTechnicalSupport = user.subDepartment?.name === "Technical Support";
 
   // Sidebar links categorized by functionality
   const links = {
@@ -330,7 +330,7 @@ const Sidebar = () => {
 
   return (
     <aside className="w-65 bg-gradient-to-b from-blue-500 to-indigo-600 text-white h-screen flex flex-col justify-between shadow-lg">
-      <div className="overflow-y-auto max-h-[100vh] sidebar-container"> 
+      <div className="overflow-y-auto max-h-[100vh] sidebar-container">
         <ul className="space-y-3 p-6">
           {/* Map through user role-based links */}
           {links[user.role]?.map((category, index) => (
