@@ -1,11 +1,13 @@
 // File: frontend/src/components/SupportTicketManagement.js
 
 import React, { useState, useEffect } from 'react';
-import { FaSpinner, FaExclamationCircle, FaTools } from 'react-icons/fa'; // Icons for better UX
+import { FaSpinner, FaExclamationCircle, FaTools, FaFilter, FaTicketAlt, FaCalendarAlt } from 'react-icons/fa'; 
 import api from '../utils/api';
 import TicketFilters from './TicketFilters';
-import Sidebar from './Sidebar'; // Import Sidebar component
+import Sidebar from './Sidebar'; 
 import { toast } from 'react-toastify';
+import TicketCalendar from './TicketCalendar';
+import RecentTickets from './RecentTickets';
 
 const SupportTicketManagement = () => {
   const [tickets, setTickets] = useState([]);
@@ -18,7 +20,7 @@ const SupportTicketManagement = () => {
       try {
         const { data } = await api.get('/support/all');
         setTickets(data);
-        setFilteredTickets(data); // Initialize filtered tickets
+        setFilteredTickets(data); 
         setLoading(false);
       } catch (error) {
         setError('Failed to fetch tickets');
@@ -50,12 +52,11 @@ const SupportTicketManagement = () => {
     try {
       await api.put(`/support/${ticketId}/status`, { status });
       toast.success(`Ticket marked as ${status}`);
-      // Update tickets list after the status change
       const updatedTickets = tickets.map(ticket => 
         ticket.ticketId === ticketId ? { ...ticket, status } : ticket
       );
       setTickets(updatedTickets);
-      setFilteredTickets(updatedTickets); // Update filtered list
+      setFilteredTickets(updatedTickets); 
     } catch (error) {
       toast.error('Failed to update ticket status');
     }
@@ -76,7 +77,23 @@ const SupportTicketManagement = () => {
         {/* Ticket Filters */}
         <TicketFilters onFilter={handleFilter} />
 
-        {/* Loading, Error, and Empty States */}
+        {/* Recent Tickets Section */}
+        <div className="mb-6">
+          <h3 className="text-lg font-semibold mb-4 flex items-center">
+            <FaTicketAlt className="mr-2" /> Recent Tickets
+          </h3>
+          <RecentTickets />
+        </div>
+
+        {/* Ticket Calendar Section */}
+        <div className="mb-6">
+          <h3 className="text-lg font-semibold mb-4 flex items-center">
+            <FaCalendarAlt className="mr-2" /> Ticket Calendar
+          </h3>
+          <TicketCalendar />
+        </div>
+
+        {/* Filtered Tickets Section */}
         {loading ? (
           <div className="flex justify-center items-center py-10">
             <FaSpinner className="animate-spin text-2xl text-blue-500" />
