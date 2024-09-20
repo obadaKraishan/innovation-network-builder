@@ -6,7 +6,8 @@ const User = require('../models/userModel');
 // Submit a new ticket
 const submitTicket = async (req, res) => {
   try {
-    const { description, priority, attachments } = req.body;
+    const { description, priority } = req.body;
+    const attachments = req.file ? req.file.filename : null; // Save the file path or filename
 
     const ticket = await Ticket.create({
       ticketId: `TICKET-${Date.now()}`,

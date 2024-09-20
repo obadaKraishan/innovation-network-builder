@@ -50,7 +50,6 @@ const TicketSubmission = () => {
         </button>
 
         {/* Ticket Submission Form */}
-        <div className="p-6 bg-white shadow-md rounded-lg">
           <h2 className="text-2xl font-bold mb-4 flex items-center">
             <FaPlusCircle className="mr-2" /> Submit a New Ticket
           </h2>
@@ -112,7 +111,6 @@ const TicketSubmission = () => {
               </button>
             </div>
           </form>
-        </div>
       </div>
     </div>
   );

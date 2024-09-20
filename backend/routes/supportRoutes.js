@@ -9,10 +9,13 @@ const {
   updateTicketStatus,
   filterTickets,
 } = require('../controllers/supportController');
+const multer = require('multer');
+const upload = multer({ dest: 'uploads/' }); // This will store files in the 'uploads' folder
 
 const router = express.Router();
 
 // Routes for regular users
+router.route('/').post(protect, upload.single('attachments'), submitTicket); // Enable file upload
 router.route('/').post(protect, submitTicket); // Submit a new ticket
 router.route('/my-tickets').get(protect, getUserTickets); // View own tickets
 

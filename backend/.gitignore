@@ -1,4 +1,5 @@
 node_modules
+uploads/*
 /.cache
 node_modules/.debug
 node_modules/.prebuild
