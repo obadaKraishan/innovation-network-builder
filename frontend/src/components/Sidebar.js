@@ -1,5 +1,5 @@
 // File: frontend/src/components/Sidebar.js
-import React, { useContext } from "react";
+import React, { useContext, useEffect } from "react";
 import { Link, useLocation } from "react-router-dom";
 import {
   FaUser,
@@ -17,7 +17,7 @@ import {
   FaHeartbeat,
   FaBell,
   FaLightbulb,
-  FaTools,  
+  FaTools,
   FaTicketAlt,
 } from "react-icons/fa";
 import AuthContext from "../context/AuthContext";
@@ -26,13 +26,19 @@ const Sidebar = () => {
   const { user, logout } = useContext(AuthContext);
   const location = useLocation();
 
+  useEffect(() => {
+    if (user) {
+      console.log("User data in Sidebar:", user);
+    }
+  }, [user]);
+
   if (!user) {
-    return null;
+    return null; // Return null if user data is not present to prevent sidebar from showing without user info
   }
 
-  // Check if the user is in the IT department and Technical Support sub-department
-  const isITDepartment = user.department?.parentDepartment === "IT";
-  const isTechnicalSupport = user.subDepartment?.name === "Technical Support";
+  // Check if the user is a Technical Support Manager or Specialist
+  const isTechnicalSupportManager = user?.position === "Technical Support Manager";
+  const isTechnicalSupportSpecialist = user?.position === "Technical Support Specialist";
 
   // Sidebar links categorized by functionality
   const links = {
@@ -325,7 +331,7 @@ const Sidebar = () => {
     ],
   };
 
-  // Check if current path is active for styling
+  // Check if the current path is active for styling
   const isActive = (path) => location.pathname === path;
 
   return (
@@ -356,8 +362,8 @@ const Sidebar = () => {
             </li>
           ))}
 
-          {/* Technical Support Links - Visible to all except IT and Technical Support */}
-          {!isITDepartment && !isTechnicalSupport && (
+          {/* Technical Support Links - Visible to all */}
+          {!isTechnicalSupportManager && !isTechnicalSupportSpecialist && (
             <li className="border-b border-indigo-400 pb-1">
               <h3 className="text-lg font-bold text-gray-200 mb-2">Technical Support</h3>
               <ul className="space-y-1 pl-1">
@@ -404,8 +410,8 @@ const Sidebar = () => {
             </li>
           )}
 
-          {/* Support Management Links - Visible to Technical Support Sub-Department Only */}
-          {isTechnicalSupport && (
+          {/* Support Management Links - Visible to Technical Support Manager and Specialist Only */}
+          {(isTechnicalSupportManager || isTechnicalSupportSpecialist) && (
             <li className="border-b border-indigo-400 pb-1">
               <h3 className="text-lg font-bold text-gray-200 mb-2">Technical Support Management</h3>
               <ul className="space-y-1 pl-1">

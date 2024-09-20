@@ -15,15 +15,15 @@ export const AuthProvider = ({ children }) => {
       
       const { data } = await axios.post('http://localhost:5001/api/auth/login', { email, password });
       
-      localStorage.setItem('userInfo', JSON.stringify(data));
+      localStorage.setItem('userInfo', JSON.stringify(data)); // Store all user info including position
       localStorage.setItem('token', data.token); // Store JWT token
       
-      setUser(data); 
+      setUser(data); // Set user data including position in state
       navigate('/dashboard'); 
     } catch (error) {
       console.error('Login failed', error.response?.data?.message || error.message);
     }
-  };  
+  };
 
   const logout = () => {
     setUser(null);
@@ -35,7 +35,7 @@ export const AuthProvider = ({ children }) => {
   useEffect(() => {
     const userInfo = localStorage.getItem('userInfo');
     if (userInfo) {
-      setUser(JSON.parse(userInfo));
+      setUser(JSON.parse(userInfo)); // Parse and set the user data from localStorage on page reload
     }
   }, []);
 
