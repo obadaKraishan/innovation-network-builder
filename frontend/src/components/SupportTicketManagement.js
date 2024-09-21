@@ -1,18 +1,20 @@
 // File: frontend/src/components/SupportTicketManagement.js
 
 import React, { useState, useEffect } from 'react';
-import { FaSpinner, FaExclamationCircle, FaTools, FaFilter, FaTicketAlt, FaCalendarAlt, FaCheck } from 'react-icons/fa';
+import { FaSpinner, FaExclamationCircle, FaTools, FaFilter, FaTicketAlt, FaCalendarAlt, FaCheck, FaClock } from 'react-icons/fa';
 import api from '../utils/api';
 import Sidebar from './Sidebar'; 
 import { toast } from 'react-toastify';
 import TicketCalendar from './TicketCalendar';
-import RecentTickets from './RecentTickets';
 
 const SupportTicketManagement = () => {
   const [tickets, setTickets] = useState([]);
   const [filteredTickets, setFilteredTickets] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
+  const [recentTickets, setRecentTickets] = useState([]); // State for recent tickets
+  const [recentLoading, setRecentLoading] = useState(true); // Loading state for recent tickets
+  const [recentError, setRecentError] = useState(null); // Error state for recent tickets
 
   // Filter states
   const [statusFilter, setStatusFilter] = useState('');
@@ -34,6 +36,23 @@ const SupportTicketManagement = () => {
     };
 
     fetchTickets();
+  }, []);
+
+  // Fetch recent tickets
+  useEffect(() => {
+    const fetchRecentTickets = async () => {
+      try {
+        const { data } = await api.get('/support/recent-tickets');
+        setRecentTickets(data);
+        setRecentLoading(false);
+      } catch (error) {
+        setRecentError('Failed to fetch recent tickets');
+        toast.error('Failed to fetch recent tickets');
+        setRecentLoading(false);
+      }
+    };
+
+    fetchRecentTickets();
   }, []);
 
   // Handle filter logic
@@ -138,12 +157,51 @@ const SupportTicketManagement = () => {
           </button>
         </div>
 
-        {/* Recent Tickets Section */}
+        {/* Recent Tickets Section - moved logic here */}
         <div className="mb-6">
           <h3 className="text-lg font-semibold mb-4 flex items-center">
-            <FaTicketAlt className="mr-2" /> Recent Tickets
+            <FaClock className="mr-2" /> Recent Tickets (Last 7 Days)
           </h3>
-          <RecentTickets />
+
+          {recentLoading ? (
+            <div className="flex justify-center items-center py-10">
+              <FaClock className="animate-spin text-2xl text-blue-500" />
+              <span className="ml-2">Loading recent tickets...</span>
+            </div>
+          ) : recentError ? (
+            <div className="text-center text-red-500 py-10">
+              <FaExclamationCircle className="inline-block mr-2" />
+              {recentError}
+            </div>
+          ) : recentTickets.length === 0 ? (
+            <div className="text-center text-gray-500 py-10">
+              <FaExclamationCircle className="inline-block mr-2" />
+              No recent tickets available.
+            </div>
+          ) : (
+            <div className="ticket-list grid grid-cols-1 md:grid-cols-2 gap-6">
+              {recentTickets.map(ticket => (
+                <div key={ticket.ticketId} className="bg-white shadow-md rounded-lg p-6">
+                  <p className="text-lg font-semibold">
+                    <FaTicketAlt className="inline-block mr-2 text-blue-500" />
+                    Ticket ID: {ticket.ticketId}
+                  </p>
+                  <p className="text-gray-600">
+                    <strong>Description:</strong> {ticket.description}
+                  </p>
+                  <p className="text-gray-600">
+                    <strong>Status:</strong> {ticket.status}
+                  </p>
+                  <p className="text-gray-600">
+                    <strong>Priority:</strong> {ticket.priority}
+                  </p>
+                  <p className="text-gray-600">
+                    <strong>Created At:</strong> {new Date(ticket.createdAt).toLocaleDateString()}
+                  </p>
+                </div>
+              ))}
+            </div>
+          )}
         </div>
 
         {/* Ticket Calendar Section */}
