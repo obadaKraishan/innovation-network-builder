@@ -18,7 +18,7 @@ const TechnicalSupportDashboard = () => {
   useEffect(() => {
     const fetchTickets = async () => {
       try {
-        const { data } = await api.get('/support/my-tickets'); // Fetch only user's tickets
+        const { data } = await api.get('/support/my-tickets');
         setTickets(data);
 
         // Separate tickets into open and closed (history)
@@ -102,33 +102,36 @@ const TechnicalSupportDashboard = () => {
         </div>
 
         {/* Filters and Search */}
-        <div className="flex justify-between items-center mb-6 space-x-4">
-          {/* Status Filter */}
-          <select
-            className="bg-white shadow-md rounded-lg p-2"
-            value={statusFilter}
-            onChange={handleStatusChange}
-          >
-            <option value="">All Statuses</option>
-            <option value="Open">Open</option>
-            <option value="In Progress">In Progress</option>
-            <option value="Closed">Closed</option>
-          </select>
+        <div className="flex space-x-4 mb-6">
+          {/* Filters Container */}
+          <div className="flex space-x-4 w-1/2">
+            {/* Status Filter */}
+            <select
+              className="bg-white shadow-md rounded-lg p-2 flex-1"
+              value={statusFilter}
+              onChange={handleStatusChange}
+            >
+              <option value="">All Statuses</option>
+              <option value="Open">Open</option>
+              <option value="In Progress">In Progress</option>
+              <option value="Closed">Closed</option>
+            </select>
 
-          {/* Priority Filter */}
-          <select
-            className="bg-white shadow-md rounded-lg p-2"
-            value={priorityFilter}
-            onChange={handlePriorityChange}
-          >
-            <option value="">All Priorities</option>
-            <option value="High">High</option>
-            <option value="Medium">Medium</option>
-            <option value="Low">Low</option>
-          </select>
+            {/* Priority Filter */}
+            <select
+              className="bg-white shadow-md rounded-lg p-2 flex-1"
+              value={priorityFilter}
+              onChange={handlePriorityChange}
+            >
+              <option value="">All Priorities</option>
+              <option value="High">High</option>
+              <option value="Medium">Medium</option>
+              <option value="Low">Low</option>
+            </select>
+          </div>
 
-          {/* Live Search */}
-          <div className="flex items-center bg-white shadow-md rounded-lg p-2">
+          {/* Search Container */}
+          <div className="flex items-center bg-white shadow-md rounded-lg p-2 w-1/2">
             <FaSearch className="text-gray-600 mr-2" />
             <input
               type="text"
