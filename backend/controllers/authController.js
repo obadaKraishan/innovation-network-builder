@@ -25,6 +25,8 @@ const authUser = async (req, res) => {
         name: user.name,
         email: user.email,
         role: user.role,
+        position: user.position, // Include the position
+        skills: user.skills,     // Include skills if needed
         token: generateToken(user._id, user.role),
       });
     } else {
