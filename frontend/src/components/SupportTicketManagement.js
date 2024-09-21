@@ -5,7 +5,6 @@ import { FaSpinner, FaExclamationCircle, FaTools, FaFilter, FaTicketAlt, FaCalen
 import api from '../utils/api';
 import Sidebar from './Sidebar'; 
 import { toast } from 'react-toastify';
-import TicketCalendar from './TicketCalendar';
 
 const SupportTicketManagement = () => {
   const [tickets, setTickets] = useState([]);
