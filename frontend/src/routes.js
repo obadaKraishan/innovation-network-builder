@@ -69,7 +69,6 @@ import TicketSubmission from './components/TicketSubmission';
 import TicketHistory from './components/TicketHistory';
 import OpenTickets from './components/OpenTickets';
 import SupportTicketManagement from './components/SupportTicketManagement';
-import TicketCalendar from './components/TicketCalendar';
 
 const AppRoutes = () => {
   return (
@@ -141,7 +140,6 @@ const AppRoutes = () => {
           <Route path="/ticket-history" element={<TicketHistory />} />
           <Route path="/open-tickets" element={<OpenTickets />} />
           <Route path="/support-management" element={<SupportTicketManagement />} />
-          <Route path="/ticket-calendar" element={<TicketCalendar />} />
 
           {/* Default redirect to login */}
           <Route path="/" element={<Navigate to="/login" />} />
