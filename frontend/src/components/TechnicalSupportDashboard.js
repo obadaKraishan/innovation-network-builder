@@ -38,6 +38,36 @@ const TechnicalSupportDashboard = () => {
     ticket.description.toLowerCase().includes(searchQuery.toLowerCase())
   );
 
+  // Helper function to render badges for status
+  const renderStatusBadge = (status) => {
+    let badgeColor = 'bg-gray-500'; // Default color
+
+    if (status === 'Open') badgeColor = 'bg-green-500';
+    else if (status === 'In Progress') badgeColor = 'bg-yellow-500';
+    else if (status === 'Closed') badgeColor = 'bg-red-500';
+
+    return (
+      <span className={`text-white px-2 py-1 rounded-lg text-sm ${badgeColor}`}>
+        {status}
+      </span>
+    );
+  };
+
+  // Helper function to render badges for priority
+  const renderPriorityBadge = (priority) => {
+    let badgeColor = 'bg-gray-500'; // Default color
+
+    if (priority === 'High') badgeColor = 'bg-red-500';
+    else if (priority === 'Medium') badgeColor = 'bg-yellow-500';
+    else if (priority === 'Low') badgeColor = 'bg-green-500';
+
+    return (
+      <span className={`text-white px-2 py-1 rounded-lg text-sm ${badgeColor}`}>
+        {priority}
+      </span>
+    );
+  };
+
   return (
     <div className="flex h-screen">
       {/* Sidebar */}
@@ -88,10 +118,10 @@ const TechnicalSupportDashboard = () => {
                     <strong>Description:</strong> {ticket.description}
                   </p>
                   <p className="text-gray-600 mb-2">
-                    <strong>Status:</strong> {ticket.status}
+                    <strong>Status:</strong> {renderStatusBadge(ticket.status)}
                   </p>
                   <p className="text-gray-600 mb-2">
-                    <strong>Priority:</strong> {ticket.priority}
+                    <strong>Priority:</strong> {renderPriorityBadge(ticket.priority)}
                   </p>
                   <p className="text-gray-600 mb-2">
                     <strong>Created At:</strong> {new Date(ticket.createdAt).toLocaleDateString()}
@@ -120,10 +150,10 @@ const TechnicalSupportDashboard = () => {
                     <strong>Description:</strong> {ticket.description}
                   </p>
                   <p className="text-gray-600 mb-2">
-                    <strong>Status:</strong> {ticket.status}
+                    <strong>Status:</strong> {renderStatusBadge(ticket.status)}
                   </p>
                   <p className="text-gray-600 mb-2">
-                    <strong>Priority:</strong> {ticket.priority}
+                    <strong>Priority:</strong> {renderPriorityBadge(ticket.priority)}
                   </p>
                   <p className="text-gray-600 mb-2">
                     <strong>Created At:</strong> {new Date(ticket.createdAt).toLocaleDateString()}
