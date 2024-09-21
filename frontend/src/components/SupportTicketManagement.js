@@ -1,9 +1,8 @@
 // File: frontend/src/components/SupportTicketManagement.js
 
 import React, { useState, useEffect } from 'react';
-import { FaSpinner, FaExclamationCircle, FaTools, FaFilter, FaTicketAlt, FaCalendarAlt } from 'react-icons/fa'; 
+import { FaSpinner, FaExclamationCircle, FaTools, FaFilter, FaTicketAlt, FaCalendarAlt, FaCheck } from 'react-icons/fa';
 import api from '../utils/api';
-import TicketFilters from './TicketFilters';
 import Sidebar from './Sidebar'; 
 import { toast } from 'react-toastify';
 import TicketCalendar from './TicketCalendar';
@@ -15,12 +14,17 @@ const SupportTicketManagement = () => {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
 
+  // Filter states
+  const [statusFilter, setStatusFilter] = useState('');
+  const [priorityFilter, setPriorityFilter] = useState('');
+  const [departmentFilter, setDepartmentFilter] = useState('');
+
   useEffect(() => {
     const fetchTickets = async () => {
       try {
         const { data } = await api.get('/support/all');
         setTickets(data);
-        setFilteredTickets(data); 
+        setFilteredTickets(data);
         setLoading(false);
       } catch (error) {
         setError('Failed to fetch tickets');
@@ -32,17 +36,18 @@ const SupportTicketManagement = () => {
     fetchTickets();
   }, []);
 
-  const handleFilter = (filters) => {
+  // Handle filter logic
+  const handleFilterChange = () => {
     let filtered = tickets;
 
-    if (filters.status) {
-      filtered = filtered.filter(ticket => ticket.status === filters.status);
+    if (statusFilter) {
+      filtered = filtered.filter(ticket => ticket.status === statusFilter);
     }
-    if (filters.priority) {
-      filtered = filtered.filter(ticket => ticket.priority === filters.priority);
+    if (priorityFilter) {
+      filtered = filtered.filter(ticket => ticket.priority === priorityFilter);
     }
-    if (filters.department) {
-      filtered = filtered.filter(ticket => ticket.department === filters.department);
+    if (departmentFilter) {
+      filtered = filtered.filter(ticket => ticket.department === departmentFilter);
     }
 
     setFilteredTickets(filtered);
@@ -52,11 +57,11 @@ const SupportTicketManagement = () => {
     try {
       await api.put(`/support/${ticketId}/status`, { status });
       toast.success(`Ticket marked as ${status}`);
-      const updatedTickets = tickets.map(ticket => 
+      const updatedTickets = tickets.map(ticket =>
         ticket.ticketId === ticketId ? { ...ticket, status } : ticket
       );
       setTickets(updatedTickets);
-      setFilteredTickets(updatedTickets); 
+      setFilteredTickets(updatedTickets);
     } catch (error) {
       toast.error('Failed to update ticket status');
     }
@@ -74,8 +79,64 @@ const SupportTicketManagement = () => {
           </h2>
         </div>
 
-        {/* Ticket Filters */}
-        <TicketFilters onFilter={handleFilter} />
+        {/* Ticket Filters - integrated directly into this component */}
+        <div className="ticket-filters bg-white shadow-md rounded p-6 mb-6">
+          <h3 className="text-lg font-bold mb-4 flex items-center">
+            <FaFilter className="mr-2" /> Filter Tickets
+          </h3>
+
+          <div className="grid grid-cols-1 lg:grid-cols-3 gap-4">
+            {/* Status Filter */}
+            <div>
+              <label className="block text-gray-700 font-semibold mb-2">Status</label>
+              <select
+                value={statusFilter}
+                onChange={(e) => setStatusFilter(e.target.value)}
+                className="w-full p-3 border border-gray-300 rounded-lg focus:outline-none focus:ring focus:border-blue-300"
+              >
+                <option value="">All</option>
+                <option value="New">New</option>
+                <option value="In Progress">In Progress</option>
+                <option value="Closed">Closed</option>
+              </select>
+            </div>
+
+            {/* Priority Filter */}
+            <div>
+              <label className="block text-gray-700 font-semibold mb-2">Priority</label>
+              <select
+                value={priorityFilter}
+                onChange={(e) => setPriorityFilter(e.target.value)}
+                className="w-full p-3 border border-gray-300 rounded-lg focus:outline-none focus:ring focus:border-blue-300"
+              >
+                <option value="">All</option>
+                <option value="Low">Low</option>
+                <option value="Medium">Medium</option>
+                <option value="High">High</option>
+              </select>
+            </div>
+
+            {/* Department Filter */}
+            <div>
+              <label className="block text-gray-700 font-semibold mb-2">Department</label>
+              <input
+                type="text"
+                value={departmentFilter}
+                onChange={(e) => setDepartmentFilter(e.target.value)}
+                placeholder="Enter department name"
+                className="w-full p-3 border border-gray-300 rounded-lg focus:outline-none focus:ring focus:border-blue-300"
+              />
+            </div>
+          </div>
+
+          {/* Apply Filters Button */}
+          <button
+            onClick={handleFilterChange}
+            className="bg-blue-500 text-white py-3 px-6 rounded-lg w-full flex items-center justify-center mt-4 hover:bg-blue-600 transition"
+          >
+            <FaCheck className="mr-2" /> Apply Filters
+          </button>
+        </div>
 
         {/* Recent Tickets Section */}
         <div className="mb-6">
