@@ -2,10 +2,8 @@
 
 import React, { useState, useEffect } from 'react';
 import Sidebar from './Sidebar';
-import { FaTicketAlt, FaCalendarAlt, FaPlus, FaSearch } from 'react-icons/fa';
+import { FaTicketAlt, FaPlus, FaSearch } from 'react-icons/fa'; // Removed FaCalendarAlt
 import { useNavigate } from 'react-router-dom';
-import RecentTickets from './RecentTickets';
-import TicketCalendar from './TicketCalendar';
 import api from '../utils/api';
 
 const TechnicalSupportDashboard = () => {
@@ -136,14 +134,6 @@ const TechnicalSupportDashboard = () => {
           ) : (
             <p>No ticket history available.</p>
           )}
-        </div>
-
-        {/* Ticket Calendar Section */}
-        <div className="mb-6">
-          <h3 className="text-lg font-semibold mb-4 flex items-center">
-            <FaCalendarAlt className="mr-2" /> Ticket Calendar
-          </h3>
-          <TicketCalendar />
         </div>
       </div>
     </div>
