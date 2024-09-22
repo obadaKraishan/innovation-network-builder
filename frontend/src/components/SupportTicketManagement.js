@@ -1,7 +1,7 @@
 // File: frontend/src/components/SupportTicketManagement.js
 
 import React, { useState, useEffect } from 'react';
-import { FaSpinner, FaExclamationCircle, FaTools, FaFilter, FaTicketAlt, FaCalendarAlt, FaInfoCircle, FaArrowRight, FaClock } from 'react-icons/fa';
+import { FaSpinner, FaExclamationCircle, FaTools, FaFilter, FaTicketAlt, FaCalendarAlt, FaArrowRight, FaInfoCircle } from 'react-icons/fa'; // Added FaInfoCircle
 import { useNavigate } from 'react-router-dom'; // To navigate to TicketDetails.js
 import api from '../utils/api';
 import Sidebar from './Sidebar'; 
@@ -14,15 +14,13 @@ const SupportTicketManagement = () => {
   const [filteredTickets, setFilteredTickets] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
-  const [recentTickets, setRecentTickets] = useState([]); // State for recent tickets
-  const [recentLoading, setRecentLoading] = useState(true); // Loading state for recent tickets
-  const [recentError, setRecentError] = useState(null); // Error state for recent tickets
 
   // States for calendar and filtering
   const [selectedDate, setSelectedDate] = useState(new Date());
   const [statusFilter, setStatusFilter] = useState('');
   const [priorityFilter, setPriorityFilter] = useState('');
   const [departmentFilter, setDepartmentFilter] = useState('');
+  const [dateFilter, setDateFilter] = useState(''); // New date filter
 
   const navigate = useNavigate(); // Hook to navigate to another page
 
@@ -43,23 +41,6 @@ const SupportTicketManagement = () => {
     fetchTickets();
   }, []);
 
-  // Fetch recent tickets
-  useEffect(() => {
-    const fetchRecentTickets = async () => {
-      try {
-        const { data } = await api.get('/support/recent-tickets');
-        setRecentTickets(data);
-        setRecentLoading(false);
-      } catch (error) {
-        setRecentError('Failed to fetch recent tickets');
-        toast.error('Failed to fetch recent tickets');
-        setRecentLoading(false);
-      }
-    };
-
-    fetchRecentTickets();
-  }, []);
-
   // Live filter handler
   useEffect(() => {
     let filtered = tickets;
@@ -73,33 +54,39 @@ const SupportTicketManagement = () => {
     if (departmentFilter) {
       filtered = filtered.filter(ticket => ticket.department === departmentFilter);
     }
+    if (dateFilter) {
+      const now = new Date();
+      filtered = filtered.filter(ticket => {
+        const ticketDate = new Date(ticket.createdAt);
+        if (dateFilter === 'day') {
+          return ticketDate.toDateString() === now.toDateString();
+        } else if (dateFilter === 'week') {
+          const weekAgo = new Date(now.setDate(now.getDate() - 7));
+          return ticketDate >= weekAgo;
+        } else if (dateFilter === 'month') {
+          const monthAgo = new Date(now.setMonth(now.getMonth() - 1));
+          return ticketDate >= monthAgo;
+        } else if (dateFilter === 'year') {
+          const yearAgo = new Date(now.setFullYear(now.getFullYear() - 1));
+          return ticketDate >= yearAgo;
+        }
+        return true;
+      });
+    }
 
     setFilteredTickets(filtered);
-  }, [statusFilter, priorityFilter, departmentFilter, tickets]);
-
-  const updateTicketStatus = async (ticketId, status) => {
-    try {
-      await api.put(`/support/${ticketId}/status`, { status });
-      toast.success(`Ticket marked as ${status}`);
-      const updatedTickets = tickets.map(ticket =>
-        ticket.ticketId === ticketId ? { ...ticket, status } : ticket
-      );
-      setTickets(updatedTickets);
-      setFilteredTickets(updatedTickets);
-    } catch (error) {
-      toast.error('Failed to update ticket status');
-    }
-  };
-
-  const ticketsOnSelectedDate = tickets.filter(ticket => {
-    const ticketDate = new Date(ticket.createdAt);
-    return ticketDate.toDateString() === selectedDate.toDateString();
-  });  
+  }, [statusFilter, priorityFilter, departmentFilter, dateFilter, tickets]);
 
   // Handle navigation to the TicketDetails.js page
   const goToTicketDetails = (ticketId) => {
     navigate(`/ticket-details/${ticketId}`);
   };
+
+  // Filter tickets based on the selected date from the calendar
+  const ticketsOnSelectedDate = tickets.filter(ticket => {
+    const ticketDate = new Date(ticket.createdAt);
+    return ticketDate.toDateString() === selectedDate.toDateString();
+  });
 
   return (
     <div className="flex h-screen">
@@ -119,7 +106,7 @@ const SupportTicketManagement = () => {
             <FaFilter className="mr-2" /> Filter Tickets
           </h3>
 
-          <div className="grid grid-cols-1 lg:grid-cols-3 gap-4">
+          <div className="grid grid-cols-1 lg:grid-cols-4 gap-4">
             {/* Status Filter */}
             <div>
               <label className="block text-gray-700 font-semibold mb-2">Status</label>
@@ -161,6 +148,22 @@ const SupportTicketManagement = () => {
                 className="w-full p-3 border border-gray-300 rounded-lg focus:outline-none focus:ring focus:border-blue-300"
               />
             </div>
+
+            {/* Date Filter */}
+            <div>
+              <label className="block text-gray-700 font-semibold mb-2">Date Range</label>
+              <select
+                value={dateFilter}
+                onChange={(e) => setDateFilter(e.target.value)}
+                className="w-full p-3 border border-gray-300 rounded-lg focus:outline-none focus:ring focus:border-blue-300"
+              >
+                <option value="">All</option>
+                <option value="day">Today</option>
+                <option value="week">Last 7 Days</option>
+                <option value="month">This Month</option>
+                <option value="year">This Year</option>
+              </select>
+            </div>
           </div>
         </div>
 
@@ -178,39 +181,36 @@ const SupportTicketManagement = () => {
         ) : filteredTickets.length === 0 ? (
           <div className="text-center text-gray-500 py-10">No tickets match the selected filters.</div>
         ) : (
-          <div className="ticket-list grid grid-cols-1 lg:grid-cols-2 gap-6">
+          <div className="ticket-list grid grid-cols-1 gap-4">
             {filteredTickets.map(ticket => (
-              <div key={ticket.ticketId} className="bg-white shadow-md rounded-lg p-6">
-                <p className="text-lg font-semibold">
-                  <strong>Ticket ID:</strong> {ticket.ticketId}
-                </p>
-                <p className="text-gray-700 mb-2">
-                  <strong>Description:</strong> {ticket.description}
-                </p>
-                <p className="text-gray-700 mb-2">
-                  <strong>Status:</strong> {ticket.status}
-                </p>
-                <p className="text-gray-700 mb-2">
-                  <strong>Priority:</strong> {ticket.priority}
-                </p>
-                <p className="text-gray-700 mb-2">
-                  <strong>Assigned To:</strong> {ticket.assignedTo ? ticket.assignedTo.name : 'Unassigned'}
-                </p>
-                <div className="flex space-x-4 mt-4">
+              <div key={ticket.ticketId} className="bg-white shadow-md rounded-lg p-6 flex items-center justify-between">
+                <div>
+                  <p className="text-lg font-semibold">
+                    <FaTicketAlt className="mr-2 text-blue-500" />
+                    <strong>Ticket ID:</strong> {ticket.ticketId}
+                  </p>
+                  <p className="text-gray-700 mb-2">
+                    <strong>Description:</strong> {ticket.description}
+                  </p>
+                  <p className="text-gray-700 mb-2">
+                    <strong>Department:</strong> {ticket.department}
+                  </p>
+                  <p className="text-gray-700 mb-2">
+                    <strong>Assigned To:</strong> {ticket.assignedTo ? ticket.assignedTo.name : 'Unassigned'}
+                  </p>
+                  <p className="text-gray-700 mb-2">
+                    <strong>Created At:</strong> {new Date(ticket.createdAt).toLocaleDateString()}
+                  </p>
+                </div>
+                <div className="flex items-center">
+                  <span className={`badge ${ticket.status === 'New' ? 'bg-blue-500' : ticket.status === 'In Progress' ? 'bg-yellow-500' : 'bg-green-500'} text-white px-3 py-1 rounded`}>
+                    {ticket.status}
+                  </span>
+                  <span className={`badge ml-3 ${ticket.priority === 'Low' ? 'bg-green-500' : ticket.priority === 'Medium' ? 'bg-yellow-500' : 'bg-red-500'} text-white px-3 py-1 rounded`}>
+                    {ticket.priority}
+                  </span>
                   <button
-                    className="bg-yellow-500 text-white py-2 px-4 rounded hover:bg-yellow-600 transition"
-                    onClick={() => updateTicketStatus(ticket.ticketId, 'In Progress')}
-                  >
-                    Mark In Progress
-                  </button>
-                  <button
-                    className="bg-green-500 text-white py-2 px-4 rounded hover:bg-green-600 transition"
-                    onClick={() => updateTicketStatus(ticket.ticketId, 'Closed')}
-                  >
-                    Mark Closed
-                  </button>
-                  <button
-                    className="bg-blue-500 text-white py-2 px-4 rounded hover:bg-blue-600 transition"
+                    className="ml-4 bg-blue-500 text-white py-2 px-4 rounded hover:bg-blue-600 transition"
                     onClick={() => goToTicketDetails(ticket.ticketId)}
                   >
                     View Details <FaArrowRight className="ml-2" />
@@ -221,55 +221,8 @@ const SupportTicketManagement = () => {
           </div>
         )}
 
-        {/* Recent Tickets Section */}
-        <div className="mb-6 mt-6">
-          <h3 className="text-lg font-semibold mb-4 flex items-center">
-            <FaClock className="mr-2" /> Recent Tickets (Last 7 Days)
-          </h3>
-
-          {recentLoading ? (
-            <div className="flex justify-center items-center py-10">
-              <FaClock className="animate-spin text-2xl text-blue-500" />
-              <span className="ml-2">Loading recent tickets...</span>
-            </div>
-          ) : recentError ? (
-            <div className="text-center text-red-500 py-10">
-              <FaExclamationCircle className="inline-block mr-2" />
-              {recentError}
-            </div>
-          ) : recentTickets.length === 0 ? (
-            <div className="text-center text-gray-500 py-10">
-              <FaExclamationCircle className="inline-block mr-2" />
-              No recent tickets available.
-            </div>
-          ) : (
-            <div className="ticket-list grid grid-cols-1 md:grid-cols-2 gap-6">
-              {recentTickets.map(ticket => (
-                <div key={ticket.ticketId} className="bg-white shadow-md rounded-lg p-6">
-                  <p className="text-lg font-semibold">
-                    <FaTicketAlt className="inline-block mr-2 text-blue-500" />
-                    Ticket ID: {ticket.ticketId}
-                  </p>
-                  <p className="text-gray-600">
-                    <strong>Description:</strong> {ticket.description}
-                  </p>
-                  <p className="text-gray-600">
-                    <strong>Status:</strong> {ticket.status}
-                  </p>
-                  <p className="text-gray-600">
-                    <strong>Priority:</strong> {ticket.priority}
-                  </p>
-                  <p className="text-gray-600">
-                    <strong>Created At:</strong> {new Date(ticket.createdAt).toLocaleDateString()}
-                  </p>
-                </div>
-              ))}
-            </div>
-          )}
-        </div>
-
         {/* Ticket Calendar Section */}
-        <div className="mb-6">
+        <div className="mb-6 mt-6">
           <h3 className="text-lg font-semibold mb-4 flex items-center">
             <FaCalendarAlt className="mr-2" /> Ticket Calendar
           </h3>
