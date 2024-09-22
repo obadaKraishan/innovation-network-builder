@@ -146,6 +146,29 @@ const getRecentTickets = async (req, res) => {
     }
   };
 
+// Add feedback to a ticket
+const addTicketFeedback = async (req, res) => {
+  try {
+    const { comment } = req.body;
+    if (!comment) {
+      return res.status(400).json({ message: 'Feedback comment is required' });
+    }
+
+    const ticket = await Ticket.findOne({ ticketId: req.params.id });
+    if (!ticket) {
+      return res.status(404).json({ message: 'Ticket not found' });
+    }
+
+    ticket.feedback.push({ comment });
+    await ticket.save();
+
+    res.status(200).json(ticket);
+  } catch (error) {
+    console.error('Error adding feedback:', error);
+    res.status(500).json({ message: 'Server error occurred while adding feedback' });
+  }
+};
+
 module.exports = {
   submitTicket,
   getTicketById,
@@ -155,4 +178,5 @@ module.exports = {
   updateTicketStatus,
   filterTickets,
   getRecentTickets,
+  addTicketFeedback,
 };
