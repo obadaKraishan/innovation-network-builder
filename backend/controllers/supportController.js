@@ -85,10 +85,27 @@ const filterTickets = async (req, res) => {
   }
 };
 
+// Get tickets from the last 7 days
+const getRecentTickets = async (req, res) => {
+    try {
+      const sevenDaysAgo = new Date();
+      sevenDaysAgo.setDate(sevenDaysAgo.getDate() - 7);
+  
+      const recentTickets = await Ticket.find({
+        createdAt: { $gte: sevenDaysAgo },
+      });
+  
+      res.status(200).json(recentTickets);
+    } catch (error) {
+      res.status(500).json({ message: error.message });
+    }
+  };
+
 module.exports = {
   submitTicket,
   getUserTickets,
   getAllTickets,
   updateTicketStatus,
   filterTickets,
+  getRecentTickets,
 };
