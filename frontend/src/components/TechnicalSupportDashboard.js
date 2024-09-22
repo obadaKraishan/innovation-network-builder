@@ -8,8 +8,11 @@ import api from '../utils/api';
 
 const TechnicalSupportDashboard = () => {
   const [tickets, setTickets] = useState([]);
-  const [openTickets, setOpenTickets] = useState([]);
-  const [ticketHistory, setTicketHistory] = useState([]);
+  const [filteredTickets, setFilteredTickets] = useState([]);
+  const [searchQuery, setSearchQuery] = useState('');
+  const [statusFilter, setStatusFilter] = useState('');
+  const [priorityFilter, setPriorityFilter] = useState('');
+  const [dateRange, setDateRange] = useState({ start: '', end: '' });
   const navigate = useNavigate();
 
   useEffect(() => {
@@ -17,10 +20,7 @@ const TechnicalSupportDashboard = () => {
       try {
         const { data } = await api.get('/support/my-tickets');
         setTickets(data);
-
-        // Separate tickets into open and closed (history)
-        setOpenTickets(data.filter(ticket => ticket.status !== 'Closed'));
-        setTicketHistory(data.filter(ticket => ticket.status === 'Closed'));
+        setFilteredTickets(data); // Initialize with all tickets
       } catch (error) {
         console.error('Failed to fetch tickets', error);
       }
@@ -28,6 +28,41 @@ const TechnicalSupportDashboard = () => {
 
     fetchTickets();
   }, []);
+
+  // Live filtering function
+  useEffect(() => {
+    let filtered = tickets;
+
+    // Apply search filter
+    if (searchQuery) {
+      filtered = filtered.filter((ticket) =>
+        ticket.description.toLowerCase().includes(searchQuery.toLowerCase())
+      );
+    }
+
+    // Apply status filter
+    if (statusFilter) {
+      filtered = filtered.filter((ticket) => ticket.status === statusFilter);
+    }
+
+    // Apply priority filter
+    if (priorityFilter) {
+      filtered = filtered.filter((ticket) => ticket.priority === priorityFilter);
+    }
+
+    // Apply date range filter
+    if (dateRange.start && dateRange.end) {
+      filtered = filtered.filter((ticket) => {
+        const ticketDate = new Date(ticket.createdAt);
+        return (
+          ticketDate >= new Date(dateRange.start) &&
+          ticketDate <= new Date(dateRange.end)
+        );
+      });
+    }
+
+    setFilteredTickets(filtered);
+  }, [searchQuery, statusFilter, priorityFilter, dateRange, tickets]);
 
   // Helper function to render badges for status
   const renderStatusBadge = (status) => {
@@ -89,14 +124,72 @@ const TechnicalSupportDashboard = () => {
           </div>
         </div>
 
-        {/* Open Tickets Section */}
+        {/* Filters and Search */}
+        <div className="flex space-x-4 mb-6">
+          {/* Filters Container */}
+          <div className="flex space-x-4 w-1/2">
+            {/* Status Filter */}
+            <select
+              className="bg-white shadow-md rounded-lg p-2 flex-1"
+              value={statusFilter}
+              onChange={(e) => setStatusFilter(e.target.value)}
+            >
+              <option value="">All Statuses</option>
+              <option value="New">New</option>
+              <option value="In Progress">In Progress</option>
+              <option value="Closed">Closed</option>
+            </select>
+
+            {/* Priority Filter */}
+            <select
+              className="bg-white shadow-md rounded-lg p-2 flex-1"
+              value={priorityFilter}
+              onChange={(e) => setPriorityFilter(e.target.value)}
+            >
+              <option value="">All Priorities</option>
+              <option value="High">High</option>
+              <option value="Medium">Medium</option>
+              <option value="Low">Low</option>
+            </select>
+          </div>
+
+          {/* Date Range Filter */}
+          <div className="flex space-x-4 w-1/2">
+            <input
+              type="date"
+              value={dateRange.start}
+              onChange={(e) => setDateRange({ ...dateRange, start: e.target.value })}
+              className="bg-white shadow-md rounded-lg p-2 flex-1"
+            />
+            <input
+              type="date"
+              value={dateRange.end}
+              onChange={(e) => setDateRange({ ...dateRange, end: e.target.value })}
+              className="bg-white shadow-md rounded-lg p-2 flex-1"
+            />
+          </div>
+
+          {/* Search Container */}
+          <div className="flex items-center bg-white shadow-md rounded-lg p-2 w-1/2">
+            <FaSearch className="text-gray-600 mr-2" />
+            <input
+              type="text"
+              placeholder="Search tickets..."
+              value={searchQuery}
+              onChange={(e) => setSearchQuery(e.target.value)}
+              className="flex-1 outline-none"
+            />
+          </div>
+        </div>
+
+        {/* My Tickets Section */}
         <div className="mb-6">
           <h3 className="text-lg font-semibold mb-4 flex items-center">
-            <FaTicketAlt className="mr-2" /> My Open Tickets
+            <FaTicketAlt className="mr-2" /> My Tickets
           </h3>
-          {openTickets.length > 0 ? (
+          {filteredTickets.length > 0 ? (
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-              {openTickets.map(ticket => (
+              {filteredTickets.map(ticket => (
                 <div key={ticket.ticketId} className="bg-white shadow-md rounded-lg p-4">
                   <p className="text-gray-600 mb-2">
                     <strong>Ticket ID:</strong> {ticket.ticketId}
@@ -117,51 +210,7 @@ const TechnicalSupportDashboard = () => {
               ))}
             </div>
           ) : (
-            <p>No open tickets found.</p>
-          )}
-        </div>
-
-        {/* Ticket History Section */}
-        <div className="mb-6">
-          <h3 className="text-lg font-semibold mb-4 flex items-center">
-            <FaHistory className="mr-2" /> Ticket History
-          </h3>
-          {ticketHistory.length > 0 ? (
-            <>
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                {ticketHistory.slice(0, 2).map(ticket => (
-                  <div key={ticket.ticketId} className="bg-white shadow-md rounded-lg p-4">
-                    <p className="text-gray-600 mb-2">
-                      <strong>Ticket ID:</strong> {ticket.ticketId}
-                    </p>
-                    <p className="text-gray-600 mb-2">
-                      <strong>Description:</strong> {ticket.description}
-                    </p>
-                    <div className="flex items-center space-x-2 mb-2">
-                      <strong>Status:</strong> {renderStatusBadge(ticket.status)}
-                    </div>
-                    <div className="flex items-center space-x-2 mb-2">
-                      <strong>Priority:</strong> {renderPriorityBadge(ticket.priority)}
-                    </div>
-                    <p className="text-gray-600 mb-2">
-                      <strong>Created At:</strong> {new Date(ticket.createdAt).toLocaleDateString()}
-                    </p>
-                  </div>
-                ))}
-              </div>
-
-              {/* Show All Ticket History Button */}
-              <div className="mt-4">
-                <button
-                  onClick={() => navigate('/ticket-history')}
-                  className="bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700"
-                >
-                  Show All Ticket History
-                </button>
-              </div>
-            </>
-          ) : (
-            <p>No ticket history available.</p>
+            <p>No tickets found.</p>
           )}
         </div>
       </div>
