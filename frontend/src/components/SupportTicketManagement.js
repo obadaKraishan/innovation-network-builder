@@ -86,6 +86,35 @@ const SupportTicketManagement = () => {
           </h2>
         </div>
 
+        {/* Calendar Section */}
+        <div className="calendar-section bg-white shadow-md rounded p-6 mt-6 mb-6">
+          <h3 className="text-lg font-bold mb-4 flex items-center">
+            <FaCalendarAlt className="mr-2" /> Ticket Calendar
+          </h3>
+
+          <FullCalendar
+            plugins={[dayGridPlugin, timeGridPlugin, interactionPlugin]}
+            initialView="dayGridMonth"
+            events={calendarEvents}
+            eventClick={(info) => goToTicketDetails(info.event.extendedProps.ticketId)} // Pass ticketId correctly
+            headerToolbar={{
+              left: 'prev,next today',
+              center: 'title',
+              right: 'dayGridMonth,timeGridWeek,timeGridDay',
+            }}
+            height="auto"
+            eventContent={(eventInfo) => (
+              <div>
+                <strong>{eventInfo.event.title}</strong>
+                <br />
+                <span>Status: {eventInfo.event.extendedProps.status}</span>
+                <br />
+                <span>Assigned To: {eventInfo.event.extendedProps.assignedTo}</span>
+              </div>
+            )}
+          />
+        </div>
+
         {/* Ticket Filters */}
         <div className="ticket-filters bg-white shadow-md rounded p-6 mb-6">
           <h3 className="text-lg font-bold mb-4 flex items-center">
@@ -135,35 +164,6 @@ const SupportTicketManagement = () => {
               />
             </div>
           </div>
-        </div>
-
-        {/* Calendar Section */}
-        <div className="calendar-section bg-white shadow-md rounded p-6 mb-6">
-          <h3 className="text-lg font-bold mb-4 flex items-center">
-            <FaCalendarAlt className="mr-2" /> Ticket Calendar
-          </h3>
-
-          <FullCalendar
-            plugins={[dayGridPlugin, timeGridPlugin, interactionPlugin]}
-            initialView="dayGridMonth"
-            events={calendarEvents}
-            eventClick={(info) => goToTicketDetails(info.event.extendedProps.ticketId)} // Pass ticketId correctly
-            headerToolbar={{
-              left: 'prev,next today',
-              center: 'title',
-              right: 'dayGridMonth,timeGridWeek,timeGridDay',
-            }}
-            height="auto"
-            eventContent={(eventInfo) => (
-              <div>
-                <strong>{eventInfo.event.title}</strong>
-                <br />
-                <span>Status: {eventInfo.event.extendedProps.status}</span>
-                <br />
-                <span>Assigned To: {eventInfo.event.extendedProps.assignedTo}</span>
-              </div>
-            )}
-          />
         </div>
 
         {/* Filtered Ticket List */}
@@ -226,6 +226,8 @@ const SupportTicketManagement = () => {
             ))
           )}
         </div>
+
+        
       </div>
     </div>
   );
