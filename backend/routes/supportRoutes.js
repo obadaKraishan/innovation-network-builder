@@ -11,6 +11,7 @@ const {
   updateTicketStatus,
   filterTickets,
   getRecentTickets,
+  addTicketFeedback,
 } = require('../controllers/supportController');
 const multer = require('multer');
 const upload = multer({ dest: 'uploads/' }); // This will store files in the 'uploads' folder
@@ -32,5 +33,8 @@ router.route('/:id/assign').put(protect, admin, assignTicket); // Assign user to
 
 // ** New route for recent tickets **
 router.route('/recent-tickets').get(protect, admin, getRecentTickets); // Add this line
+
+router.route('/:id/feedback').post(protect, admin, addTicketFeedback); // New feedback route
+
 
 module.exports = router;
