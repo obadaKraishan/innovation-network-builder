@@ -23,6 +23,34 @@ const submitTicket = async (req, res) => {
   }
 };
 
+const getTicketById = async (req, res) => {
+  try {
+    const ticket = await Ticket.findById(req.params.id).populate('assignedTo', 'name');
+    if (!ticket) {
+      return res.status(404).json({ message: 'Ticket not found' });
+    }
+    res.status(200).json(ticket);
+  } catch (error) {
+    res.status(500).json({ message: error.message });
+  }
+};
+
+// Assign a user to a ticket
+const assignTicket = async (req, res) => {
+  try {
+    const { userId } = req.body;
+    const ticket = await Ticket.findById(req.params.id);
+    if (!ticket) {
+      return res.status(404).json({ message: 'Ticket not found' });
+    }
+    ticket.assignedTo = userId;
+    await ticket.save();
+    res.status(200).json(ticket);
+  } catch (error) {
+    res.status(500).json({ message: error.message });
+  }
+};
+
 // Get tickets for a specific user
 const getUserTickets = async (req, res) => {
   try {
@@ -103,6 +131,8 @@ const getRecentTickets = async (req, res) => {
 
 module.exports = {
   submitTicket,
+  getTicketById,
+  assignTicket,
   getUserTickets,
   getAllTickets,
   updateTicketStatus,
