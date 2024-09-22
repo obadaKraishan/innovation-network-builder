@@ -1,25 +1,31 @@
-// File: frontend/src/components/TicketHistory.js
-
 import React, { useState, useEffect } from 'react';
-import { FaFilter, FaSpinner, FaExclamationCircle, FaArrowLeft } from 'react-icons/fa'; // Added icons
-import { useNavigate } from 'react-router-dom'; // Navigation for back button
-import Sidebar from './Sidebar'; // Sidebar component
+import { FaFilter, FaSpinner, FaExclamationCircle, FaArrowLeft } from 'react-icons/fa';
+import { useNavigate } from 'react-router-dom';
+import Sidebar from './Sidebar';
 import api from '../utils/api';
 import { toast } from 'react-toastify';
+import ReactPaginate from 'react-paginate'; // For pagination
 
 const TicketHistory = () => {
   const [tickets, setTickets] = useState([]);
+  const [filteredTickets, setFilteredTickets] = useState([]);
   const [statusFilter, setStatusFilter] = useState('');
   const [priorityFilter, setPriorityFilter] = useState('');
+  const [dateRange, setDateRange] = useState({ start: '', end: '' });
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
-  const navigate = useNavigate(); // For back button navigation
+  const [pageNumber, setPageNumber] = useState(0); // For pagination
+  const ticketsPerPage = 10; // Number of tickets per page
+  const pagesVisited = pageNumber * ticketsPerPage;
+
+  const navigate = useNavigate();
 
   useEffect(() => {
     const fetchTickets = async () => {
       try {
         const { data } = await api.get('/support/my-tickets');
         setTickets(data);
+        setFilteredTickets(data);
         setLoading(false);
       } catch (error) {
         setError('Failed to fetch ticket history');
@@ -31,15 +37,32 @@ const TicketHistory = () => {
     fetchTickets();
   }, []);
 
-  const handleFilter = () => {
+  // Live filter tickets based on status, priority, and date
+  useEffect(() => {
     let filtered = tickets;
+
     if (statusFilter) {
       filtered = filtered.filter((ticket) => ticket.status === statusFilter);
     }
     if (priorityFilter) {
       filtered = filtered.filter((ticket) => ticket.priority === priorityFilter);
     }
-    setTickets(filtered);
+    if (dateRange.start && dateRange.end) {
+      filtered = filtered.filter((ticket) => {
+        const ticketDate = new Date(ticket.createdAt);
+        return ticketDate >= new Date(dateRange.start) && ticketDate <= new Date(dateRange.end);
+      });
+    }
+
+    setFilteredTickets(filtered);
+  }, [statusFilter, priorityFilter, dateRange, tickets]);
+
+  // Pagination logic
+  const pageCount = Math.ceil(filteredTickets.length / ticketsPerPage);
+  const displayTickets = filteredTickets.slice(pagesVisited, pagesVisited + ticketsPerPage);
+
+  const changePage = ({ selected }) => {
+    setPageNumber(selected);
   };
 
   return (
@@ -81,12 +104,19 @@ const TicketHistory = () => {
             <option value="High">High</option>
           </select>
 
-          <button
-            onClick={handleFilter}
-            className="bg-blue-500 text-white px-4 py-2 rounded-lg hover:bg-blue-600 transition"
-          >
-            Apply Filters
-          </button>
+          {/* Date Range Filter */}
+          <input
+            type="date"
+            value={dateRange.start}
+            onChange={(e) => setDateRange({ ...dateRange, start: e.target.value })}
+            className="w-full p-2 border border-gray-300 rounded-lg"
+          />
+          <input
+            type="date"
+            value={dateRange.end}
+            onChange={(e) => setDateRange({ ...dateRange, end: e.target.value })}
+            className="w-full p-2 border border-gray-300 rounded-lg"
+          />
         </div>
 
         {/* Loading and Error States */}
@@ -100,29 +130,42 @@ const TicketHistory = () => {
             <FaExclamationCircle className="inline-block mr-2" />
             {error}
           </div>
-        ) : tickets.length === 0 ? (
+        ) : filteredTickets.length === 0 ? (
           <div className="text-center text-gray-500 py-10">No tickets available.</div>
         ) : (
           <div>
-            {tickets.map((ticket) => (
+            {displayTickets.map((ticket) => (
               <div key={ticket.ticketId} className="bg-white shadow-md rounded-lg p-6 mb-4">
+                <p><strong>Ticket ID:</strong> {ticket.ticketId}</p>
+                <p><strong>Description:</strong> {ticket.description}</p>
                 <p>
-                  <strong>Ticket ID:</strong> {ticket.ticketId}
+                  <strong>Status:</strong> 
+                  <span className={`badge ${ticket.status === 'New' ? 'bg-blue-500' : ticket.status === 'In Progress' ? 'bg-yellow-500' : 'bg-green-500'} text-white px-3 py-1 rounded`}>
+                    {ticket.status}
+                  </span>
                 </p>
                 <p>
-                  <strong>Description:</strong> {ticket.description}
+                  <strong>Priority:</strong> 
+                  <span className={`badge ${ticket.priority === 'Low' ? 'bg-green-500' : ticket.priority === 'Medium' ? 'bg-yellow-500' : 'bg-red-500'} text-white px-3 py-1 rounded`}>
+                    {ticket.priority}
+                  </span>
                 </p>
-                <p>
-                  <strong>Status:</strong> {ticket.status}
-                </p>
-                <p>
-                  <strong>Priority:</strong> {ticket.priority}
-                </p>
-                <p>
-                  <strong>Created At:</strong> {new Date(ticket.createdAt).toLocaleDateString()}
-                </p>
+                <p><strong>Created At:</strong> {new Date(ticket.createdAt).toLocaleDateString()}</p>
               </div>
             ))}
+
+            {/* Pagination */}
+            <ReactPaginate
+              previousLabel={"Previous"}
+              nextLabel={"Next"}
+              pageCount={pageCount}
+              onPageChange={changePage}
+              containerClassName={"paginationBttns"}
+              previousLinkClassName={"previousBttn"}
+              nextLinkClassName={"nextBttn"}
+              disabledClassName={"paginationDisabled"}
+              activeClassName={"paginationActive"}
+            />
           </div>
         )}
       </div>
