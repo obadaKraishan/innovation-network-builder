@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { FaSpinner, FaExclamationCircle, FaTools, FaFilter, FaTicketAlt, FaArrowRight } from 'react-icons/fa';
+import { FaSpinner, FaCalendarAlt, FaExclamationCircle, FaTools, FaFilter, FaTicketAlt, FaArrowRight } from 'react-icons/fa';
 import { useNavigate } from 'react-router-dom';
 import api from '../utils/api';
 import Sidebar from './Sidebar'; 
@@ -66,6 +66,7 @@ const SupportTicketManagement = () => {
     start: new Date(ticket.createdAt), // Event start time is ticket creation date
     allDay: true,
     extendedProps: {
+      ticketId: ticket.ticketId,  // Ensure the ticketId is included in extendedProps
       description: ticket.description,
       status: ticket.status,
       department: ticket.department,
@@ -146,7 +147,7 @@ const SupportTicketManagement = () => {
             plugins={[dayGridPlugin, timeGridPlugin, interactionPlugin]}
             initialView="dayGridMonth"
             events={calendarEvents}
-            eventClick={(info) => goToTicketDetails(info.event.extendedProps.ticketId)}
+            eventClick={(info) => goToTicketDetails(info.event.extendedProps.ticketId)} // Pass ticketId correctly
             headerToolbar={{
               left: 'prev,next today',
               center: 'title',
