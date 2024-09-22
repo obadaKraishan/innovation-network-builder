@@ -1,17 +1,22 @@
-import React, { useState, useEffect } from 'react';
-import { FaFilter, FaSpinner, FaExclamationCircle, FaArrowLeft } from 'react-icons/fa';
-import { useNavigate } from 'react-router-dom';
-import Sidebar from './Sidebar';
-import api from '../utils/api';
-import { toast } from 'react-toastify';
-import ReactPaginate from 'react-paginate'; // For pagination
+import React, { useState, useEffect } from "react";
+import {
+  FaFilter,
+  FaSpinner,
+  FaExclamationCircle,
+  FaArrowLeft,
+} from "react-icons/fa";
+import { useNavigate } from "react-router-dom";
+import Sidebar from "./Sidebar";
+import api from "../utils/api";
+import { toast } from "react-toastify";
+import ReactPaginate from "react-paginate"; // For pagination
 
 const TicketHistory = () => {
   const [tickets, setTickets] = useState([]);
   const [filteredTickets, setFilteredTickets] = useState([]);
-  const [statusFilter, setStatusFilter] = useState('');
-  const [priorityFilter, setPriorityFilter] = useState('');
-  const [dateRange, setDateRange] = useState({ start: '', end: '' });
+  const [statusFilter, setStatusFilter] = useState("");
+  const [priorityFilter, setPriorityFilter] = useState("");
+  const [dateRange, setDateRange] = useState({ start: "", end: "" });
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
   const [pageNumber, setPageNumber] = useState(0); // For pagination
@@ -23,13 +28,13 @@ const TicketHistory = () => {
   useEffect(() => {
     const fetchTickets = async () => {
       try {
-        const { data } = await api.get('/support/my-tickets');
+        const { data } = await api.get("/support/my-tickets");
         setTickets(data);
         setFilteredTickets(data);
         setLoading(false);
       } catch (error) {
-        setError('Failed to fetch ticket history');
-        toast.error('Failed to fetch ticket history');
+        setError("Failed to fetch ticket history");
+        toast.error("Failed to fetch ticket history");
         setLoading(false);
       }
     };
@@ -45,12 +50,17 @@ const TicketHistory = () => {
       filtered = filtered.filter((ticket) => ticket.status === statusFilter);
     }
     if (priorityFilter) {
-      filtered = filtered.filter((ticket) => ticket.priority === priorityFilter);
+      filtered = filtered.filter(
+        (ticket) => ticket.priority === priorityFilter
+      );
     }
     if (dateRange.start && dateRange.end) {
       filtered = filtered.filter((ticket) => {
         const ticketDate = new Date(ticket.createdAt);
-        return ticketDate >= new Date(dateRange.start) && ticketDate <= new Date(dateRange.end);
+        return (
+          ticketDate >= new Date(dateRange.start) &&
+          ticketDate <= new Date(dateRange.end)
+        );
       });
     }
 
@@ -59,7 +69,10 @@ const TicketHistory = () => {
 
   // Pagination logic
   const pageCount = Math.ceil(filteredTickets.length / ticketsPerPage);
-  const displayTickets = filteredTickets.slice(pagesVisited, pagesVisited + ticketsPerPage);
+  const displayTickets = filteredTickets.slice(
+    pagesVisited,
+    pagesVisited + ticketsPerPage
+  );
 
   const changePage = ({ selected }) => {
     setPageNumber(selected);
@@ -72,7 +85,10 @@ const TicketHistory = () => {
 
       <div className="flex-1 p-6 bg-gray-100 overflow-y-auto">
         {/* Back Button */}
-        <button onClick={() => navigate(-1)} className="mb-4 bg-blue-500 text-white py-2 px-4 rounded-lg flex items-center">
+        <button
+          onClick={() => navigate(-1)}
+          className="mb-4 bg-blue-500 text-white py-2 px-4 rounded-lg flex items-center"
+        >
           <FaArrowLeft className="mr-2" /> Back
         </button>
 
@@ -108,13 +124,17 @@ const TicketHistory = () => {
           <input
             type="date"
             value={dateRange.start}
-            onChange={(e) => setDateRange({ ...dateRange, start: e.target.value })}
+            onChange={(e) =>
+              setDateRange({ ...dateRange, start: e.target.value })
+            }
             className="w-full p-2 border border-gray-300 rounded-lg"
           />
           <input
             type="date"
             value={dateRange.end}
-            onChange={(e) => setDateRange({ ...dateRange, end: e.target.value })}
+            onChange={(e) =>
+              setDateRange({ ...dateRange, end: e.target.value })
+            }
             className="w-full p-2 border border-gray-300 rounded-lg"
           />
         </div>
@@ -131,26 +151,59 @@ const TicketHistory = () => {
             {error}
           </div>
         ) : filteredTickets.length === 0 ? (
-          <div className="text-center text-gray-500 py-10">No tickets available.</div>
+          <div className="text-center text-gray-500 py-10">
+            No tickets available.
+          </div>
         ) : (
           <div>
             {displayTickets.map((ticket) => (
-              <div key={ticket.ticketId} className="bg-white shadow-md rounded-lg p-6 mb-4">
-                <p><strong>Ticket ID:</strong> {ticket.ticketId}</p>
-                <p><strong>Description:</strong> {ticket.description}</p>
+              <div
+                key={ticket.ticketId}
+                className="bg-white shadow-md rounded-lg p-6 mb-4"
+              >
                 <p>
-                  <strong>Status:</strong> 
-                  <span className={`badge ${ticket.status === 'New' ? 'bg-blue-500' : ticket.status === 'In Progress' ? 'bg-yellow-500' : 'bg-green-500'} text-white px-3 py-1 rounded`}>
-                    {ticket.status}
-                  </span>
+                  <strong>Ticket ID:</strong> {ticket.ticketId}
                 </p>
                 <p>
-                  <strong>Priority:</strong> 
-                  <span className={`badge ${ticket.priority === 'Low' ? 'bg-green-500' : ticket.priority === 'Medium' ? 'bg-yellow-500' : 'bg-red-500'} text-white px-3 py-1 rounded`}>
-                    {ticket.priority}
-                  </span>
+                  <strong>Description:</strong> {ticket.description}
                 </p>
-                <p><strong>Created At:</strong> {new Date(ticket.createdAt).toLocaleDateString()}</p>
+
+                {/* Badge container */}
+                <div className="flex space-x-4">
+                  <p>
+                    <strong>Status:</strong>
+                    <span
+                      className={`badge ${
+                        ticket.status === "New"
+                          ? "bg-blue-500"
+                          : ticket.status === "In Progress"
+                          ? "bg-yellow-500"
+                          : "bg-green-500"
+                      } text-white px-3 py-1 rounded`}
+                    >
+                      {ticket.status}
+                    </span>
+                  </p>
+                  <p>
+                    <strong>Priority:</strong>
+                    <span
+                      className={`badge ${
+                        ticket.priority === "Low"
+                          ? "bg-green-500"
+                          : ticket.priority === "Medium"
+                          ? "bg-yellow-500"
+                          : "bg-red-500"
+                      } text-white px-3 py-1 rounded`}
+                    >
+                      {ticket.priority}
+                    </span>
+                  </p>
+                </div>
+
+                <p>
+                  <strong>Created At:</strong>{" "}
+                  {new Date(ticket.createdAt).toLocaleDateString()}
+                </p>
               </div>
             ))}
 
@@ -160,11 +213,11 @@ const TicketHistory = () => {
               nextLabel={"Next"}
               pageCount={pageCount}
               onPageChange={changePage}
-              containerClassName={"paginationBttns"}
-              previousLinkClassName={"previousBttn"}
-              nextLinkClassName={"nextBttn"}
-              disabledClassName={"paginationDisabled"}
-              activeClassName={"paginationActive"}
+              containerClassName={"paginationBtns"} // Apply the pagination container class
+              previousLinkClassName={"previousBtn"} // Apply the previous button class
+              nextLinkClassName={"nextBtn"} // Apply the next button class
+              disabledClassName={"paginationDisabled"} // Apply the disabled button class
+              activeClassName={"paginationActive"} // Apply the active page class
             />
           </div>
         )}
