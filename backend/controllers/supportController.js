@@ -41,15 +41,26 @@ const getTicketById = async (req, res) => {
 const assignTicket = async (req, res) => {
   try {
     const { userId } = req.body;
-    const ticket = await Ticket.findById(req.params.id);
+    if (!userId) {
+      return res.status(400).json({ message: 'User ID is required to assign a ticket' });
+    }
+
+    const ticket = await Ticket.findOne({ ticketId: req.params.id });
     if (!ticket) {
       return res.status(404).json({ message: 'Ticket not found' });
     }
+
+    const user = await User.findById(userId);
+    if (!user || user.position !== 'Technical Support Specialist') {
+      return res.status(400).json({ message: 'Invalid user or user is not a Technical Support Specialist' });
+    }
+
     ticket.assignedTo = userId;
     await ticket.save();
     res.status(200).json(ticket);
   } catch (error) {
-    res.status(500).json({ message: error.message });
+    console.error('Error assigning ticket:', error);
+    res.status(500).json({ message: 'Server error occurred while assigning the ticket' });
   }
 };
 
@@ -77,8 +88,11 @@ const getAllTickets = async (req, res) => {
 const updateTicketStatus = async (req, res) => {
   try {
     const { status } = req.body;
-    const ticket = await Ticket.findById(req.params.id);
+    if (!['New', 'In Progress', 'Closed'].includes(status)) {
+      return res.status(400).json({ message: 'Invalid status' });
+    }
 
+    const ticket = await Ticket.findOne({ ticketId: req.params.id });
     if (!ticket) {
       return res.status(404).json({ message: 'Ticket not found' });
     }
@@ -89,7 +103,8 @@ const updateTicketStatus = async (req, res) => {
 
     res.status(200).json(ticket);
   } catch (error) {
-    res.status(500).json({ message: error.message });
+    console.error('Error updating ticket status:', error);
+    res.status(500).json({ message: 'Server error occurred while updating the ticket status' });
   }
 };
 
