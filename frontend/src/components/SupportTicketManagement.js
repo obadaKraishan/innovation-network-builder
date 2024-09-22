@@ -1,5 +1,3 @@
-// File: frontend/src/components/SupportTicketManagement.js
-
 import React, { useState, useEffect } from 'react';
 import { FaSpinner, FaExclamationCircle, FaTools, FaFilter, FaTicketAlt, FaCalendarAlt, FaArrowRight, FaInfoCircle } from 'react-icons/fa'; // Added FaInfoCircle
 import { useNavigate } from 'react-router-dom'; // To navigate to TicketDetails.js
@@ -183,7 +181,18 @@ const SupportTicketManagement = () => {
         ) : (
           <div className="ticket-list grid grid-cols-1 gap-4">
             {filteredTickets.map(ticket => (
-              <div key={ticket.ticketId} className="bg-white shadow-md rounded-lg p-6 flex items-center justify-between">
+              <div key={ticket.ticketId} className="bg-white shadow-md rounded-lg p-6 relative">
+                {/* Badges for Status and Priority */}
+                <div className="absolute top-2 right-2 flex space-x-2">
+                  <span className={`badge ${ticket.status === 'New' ? 'bg-blue-500' : ticket.status === 'In Progress' ? 'bg-yellow-500' : 'bg-gray-500'} text-white px-3 py-1 rounded`}>
+                    {ticket.status}
+                  </span>
+                  <span className={`badge ${ticket.priority === 'Low' ? 'bg-green-500' : ticket.priority === 'Medium' ? 'bg-yellow-500' : 'bg-red-500'} text-white px-3 py-1 rounded`}>
+                    {ticket.priority}
+                  </span>
+                </div>
+
+                {/* Ticket Information */}
                 <div>
                   <p className="text-lg font-semibold">
                     <FaTicketAlt className="mr-2 text-blue-500" />
@@ -202,15 +211,11 @@ const SupportTicketManagement = () => {
                     <strong>Created At:</strong> {new Date(ticket.createdAt).toLocaleDateString()}
                   </p>
                 </div>
-                <div className="flex items-center">
-                  <span className={`badge ${ticket.status === 'New' ? 'bg-blue-500' : ticket.status === 'In Progress' ? 'bg-yellow-500' : 'bg-green-500'} text-white px-3 py-1 rounded`}>
-                    {ticket.status}
-                  </span>
-                  <span className={`badge ml-3 ${ticket.priority === 'Low' ? 'bg-green-500' : ticket.priority === 'Medium' ? 'bg-yellow-500' : 'bg-red-500'} text-white px-3 py-1 rounded`}>
-                    {ticket.priority}
-                  </span>
+
+                {/* View Details Button */}
+                <div className="flex justify-end">
                   <button
-                    className="ml-4 bg-blue-500 text-white py-2 px-4 rounded hover:bg-blue-600 transition"
+                    className="mt-4 bg-blue-500 text-white py-2 px-4 rounded hover:bg-blue-600 transition flex items-center" // Added flex and items-center
                     onClick={() => goToTicketDetails(ticket.ticketId)}
                   >
                     View Details <FaArrowRight className="ml-2" />
