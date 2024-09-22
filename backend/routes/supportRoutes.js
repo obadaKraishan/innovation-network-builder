@@ -8,6 +8,7 @@ const {
   getAllTickets,
   updateTicketStatus,
   filterTickets,
+  getRecentTickets,
 } = require('../controllers/supportController');
 const multer = require('multer');
 const upload = multer({ dest: 'uploads/' }); // This will store files in the 'uploads' folder
@@ -23,5 +24,8 @@ router.route('/my-tickets').get(protect, getUserTickets); // View own tickets
 router.route('/all').get(protect, admin, getAllTickets); // View all tickets
 router.route('/:id/status').put(protect, admin, updateTicketStatus); // Update ticket status
 router.route('/filter').post(protect, admin, filterTickets); // Filter tickets
+
+// ** New route for recent tickets **
+router.route('/recent-tickets').get(protect, admin, getRecentTickets); // Add this line
 
 module.exports = router;
