@@ -25,13 +25,15 @@ const submitTicket = async (req, res) => {
 
 const getTicketById = async (req, res) => {
   try {
-    const ticket = await Ticket.findById(req.params.id).populate('assignedTo', 'name');
+    const ticket = await Ticket.findOne({ ticketId: req.params.id }).populate('assignedTo', 'name');
     if (!ticket) {
+      console.log('Ticket not found');
       return res.status(404).json({ message: 'Ticket not found' });
     }
     res.status(200).json(ticket);
   } catch (error) {
-    res.status(500).json({ message: error.message });
+    console.error('Error fetching ticket:', error);
+    res.status(500).json({ message: 'Server error occurred while fetching the ticket', error: error.message });
   }
 };
 
