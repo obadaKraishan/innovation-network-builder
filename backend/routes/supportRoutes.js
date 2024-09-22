@@ -20,6 +20,9 @@ router.route('/').post(protect, upload.single('attachments'), submitTicket); // 
 router.route('/').post(protect, submitTicket); // Submit a new ticket
 router.route('/my-tickets').get(protect, getUserTickets); // View own tickets
 
+router.route('/:id').get(protect, admin, getTicketById); // Get ticket by ID
+router.route('/:id/assign').put(protect, admin, assignTicket); // Assign user to ticket
+
 // Routes for Technical Support (Admin)
 router.route('/all').get(protect, admin, getAllTickets); // View all tickets
 router.route('/:id/status').put(protect, admin, updateTicketStatus); // Update ticket status
