@@ -4,7 +4,11 @@ import {
   FaSpinner,
   FaExclamationCircle,
   FaArrowLeft,
-} from "react-icons/fa";
+  FaTicketAlt,
+  FaInfoCircle,
+  FaExclamationTriangle,
+  FaClock,
+} from "react-icons/fa"; // Added more icons
 import { useNavigate } from "react-router-dom";
 import Sidebar from "./Sidebar";
 import api from "../utils/api";
@@ -159,51 +163,50 @@ const TicketHistory = () => {
             {displayTickets.map((ticket) => (
               <div
                 key={ticket.ticketId}
-                className="bg-white shadow-md rounded-lg p-6 mb-4"
+                className="bg-white shadow-md rounded-lg p-6 mb-4 flex justify-between items-center"
               >
-                <p>
-                  <strong>Ticket ID:</strong> {ticket.ticketId}
-                </p>
-                <p>
-                  <strong>Description:</strong> {ticket.description}
-                </p>
-
-                {/* Badge container */}
-                <div className="flex space-x-4">
-                  <p>
-                    <strong>Status:</strong>
-                    <span
-                      className={`badge ${
-                        ticket.status === "New"
-                          ? "bg-blue-500"
-                          : ticket.status === "In Progress"
-                          ? "bg-yellow-500"
-                          : "bg-green-500"
-                      } text-white px-3 py-1 rounded`}
-                    >
-                      {ticket.status}
-                    </span>
+                {/* Left Section with Ticket Info */}
+                <div>
+                  <p className="flex items-center">
+                    <FaTicketAlt className="text-gray-500 mr-2" />
+                    <strong>Ticket ID:</strong> {ticket.ticketId}
                   </p>
-                  <p>
-                    <strong>Priority:</strong>
-                    <span
-                      className={`badge ${
-                        ticket.priority === "Low"
-                          ? "bg-green-500"
-                          : ticket.priority === "Medium"
-                          ? "bg-yellow-500"
-                          : "bg-red-500"
-                      } text-white px-3 py-1 rounded`}
-                    >
-                      {ticket.priority}
-                    </span>
+                  <p className="flex items-center">
+                    <FaInfoCircle className="text-gray-500 mr-2" />
+                    <strong>Description:</strong> {ticket.description}
+                  </p>
+                  <p className="flex items-center">
+                    <FaClock className="text-gray-500 mr-2" />
+                    <strong>Created At:</strong>{" "}
+                    {new Date(ticket.createdAt).toLocaleDateString()}
                   </p>
                 </div>
 
-                <p>
-                  <strong>Created At:</strong>{" "}
-                  {new Date(ticket.createdAt).toLocaleDateString()}
-                </p>
+                {/* Right Section with Badges */}
+                <div className="flex flex-col space-y-2 items-end">
+                  <span
+                    className={`badge ${
+                      ticket.status === "New"
+                        ? "bg-blue-500"
+                        : ticket.status === "In Progress"
+                        ? "bg-yellow-500"
+                        : "bg-green-500"
+                    } text-white px-3 py-1 rounded`}
+                  >
+                    {ticket.status}
+                  </span>
+                  <span
+                    className={`badge ${
+                      ticket.priority === "Low"
+                        ? "bg-green-500"
+                        : ticket.priority === "Medium"
+                        ? "bg-yellow-500"
+                        : "bg-red-500"
+                    } text-white px-3 py-1 rounded`}
+                  >
+                    {ticket.priority}
+                  </span>
+                </div>
               </div>
             ))}
 
