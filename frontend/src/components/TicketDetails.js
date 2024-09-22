@@ -14,6 +14,8 @@ const TicketDetails = () => {
   const [status, setStatus] = useState(''); // Ticket status state
   const [assignedTo, setAssignedTo] = useState(''); // User assigned to ticket
   const [technicalSupportUsers, setTechnicalSupportUsers] = useState([]); // Store technical support specialists
+  const [feedback, setFeedback] = useState(''); // Feedback input
+  const [feedbackList, setFeedbackList] = useState([]); // Store feedback history
 
   // Fetch ticket details and available technical support specialists
   useEffect(() => {
@@ -23,6 +25,7 @@ const TicketDetails = () => {
         setTicket(data);
         setStatus(data.status);
         setAssignedTo(data.assignedTo?._id || '');
+        setFeedbackList(data.feedback || []); // Initialize feedback list
         setLoading(false);
       } catch (err) {
         setError('Failed to load ticket details');
@@ -50,7 +53,6 @@ const TicketDetails = () => {
       setStatus(newStatus);
       toast.success(`Ticket status updated to ${newStatus}`);
     } catch (err) {
-      console.error('Error updating status:', err);
       toast.error('Failed to update ticket status');
     }
   };
@@ -62,8 +64,24 @@ const TicketDetails = () => {
       setAssignedTo(userId);
       toast.success('Assigned user to ticket');
     } catch (err) {
-      console.error('Error assigning user:', err);
       toast.error('Failed to assign user to ticket');
+    }
+  };
+
+  // Add feedback to the ticket
+  const addFeedback = async () => {
+    if (!feedback) {
+      toast.error('Please provide feedback before submitting.');
+      return;
+    }
+
+    try {
+      const response = await api.post(`/support/${ticketId}/feedback`, { comment: feedback });
+      setFeedbackList([...feedbackList, { comment: feedback, date: new Date() }]); // Update feedback list
+      setFeedback('');
+      toast.success('Feedback added successfully');
+    } catch (err) {
+      toast.error('Failed to add feedback');
     }
   };
 
@@ -105,6 +123,7 @@ const TicketDetails = () => {
           <p className="mb-4"><strong>Assigned To:</strong> {ticket.assignedTo ? ticket.assignedTo.name : 'Unassigned'}</p>
           <p className="mb-4"><strong>Created At:</strong> {new Date(ticket.createdAt).toLocaleString()}</p>
 
+          {/* Status Update Section */}
           <div className="mb-6">
             <h3 className="text-lg font-bold mb-2">Update Status</h3>
             <div className="flex space-x-4">
@@ -125,6 +144,7 @@ const TicketDetails = () => {
             </div>
           </div>
 
+          {/* Assign Technical Support Specialist */}
           <div className="mb-6">
             <h3 className="text-lg font-bold mb-2">Assign Technical Support Specialist</h3>
             <select
@@ -134,13 +154,39 @@ const TicketDetails = () => {
             >
               <option value="">Unassigned</option>
               {technicalSupportUsers
-                .filter(user => user?.position === 'Technical Support Specialist') // Filter based on position
+                .filter(user => user?.position === 'Technical Support Specialist')
                 .map((user) => (
                   <option key={user._id} value={user._id}>
                     {user.name}
                   </option>
               ))}
             </select>
+          </div>
+
+          {/* Feedback Section */}
+          <div className="mb-6">
+            <h3 className="text-lg font-bold mb-2">Feedback</h3>
+            <ul className="list-disc ml-6 mb-4">
+              {feedbackList.map((fb, index) => (
+                <li key={index}>
+                  <p><strong>Date:</strong> {new Date(fb.date).toLocaleString()}</p>
+                  <p><strong>Comment:</strong> {fb.comment}</p>
+                </li>
+              ))}
+            </ul>
+
+            <textarea
+              value={feedback}
+              onChange={(e) => setFeedback(e.target.value)}
+              placeholder="Enter feedback here..."
+              className="w-full p-3 border border-gray-300 rounded mb-4"
+            ></textarea>
+            <button
+              className="bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-600"
+              onClick={addFeedback}
+            >
+              Add Feedback
+            </button>
           </div>
         </div>
       </div>
