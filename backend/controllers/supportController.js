@@ -9,11 +9,20 @@ const submitTicket = async (req, res) => {
     const { description, priority } = req.body;
     const attachments = req.file ? req.file.filename : null; // Save the file path or filename
 
+    // Fetch the user from the database to get the department
+    const user = await User.findById(req.user._id);
+
+    if (!user) {
+      return res.status(404).json({ message: 'User not found' });
+    }
+
+    // Create the ticket using the user's department
     const ticket = await Ticket.create({
       ticketId: `TICKET-${Date.now()}`,
       userId: req.user._id,
       description,
       priority,
+      department: user.department, // Use user's department
       attachments,
     });
 

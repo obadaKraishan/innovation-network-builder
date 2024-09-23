@@ -15,7 +15,7 @@ const ticketSchema = new mongoose.Schema({
   },
   department: {
     type: String,
-    default: 'Technical Support',
+    default: true,
   },
   status: {
     type: String,
