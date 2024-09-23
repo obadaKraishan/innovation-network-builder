@@ -21,8 +21,24 @@ const SupportTicketManagement = () => {
   const [statusFilter, setStatusFilter] = useState('');
   const [priorityFilter, setPriorityFilter] = useState('');
   const [departmentFilter, setDepartmentFilter] = useState('');
+  const [departments, setDepartments] = useState([]); // New state to store departments
   const navigate = useNavigate();
 
+  // Fetch departments
+  useEffect(() => {
+    const fetchDepartments = async () => {
+      try {
+        const { data } = await api.get('/departments');
+        setDepartments(data); // Store departments in state
+      } catch (error) {
+        toast.error('Failed to fetch departments');
+      }
+    };
+
+    fetchDepartments();
+  }, []);
+
+  // Fetch tickets
   useEffect(() => {
     const fetchTickets = async () => {
       try {
@@ -51,7 +67,7 @@ const SupportTicketManagement = () => {
       filtered = filtered.filter(ticket => ticket.priority === priorityFilter);
     }
     if (departmentFilter) {
-      filtered = filtered.filter(ticket => ticket.department === departmentFilter);
+      filtered = filtered.filter(ticket => ticket.department?._id === departmentFilter);
     }
 
     setFilteredTickets(filtered);
@@ -166,13 +182,18 @@ const SupportTicketManagement = () => {
             {/* Department Filter */}
             <div>
               <label className="block text-gray-700 font-semibold mb-2">Department</label>
-              <input
-                type="text"
+              <select
                 value={departmentFilter}
                 onChange={(e) => setDepartmentFilter(e.target.value)}
-                placeholder="Enter department name"
                 className="w-full p-3 border border-gray-300 rounded-lg focus:outline-none focus:ring focus:border-blue-300"
-              />
+              >
+                <option value="">All Departments</option>
+                {departments.map(department => (
+                  <option key={department._id} value={department._id}>
+                    {department.name} {department.parentDepartment ? `(Parent: ${department.parentDepartment.name})` : ''}
+                  </option>
+                ))}
+              </select>
             </div>
           </div>
         </div>
@@ -214,7 +235,10 @@ const SupportTicketManagement = () => {
                     <strong>Description:</strong> {ticket.description}
                   </p>
                   <p className="text-gray-700 mb-2">
-                    <strong>Department:</strong> {ticket.department?.parentDepartment?.name || 'N/A'}
+                    <strong>Sub-Department:</strong> {ticket.department?.name || 'N/A'}
+                  </p>
+                  <p className="text-gray-700 mb-2">
+                    <strong>Parent Department:</strong> {ticket.department?.parentDepartment?.name || 'N/A'}
                   </p>
                   <p className="text-gray-700 mb-2">
                     <strong>Assigned To:</strong> {ticket.assignedTo ? ticket.assignedTo.name : 'Unassigned'}

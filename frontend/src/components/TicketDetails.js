@@ -49,7 +49,7 @@ const TicketDetails = () => {
   // Update ticket status
   const updateStatus = async (newStatus) => {
     try {
-      const response = await api.put(`/support/${ticketId}/status`, { status: newStatus });
+      await api.put(`/support/${ticketId}/status`, { status: newStatus });
       setStatus(newStatus);
       toast.success(`Ticket status updated to ${newStatus}`);
     } catch (err) {
@@ -60,7 +60,7 @@ const TicketDetails = () => {
   // Assign user to ticket
   const assignUser = async (userId) => {
     try {
-      const response = await api.put(`/support/${ticketId}/assign`, { userId });
+      await api.put(`/support/${ticketId}/assign`, { userId });
       setAssignedTo(userId);
       toast.success('Assigned user to ticket');
     } catch (err) {
@@ -76,7 +76,7 @@ const TicketDetails = () => {
     }
 
     try {
-      const response = await api.post(`/support/${ticketId}/feedback`, { comment: feedback });
+      await api.post(`/support/${ticketId}/feedback`, { comment: feedback });
       setFeedbackList([...feedbackList, { comment: feedback, date: new Date() }]); // Update feedback list
       setFeedback('');
       toast.success('Feedback added successfully');
@@ -117,8 +117,9 @@ const TicketDetails = () => {
           <h2 className="text-2xl font-bold mb-4">Ticket ID: {ticket.ticketId}</h2>
 
           <p className="mb-4"><strong>Description:</strong> {ticket.description}</p>
-          <p className="mb-4"><strong>Department:</strong> {ticket.department?.parentDepartment?.name || 'N/A'}</p>
-        <p className="mb-4"><strong>Priority:</strong> {ticket.priority}</p>
+          <p className="mb-4"><strong>Sub-Department:</strong> {ticket.department?.name || 'N/A'}</p>
+          <p className="mb-4"><strong>Parent Department:</strong> {ticket.department?.parentDepartment?.name || 'N/A'}</p>
+          <p className="mb-4"><strong>Priority:</strong> {ticket.priority}</p>
           <p className="mb-4"><strong>Status:</strong> {ticket.status}</p>
           <p className="mb-4"><strong>Assigned To:</strong> {ticket.assignedTo ? ticket.assignedTo.name : 'Unassigned'}</p>
           <p className="mb-4"><strong>Created At:</strong> {new Date(ticket.createdAt).toLocaleString()}</p>
