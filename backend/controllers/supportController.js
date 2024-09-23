@@ -36,7 +36,8 @@ const submitTicket = async (req, res) => {
 const getTicketById = async (req, res) => {
   try {
     const ticket = await Ticket.findOne({ ticketId: req.params.id })
-      .populate('userId', 'name department') // Populate the user's department name
+      .populate('userId', 'name department') // Populates user details, including the department
+      .populate('department', 'name') // Populate the department name
       .populate('assignedTo', 'name'); // Populate the assigned user’s name
     
     if (!ticket) {
