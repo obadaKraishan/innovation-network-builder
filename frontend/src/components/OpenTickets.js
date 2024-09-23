@@ -89,7 +89,7 @@ const OpenTickets = () => {
 
         <div className="flex justify-between items-center mb-6">
           <h2 className="text-2xl font-bold flex items-center">
-            <FaTicketAlt className="mr-2" /> Open Tickets (New Status)
+            <FaTicketAlt className="mr-2" /> Open Tickets
           </h2>
         </div>
 
