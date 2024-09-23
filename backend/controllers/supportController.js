@@ -10,7 +10,7 @@ const submitTicket = async (req, res) => {
     const attachments = req.file ? req.file.filename : null; // Save the file path or filename
 
     // Fetch the user from the database to get the department
-    const user = await User.findById(req.user._id);
+    const user = await User.findById(req.user._id).populate('department'); // Populate the department
 
     if (!user) {
       return res.status(404).json({ message: 'User not found' });
@@ -22,7 +22,7 @@ const submitTicket = async (req, res) => {
       userId: req.user._id,
       description,
       priority,
-      department: user.department, // Use user's department
+      department: user.department._id, // Use department ObjectId
       attachments,
     });
 
