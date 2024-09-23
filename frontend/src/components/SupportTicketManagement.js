@@ -241,6 +241,9 @@ const SupportTicketManagement = () => {
                     <strong>Parent Department:</strong> {ticket.department?.parentDepartment?.name || 'N/A'}
                   </p>
                   <p className="text-gray-700 mb-2">
+                    <strong>Created By:</strong> {ticket.userId?.name || 'Unknown'}
+                  </p>
+                  <p className="text-gray-700 mb-2">
                     <strong>Assigned To:</strong> {ticket.assignedTo ? ticket.assignedTo.name : 'Unassigned'}
                   </p>
                   <p className="text-gray-700 mb-2">
