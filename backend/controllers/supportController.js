@@ -36,10 +36,16 @@ const submitTicket = async (req, res) => {
 const getTicketById = async (req, res) => {
   try {
     const ticket = await Ticket.findOne({ ticketId: req.params.id })
-      .populate('userId', 'name department') // Populates user details, including the department
-      .populate('department', 'name') // Populate the department name
+      .populate('userId', 'name department') // Populates user and department fields from User
+      .populate({
+        path: 'department',
+        populate: [
+          { path: 'parentDepartment', select: 'name' }, // Populate the parent department name
+          { path: 'manager', select: 'name' }, // Populate the manager's name
+        ],
+      }) // Populate department with name, parentDepartment, and manager
       .populate('assignedTo', 'name'); // Populate the assigned user’s name
-    
+
     if (!ticket) {
       return res.status(404).json({ message: 'Ticket not found' });
     }
@@ -92,10 +98,16 @@ const getUserTickets = async (req, res) => {
 const getAllTickets = async (req, res) => {
   try {
     const tickets = await Ticket.find()
-      .populate('userId', 'name department') // Populate the user's department name
-      .populate('department', 'name') // Populate the department name
-      .populate('assignedTo', 'name'); // Populate the assigned user’s name
-    
+      .populate('userId', 'name department') // Populate user fields
+      .populate({
+        path: 'department',
+        populate: [
+          { path: 'parentDepartment', select: 'name' }, // Populate parent department name
+          { path: 'manager', select: 'name' }, // Populate manager's name
+        ],
+      }) // Populate department details
+      .populate('assignedTo', 'name'); // Populate assigned user
+
     res.status(200).json(tickets);
   } catch (error) {
     res.status(500).json({ message: error.message });
