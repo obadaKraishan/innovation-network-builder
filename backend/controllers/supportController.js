@@ -93,6 +93,7 @@ const getAllTickets = async (req, res) => {
   try {
     const tickets = await Ticket.find()
       .populate('userId', 'name department') // Populate the user's department name
+      .populate('department', 'name') // Populate the department name
       .populate('assignedTo', 'name'); // Populate the assigned user’s name
     
     res.status(200).json(tickets);
