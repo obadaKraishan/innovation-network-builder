@@ -178,7 +178,7 @@ const OpenTickets = () => {
                     <strong>Description:</strong> {ticket.description}
                   </p>
                   <p className="text-gray-700 mb-2">
-                    <strong>Department:</strong> {ticket.userId?.department || 'N/A'}
+                    <strong>Department:</strong> {ticket.userId?.department?.name || 'N/A'}
                   </p>
                   <p className="text-gray-700 mb-2">
                     <strong>Created At:</strong> {new Date(ticket.createdAt).toLocaleDateString()}
