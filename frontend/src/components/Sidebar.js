@@ -432,15 +432,30 @@ const Sidebar = () => {
                 {/* New Ticket Calendar Link */}
                 <li>
                   <Link
-                    to="/ticket-calendar"
+                    to="/tickets-calendar"
                     className={`flex items-center space-x-2 text-lg transition-all duration-300 ease-in-out ${
-                      isActive("/ticket-calendar")
+                      isActive("/tickets-calendar")
                         ? "text-white bg-indigo-700 rounded-md p-2 shadow-md"
                         : "text-gray-200 hover:text-white hover:bg-indigo-600 p-2 rounded-md"
                     }`}
                   >
                     <FaCalendarAlt />
                     <span>Ticket Calendar</span>
+                  </Link>
+                </li>
+                
+                {/* New Open Ticket Link */}
+                <li>
+                  <Link
+                    to="/open-tickets"
+                    className={`flex items-center space-x-2 text-lg transition-all duration-300 ease-in-out ${
+                      isActive("/open-tickets")
+                        ? "text-white bg-indigo-700 rounded-md p-2 shadow-md"
+                        : "text-gray-200 hover:text-white hover:bg-indigo-600 p-2 rounded-md"
+                    }`}
+                  >
+                    <FaTicketAlt />
+                    <span>Open Tickets</span>
                   </Link>
                 </li>
               </ul>
