@@ -32,13 +32,17 @@ const submitTicket = async (req, res) => {
   }
 };
 
+// Get all tickets for a user
 const getTicketById = async (req, res) => {
   try {
-    const ticket = await Ticket.findOne({ ticketId: req.params.id }).populate('assignedTo', 'name');
+    const ticket = await Ticket.findOne({ ticketId: req.params.id })
+      .populate('userId', 'name department') // Populate the user's department name
+      .populate('assignedTo', 'name'); // Populate the assigned user’s name
+    
     if (!ticket) {
-      console.log('Ticket not found');
       return res.status(404).json({ message: 'Ticket not found' });
     }
+
     res.status(200).json(ticket);
   } catch (error) {
     console.error('Error fetching ticket:', error);
@@ -86,7 +90,10 @@ const getUserTickets = async (req, res) => {
 // Get all tickets (for Technical Support)
 const getAllTickets = async (req, res) => {
   try {
-    const tickets = await Ticket.find().populate('assignedTo', 'name');
+    const tickets = await Ticket.find()
+      .populate('userId', 'name department') // Populate the user's department name
+      .populate('assignedTo', 'name'); // Populate the assigned user’s name
+    
     res.status(200).json(tickets);
   } catch (error) {
     res.status(500).json({ message: error.message });
