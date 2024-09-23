@@ -98,7 +98,7 @@ const getUserTickets = async (req, res) => {
 const getAllTickets = async (req, res) => {
   try {
     const tickets = await Ticket.find()
-      .populate('userId', 'name department') // Populate user fields
+      .populate('userId', 'name department') // Populates user fields (creator)
       .populate({
         path: 'department',
         populate: [
