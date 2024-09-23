@@ -178,7 +178,10 @@ const OpenTickets = () => {
                     <strong>Description:</strong> {ticket.description}
                   </p>
                   <p className="text-gray-700 mb-2">
-                    <strong>Department:</strong> {ticket.department?.parentDepartment?.name || 'N/A'}
+                    <strong>Sub-Department:</strong> {ticket.department?.name || 'N/A'}
+                  </p>
+                  <p className="text-gray-700 mb-2">
+                    <strong>Parent Department:</strong> {ticket.department?.parentDepartment?.name || 'N/A'}
                   </p>
                   <p className="text-gray-700 mb-2">
                     <strong>Created At:</strong> {new Date(ticket.createdAt).toLocaleDateString()}
