@@ -1,5 +1,3 @@
-// File: frontend/src/components/TicketSubmission.js
-
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom'; // Use for back button navigation
 import Sidebar from './Sidebar'; // Sidebar component
@@ -12,7 +10,7 @@ const TicketSubmission = () => {
   const [priority, setPriority] = useState('Medium');
   const [attachments, setAttachments] = useState(null);
   const [loading, setLoading] = useState(false);
-  const navigate = useNavigate(); // For back navigation
+  const navigate = useNavigate(); // For back navigation and redirection
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -31,6 +29,9 @@ const TicketSubmission = () => {
       setDescription('');
       setPriority('Medium');
       setAttachments(null);
+
+      // Navigate to the Technical Support Dashboard after successful submission
+      navigate('/technical-support-dashboard');
     } catch (error) {
       toast.error('Failed to submit ticket');
     } finally {
@@ -50,67 +51,67 @@ const TicketSubmission = () => {
         </button>
 
         {/* Ticket Submission Form */}
-          <h2 className="text-2xl font-bold mb-4 flex items-center">
-            <FaPlusCircle className="mr-2" /> Submit a New Ticket
-          </h2>
+        <h2 className="text-2xl font-bold mb-4 flex items-center">
+          <FaPlusCircle className="mr-2" /> Submit a New Ticket
+        </h2>
 
-          <form onSubmit={handleSubmit} className="bg-white shadow-md rounded-lg px-8 pt-6 pb-8 mb-4">
-            {/* Issue Description */}
-            <div className="mb-4">
-              <label className="block text-gray-700 text-sm font-bold mb-2">
-                <FaFileAlt className="inline-block mr-1" /> Issue Description
-              </label>
-              <textarea
-                value={description}
-                onChange={(e) => setDescription(e.target.value)}
-                required
-                className="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline"
-                placeholder="Describe the issue..."
-                rows="4"
-              />
-            </div>
+        <form onSubmit={handleSubmit} className="bg-white shadow-md rounded-lg px-8 pt-6 pb-8 mb-4">
+          {/* Issue Description */}
+          <div className="mb-4">
+            <label className="block text-gray-700 text-sm font-bold mb-2">
+              <FaFileAlt className="inline-block mr-1" /> Issue Description
+            </label>
+            <textarea
+              value={description}
+              onChange={(e) => setDescription(e.target.value)}
+              required
+              className="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline"
+              placeholder="Describe the issue..."
+              rows="4"
+            />
+          </div>
 
-            {/* Priority Selector */}
-            <div className="mb-4">
-              <label className="block text-gray-700 text-sm font-bold mb-2">
-                Priority
-              </label>
-              <select
-                value={priority}
-                onChange={(e) => setPriority(e.target.value)}
-                className="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline"
-              >
-                <option value="Low">Low</option>
-                <option value="Medium">Medium</option>
-                <option value="High">High</option>
-              </select>
-            </div>
+          {/* Priority Selector */}
+          <div className="mb-4">
+            <label className="block text-gray-700 text-sm font-bold mb-2">
+              Priority
+            </label>
+            <select
+              value={priority}
+              onChange={(e) => setPriority(e.target.value)}
+              className="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline"
+            >
+              <option value="Low">Low</option>
+              <option value="Medium">Medium</option>
+              <option value="High">High</option>
+            </select>
+          </div>
 
-            {/* Attachments */}
-            <div className="mb-4">
-              <label className="block text-gray-700 text-sm font-bold mb-2">
-                <FaPaperclip className="inline-block mr-1" /> Attachments
-              </label>
-              <input
-                type="file"
-                onChange={(e) => setAttachments(e.target.files[0])}
-                className="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline"
-              />
-            </div>
+          {/* Attachments */}
+          <div className="mb-4">
+            <label className="block text-gray-700 text-sm font-bold mb-2">
+              <FaPaperclip className="inline-block mr-1" /> Attachments
+            </label>
+            <input
+              type="file"
+              onChange={(e) => setAttachments(e.target.files[0])}
+              className="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline"
+            />
+          </div>
 
-            {/* Submit Button */}
-            <div className="flex items-center justify-between">
-              <button
-                type="submit"
-                className={`bg-blue-500 text-white font-bold py-2 px-4 rounded focus:outline-none focus:shadow-outline ${
-                  loading ? 'opacity-50 cursor-not-allowed' : 'hover:bg-blue-700'
-                }`}
-                disabled={loading}
-              >
-                {loading ? 'Submitting...' : 'Submit Ticket'}
-              </button>
-            </div>
-          </form>
+          {/* Submit Button */}
+          <div className="flex items-center justify-between">
+            <button
+              type="submit"
+              className={`bg-blue-500 text-white font-bold py-2 px-4 rounded focus:outline-none focus:shadow-outline ${
+                loading ? 'opacity-50 cursor-not-allowed' : 'hover:bg-blue-700'
+              }`}
+              disabled={loading}
+            >
+              {loading ? 'Submitting...' : 'Submit Ticket'}
+            </button>
+          </div>
+        </form>
       </div>
     </div>
   );
