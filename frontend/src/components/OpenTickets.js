@@ -8,6 +8,8 @@ import { toast } from 'react-toastify';
 const OpenTickets = () => {
   const [tickets, setTickets] = useState([]);
   const [filteredTickets, setFilteredTickets] = useState([]);
+  const [currentPage, setCurrentPage] = useState(1);
+  const ticketsPerPage = 10; // Number of tickets per page
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
 
@@ -56,6 +58,15 @@ const OpenTickets = () => {
 
     setFilteredTickets(filtered);
   }, [priorityFilter, departmentFilter, searchTerm, tickets]);
+
+  // Pagination Logic
+  const indexOfLastTicket = currentPage * ticketsPerPage;
+  const indexOfFirstTicket = indexOfLastTicket - ticketsPerPage;
+  const currentTickets = filteredTickets.slice(indexOfFirstTicket, indexOfLastTicket);
+  const totalPages = Math.ceil(filteredTickets.length / ticketsPerPage);
+
+  // Handle page change
+  const paginate = (pageNumber) => setCurrentPage(pageNumber);
 
   // Navigate to TicketDetails.js
   const goToTicketDetails = (ticketId) => {
@@ -142,10 +153,10 @@ const OpenTickets = () => {
               <FaExclamationCircle className="inline-block mr-2" />
               {error}
             </div>
-          ) : filteredTickets.length === 0 ? (
+          ) : currentTickets.length === 0 ? (
             <div className="text-center text-gray-500 py-10">No tickets match the selected filters.</div>
           ) : (
-            filteredTickets.map(ticket => (
+            currentTickets.map(ticket => (
               <div key={ticket.ticketId} className="bg-white shadow-md rounded-lg p-6 relative">
                 {/* Badges for Priority */}
                 <div className="absolute top-2 right-2 flex space-x-2">
@@ -184,6 +195,17 @@ const OpenTickets = () => {
             ))
           )}
         </div>
+
+        {/* Pagination */}
+        {filteredTickets.length > ticketsPerPage && (
+          <ul className="paginationBtns">
+            {[...Array(totalPages)].map((_, index) => (
+              <li key={index} className={currentPage === index + 1 ? 'paginationActive' : ''}>
+                <a onClick={() => paginate(index + 1)}>{index + 1}</a>
+              </li>
+            ))}
+          </ul>
+        )}
       </div>
     </div>
   );
