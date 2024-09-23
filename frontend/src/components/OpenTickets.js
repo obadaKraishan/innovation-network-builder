@@ -25,7 +25,10 @@ const OpenTickets = () => {
     const fetchTickets = async () => {
       try {
         const { data } = await api.get('/support/all');
-        const newTickets = data.filter(ticket => ticket.status === 'New');
+        // Filter tickets by status 'New' and sort them by createdAt in descending order
+        const newTickets = data
+          .filter(ticket => ticket.status === 'New')
+          .sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt)); // Sorting newer to the top
         setTickets(newTickets);
         setFilteredTickets(newTickets);
         setLoading(false);
