@@ -16,6 +16,7 @@ const OpenTickets = () => {
   // States for filtering and search
   const [priorityFilter, setPriorityFilter] = useState('');
   const [departmentFilter, setDepartmentFilter] = useState('');
+  const [departments, setDepartments] = useState([]); // Store fetched departments
   const [searchTerm, setSearchTerm] = useState('');
   
   const navigate = useNavigate();
@@ -39,7 +40,17 @@ const OpenTickets = () => {
       }
     };
 
+    const fetchDepartments = async () => {
+      try {
+        const { data } = await api.get('/departments');
+        setDepartments(data); // Save departments to state
+      } catch (error) {
+        toast.error('Failed to fetch departments');
+      }
+    };
+
     fetchTickets();
+    fetchDepartments();
   }, []);
 
   // Apply filters and search
@@ -50,7 +61,7 @@ const OpenTickets = () => {
       filtered = filtered.filter(ticket => ticket.priority === priorityFilter);
     }
     if (departmentFilter) {
-      filtered = filtered.filter(ticket => ticket.department.toLowerCase().includes(departmentFilter.toLowerCase()));
+      filtered = filtered.filter(ticket => ticket.department?._id === departmentFilter);
     }
     if (searchTerm) {
       filtered = filtered.filter(ticket =>
@@ -121,13 +132,18 @@ const OpenTickets = () => {
             {/* Department Filter */}
             <div>
               <label className="block text-gray-700 font-semibold mb-2">Department</label>
-              <input
-                type="text"
+              <select
                 value={departmentFilter}
                 onChange={(e) => setDepartmentFilter(e.target.value)}
-                placeholder="Enter department name"
                 className="w-full p-3 border border-gray-300 rounded-lg focus:outline-none focus:ring focus:border-blue-300"
-              />
+              >
+                <option value="">All Departments</option>
+                {departments.map(department => (
+                  <option key={department._id} value={department._id}>
+                    {department.name} {department.parentDepartment ? `(Parent: ${department.parentDepartment.name})` : ''}
+                  </option>
+                ))}
+              </select>
             </div>
 
             {/* Search Bar */}
