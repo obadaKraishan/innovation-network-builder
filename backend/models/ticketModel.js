@@ -15,7 +15,7 @@ const ticketSchema = new mongoose.Schema({
   },
   department: {
     type: mongoose.Schema.Types.ObjectId,
-    default: true,
+    ref: 'Department',
   },
   status: {
     type: String,
