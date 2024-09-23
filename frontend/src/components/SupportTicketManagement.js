@@ -80,7 +80,7 @@ const SupportTicketManagement = () => {
       ticketId: ticket.ticketId,  // Ensure the ticketId is included in extendedProps
       description: ticket.description,
       status: ticket.status,
-      department: ticket.userId?.department || 'N/A',
+      department: ticket.userId?.department?.name || 'N/A',
       assignedTo: ticket.assignedTo ? ticket.assignedTo.name : 'Unassigned',
     },
   }));
@@ -214,7 +214,7 @@ const SupportTicketManagement = () => {
                     <strong>Description:</strong> {ticket.description}
                   </p>
                   <p className="text-gray-700 mb-2">
-                    <strong>Department:</strong> {ticket.userId?.department || 'N/A'}
+                    <strong>Department:</strong> {ticket.userId?.department?.name || 'N/A'}
                   </p>
                   <p className="text-gray-700 mb-2">
                     <strong>Assigned To:</strong> {ticket.assignedTo ? ticket.assignedTo.name : 'Unassigned'}
