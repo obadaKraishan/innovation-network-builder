@@ -117,7 +117,7 @@ const TicketDetails = () => {
           <h2 className="text-2xl font-bold mb-4">Ticket ID: {ticket.ticketId}</h2>
 
           <p className="mb-4"><strong>Description:</strong> {ticket.description}</p>
-          <p className="mb-4"><strong>Department:</strong> {ticket.userId?.department || 'N/A'}</p>
+          <p className="mb-4"><strong>Department:</strong> {ticket.userId?.department?.name || 'N/A'}</p>
           <p className="mb-4"><strong>Priority:</strong> {ticket.priority}</p>
           <p className="mb-4"><strong>Status:</strong> {ticket.status}</p>
           <p className="mb-4"><strong>Assigned To:</strong> {ticket.assignedTo ? ticket.assignedTo.name : 'Unassigned'}</p>
