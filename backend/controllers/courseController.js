@@ -38,6 +38,26 @@ const getCourseById = async (req, res) => {
   }
 };
 
+// Fetch lesson details
+const getLessonById = async (req, res) => {
+    const { courseId, moduleId, sectionId, lessonId } = req.params;
+  
+    try {
+      const course = await Course.findById(courseId);
+      if (!course) return res.status(404).json({ message: 'Course not found' });
+  
+      const module = course.modules.id(moduleId);
+      const section = module.sections.id(sectionId);
+      const lesson = section.lessons.id(lessonId);
+  
+      if (!lesson) return res.status(404).json({ message: 'Lesson not found' });
+  
+      res.json(lesson);
+    } catch (error) {
+      res.status(400).json({ message: 'Error fetching lesson details', error });
+    }
+  };
+
 // Enroll in a course
 const enrollCourse = async (req, res) => {
   const { userId } = req.body;
@@ -248,6 +268,7 @@ module.exports = {
   createCourse,
   getAllCourses,
   getCourseById,
+  getLessonById,
   enrollCourse,
   submitQuiz,
   trackProgress,
