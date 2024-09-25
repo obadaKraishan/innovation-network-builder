@@ -3,6 +3,7 @@ const {
   createCourse, 
   getAllCourses, 
   getCourseById, 
+  getLessonById,
   enrollCourse, 
   submitQuiz, 
   trackProgress, 
@@ -24,6 +25,7 @@ router.post('/enroll/:id', protect, enrollCourse);
 router.post('/quiz/submit', protect, submitQuiz);
 router.get('/progress/:userId/:courseId', protect, trackProgress);
 router.get('/certificate/:userId/:courseId', protect, issueCertificate);
+router.get('/:courseId/module/:moduleId/section/:sectionId/lesson/:lessonId', protect, getLessonById);
 router.post('/qa/post', protect, postQuestion);
 router.post('/qa/answer', protect, postAnswer);
 router.post('/qa/upvote', protect, upvoteAnswer);
