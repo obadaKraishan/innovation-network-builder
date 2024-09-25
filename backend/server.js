@@ -22,6 +22,7 @@ const wellnessRoutes = require('./routes/WellnessRoutes');
 const notificationRoutes = require('./routes/notificationRoutes');
 const innovationRoutes = require('./routes/innovationRoutes');
 const supportRoutes = require('./routes/supportRoutes'); // Import Support Ticket routes
+const courseRoutes = require('./routes/courseRoutes'); // Import Course routes for E-learning
 
 // Initialize Express
 const app = express();
@@ -80,6 +81,7 @@ app.use('/api/wellness', wellnessRoutes);
 app.use('/api/notifications', notificationRoutes);
 app.use('/api/innovation', innovationRoutes);
 app.use('/api/support', supportRoutes);  // Added Customer Support Ticket routes
+app.use('/api/courses', courseRoutes);  // Added E-Learning system routes
 
 // Error Handling Middleware
 app.use((err, req, res, next) => {
