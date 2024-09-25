@@ -35,43 +35,56 @@ const CourseDetails = () => {
         <div className="bg-white p-6 rounded-lg shadow-lg">
           <h2 className="text-2xl font-bold mb-4">{course.title}</h2>
           <p className="text-gray-700 mb-4">{course.description}</p>
-          <p className="text-gray-500 mb-4">Duration: {course.estimatedDuration} hours</p>
-          <p className="text-gray-500 mb-4">Skills: {course.skillsGained.join(', ')}</p>
+          <p className="text-gray-500 mb-4">Duration: {course.estimatedDuration || 'N/A'} hours</p>
+          <p className="text-gray-500 mb-4">Skills: {course.skillsGained?.length ? course.skillsGained.join(', ') : 'N/A'}</p>
 
+          {/* Modules */}
           <div className="modules">
-            {course.modules.map((module, moduleIndex) => (
-              <div key={moduleIndex} className="module bg-gray-100 p-4 rounded-lg mb-4">
-                <h3 className="text-lg font-bold">{module.moduleTitle}</h3>
-                {module.sections.map((section, sectionIndex) => (
-                  <div key={sectionIndex} className="section bg-white p-4 rounded-lg shadow-md mb-2">
-                    <h4 className="text-md font-semibold">{section.sectionTitle}</h4>
-                    <ul className="lessons-list">
-                      {section.lessons.map((lesson, lessonIndex) => (
-                        <li key={lessonIndex} className="lesson mb-2">
-                          {lesson.lessonType === 'video' ? (
-                            <a href={lesson.videoUrl} target="_blank" rel="noopener noreferrer">
-                              Watch Video: {lesson.lessonTitle}
-                            </a>
+            {course.modules?.length > 0 ? (
+              course.modules.map((module, moduleIndex) => (
+                <div key={moduleIndex} className="module bg-gray-100 p-4 rounded-lg mb-4">
+                  <h3 className="text-lg font-bold">{module.moduleTitle}</h3>
+                  {module.sections?.length > 0 ? (
+                    module.sections.map((section, sectionIndex) => (
+                      <div key={sectionIndex} className="section bg-white p-4 rounded-lg shadow-md mb-2">
+                        <h4 className="text-md font-semibold">{section.sectionTitle}</h4>
+                        <ul className="lessons-list">
+                          {section.lessons?.length > 0 ? (
+                            section.lessons.map((lesson, lessonIndex) => (
+                              <li key={lessonIndex} className="lesson mb-2">
+                                {lesson.materialType === 'video' ? (
+                                  <a href={lesson.materialUrl} target="_blank" rel="noopener noreferrer">
+                                    Watch Video: {lesson.lessonTitle}
+                                  </a>
+                                ) : (
+                                  <p>{lesson.lessonTitle}</p>
+                                )}
+                              </li>
+                            ))
                           ) : (
-                            <p>{lesson.textContent}</p>
+                            <p>No lessons available.</p>
                           )}
-                        </li>
-                      ))}
-                    </ul>
+                        </ul>
 
-                    {/* Quiz Section */}
-                    {section.quiz.length > 0 && (
-                      <div className="quiz mt-4">
-                        <h4 className="text-md font-semibold">Quiz</h4>
-                        {section.quiz.map((quiz, quizIndex) => (
-                          <p key={quizIndex}>{quiz.questionText}</p>
-                        ))}
+                        {/* Quiz Section */}
+                        {section.quiz?.length > 0 && (
+                          <div className="quiz mt-4">
+                            <h4 className="text-md font-semibold">Quiz</h4>
+                            {section.quiz.map((quiz, quizIndex) => (
+                              <p key={quizIndex}>{quiz.questionText}</p>
+                            ))}
+                          </div>
+                        )}
                       </div>
-                    )}
-                  </div> 
-                ))}
-              </div>
-            ))}
+                    ))
+                  ) : (
+                    <p>No sections available.</p>
+                  )}
+                </div>
+              ))
+            ) : (
+              <p>No modules available for this course.</p>
+            )}
           </div>
 
           {/* Certificate Button */}
