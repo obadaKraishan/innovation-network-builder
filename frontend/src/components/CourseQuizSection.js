@@ -76,7 +76,7 @@ const CourseQuizSection = () => {
                 ))}
               </div>
             ))}
-
+ 
             <button type="submit" className="mt-4 w-full bg-blue-500 text-white py-3 rounded-lg">
               Submit Quiz
             </button>
