@@ -18,16 +18,16 @@ const TechnicalSupportDashboard = () => {
   useEffect(() => {
     const fetchTickets = async () => {
       try {
-        const { data } = await api.get('/support/my-tickets');
+        const { data } = await api.get('/support/my-tickets'); // Ensure this is the right endpoint
         setTickets(data);
         setFilteredTickets(data); // Initialize with all tickets
       } catch (error) {
         console.error('Failed to fetch tickets', error);
       }
     };
-
+  
     fetchTickets();
-  }, []);
+  }, []);  
 
   // Live filtering function
   useEffect(() => {
