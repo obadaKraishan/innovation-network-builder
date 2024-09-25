@@ -9,7 +9,8 @@ const {
   issueCertificate, 
   postQuestion, 
   postAnswer, 
-  upvoteAnswer
+  upvoteAnswer,
+  updateCourse,
 } = require('../controllers/courseController');
 const { protect, admin } = require('../middleware/authMiddleware');
 
@@ -26,5 +27,6 @@ router.get('/certificate/:userId/:courseId', protect, issueCertificate);
 router.post('/qa/post', protect, postQuestion);
 router.post('/qa/answer', protect, postAnswer);
 router.post('/qa/upvote', protect, upvoteAnswer);
+router.put('/:id', protect, admin, updateCourse);
 
 module.exports = router;
