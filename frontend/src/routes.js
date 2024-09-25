@@ -83,6 +83,7 @@ import CourseQASection from './components/CourseQASection';
 import CourseAnalytics from './components/CourseAnalytics';
 import CourseProgressDashboard from './components/CourseProgressDashboard';
 import CourseManagement from './components/CourseManagement';
+import CourseEdit from './components/CourseEdit';
 
 
 const AppRoutes = () => {
@@ -169,6 +170,7 @@ const AppRoutes = () => {
           <Route path="/course-analytics" element={<CourseAnalytics />} />
           <Route path="/course-progress" element={<CourseProgressDashboard />} />
           <Route path="/course-management" element={<CourseManagement />} />
+          <Route path="/edit-course/:id" element={<CourseEdit />} />
 
           {/* Default redirect to login */}
           <Route path="/" element={<Navigate to="/login" />} />
