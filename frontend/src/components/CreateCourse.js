@@ -94,6 +94,9 @@ const CreateCourse = () => {
         objectives,
       };
 
+    // Log the newCourse object
+    console.log('New Course:', newCourse);
+
       const { data } = await api.post('/courses/create', newCourse);
       toast.success('Course created successfully!');
       // Reset form

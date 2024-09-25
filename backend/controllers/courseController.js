@@ -4,7 +4,10 @@ const User = require('../models/userModel');
 // Create a new course
 const createCourse = async (req, res) => {
   try {
-    const newCourse = new Course(req.body);
+    const newCourse = new Course({
+      ...req.body,
+      creatorId: req.user ? req.user._id : 'dummyUserId',
+    });
     const savedCourse = await newCourse.save();
     res.status(201).json(savedCourse);
   } catch (error) {
