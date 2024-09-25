@@ -20,7 +20,7 @@ const CreateCourse = () => {
   const addModule = () => {
     setModules([...modules, { moduleTitle: '', sections: [] }]);
   };
-
+ 
   // Handle saving the course
   const saveCourse = async () => {
     try {
