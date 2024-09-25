@@ -26,7 +26,8 @@ const materialSchema = new mongoose.Schema({
 const lessonSchema = new mongoose.Schema({
   lessonTitle: { type: String, required: true },
   description: { type: String },
-  materials: [materialSchema], // Materials like videos, PDFs, text, etc.
+  lessonText: { type: String }, // Text content of the lesson
+  materials: [materialSchema], // Existing materials schema (videos, PDFs, etc.)
   quiz: [questionSchema], // A quiz can be associated with each lesson
 });
 
