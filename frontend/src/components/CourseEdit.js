@@ -5,6 +5,8 @@ import { toast } from 'react-toastify';
 import { AiOutlineSave, AiOutlineRollback } from 'react-icons/ai';
 import api from '../utils/api';
 import Sidebar from './Sidebar';
+import CourseQuizForm from './CourseQuizForm';
+import CourseMaterialUpload from './CourseMaterialUpload';
 
 const CourseEdit = () => {
   const { id } = useParams();
@@ -14,8 +16,8 @@ const CourseEdit = () => {
     description: '',
     image: '',
     estimatedDuration: 0,
-    skillsGained: [],
-    courseRequirements: [],
+    skillsGained: [''],
+    courseRequirements: [''],
     objectives: '',
     modules: [
       {
@@ -25,6 +27,9 @@ const CourseEdit = () => {
             sectionTitle: '',
             lessons: [
               { lessonTitle: '', lessonType: 'text', videoUrl: '', textContent: '' },
+            ],
+            quiz: [
+              { questionText: '', choices: [''], correctAnswer: '' },
             ],
           },
         ],
@@ -54,11 +59,18 @@ const CourseEdit = () => {
     }
   };
 
-  // Helper function to handle array updates (e.g., skillsGained, courseRequirements)
+  // Helper function to handle array updates (e.g., skillsGained, courseRequirements, modules)
   const handleArrayChange = (field, index, value) => {
     const newArray = [...course[field]];
     newArray[index] = value;
     setCourse({ ...course, [field]: newArray });
+  };
+
+  // Helper function to handle nested arrays like sections and lessons
+  const handleModuleChange = (moduleIndex, key, value) => {
+    const newModules = [...course.modules];
+    newModules[moduleIndex][key] = value;
+    setCourse({ ...course, modules: newModules });
   };
 
   return (
@@ -75,8 +87,9 @@ const CourseEdit = () => {
             Cancel
           </button>
         </div>
+
         <div className="bg-white p-6 rounded-lg shadow-lg space-y-6">
-          {/* Title */}
+          {/* Course Title */}
           <div>
             <label className="block text-sm font-bold mb-2">Course Title</label>
             <input
@@ -88,7 +101,7 @@ const CourseEdit = () => {
             />
           </div>
 
-          {/* Description */}
+          {/* Course Description */}
           <div>
             <label className="block text-sm font-bold mb-2">Description</label>
             <textarea
@@ -162,6 +175,58 @@ const CourseEdit = () => {
               className="w-full p-2 border border-gray-300 rounded"
               placeholder="Enter objectives"
             />
+          </div>
+
+          {/* Modules */}
+          <div>
+            <h3 className="text-lg font-bold mb-4">Modules</h3>
+            {course.modules.map((module, moduleIndex) => (
+              <div key={moduleIndex} className="mb-4 bg-gray-100 p-4 rounded">
+                <input
+                  type="text"
+                  value={module.moduleTitle}
+                  onChange={(e) => handleModuleChange(moduleIndex, 'moduleTitle', e.target.value)}
+                  className="w-full p-3 mb-2 border border-gray-300 rounded"
+                  placeholder="Module Title"
+                />
+
+                {/* Section and Lesson Form */}
+                {module.sections.map((section, sectionIndex) => (
+                  <div key={sectionIndex} className="mb-4">
+                    <input
+                      type="text"
+                      value={section.sectionTitle}
+                      onChange={(e) => {
+                        const newModules = [...course.modules];
+                        newModules[moduleIndex].sections[sectionIndex].sectionTitle = e.target.value;
+                        setCourse({ ...course, modules: newModules });
+                      }}
+                      className="w-full p-2 mb-2 border border-gray-300 rounded"
+                      placeholder="Section Title"
+                    />
+                    {/* Lessons */}
+                    {section.lessons.map((lesson, lessonIndex) => (
+                      <div key={lessonIndex} className="ml-4 mb-2">
+                        <input
+                          type="text"
+                          value={lesson.lessonTitle}
+                          onChange={(e) => {
+                            const newModules = [...course.modules];
+                            newModules[moduleIndex].sections[sectionIndex].lessons[lessonIndex].lessonTitle = e.target.value;
+                            setCourse({ ...course, modules: newModules });
+                          }}
+                          className="w-full p-2 mb-2 border border-gray-300 rounded"
+                          placeholder="Lesson Title"
+                        />
+                        <CourseMaterialUpload moduleIndex={moduleIndex} sectionIndex={sectionIndex} lessonIndex={lessonIndex} />
+                      </div>
+                    ))}
+                    {/* Quiz Form */}
+                    <CourseQuizForm moduleIndex={moduleIndex} sectionIndex={sectionIndex} modules={course.modules} setModules={setCourse} />
+                  </div>
+                ))}
+              </div>
+            ))}
           </div>
 
           {/* Save Changes Button */}
