@@ -216,6 +216,20 @@ const upvoteAnswer = async (req, res) => {
   }
 };
 
+// Update course details
+const updateCourse = async (req, res) => {
+  try {
+    const course = await Course.findById(req.params.id);
+    if (!course) return res.status(404).json({ message: 'Course not found' });
+
+    Object.assign(course, req.body);
+    const updatedCourse = await course.save();
+    res.json(updatedCourse);
+  } catch (error) {
+    res.status(400).json({ message: 'Error updating course', error });
+  }
+};
+
 module.exports = {
   createCourse,
   getAllCourses,
@@ -227,4 +241,5 @@ module.exports = {
   postQuestion,
   postAnswer,
   upvoteAnswer,
+  updateCourse,
 };
