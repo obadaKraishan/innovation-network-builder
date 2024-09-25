@@ -15,9 +15,11 @@ const createCourse = async (req, res) => {
 // Fetch all courses
 const getAllCourses = async (req, res) => {
   try {
+    console.log('Fetching all courses...');
     const courses = await Course.find().populate('creatorId', 'name');
     res.json(courses);
   } catch (error) {
+    console.error('Error fetching courses:', error);
     res.status(400).json({ message: 'Error fetching courses', error });
   }
 };

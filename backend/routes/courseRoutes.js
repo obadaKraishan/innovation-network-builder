@@ -9,12 +9,13 @@ const {
   issueCertificate, 
   postQuestion, 
   postAnswer, 
-  upvoteAnswer 
+  upvoteAnswer
 } = require('../controllers/courseController');
 const { protect, admin } = require('../middleware/authMiddleware');
 
 const router = express.Router();
 
+router.get('/manage', protect, admin, getAllCourses);
 router.post('/create', protect, admin, createCourse);
 router.get('/', protect, getAllCourses);
 router.get('/:id', protect, getCourseById);
