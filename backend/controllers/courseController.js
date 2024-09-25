@@ -75,7 +75,18 @@ const submitQuiz = async (req, res) => {
     let score = 0;
 
     quiz.questions.forEach((question, index) => {
-      if (question.correctAnswer === answers[index]) score += 1;
+      const userAnswer = answers[index];
+
+      if (question.type === 'text' && question.correctAnswer === userAnswer) {
+        score += 1;
+      } else if (['radio', 'select'].includes(question.type) && question.correctAnswer === userAnswer) {
+        score += 1;
+      } else if (question.type === 'checkbox') {
+        const correctAnswers = question.correctAnswer.split(','); // Assuming correctAnswer is a comma-separated string
+        if (correctAnswers.every((ans) => userAnswer.includes(ans))) {
+          score += 1;
+        }
+      }
     });
 
     const totalQuestions = quiz.questions.length;
