@@ -74,9 +74,9 @@ const CourseEdit = () => {
   };
 
   return (
-    <div className="flex">
+    <div className="flex h-screen">
       <Sidebar />
-      <div className="flex-1 p-6 bg-gray-100">
+      <div className="flex-1 p-6 bg-gray-100 overflow-auto">
         <div className="flex justify-between mb-6">
           <h2 className="text-3xl font-bold">Edit Course</h2>
           <button
