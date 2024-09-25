@@ -65,7 +65,7 @@ const CourseQASection = () => {
             >
               Submit
             </button>
-          </div>
+          </div> 
 
           {qa.map((entry, index) => (
             <div key={index} className="mb-6 p-4 bg-gray-100 rounded shadow-md">
