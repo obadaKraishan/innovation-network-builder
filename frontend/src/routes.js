@@ -72,6 +72,19 @@ import SupportTicketManagement from './components/SupportTicketManagement';
 import TicketDetails from './components/TicketDetails';
 import TicketsCalendar from './components/TicketsCalendar';
 
+// New Components for E-learning System
+import CreateCourse from './components/CreateCourse';
+import CourseCatalogDashboard from './components/CourseCatalogDashboard';
+import CourseDetails from './components/CourseDetails';
+import CourseLessonViewer from './components/CourseLessonViewer';
+import CourseQuizSection from './components/CourseQuizSection';
+import CourseFinalQuiz from './components/CourseFinalQuiz';
+import CourseQASection from './components/CourseQASection';
+import CourseAnalytics from './components/CourseAnalytics';
+import CourseProgressDashboard from './components/CourseProgressDashboard';
+import CourseManagement from './components/CourseManagement';
+
+
 const AppRoutes = () => {
   return (
       <AuthProvider>
@@ -145,6 +158,17 @@ const AppRoutes = () => {
           <Route path="/ticket-details/:ticketId" element={<TicketDetails />} />
           <Route path="/tickets-calendar" element={<TicketsCalendar />} />
 
+          {/* New Routes for E-learning System */}
+          <Route path="/create-course" element={<CreateCourse />} />
+          <Route path="/courses" element={<CourseCatalogDashboard />} />
+          <Route path="/courses/:id" element={<CourseDetails />} />
+          <Route path="/courses/:courseId/lesson/:lessonId" element={<CourseLessonViewer />} />
+          <Route path="/courses/:courseId/quiz/:quizId" element={<CourseQuizSection />} />
+          <Route path="/courses/:courseId/final-quiz" element={<CourseFinalQuiz />} />
+          <Route path="/courses/:courseId/qa" element={<CourseQASection />} />
+          <Route path="/course-analytics" element={<CourseAnalytics />} />
+          <Route path="/course-progress" element={<CourseProgressDashboard />} />
+          <Route path="/course-management" element={<CourseManagement />} />
 
           {/* Default redirect to login */}
           <Route path="/" element={<Navigate to="/login" />} />
