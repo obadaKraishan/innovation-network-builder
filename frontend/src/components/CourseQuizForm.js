@@ -34,9 +34,12 @@ const CourseQuizForm = ({ moduleIndex, modules, setModules }) => {
   };
 
   const addQuestion = () => {
-    setQuestions([...quiz.questions, { type: 'text', label: '', options: [] }]);
+    setQuiz({
+      ...quiz,
+      questions: [...quiz.questions, { type: 'text', label: '', options: [] }],
+    });
   };
-
+  
   const handleAddQuiz = () => {
     const updatedModules = [...modules];
     if (!updatedModules[moduleIndex].quiz) {
