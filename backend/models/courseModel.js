@@ -1,10 +1,15 @@
 const mongoose = require('mongoose');
 
-// Schema for quiz questions
+// Updated Schema for quiz questions with multiple types
 const questionSchema = new mongoose.Schema({
-  questionText: { type: String, required: true },
-  choices: [{ type: String, required: true }],
-  correctAnswer: { type: String, required: true },
+  questionText: { type: String, required: true }, // The text of the question
+  type: { 
+    type: String, 
+    enum: ['text', 'radio', 'checkbox', 'select', 'date'], 
+    required: true 
+  }, // Question type
+  choices: [String], // Options for radio, checkbox, and select types
+  correctAnswer: { type: String }, // Correct answer for the question
   isTimed: { type: Boolean, default: false },
   randomizeQuestions: { type: Boolean, default: false },
 });
@@ -22,7 +27,7 @@ const lessonSchema = new mongoose.Schema({
 const sectionSchema = new mongoose.Schema({
   sectionTitle: { type: String, required: true },
   lessons: [lessonSchema],
-  quiz: [questionSchema],
+  quiz: [questionSchema], // Updated to support the new question schema
 });
 
 // Schema for modules in courses
