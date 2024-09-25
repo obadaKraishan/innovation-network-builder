@@ -10,17 +10,77 @@ import CourseMaterialUpload from './CourseMaterialUpload';
 const CreateCourse = () => {
   const [title, setTitle] = useState('');
   const [description, setDescription] = useState('');
-  const [modules, setModules] = useState([]);
-  const [courseImage, setCourseImage] = useState(null); // For image upload
+  const [modules, setModules] = useState([
+    {
+      moduleTitle: '',
+      sections: [
+        {
+          sectionTitle: '',
+          lessons: [
+            {
+              lessonTitle: '',
+              materials: [],
+              quiz: [],
+            },
+          ],
+        },
+      ],
+    },
+  ]);
+  const [courseImage, setCourseImage] = useState(null);
   const [skillsGained, setSkillsGained] = useState(['']);
   const [courseRequirements, setCourseRequirements] = useState(['']);
   const [objectives, setObjectives] = useState('');
 
   // Handle adding new module
   const addModule = () => {
-    setModules([...modules, { moduleTitle: '', sections: [] }]);
+    setModules([
+      ...modules,
+      {
+        moduleTitle: '',
+        sections: [
+          {
+            sectionTitle: '',
+            lessons: [
+              {
+                lessonTitle: '',
+                materials: [],
+                quiz: [],
+              },
+            ],
+          },
+        ],
+      },
+    ]);
   };
- 
+
+  // Handle adding new section in a module
+  const addSection = (moduleIndex) => {
+    const updatedModules = [...modules];
+    updatedModules[moduleIndex].sections.push({
+      sectionTitle: '',
+      lessons: [
+        {
+          lessonTitle: '',
+          materials: [],
+          quiz: [],
+        },
+      ],
+    });
+    setModules(updatedModules);
+  };
+
+  // Handle adding new lesson in a section
+  const addLesson = (moduleIndex, sectionIndex) => {
+    const updatedModules = [...modules];
+    updatedModules[moduleIndex].sections[sectionIndex].lessons.push({
+      lessonTitle: '',
+      materials: [],
+      quiz: [],
+    });
+    setModules(updatedModules);
+  };
+
   // Handle saving the course
   const saveCourse = async () => {
     try {
@@ -28,7 +88,7 @@ const CreateCourse = () => {
         title,
         description,
         modules,
-        courseImage, // Will handle image upload logic in CourseImageUpload.js
+        courseImage,
         skillsGained,
         courseRequirements,
         objectives,
@@ -39,7 +99,23 @@ const CreateCourse = () => {
       // Reset form
       setTitle('');
       setDescription('');
-      setModules([]);
+      setModules([
+        {
+          moduleTitle: '',
+          sections: [
+            {
+              sectionTitle: '',
+              lessons: [
+                {
+                  lessonTitle: '',
+                  materials: [],
+                  quiz: [],
+                },
+              ],
+            },
+          ],
+        },
+      ]);
       setCourseImage(null);
       setSkillsGained(['']);
       setCourseRequirements(['']);
@@ -147,21 +223,88 @@ const CreateCourse = () => {
           {/* Modules */}
           <div className="mt-6">
             <h3 className="text-lg font-bold mb-4">Modules</h3>
-            {modules.map((module, index) => (
-              <div key={index} className="mb-4 bg-gray-100 p-4 rounded">
+            {modules.map((module, moduleIndex) => (
+              <div key={moduleIndex} className="mb-4 bg-gray-100 p-4 rounded">
                 <input
                   type="text"
                   value={module.moduleTitle}
                   onChange={(e) => {
                     const newModules = [...modules];
-                    newModules[index].moduleTitle = e.target.value;
+                    newModules[moduleIndex].moduleTitle = e.target.value;
                     setModules(newModules);
                   }}
                   className="w-full p-3 mb-2 border border-gray-300 rounded"
                   placeholder="Module Title"
                 />
-                <CourseMaterialUpload moduleIndex={index} modules={modules} setModules={setModules} />
-                <CourseQuizForm moduleIndex={index} modules={modules} setModules={setModules} />
+
+                {/* Sections */}
+                {module.sections.map((section, sectionIndex) => (
+                  <div key={sectionIndex} className="ml-6 mb-4">
+                    <input
+                      type="text"
+                      value={section.sectionTitle}
+                      onChange={(e) => {
+                        const newModules = [...modules];
+                        newModules[moduleIndex].sections[sectionIndex].sectionTitle =
+                          e.target.value;
+                        setModules(newModules);
+                      }}
+                      className="w-full p-3 mb-2 border border-gray-300 rounded"
+                      placeholder="Section Title"
+                    />
+
+                    {/* Lessons */}
+                    {section.lessons.map((lesson, lessonIndex) => (
+                      <div key={lessonIndex} className="ml-12 mb-4">
+                        <input
+                          type="text"
+                          value={lesson.lessonTitle}
+                          onChange={(e) => {
+                            const newModules = [...modules];
+                            newModules[moduleIndex].sections[sectionIndex].lessons[
+                              lessonIndex
+                            ].lessonTitle = e.target.value;
+                            setModules(newModules);
+                          }}
+                          className="w-full p-3 mb-2 border border-gray-300 rounded"
+                          placeholder="Lesson Title"
+                        />
+
+                        {/* Materials */}
+                        <CourseMaterialUpload
+                          moduleIndex={moduleIndex}
+                          sectionIndex={sectionIndex}
+                          lessonIndex={lessonIndex}
+                          modules={modules}
+                          setModules={setModules}
+                        />
+
+                        {/* Quiz */}
+                        <CourseQuizForm
+                          moduleIndex={moduleIndex}
+                          sectionIndex={sectionIndex}
+                          lessonIndex={lessonIndex}
+                          modules={modules}
+                          setModules={setModules}
+                        />
+                      </div>
+                    ))}
+                    <button
+                      type="button"
+                      onClick={() => addLesson(moduleIndex, sectionIndex)}
+                      className="text-blue-500 hover:underline mt-2"
+                    >
+                      Add New Lesson
+                    </button>
+                  </div>
+                ))}
+                <button
+                  type="button"
+                  onClick={() => addSection(moduleIndex)}
+                  className="text-blue-500 hover:underline mt-2"
+                >
+                  Add New Section
+                </button>
               </div>
             ))}
 
