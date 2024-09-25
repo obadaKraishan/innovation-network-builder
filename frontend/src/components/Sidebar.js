@@ -19,6 +19,10 @@ import {
   FaLightbulb,
   FaTools,
   FaTicketAlt,
+  FaBook,
+  FaChalkboardTeacher,
+  FaGraduationCap,
+  FaPlusCircle,
 } from "react-icons/fa";
 import AuthContext from "../context/AuthContext";
 
@@ -72,6 +76,13 @@ const Sidebar = () => {
         category: "Wellness",
         items: [{ name: "Wellness System", icon: <FaHeartbeat />, path: "/wellness-dashboard" }],
       },
+      {
+        category: "E-Learning",
+        items: [
+          { name: "Course Catalog", icon: <FaBook />, path: "/courses" },
+          { name: "My Progress", icon: <FaGraduationCap />, path: "/course-progress" },
+        ],
+      },
     ],
     "Department Manager": [
       {
@@ -104,6 +115,14 @@ const Sidebar = () => {
       {
         category: "Wellness",
         items: [{ name: "Wellness System", icon: <FaHeartbeat />, path: "/wellness-dashboard" }],
+      },
+      {
+        category: "E-Learning Management",
+        items: [
+          { name: "Manage Courses", icon: <FaChalkboardTeacher />, path: "/course-management" },
+          { name: "Course Analytics", icon: <FaChartLine />, path: "/course-analytics" },
+          { name: "Create Course", icon: <FaPlusCircle />, path: "/create-course" },
+        ],
       },
     ],
     "Team Leader": [
@@ -138,6 +157,14 @@ const Sidebar = () => {
         category: "Wellness",
         items: [{ name: "Wellness System", icon: <FaHeartbeat />, path: "/wellness-dashboard" }],
       },
+      {
+        category: "E-Learning Management",
+        items: [
+          { name: "Manage Courses", icon: <FaChalkboardTeacher />, path: "/course-management" },
+          { name: "Course Analytics", icon: <FaChartLine />, path: "/course-analytics" },
+          { name: "Create Course", icon: <FaPlusCircle />, path: "/create-course" },
+        ],
+      },
     ],
     CEO: [
       {
@@ -171,6 +198,14 @@ const Sidebar = () => {
         category: "Wellness",
         items: [{ name: "Wellness System", icon: <FaHeartbeat />, path: "/wellness-dashboard" }],
       },
+      {
+        category: "E-Learning Management",
+        items: [
+          { name: "Manage Courses", icon: <FaChalkboardTeacher />, path: "/course-management" },
+          { name: "Course Analytics", icon: <FaChartLine />, path: "/course-analytics" },
+          { name: "Create Course", icon: <FaPlusCircle />, path: "/create-course" },
+        ],
+      },
     ],
     CTO: [
       {
@@ -202,6 +237,14 @@ const Sidebar = () => {
       {
         category: "Wellness",
         items: [{ name: "Wellness System", icon: <FaHeartbeat />, path: "/wellness-dashboard" }],
+      },
+      {
+        category: "E-Learning Management",
+        items: [
+          { name: "Manage Courses", icon: <FaChalkboardTeacher />, path: "/course-management" },
+          { name: "Course Analytics", icon: <FaChartLine />, path: "/course-analytics" },
+          { name: "Create Course", icon: <FaPlusCircle />, path: "/create-course" },
+        ],
       },
     ],
     "Director of HR": [
@@ -236,6 +279,14 @@ const Sidebar = () => {
         category: "Wellness",
         items: [{ name: "Wellness System", icon: <FaHeartbeat />, path: "/wellness-dashboard" }],
       },
+      {
+        category: "E-Learning Management",
+        items: [
+          { name: "Manage Courses", icon: <FaChalkboardTeacher />, path: "/course-management" },
+          { name: "Course Analytics", icon: <FaChartLine />, path: "/course-analytics" },
+          { name: "Create Course", icon: <FaPlusCircle />, path: "/create-course" },
+        ],
+      },
     ],
     "Director of Finance": [
       {
@@ -268,6 +319,14 @@ const Sidebar = () => {
         category: "Wellness",
         items: [{ name: "Wellness System", icon: <FaHeartbeat />, path: "/wellness-dashboard" }],
       },
+      {
+        category: "E-Learning Management",
+        items: [
+          { name: "Manage Courses", icon: <FaChalkboardTeacher />, path: "/course-management" },
+          { name: "Course Analytics", icon: <FaChartLine />, path: "/course-analytics" },
+          { name: "Create Course", icon: <FaPlusCircle />, path: "/create-course" },
+        ],
+      },
     ],
     "Research Scientist": [
       {
@@ -299,6 +358,13 @@ const Sidebar = () => {
         category: "Wellness",
         items: [{ name: "Wellness System", icon: <FaHeartbeat />, path: "/wellness-dashboard" }],
       },
+      {
+        category: "E-Learning",
+        items: [
+          { name: "Course Catalog", icon: <FaBook />, path: "/courses" },
+          { name: "My Progress", icon: <FaGraduationCap />, path: "/course-progress" },
+        ],
+      },
     ],
     "Customer Support Specialist": [
       {
@@ -327,6 +393,13 @@ const Sidebar = () => {
       {
         category: "Wellness",
         items: [{ name: "Wellness System", icon: <FaHeartbeat />, path: "/wellness-dashboard" }],
+      },
+      {
+        category: "E-Learning",
+        items: [
+          { name: "Course Catalog", icon: <FaBook />, path: "/courses" },
+          { name: "My Progress", icon: <FaGraduationCap />, path: "/course-progress" },
+        ],
       },
     ],
   };
