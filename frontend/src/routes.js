@@ -172,6 +172,7 @@ const AppRoutes = () => {
           <Route path="/course-management" element={<CourseManagement />} />
           <Route path="/edit-course/:id" element={<CourseEdit />} />
           <Route path="/course-details/:id" element={<CourseDetails />} />
+          <Route path="/courses/:courseId/module/:moduleId/section/:sectionId/lesson/:lessonId" element={<CourseLessonViewer />} />
 
           {/* Default redirect to login */}
           <Route path="/" element={<Navigate to="/login" />} />
