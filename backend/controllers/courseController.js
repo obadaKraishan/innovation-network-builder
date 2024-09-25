@@ -46,17 +46,20 @@ const getLessonById = async (req, res) => {
       const course = await Course.findById(courseId);
       if (!course) return res.status(404).json({ message: 'Course not found' });
   
-      const module = course.modules.id(moduleId);
-      const section = module.sections.id(sectionId);
-      const lesson = section.lessons.id(lessonId);
+      const module = course.modules[moduleId];
+      if (!module) return res.status(404).json({ message: 'Module not found' });
   
+      const section = module.sections[sectionId];
+      if (!section) return res.status(404).json({ message: 'Section not found' });
+  
+      const lesson = section.lessons[lessonId];
       if (!lesson) return res.status(404).json({ message: 'Lesson not found' });
   
       res.json(lesson);
     } catch (error) {
       res.status(400).json({ message: 'Error fetching lesson details', error });
     }
-  };
+  };  
 
 // Enroll in a course
 const enrollCourse = async (req, res) => {
