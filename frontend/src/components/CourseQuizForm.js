@@ -1,10 +1,24 @@
+// File: frontend/src/components/CourseQuizForm.js
 import React, { useState } from 'react';
+import { useForm, Controller } from 'react-hook-form';
+import Select from 'react-select';
+import DatePicker from 'react-datepicker';
+import 'react-datepicker/dist/react-datepicker.css';
 import { FaPlusCircle } from 'react-icons/fa';
 
+const questionTypes = [
+  { value: 'text', label: 'Text' },
+  { value: 'radio', label: 'Multiple Choice (Radio)' },
+  { value: 'checkbox', label: 'Multiple Choice (Checkbox)' },
+  { value: 'select', label: 'Dropdown' },
+  { value: 'date', label: 'Date Picker' },
+];
+
 const CourseQuizForm = ({ moduleIndex, modules, setModules }) => {
+  const { control } = useForm();
   const [quiz, setQuiz] = useState({
     quizTitle: '',
-    questions: [{ questionText: '', choices: ['', ''], correctAnswer: '' }],
+    questions: [{ type: 'text', label: '', options: [] }],
     isTimed: false,
     randomizeQuestions: false,
   });
@@ -13,17 +27,14 @@ const CourseQuizForm = ({ moduleIndex, modules, setModules }) => {
     setQuiz({ ...quiz, [e.target.name]: e.target.value });
   };
 
-  const handleQuestionChange = (index, e) => {
+  const handleQuestionChange = (index, field, value) => {
     const updatedQuestions = [...quiz.questions];
-    updatedQuestions[index][e.target.name] = e.target.value;
+    updatedQuestions[index][field] = value;
     setQuiz({ ...quiz, questions: updatedQuestions });
   };
 
   const addQuestion = () => {
-    setQuiz({
-      ...quiz,
-      questions: [...quiz.questions, { questionText: '', choices: ['', ''], correctAnswer: '' }],
-    });
+    setQuestions([...quiz.questions, { type: 'text', label: '', options: [] }]);
   };
 
   const handleAddQuiz = () => {
@@ -35,9 +46,16 @@ const CourseQuizForm = ({ moduleIndex, modules, setModules }) => {
     setModules(updatedModules);
     setQuiz({
       quizTitle: '',
-      questions: [{ questionText: '', choices: ['', ''], correctAnswer: '' }],
+      questions: [{ type: 'text', label: '', options: [] }],
       isTimed: false,
       randomizeQuestions: false,
+    });
+  };
+
+  const removeQuestion = (index) => {
+    setQuiz({
+      ...quiz,
+      questions: quiz.questions.filter((_, i) => i !== index),
     });
   };
 
@@ -55,39 +73,60 @@ const CourseQuizForm = ({ moduleIndex, modules, setModules }) => {
       />
 
       {quiz.questions.map((question, index) => (
-        <div key={index} className="mt-4">
-          <input
-            type="text"
-            name="questionText"
-            value={question.questionText}
-            onChange={(e) => handleQuestionChange(index, e)}
-            placeholder="Question Text"
-            className="w-full p-3 border border-gray-300 rounded"
-          />
-
-          {question.choices.map((choice, i) => (
+        <div key={index} className="mt-4 p-4 border rounded-lg bg-gray-100">
+          <div className="flex justify-between">
             <input
-              key={i}
               type="text"
-              value={choice}
-              onChange={(e) => {
-                const updatedChoices = [...question.choices];
-                updatedChoices[i] = e.target.value;
-                handleQuestionChange(index, { target: { name: 'choices', value: updatedChoices } });
-              }}
-              placeholder={`Choice ${i + 1}`}
-              className="w-full p-3 border border-gray-300 rounded mt-2"
+              name="label"
+              value={question.label}
+              onChange={(e) => handleQuestionChange(index, 'label', e.target.value)}
+              placeholder="Question Title"
+              className="w-full p-2 border border-gray-300 rounded"
+              required
             />
-          ))}
+            <button type="button" onClick={() => removeQuestion(index)} className="text-red-500 ml-2">
+              Remove
+            </button>
+          </div>
 
-          <input
-            type="text"
-            name="correctAnswer"
-            value={question.correctAnswer}
-            onChange={(e) => handleQuestionChange(index, e)}
-            placeholder="Correct Answer"
-            className="w-full p-3 border border-gray-300 rounded mt-2"
-          />
+          <div className="mb-2">
+            <label>Question Type</label>
+            <Select
+              options={questionTypes}
+              onChange={(selected) => handleQuestionChange(index, 'type', selected.value)}
+              defaultValue={questionTypes.find((type) => type.value === question.type)}
+            />
+          </div>
+
+          {['radio', 'checkbox', 'select'].includes(question.type) && (
+            <div className="mb-4">
+              <label>Options (comma-separated)</label>
+              <input
+                type="text"
+                value={question.options.join(', ')}
+                onChange={(e) => handleQuestionChange(index, 'options', e.target.value.split(','))}
+                placeholder="Option1, Option2, Option3"
+                className="w-full p-2 border border-gray-300 rounded"
+              />
+            </div>
+          )}
+
+          {question.type === 'date' && (
+            <div className="mb-4">
+              <label>Select Default Date</label>
+              <Controller
+                control={control}
+                name={`questions[${index}].defaultDate`}
+                render={({ field }) => (
+                  <DatePicker
+                    className="w-full p-2 border border-gray-300 rounded"
+                    selected={field.value}
+                    onChange={(date) => field.onChange(date)}
+                  />
+                )}
+              />
+            </div>
+          )}
         </div>
       ))}
 
