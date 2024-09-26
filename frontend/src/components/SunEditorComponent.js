@@ -8,45 +8,45 @@ const SunEditorComponent = ({ value, onChange }) => {
   const editorInstanceRef = useRef(null);
 
   useEffect(() => {
-    // Log the SunEditor configuration being applied
+    // Log SunEditor configuration
     console.log("SunEditor config applied:", {
       plugins: plugins,
-      height: 200,
-      iframe: false,
-      disableAutoHeight: true,
-      autoHeight: false,
+      height: '200px',
       minHeight: '200px',
       maxHeight: '500px',
     });
 
-    // Initialize the editor with iframe disabled and autoHeight fully disabled
-    editorInstanceRef.current = suneditor.create(editorRef.current, {
-      plugins: plugins,
-      height: 200,
-      buttonList: [
-        ['undo', 'redo'],
-        ['font', 'fontSize', 'formatBlock'],
-        ['bold', 'underline', 'italic', 'strike'],
-        ['removeFormat'],
-        ['outdent', 'indent'],
-        ['align', 'horizontalRule', 'list', 'table'],
-        ['link', 'image', 'video'],
-        ['fullScreen', 'showBlocks', 'codeView'],
-      ],
-      iframe: false,  // Ensure iframe is completely disabled
-      disableAutoHeight: true, // Disable auto height to avoid conflicts
-      autoHeight: false, // Explicitly disable auto height
-      minHeight: '200px', // Set minimum height
-      maxHeight: '500px', // Set maximum height
-    });
+    try {
+      // Initialize SunEditor without iframe and auto height options
+      editorInstanceRef.current = suneditor.create(editorRef.current, {
+        plugins: plugins,
+        height: '200px',  // Set a fixed height
+        minHeight: '200px', // Minimum height
+        maxHeight: '500px', // Maximum height
+        resizingBar: false, // Disable resizing bar
+        buttonList: [
+          ['undo', 'redo'],
+          ['font', 'fontSize', 'formatBlock'],
+          ['bold', 'underline', 'italic', 'strike'],
+          ['removeFormat'],
+          ['outdent', 'indent'],
+          ['align', 'horizontalRule', 'list', 'table'],
+          ['link', 'image', 'video'],
+          ['fullScreen', 'showBlocks', 'codeView'],
+        ],
+      });
 
-    // Set initial value
-    editorInstanceRef.current.setContents(value || '');
+      // Set initial value
+      editorInstanceRef.current.setContents(value || '');
 
-    // Handle content changes
-    editorInstanceRef.current.onChange = (content) => {
-      onChange(content);
-    };
+      // Handle content changes
+      editorInstanceRef.current.onChange = (content) => {
+        onChange(content);
+      };
+
+    } catch (error) {
+      console.error("Error initializing SunEditor:", error);
+    }
 
     return () => {
       // Cleanup SunEditor on component unmount
