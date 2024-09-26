@@ -1,3 +1,4 @@
+// File: frontend/src/components/CreateCourse.js
 import React, { useState } from 'react';
 import Sidebar from './Sidebar';
 import { toast } from 'react-toastify';
@@ -6,6 +7,7 @@ import api from '../utils/api';
 import CourseImageUpload from './CourseImageUpload';
 import CourseQuizForm from './CourseQuizForm';
 import CourseMaterialUpload from './CourseMaterialUpload';
+import SunEditorComponent from './SunEditorComponent'; // Import SunEditorComponent
 
 const CreateCourse = () => {
   const [title, setTitle] = useState('');
@@ -19,6 +21,7 @@ const CreateCourse = () => {
           lessons: [
             {
               lessonTitle: '',
+              lessonText: '', // Add lessonText for rich content
               materials: [],
               quiz: [],
             },
@@ -44,6 +47,7 @@ const CreateCourse = () => {
             lessons: [
               {
                 lessonTitle: '',
+                lessonText: '', // Initialize lessonText for new lesson
                 materials: [],
                 quiz: [],
               },
@@ -62,6 +66,7 @@ const CreateCourse = () => {
       lessons: [
         {
           lessonTitle: '',
+          lessonText: '', // Initialize lessonText for new section
           materials: [],
           quiz: [],
         },
@@ -75,6 +80,7 @@ const CreateCourse = () => {
     const updatedModules = [...modules];
     updatedModules[moduleIndex].sections[sectionIndex].lessons.push({
       lessonTitle: '',
+      lessonText: '', // Initialize lessonText for new lesson
       materials: [],
       quiz: [],
     });
@@ -94,8 +100,8 @@ const CreateCourse = () => {
         objectives,
       };
 
-    // Log the newCourse object
-    console.log('New Course:', newCourse);
+      // Log the newCourse object
+      console.log('New Course:', newCourse);
 
       const { data } = await api.post('/courses/create', newCourse);
       toast.success('Course created successfully!');
@@ -111,6 +117,7 @@ const CreateCourse = () => {
               lessons: [
                 {
                   lessonTitle: '',
+                  lessonText: '', // Reset lessonText for new lesson
                   materials: [],
                   quiz: [],
                 },
@@ -271,6 +278,18 @@ const CreateCourse = () => {
                           }}
                           className="w-full p-3 mb-2 border border-gray-300 rounded"
                           placeholder="Lesson Title"
+                        />
+
+                        {/* Lesson Text Editor */}
+                        <SunEditorComponent
+                          value={section.lessons[lessonIndex].lessonText}
+                          onChange={(content) => {
+                            const updatedModules = [...modules];
+                            updatedModules[moduleIndex].sections[sectionIndex].lessons[
+                              lessonIndex
+                            ].lessonText = content;
+                            setModules(updatedModules);
+                          }}
                         />
 
                         {/* Materials */}
