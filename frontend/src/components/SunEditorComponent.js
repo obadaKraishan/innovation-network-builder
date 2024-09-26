@@ -14,6 +14,7 @@ const SunEditorComponent = ({ value, onChange }) => {
       height: '200px',
       minHeight: '200px',
       maxHeight: '500px',
+      iframe: false,
     });
 
     try {
@@ -24,6 +25,7 @@ const SunEditorComponent = ({ value, onChange }) => {
         minHeight: '200px', // Minimum height
         maxHeight: '500px', // Maximum height
         resizingBar: false, // Disable resizing bar
+        iframe: false,  // Disable iframe usage
         buttonList: [
           ['undo', 'redo'],
           ['font', 'fontSize', 'formatBlock'],
