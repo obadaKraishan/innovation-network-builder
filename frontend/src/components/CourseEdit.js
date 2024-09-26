@@ -144,7 +144,7 @@ const CourseEdit = () => {
               <input
                 key={index}
                 type="text"
-                value={skill}
+                value={skill || ''}
                 onChange={(e) => handleArrayChange('skillsGained', index, e.target.value)}
                 className="w-full p-2 border border-gray-300 rounded mb-2"
                 placeholder="Enter skill"
@@ -223,11 +223,11 @@ const CourseEdit = () => {
 
                         {/* Lesson Text Editor */}
                         <SunEditorComponent
-  value={section.lessons[lessonIndex].lessonText}
+  value={section.lessons[lessonIndex].lessonText || ''}  // Fallback to empty string
   onChange={(content) => {
-    const updatedModules = [...modules];
+    const updatedModules = [...course.modules];
     updatedModules[moduleIndex].sections[sectionIndex].lessons[lessonIndex].lessonText = content;
-    setModules(updatedModules);
+    setCourse({ ...course, modules: updatedModules });
   }}
 />
 

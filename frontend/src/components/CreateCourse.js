@@ -282,7 +282,7 @@ const CreateCourse = () => {
 
                         {/* Lesson Text Editor */}
                         <SunEditorComponent
-  value={section.lessons[lessonIndex].lessonText}
+  value={section.lessons[lessonIndex].lessonText || ''}  // Fallback to empty string
   onChange={(content) => {
     const updatedModules = [...modules];
     updatedModules[moduleIndex].sections[sectionIndex].lessons[lessonIndex].lessonText = content;
