@@ -7,6 +7,7 @@ import api from '../utils/api';
 import Sidebar from './Sidebar';
 import CourseQuizForm from './CourseQuizForm';
 import CourseMaterialUpload from './CourseMaterialUpload';
+import SunEditorComponent from './SunEditorComponent'; // Import SunEditorComponent
 
 const CourseEdit = () => {
   const { id } = useParams();
@@ -26,7 +27,7 @@ const CourseEdit = () => {
           {
             sectionTitle: '',
             lessons: [
-              { lessonTitle: '', lessonType: 'text', videoUrl: '', textContent: '' },
+              { lessonTitle: '', lessonText: '', materials: [], quiz: [] }, // Add lessonText for rich content
             ],
             quiz: [
               { questionText: '', choices: [''], correctAnswer: '' },
@@ -204,6 +205,7 @@ const CourseEdit = () => {
                       className="w-full p-2 mb-2 border border-gray-300 rounded"
                       placeholder="Section Title"
                     />
+
                     {/* Lessons */}
                     {section.lessons.map((lesson, lessonIndex) => (
                       <div key={lessonIndex} className="ml-4 mb-2">
@@ -218,7 +220,22 @@ const CourseEdit = () => {
                           className="w-full p-2 mb-2 border border-gray-300 rounded"
                           placeholder="Lesson Title"
                         />
+
+                        {/* Lesson Text Editor */}
+                        <SunEditorComponent
+                          value={lesson.lessonText}
+                          onChange={(content) => {
+                            const updatedModules = [...course.modules];
+                            updatedModules[moduleIndex].sections[sectionIndex].lessons[
+                              lessonIndex
+                            ].lessonText = content;
+                            setCourse({ ...course, modules: updatedModules });
+                          }}
+                        />
+
+                        {/* Materials */}
                         <CourseMaterialUpload moduleIndex={moduleIndex} sectionIndex={sectionIndex} lessonIndex={lessonIndex} />
+
                       </div>
                     ))}
                     {/* Quiz Form */}
