@@ -1,7 +1,7 @@
 // File: frontend/src/components/CourseLessonViewer.js
 import React, { useEffect, useState } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
-import Sidebar from './Sidebar'; // Import the Sidebar component
+import Sidebar from './Sidebar'; 
 import api from '../utils/api';
 import { toast } from 'react-toastify';
 
@@ -47,7 +47,9 @@ const CourseLessonViewer = () => {
           <p>{lesson.description}</p>
           
           <div className="lesson-content">
-            {lesson.lessonText && <p>{lesson.lessonText}</p>}
+            {/* Render lessonText as rich content */}
+            {lesson.lessonText && <div dangerouslySetInnerHTML={{ __html: lesson.lessonText }} />}
+            
             {lesson.materials && lesson.materials.map((material, index) => (
               <div key={index}>
                 {material.materialType === 'video' && (
