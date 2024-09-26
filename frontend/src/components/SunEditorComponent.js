@@ -1,13 +1,15 @@
-import React, { useRef } from 'react';
+import React, { useEffect, useRef } from 'react';
 import suneditor from 'suneditor';
 import 'suneditor/dist/css/suneditor.min.css';
 import plugins from 'suneditor/src/plugins';
 
 const SunEditorComponent = ({ value, onChange }) => {
   const editorRef = useRef(null);
+  const editorInstanceRef = useRef(null);
 
-  React.useEffect(() => {
-    const editor = suneditor.create(editorRef.current, {
+  useEffect(() => {
+    // Initialize the editor
+    editorInstanceRef.current = suneditor.create(editorRef.current, {
       plugins: plugins,
       height: 200,
       buttonList: [
@@ -22,14 +24,19 @@ const SunEditorComponent = ({ value, onChange }) => {
       ],
     });
 
-    editor.onChange = (content) => {
+    // Set initial value
+    editorInstanceRef.current.setContents(value || '');
+
+    // Handle content changes
+    editorInstanceRef.current.onChange = (content) => {
       onChange(content);
     };
 
     return () => {
-      editor.destroy();
+      // Cleanup SunEditor on component unmount
+      editorInstanceRef.current?.destroy();
     };
-  }, [onChange]);
+  }, [onChange, value]);
 
   return <div ref={editorRef} />;
 };
