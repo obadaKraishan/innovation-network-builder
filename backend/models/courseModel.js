@@ -7,17 +7,17 @@ const questionSchema = new mongoose.Schema({
     type: String, 
     enum: ['text', 'radio', 'checkbox', 'select', 'date'], 
     required: true 
-  }, // Question type
-  choices: [String], // Options for radio, checkbox, and select types
-  correctAnswer: { type: String }, // Correct answer for the question
+  },
+  choices: [String],
+  correctAnswer: { type: String },
   isTimed: { type: Boolean, default: false },
   randomizeQuestions: { type: Boolean, default: false },
 });
 
 // Schema for lesson materials
 const materialSchema = new mongoose.Schema({
-  materialType: { type: String, enum: ['video', 'pdf', 'text'], required: true },
-  materialUrl: { type: String }, // URL of the material
+  materialType: { type: String, enum: ['video', 'pdf'], required: true },
+  materialUrl: { type: String }, 
   title: { type: String, required: true },
   description: { type: String }
 });
@@ -26,32 +26,32 @@ const materialSchema = new mongoose.Schema({
 const lessonSchema = new mongoose.Schema({
   lessonTitle: { type: String, required: true },
   description: { type: String },
-  lessonText: { type: String }, // Text content of the lesson
-  materials: [materialSchema], // Existing materials schema (videos, PDFs, etc.)
-  quiz: [questionSchema], // A quiz can be associated with each lesson
+  lessonText: { type: String }, // Updated to handle rich text content
+  materials: [materialSchema], 
+  quiz: [questionSchema],
 });
 
 // Schema for sections in modules
 const sectionSchema = new mongoose.Schema({
   sectionTitle: { type: String, required: true },
-  lessons: [lessonSchema], // Each section can have multiple lessons
+  lessons: [lessonSchema],
 });
 
 // Schema for modules in courses
 const moduleSchema = new mongoose.Schema({
   moduleTitle: { type: String, required: true },
-  sections: [sectionSchema], // Each module can have multiple sections
+  sections: [sectionSchema],
 });
 
 // Main course schema
 const courseSchema = new mongoose.Schema({
   title: { type: String, required: true },
   description: { type: String, required: true },
-  image: { type: String }, // URL or path to course image
+  image: { type: String }, 
   creatorId: { type: mongoose.Schema.Types.ObjectId, ref: 'User', required: true },
-  modules: [moduleSchema], // Each course can have multiple modules
-  finalQuiz: [questionSchema], // Final course quiz (if any)
-  estimatedDuration: { type: Number }, // Estimated hours to complete
+  modules: [moduleSchema],
+  finalQuiz: [questionSchema], 
+  estimatedDuration: { type: Number },
   skillsGained: [{ type: String }],
   courseRequirements: [{ type: String }],
   objectives: { type: String },
