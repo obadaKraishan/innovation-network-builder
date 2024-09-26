@@ -152,7 +152,7 @@ const CreateCourse = () => {
               <label className="block text-gray-700">Course Title</label>
               <input
                 type="text"
-                value={title}
+                value={title || ''}
                 onChange={(e) => setTitle(e.target.value)}
                 className="w-full p-3 border border-gray-300 rounded"
               />
@@ -160,7 +160,7 @@ const CreateCourse = () => {
             <div>
               <label className="block text-gray-700">Course Description</label>
               <textarea
-                value={description}
+                value={description || ''}
                 onChange={(e) => setDescription(e.target.value)}
                 className="w-full p-3 border border-gray-300 rounded"
               ></textarea>
@@ -177,7 +177,7 @@ const CreateCourse = () => {
               <input
                 key={index}
                 type="text"
-                value={skill}
+                value={skill || ''}
                 onChange={(e) => {
                   const newSkills = [...skillsGained];
                   newSkills[index] = e.target.value;
