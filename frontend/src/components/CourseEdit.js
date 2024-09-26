@@ -1,35 +1,37 @@
 // File: frontend/src/components/CourseEdit.js
-import React, { useState, useEffect } from "react";
-import { useParams, useNavigate } from "react-router-dom";
-import { toast } from "react-toastify";
-import { AiOutlineSave, AiOutlineRollback } from "react-icons/ai";
-import api from "../utils/api";
-import Sidebar from "./Sidebar";
-import CourseQuizForm from "./CourseQuizForm";
-import CourseMaterialUpload from "./CourseMaterialUpload";
-import SunEditorComponent from "./SunEditorComponent"; // Import SunEditorComponent
+import React, { useState, useEffect } from 'react';
+import { useParams, useNavigate } from 'react-router-dom';
+import { toast } from 'react-toastify';
+import { AiOutlineSave, AiOutlineRollback } from 'react-icons/ai';
+import api from '../utils/api';
+import Sidebar from './Sidebar';
+import CourseQuizForm from './CourseQuizForm';
+import CourseMaterialUpload from './CourseMaterialUpload';
+import SunEditorComponent from './SunEditorComponent'; // Import SunEditorComponent
 
 const CourseEdit = () => {
   const { id } = useParams();
   const navigate = useNavigate();
   const [course, setCourse] = useState({
-    title: "",
-    description: "",
-    image: "",
+    title: '',
+    description: '',
+    image: '',
     estimatedDuration: 0,
-    skillsGained: [""],
-    courseRequirements: [""],
-    objectives: "",
+    skillsGained: [''],
+    courseRequirements: [''],
+    objectives: '',
     modules: [
       {
-        moduleTitle: "",
+        moduleTitle: '',
         sections: [
           {
-            sectionTitle: "",
+            sectionTitle: '',
             lessons: [
-              { lessonTitle: "", lessonText: "", materials: [], quiz: [] }, // Add lessonText for rich content
+              { lessonTitle: '', lessonText: '', materials: [], quiz: [] }, // Add lessonText for rich content
             ],
-            quiz: [{ questionText: "", choices: [""], correctAnswer: "" }],
+            quiz: [
+              { questionText: '', choices: [''], correctAnswer: '' },
+            ],
           },
         ],
       },
@@ -42,7 +44,7 @@ const CourseEdit = () => {
         const { data } = await api.get(`/courses/${id}`);
         setCourse(data);
       } catch (error) {
-        toast.error("Failed to load course details");
+        toast.error('Failed to load course details');
       }
     };
     fetchCourse();
@@ -51,10 +53,10 @@ const CourseEdit = () => {
   const handleSubmit = async () => {
     try {
       await api.put(`/courses/${id}`, course);
-      toast.success("Course updated successfully!");
-      navigate("/course-management");
+      toast.success('Course updated successfully!');
+      navigate('/course-management');
     } catch (error) {
-      toast.error("Error updating course");
+      toast.error('Error updating course');
     }
   };
 
@@ -79,7 +81,7 @@ const CourseEdit = () => {
         <div className="flex justify-between mb-6">
           <h2 className="text-3xl font-bold">Edit Course</h2>
           <button
-            onClick={() => navigate("/course-management")}
+            onClick={() => navigate('/course-management')}
             className="bg-gray-500 text-white px-4 py-2 rounded-lg shadow flex items-center"
           >
             <AiOutlineRollback className="mr-2" />
@@ -105,9 +107,7 @@ const CourseEdit = () => {
             <label className="block text-sm font-bold mb-2">Description</label>
             <textarea
               value={course.description}
-              onChange={(e) =>
-                setCourse({ ...course, description: e.target.value })
-              }
+              onChange={(e) => setCourse({ ...course, description: e.target.value })}
               className="w-full p-2 border border-gray-300 rounded"
               placeholder="Enter course description"
             />
@@ -127,18 +127,11 @@ const CourseEdit = () => {
 
           {/* Estimated Duration */}
           <div>
-            <label className="block text-sm font-bold mb-2">
-              Estimated Duration (hours)
-            </label>
+            <label className="block text-sm font-bold mb-2">Estimated Duration (hours)</label>
             <input
               type="number"
               value={course.estimatedDuration}
-              onChange={(e) =>
-                setCourse({
-                  ...course,
-                  estimatedDuration: Number(e.target.value),
-                })
-              }
+              onChange={(e) => setCourse({ ...course, estimatedDuration: Number(e.target.value) })}
               className="w-full p-2 border border-gray-300 rounded"
               placeholder="Enter estimated duration"
             />
@@ -146,17 +139,13 @@ const CourseEdit = () => {
 
           {/* Skills Gained */}
           <div>
-            <label className="block text-sm font-bold mb-2">
-              Skills Gained
-            </label>
+            <label className="block text-sm font-bold mb-2">Skills Gained</label>
             {course.skillsGained.map((skill, index) => (
               <input
                 key={index}
                 type="text"
                 value={skill}
-                onChange={(e) =>
-                  handleArrayChange("skillsGained", index, e.target.value)
-                }
+                onChange={(e) => handleArrayChange('skillsGained', index, e.target.value)}
                 className="w-full p-2 border border-gray-300 rounded mb-2"
                 placeholder="Enter skill"
               />
@@ -165,17 +154,13 @@ const CourseEdit = () => {
 
           {/* Course Requirements */}
           <div>
-            <label className="block text-sm font-bold mb-2">
-              Course Requirements
-            </label>
+            <label className="block text-sm font-bold mb-2">Course Requirements</label>
             {course.courseRequirements.map((requirement, index) => (
               <input
                 key={index}
                 type="text"
                 value={requirement}
-                onChange={(e) =>
-                  handleArrayChange("courseRequirements", index, e.target.value)
-                }
+                onChange={(e) => handleArrayChange('courseRequirements', index, e.target.value)}
                 className="w-full p-2 border border-gray-300 rounded mb-2"
                 placeholder="Enter requirement"
               />
@@ -187,9 +172,7 @@ const CourseEdit = () => {
             <label className="block text-sm font-bold mb-2">Objectives</label>
             <textarea
               value={course.objectives}
-              onChange={(e) =>
-                setCourse({ ...course, objectives: e.target.value })
-              }
+              onChange={(e) => setCourse({ ...course, objectives: e.target.value })}
               className="w-full p-2 border border-gray-300 rounded"
               placeholder="Enter objectives"
             />
@@ -203,13 +186,7 @@ const CourseEdit = () => {
                 <input
                   type="text"
                   value={module.moduleTitle}
-                  onChange={(e) =>
-                    handleModuleChange(
-                      moduleIndex,
-                      "moduleTitle",
-                      e.target.value
-                    )
-                  }
+                  onChange={(e) => handleModuleChange(moduleIndex, 'moduleTitle', e.target.value)}
                   className="w-full p-3 mb-2 border border-gray-300 rounded"
                   placeholder="Module Title"
                 />
@@ -222,9 +199,7 @@ const CourseEdit = () => {
                       value={section.sectionTitle}
                       onChange={(e) => {
                         const newModules = [...course.modules];
-                        newModules[moduleIndex].sections[
-                          sectionIndex
-                        ].sectionTitle = e.target.value;
+                        newModules[moduleIndex].sections[sectionIndex].sectionTitle = e.target.value;
                         setCourse({ ...course, modules: newModules });
                       }}
                       className="w-full p-2 mb-2 border border-gray-300 rounded"
@@ -239,9 +214,7 @@ const CourseEdit = () => {
                           value={lesson.lessonTitle}
                           onChange={(e) => {
                             const newModules = [...course.modules];
-                            newModules[moduleIndex].sections[
-                              sectionIndex
-                            ].lessons[lessonIndex].lessonTitle = e.target.value;
+                            newModules[moduleIndex].sections[sectionIndex].lessons[lessonIndex].lessonTitle = e.target.value;
                             setCourse({ ...course, modules: newModules });
                           }}
                           className="w-full p-2 mb-2 border border-gray-300 rounded"
@@ -250,31 +223,22 @@ const CourseEdit = () => {
 
                         {/* Lesson Text Editor */}
                         <SunEditorComponent
-                          value={section.lessons[lessonIndex].lessonText}
-                          onChange={(content) => {
-                            const updatedModules = [...modules];
-                            updatedModules[moduleIndex].sections[
-                              sectionIndex
-                            ].lessons[lessonIndex].lessonText = content;
-                            setModules(updatedModules);
-                          }}
-                        />
+  value={section.lessons[lessonIndex].lessonText}
+  onChange={(content) => {
+    const updatedModules = [...modules];
+    updatedModules[moduleIndex].sections[sectionIndex].lessons[lessonIndex].lessonText = content;
+    setModules(updatedModules);
+  }}
+/>
+
 
                         {/* Materials */}
-                        <CourseMaterialUpload
-                          moduleIndex={moduleIndex}
-                          sectionIndex={sectionIndex}
-                          lessonIndex={lessonIndex}
-                        />
+                        <CourseMaterialUpload moduleIndex={moduleIndex} sectionIndex={sectionIndex} lessonIndex={lessonIndex} />
+
                       </div>
                     ))}
                     {/* Quiz Form */}
-                    <CourseQuizForm
-                      moduleIndex={moduleIndex}
-                      sectionIndex={sectionIndex}
-                      modules={course.modules}
-                      setModules={setCourse}
-                    />
+                    <CourseQuizForm moduleIndex={moduleIndex} sectionIndex={sectionIndex} modules={course.modules} setModules={setCourse} />
                   </div>
                 ))}
               </div>

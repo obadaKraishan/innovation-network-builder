@@ -1,27 +1,27 @@
 // File: frontend/src/components/CreateCourse.js
-import React, { useState } from "react";
-import Sidebar from "./Sidebar";
-import { toast } from "react-toastify";
-import { FaPlusCircle, FaSave } from "react-icons/fa";
-import api from "../utils/api";
-import CourseImageUpload from "./CourseImageUpload";
-import CourseQuizForm from "./CourseQuizForm";
-import CourseMaterialUpload from "./CourseMaterialUpload";
-import SunEditorComponent from "./SunEditorComponent"; // Import SunEditorComponent
+import React, { useState } from 'react';
+import Sidebar from './Sidebar';
+import { toast } from 'react-toastify';
+import { FaPlusCircle, FaSave } from 'react-icons/fa';
+import api from '../utils/api';
+import CourseImageUpload from './CourseImageUpload';
+import CourseQuizForm from './CourseQuizForm';
+import CourseMaterialUpload from './CourseMaterialUpload';
+import SunEditorComponent from './SunEditorComponent'; // Import SunEditorComponent
 
 const CreateCourse = () => {
-  const [title, setTitle] = useState("");
-  const [description, setDescription] = useState("");
+  const [title, setTitle] = useState('');
+  const [description, setDescription] = useState('');
   const [modules, setModules] = useState([
     {
-      moduleTitle: "",
+      moduleTitle: '',
       sections: [
         {
-          sectionTitle: "",
+          sectionTitle: '',
           lessons: [
             {
-              lessonTitle: "",
-              lessonText: "", // Add lessonText for rich content
+              lessonTitle: '',
+              lessonText: '', // Add lessonText for rich content
               materials: [],
               quiz: [],
             },
@@ -31,23 +31,23 @@ const CreateCourse = () => {
     },
   ]);
   const [courseImage, setCourseImage] = useState(null);
-  const [skillsGained, setSkillsGained] = useState([""]);
-  const [courseRequirements, setCourseRequirements] = useState([""]);
-  const [objectives, setObjectives] = useState("");
+  const [skillsGained, setSkillsGained] = useState(['']);
+  const [courseRequirements, setCourseRequirements] = useState(['']);
+  const [objectives, setObjectives] = useState('');
 
   // Handle adding new module
   const addModule = () => {
     setModules([
       ...modules,
       {
-        moduleTitle: "",
+        moduleTitle: '',
         sections: [
           {
-            sectionTitle: "",
+            sectionTitle: '',
             lessons: [
               {
-                lessonTitle: "",
-                lessonText: "", // Initialize lessonText for new lesson
+                lessonTitle: '',
+                lessonText: '', // Initialize lessonText for new lesson
                 materials: [],
                 quiz: [],
               },
@@ -62,11 +62,11 @@ const CreateCourse = () => {
   const addSection = (moduleIndex) => {
     const updatedModules = [...modules];
     updatedModules[moduleIndex].sections.push({
-      sectionTitle: "",
+      sectionTitle: '',
       lessons: [
         {
-          lessonTitle: "",
-          lessonText: "", // Initialize lessonText for new section
+          lessonTitle: '',
+          lessonText: '', // Initialize lessonText for new section
           materials: [],
           quiz: [],
         },
@@ -79,8 +79,8 @@ const CreateCourse = () => {
   const addLesson = (moduleIndex, sectionIndex) => {
     const updatedModules = [...modules];
     updatedModules[moduleIndex].sections[sectionIndex].lessons.push({
-      lessonTitle: "",
-      lessonText: "", // Initialize lessonText for new lesson
+      lessonTitle: '',
+      lessonText: '', // Initialize lessonText for new lesson
       materials: [],
       quiz: [],
     });
@@ -101,23 +101,23 @@ const CreateCourse = () => {
       };
 
       // Log the newCourse object
-      console.log("New Course:", newCourse);
+      console.log('New Course:', newCourse);
 
-      const { data } = await api.post("/courses/create", newCourse);
-      toast.success("Course created successfully!");
+      const { data } = await api.post('/courses/create', newCourse);
+      toast.success('Course created successfully!');
       // Reset form
-      setTitle("");
-      setDescription("");
+      setTitle('');
+      setDescription('');
       setModules([
         {
-          moduleTitle: "",
+          moduleTitle: '',
           sections: [
             {
-              sectionTitle: "",
+              sectionTitle: '',
               lessons: [
                 {
-                  lessonTitle: "",
-                  lessonText: "", // Reset lessonText for new lesson
+                  lessonTitle: '',
+                  lessonText: '', // Reset lessonText for new lesson
                   materials: [],
                   quiz: [],
                 },
@@ -127,11 +127,11 @@ const CreateCourse = () => {
         },
       ]);
       setCourseImage(null);
-      setSkillsGained([""]);
-      setCourseRequirements([""]);
-      setObjectives("");
+      setSkillsGained(['']);
+      setCourseRequirements(['']);
+      setObjectives('');
     } catch (error) {
-      toast.error("Error creating course");
+      toast.error('Error creating course');
     }
   };
 
@@ -188,7 +188,7 @@ const CreateCourse = () => {
             ))}
             <button
               type="button"
-              onClick={() => setSkillsGained([...skillsGained, ""])}
+              onClick={() => setSkillsGained([...skillsGained, ''])}
               className="text-blue-500 hover:underline"
             >
               Add another skill
@@ -213,7 +213,7 @@ const CreateCourse = () => {
             ))}
             <button
               type="button"
-              onClick={() => setCourseRequirements([...courseRequirements, ""])}
+              onClick={() => setCourseRequirements([...courseRequirements, ''])}
               className="text-blue-500 hover:underline"
             >
               Add another requirement
@@ -255,9 +255,8 @@ const CreateCourse = () => {
                       value={section.sectionTitle}
                       onChange={(e) => {
                         const newModules = [...modules];
-                        newModules[moduleIndex].sections[
-                          sectionIndex
-                        ].sectionTitle = e.target.value;
+                        newModules[moduleIndex].sections[sectionIndex].sectionTitle =
+                          e.target.value;
                         setModules(newModules);
                       }}
                       className="w-full p-3 mb-2 border border-gray-300 rounded"
@@ -272,9 +271,9 @@ const CreateCourse = () => {
                           value={lesson.lessonTitle}
                           onChange={(e) => {
                             const newModules = [...modules];
-                            newModules[moduleIndex].sections[
-                              sectionIndex
-                            ].lessons[lessonIndex].lessonTitle = e.target.value;
+                            newModules[moduleIndex].sections[sectionIndex].lessons[
+                              lessonIndex
+                            ].lessonTitle = e.target.value;
                             setModules(newModules);
                           }}
                           className="w-full p-3 mb-2 border border-gray-300 rounded"
@@ -283,15 +282,14 @@ const CreateCourse = () => {
 
                         {/* Lesson Text Editor */}
                         <SunEditorComponent
-                          value={section.lessons[lessonIndex].lessonText}
-                          onChange={(content) => {
-                            const updatedModules = [...modules];
-                            updatedModules[moduleIndex].sections[
-                              sectionIndex
-                            ].lessons[lessonIndex].lessonText = content;
-                            setModules(updatedModules);
-                          }}
-                        />
+  value={section.lessons[lessonIndex].lessonText}
+  onChange={(content) => {
+    const updatedModules = [...modules];
+    updatedModules[moduleIndex].sections[sectionIndex].lessons[lessonIndex].lessonText = content;
+    setModules(updatedModules);
+  }}
+/>
+
 
                         {/* Materials */}
                         <CourseMaterialUpload
