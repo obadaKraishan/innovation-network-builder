@@ -8,7 +8,18 @@ const SunEditorComponent = ({ value, onChange }) => {
   const editorInstanceRef = useRef(null);
 
   useEffect(() => {
-    // Initialize the editor with iframe disabled
+    // Log the SunEditor configuration being applied
+    console.log("SunEditor config applied:", {
+      plugins: plugins,
+      height: 200,
+      iframe: false,
+      disableAutoHeight: true,
+      autoHeight: false,
+      minHeight: '200px',
+      maxHeight: '500px',
+    });
+
+    // Initialize the editor with iframe disabled and autoHeight fully disabled
     editorInstanceRef.current = suneditor.create(editorRef.current, {
       plugins: plugins,
       height: 200,
@@ -23,12 +34,12 @@ const SunEditorComponent = ({ value, onChange }) => {
         ['fullScreen', 'showBlocks', 'codeView'],
       ],
       iframe: false,  // Ensure iframe is completely disabled
-      disableAutoHeight: true, // Disable auto height
-      // Optionally, set a min or max height
-      minHeight: '200px', 
-      maxHeight: '500px'
+      disableAutoHeight: true, // Disable auto height to avoid conflicts
+      autoHeight: false, // Explicitly disable auto height
+      minHeight: '200px', // Set minimum height
+      maxHeight: '500px', // Set maximum height
     });
-    
+
     // Set initial value
     editorInstanceRef.current.setContents(value || '');
 
