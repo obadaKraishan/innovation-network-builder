@@ -15,9 +15,9 @@ const SunEditorComponent = ({ value, onChange }) => {
       maxHeight: '500px',
       iframe: false,
     });
-  
+
     try {
-      // Initialize SunEditor without iframe and auto height options
+      // Initialize SunEditor with a dummy _iframeAutoHeight function to avoid errors
       editorInstanceRef.current = suneditor.create(editorRef.current, {
         plugins: plugins,
         height: '200px',  // Set a fixed height
@@ -35,24 +35,24 @@ const SunEditorComponent = ({ value, onChange }) => {
           ['link', 'image', 'video'],
           ['fullScreen', 'showBlocks', 'codeView'],
         ],
-        // Add a dummy function to prevent the error
+        // Override _iframeAutoHeight with a no-op (dummy) function
         _iframeAutoHeight: function() {
-          console.warn('Dummy _iframeAutoHeight function called');
+          // Do nothing since iframe is disabled
         }
       });
-  
+
       // Set initial value
       editorInstanceRef.current.setContents(value || '');
-  
+
       // Handle content changes
       editorInstanceRef.current.onChange = (content) => {
         onChange(content);
       };
-  
+
     } catch (error) {
       console.error("Error initializing SunEditor:", error);
     }
-  
+
     return () => {
       // Cleanup SunEditor on component unmount
       editorInstanceRef.current?.destroy();
