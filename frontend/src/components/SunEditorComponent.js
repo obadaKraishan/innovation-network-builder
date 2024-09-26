@@ -8,7 +8,7 @@ const SunEditorComponent = ({ value, onChange }) => {
   const editorInstanceRef = useRef(null);
 
   useEffect(() => {
-    // Initialize the editor
+    // Initialize the editor with iframe disabled
     editorInstanceRef.current = suneditor.create(editorRef.current, {
       plugins: plugins,
       height: 200,
@@ -22,6 +22,7 @@ const SunEditorComponent = ({ value, onChange }) => {
         ['link', 'image', 'video'],
         ['fullScreen', 'showBlocks', 'codeView'],
       ],
+      iframe: false, // Ensure iframe is disabled
     });
 
     // Set initial value
