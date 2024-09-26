@@ -22,9 +22,13 @@ const SunEditorComponent = ({ value, onChange }) => {
         ['link', 'image', 'video'],
         ['fullScreen', 'showBlocks', 'codeView'],
       ],
-      iframe: false, // Ensure iframe is disabled
+      iframe: false,  // Ensure iframe is completely disabled
+      disableAutoHeight: true, // Disable auto height
+      // Optionally, set a min or max height
+      minHeight: '200px', 
+      maxHeight: '500px'
     });
-
+    
     // Set initial value
     editorInstanceRef.current.setContents(value || '');
 
