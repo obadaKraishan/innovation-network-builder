@@ -187,6 +187,8 @@ const submitQuiz = async (req, res) => {
 
 // Function to handle course materials upload
 const uploadCourseMaterials = async (req, res) => {
+  const { moduleIndex, sectionIndex, lessonIndex } = req.body; // Get specific indices
+
   try {
     const { id } = req.params; // Get course id from request parameters
     const { title, materialType } = req.body; // Extract title and materialType from the request
@@ -206,14 +208,9 @@ const uploadCourseMaterials = async (req, res) => {
       materialType, // Material type provided by the user
     }));
 
-    // Add uploaded materials to the course
-    course.modules.forEach((module) => {
-      module.sections.forEach((section) => {
-        section.lessons.forEach((lesson) => {
-          lesson.materials.push(...materialUrls);
-        });
-      });
-    });
+    // Add uploaded materials only to the specific lesson
+    const lesson = course.modules[moduleIndex].sections[sectionIndex].lessons[lessonIndex];
+    lesson.materials.push(...materialUrls);
 
     await course.save();
     res.status(200).json({ materialUrls });
