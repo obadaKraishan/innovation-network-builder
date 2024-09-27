@@ -6,13 +6,14 @@ import api from '../utils/api';
 import { toast } from 'react-toastify';
 
 const CourseLessonViewer = () => {
-  const { courseId, moduleId, sectionId, lessonId } = useParams();
+  const { courseId, moduleId, sectionId, lessonId } = useParams(); // These are now ObjectIds
   const [lesson, setLesson] = useState(null);
   const navigate = useNavigate();
 
   useEffect(() => {
     const fetchLessonDetails = async () => {
       try {
+        console.log('Fetching lesson details for courseId:', courseId, 'moduleId:', moduleId, 'sectionId:', sectionId, 'lessonId:', lessonId);
         const { data } = await api.get(`/courses/${courseId}/module/${moduleId}/section/${sectionId}/lesson/${lessonId}`);
         setLesson(data);
       } catch (error) {
