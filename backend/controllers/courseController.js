@@ -86,14 +86,18 @@ const getLessonById = async (req, res) => {
     }
     console.log('Section found:', section.sectionTitle);
 
-    const lesson = section.lessons.id(lessonId);
-    if (!lesson) {
+    const lessonIndex = section.lessons.findIndex(lesson => lesson._id.toString() === lessonId);
+    if (lessonIndex === -1) {
       console.log('Lesson not found:', lessonId);
       return res.status(404).json({ message: 'Lesson not found' });
     }
-    console.log('Lesson found:', lesson.lessonTitle);
+    console.log('Lesson found:', section.lessons[lessonIndex].lessonTitle);
 
-    res.json(lesson);
+    const lesson = section.lessons[lessonIndex];
+    const previousLessonId = lessonIndex > 0 ? section.lessons[lessonIndex - 1]._id : null;
+    const nextLessonId = lessonIndex < section.lessons.length - 1 ? section.lessons[lessonIndex + 1]._id : null;
+
+    res.json({ lesson, previousLessonId, nextLessonId });
   } catch (error) {
     console.error('Error fetching lesson details:', error);
     res.status(400).json({ message: 'Error fetching lesson details', error });
