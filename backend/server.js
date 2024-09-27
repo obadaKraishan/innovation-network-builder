@@ -23,6 +23,12 @@ const innovationRoutes = require('./routes/innovationRoutes');
 const supportRoutes = require('./routes/supportRoutes'); // Import Support Ticket routes
 const courseRoutes = require('./routes/courseRoutes'); // Import Course routes for E-learning
 
+
+// Serve the uploads folder as static
+const path = require('path');
+app.use('/uploads', express.static(path.join(__dirname, 'uploads')));
+
+
 // Initialize Express
 const app = express();
 
