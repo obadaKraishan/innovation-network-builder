@@ -3,7 +3,15 @@ import { FaUpload, FaTrash } from 'react-icons/fa';
 import { toast } from 'react-toastify';
 import api from '../utils/api';
 
-const CourseMaterialUpload = ({ moduleIndex, sectionIndex, lessonIndex, courseId, modules, setModules }) => {
+const CourseMaterialUpload = ({
+  moduleIndex,
+  sectionIndex,
+  lessonIndex,
+  courseId,
+  modules,
+  setModules,
+  refreshCourse, // Add this prop to trigger re-fetching of course data after upload/delete
+}) => {
   const lesson = modules[moduleIndex]?.sections[sectionIndex]?.lessons[lessonIndex];
   const [files, setFiles] = useState([]);
   const [materialType, setMaterialType] = useState('pdf');
@@ -38,6 +46,7 @@ const CourseMaterialUpload = ({ moduleIndex, sectionIndex, lessonIndex, courseId
       updatedModules[moduleIndex].sections[sectionIndex].lessons[lessonIndex].materials.push(...data.materialUrls);
       setModules(updatedModules);
       toast.success('Materials uploaded successfully!');
+      refreshCourse();  // Refresh course data to ensure all details are updated
     } catch (error) {
       console.error('Error uploading materials:', error);
       toast.error('Failed to upload materials');
@@ -53,6 +62,7 @@ const CourseMaterialUpload = ({ moduleIndex, sectionIndex, lessonIndex, courseId
       updatedModules[moduleIndex].sections[sectionIndex].lessons[lessonIndex].materials.splice(materialIndex, 1);
       setModules(updatedModules);
       toast.success('Material deleted successfully!');
+      refreshCourse();  // Refresh course data to ensure all details are updated
     } catch (error) {
       toast.error('Failed to delete material');
     }

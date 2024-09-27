@@ -23,19 +23,21 @@ const CourseEdit = () => {
     modules: [], // Initialize as an empty array
   });
 
+  // Fetch course details
+  const fetchCourse = async () => {
+    try {
+      const { data } = await api.get(`/courses/${id}`);
+      const courseData = {
+        ...data,
+        modules: data.modules || [], // Ensure modules is an array
+      };
+      setCourse(courseData);
+    } catch (error) {
+      toast.error("Failed to load course details");
+    }
+  };
+
   useEffect(() => {
-    const fetchCourse = async () => {
-      try {
-        const { data } = await api.get(`/courses/${id}`);
-        const courseData = {
-          ...data,
-          modules: data.modules || [], // Ensure modules is an array
-        };
-        setCourse(courseData);
-      } catch (error) {
-        toast.error("Failed to load course details");
-      }
-    };
     fetchCourse();
   }, [id]);
 
@@ -252,6 +254,7 @@ const CourseEdit = () => {
                           courseId={id} // <-- Pass courseId here
                           modules={course.modules}
                           setModules={setCourse}
+                          refreshCourse={fetchCourse}  // Pass refresh function
                         />
                       </div>
                     ))}
