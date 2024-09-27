@@ -1,20 +1,27 @@
 import React, { useEffect, useState } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import Sidebar from './Sidebar'; 
+import { FaEye, FaChevronLeft, FaChevronRight } from 'react-icons/fa'; // Add FaEye for the button and navigation icons
 import api from '../utils/api';
 import { toast } from 'react-toastify';
 
 const CourseLessonViewer = () => {
   const { courseId, moduleId, sectionId, lessonId } = useParams(); // These are now ObjectIds
   const [lesson, setLesson] = useState(null);
+  const [isLastLesson, setIsLastLesson] = useState(false); // State to track if it's the last lesson
+  const [isFirstLesson, setIsFirstLesson] = useState(false); // State to track if it's the first lesson
   const navigate = useNavigate();
 
   useEffect(() => {
     const fetchLessonDetails = async () => {
       try {
-        console.log('Fetching lesson details for courseId:', courseId, 'moduleId:', moduleId, 'sectionId:', sectionId, 'lessonId:', lessonId);
         const { data } = await api.get(`/courses/${courseId}/module/${moduleId}/section/${sectionId}/lesson/${lessonId}`);
         setLesson(data);
+
+        // Check if it's the first or last lesson
+        const lessonIndex = parseInt(lessonId, 10);
+        setIsFirstLesson(lessonIndex === 1); // Disable "Previous" if first lesson
+        setIsLastLesson(!data.nextLessonId); // Disable "Next" if no next lesson
       } catch (error) {
         toast.error('Failed to load lesson details');
       }
@@ -64,29 +71,45 @@ const CourseLessonViewer = () => {
             {lesson.lessonText && <div dangerouslySetInnerHTML={{ __html: lesson.lessonText }} />}
             
             {lesson.materials && lesson.materials.map((material, index) => (
-              <div key={index}>
+              <div key={index} className="flex items-center justify-between mt-4">
                 {material.materialType === 'video' && (
-                  <video controls>
+                  <video controls className="w-full mb-4">
                     <source src={material.materialUrl} type="video/mp4" />
                     Your browser does not support the video tag.
                   </video>
                 )}
                 {material.materialType === 'pdf' && (
-                  <a href={material.materialUrl} target="_blank" rel="noopener noreferrer">
-                    View PDF: {material.title}
-                  </a>
+                  <div className="flex items-center">
+                    <a
+                      href={material.materialUrl}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="bg-green-500 text-white py-2 px-4 rounded flex items-center"
+                    >
+                      <FaEye className="mr-2" /> View {material.title}
+                    </a>
+                  </div>
                 )}
               </div>
             ))}
           </div>
 
           {/* Navigation Buttons */}
-          <div className="navigation-buttons mt-6">
-            <button onClick={goToPreviousLesson} className="bg-blue-500 text-white py-2 px-4 rounded mr-4">
-              ← Previous Lesson
+          <div className="navigation-buttons mt-6 flex justify-between">
+            <button
+              onClick={goToPreviousLesson}
+              disabled={isFirstLesson} // Disable button if first lesson
+              className={`bg-blue-500 text-white py-2 px-4 rounded flex items-center ${isFirstLesson ? 'opacity-50 cursor-not-allowed' : ''}`}
+            >
+              <FaChevronLeft className="mr-2" /> Previous Lesson
             </button>
-            <button onClick={goToNextLesson} className="bg-blue-500 text-white py-2 px-4 rounded">
-              Next Lesson →
+
+            <button
+              onClick={goToNextLesson}
+              disabled={isLastLesson} // Disable button if last lesson
+              className={`bg-blue-500 text-white py-2 px-4 rounded flex items-center ${isLastLesson ? 'opacity-50 cursor-not-allowed' : ''}`}
+            >
+              Next Lesson <FaChevronRight className="ml-2" />
             </button>
           </div>
         </div>
