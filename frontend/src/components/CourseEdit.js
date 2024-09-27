@@ -259,7 +259,7 @@ const CourseEdit = () => {
                           moduleIndex={moduleIndex}
                           sectionIndex={sectionIndex}
                           lessonIndex={lessonIndex}
-                          courseId={id} // <-- Pass course ID
+                          courseId={id} // <-- Pass courseId here
                           modules={course.modules}
                           setModules={setCourse}
                         />

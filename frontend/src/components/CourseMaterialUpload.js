@@ -3,7 +3,7 @@ import { FaUpload } from 'react-icons/fa';
 import { toast } from 'react-toastify';
 import api from '../utils/api';
 
-const CourseMaterialUpload = ({ moduleIndex, modules, setModules }) => {
+const CourseMaterialUpload = ({ moduleIndex, modules, setModules, courseId }) => { // <-- Destructure courseId here
   const [files, setFiles] = useState([]);
 
   const handleFileChange = (e) => {
