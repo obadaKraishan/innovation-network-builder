@@ -3,16 +3,18 @@ import { FaUpload } from 'react-icons/fa';
 import { toast } from 'react-toastify';
 import api from '../utils/api';
 
-const CourseMaterialUpload = ({ moduleIndex, modules, setModules, courseId }) => { // <-- Destructure courseId here
+const CourseMaterialUpload = ({ moduleIndex, modules, setModules, courseId }) => {
   const [files, setFiles] = useState([]);
+  const [materialType, setMaterialType] = useState('pdf'); // Default to 'pdf'
+  const [title, setTitle] = useState('');
 
   const handleFileChange = (e) => {
     setFiles([...files, ...e.target.files]);
   };
 
   const handleUpload = async () => {
-    if (files.length === 0) {
-      toast.error('Please select materials to upload');
+    if (files.length === 0 || !title) {
+      toast.error('Please select materials and provide a title');
       return;
     }
   
@@ -20,6 +22,8 @@ const CourseMaterialUpload = ({ moduleIndex, modules, setModules, courseId }) =>
     files.forEach((file) => {
       formData.append('materials', file);
     });
+    formData.append('title', title); // Add title to formData
+    formData.append('materialType', materialType); // Add materialType to formData
   
     try {
       const { data } = await api.post(`/courses/upload-materials/${courseId}`, formData, {
@@ -35,7 +39,7 @@ const CourseMaterialUpload = ({ moduleIndex, modules, setModules, courseId }) =>
   
       toast.success('Materials uploaded successfully!');
     } catch (error) {
-      console.error('Error uploading materials:', error); // Log the error to the console
+      console.error('Error uploading materials:', error);
       toast.error(`Failed to upload materials: ${error.response?.data?.message || error.message}`);
     }
   };  
@@ -43,22 +47,36 @@ const CourseMaterialUpload = ({ moduleIndex, modules, setModules, courseId }) =>
   return (
     <div className="mt-6">
       <label className="block text-gray-700">Upload Additional Materials</label>
-      <div className="flex items-center mt-2">
-        <input
-          type="file"
-          accept=".pdf,.ppt,.pptx"
-          multiple
-          onChange={handleFileChange}
-          className="w-full p-2 border border-gray-300 rounded"
-        />
-        <button
-          type="button"
-          onClick={handleUpload}
-          className="ml-4 bg-blue-500 text-white py-2 px-4 rounded flex items-center"
-        >
-          <FaUpload className="mr-2" /> Upload
-        </button>
-      </div>
+      <input
+        type="text"
+        value={title}
+        onChange={(e) => setTitle(e.target.value)}
+        placeholder="Enter material title"
+        className="w-full p-2 border border-gray-300 rounded mb-2"
+      />
+      <select
+        value={materialType}
+        onChange={(e) => setMaterialType(e.target.value)}
+        className="w-full p-2 border border-gray-300 rounded mb-2"
+      >
+        <option value="pdf">PDF</option>
+        <option value="ppt">PPT</option>
+        <option value="video">Video</option>
+      </select>
+      <input
+        type="file"
+        accept=".pdf,.ppt,.pptx"
+        multiple
+        onChange={handleFileChange}
+        className="w-full p-2 border border-gray-300 rounded mb-2"
+      />
+      <button
+        type="button"
+        onClick={handleUpload}
+        className="ml-4 bg-blue-500 text-white py-2 px-4 rounded flex items-center"
+      >
+        <FaUpload className="mr-2" /> Upload
+      </button>
     </div>
   );
 };
