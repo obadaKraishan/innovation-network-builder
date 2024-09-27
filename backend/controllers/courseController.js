@@ -1,9 +1,19 @@
+const sanitizeHtml = require('sanitize-html');
 const Course = require('../models/courseModel');
 const User = require('../models/userModel');
 
 // Create a new course
 const createCourse = async (req, res) => {
   try {
+    // Sanitize lesson text in all modules, sections, and lessons
+    req.body.modules.forEach(module => {
+      module.sections.forEach(section => {
+        section.lessons.forEach(lesson => {
+          lesson.lessonText = sanitizeHtml(lesson.lessonText); // Sanitize lessonText
+        });
+      });
+    });
+
     const newCourse = new Course({
       ...req.body,
       creatorId: req.user ? req.user._id : 'dummyUserId',
@@ -258,6 +268,15 @@ const updateCourse = async (req, res) => {
   try {
     const course = await Course.findById(req.params.id);
     if (!course) return res.status(404).json({ message: 'Course not found' });
+
+    // Sanitize lesson text in all modules, sections, and lessons
+    req.body.modules.forEach(module => {
+      module.sections.forEach(section => {
+        section.lessons.forEach(lesson => {
+          lesson.lessonText = sanitizeHtml(lesson.lessonText); // Sanitize lessonText
+        });
+      });
+    });
 
     Object.assign(course, req.body);
     const updatedCourse = await course.save();
