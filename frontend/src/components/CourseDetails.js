@@ -1,14 +1,15 @@
-import React, { useEffect, useState } from "react";
-import { useParams, useNavigate } from "react-router-dom";
+import React, { useEffect, useState, useContext } from "react";
+import { useParams, useNavigate, Link } from "react-router-dom";
 import Sidebar from "./Sidebar";
 import api from "../utils/api";
 import { toast } from "react-toastify";
 import { FaCertificate } from "react-icons/fa";
-import { Link } from "react-router-dom";
+import AuthContext from "../context/AuthContext"; // Import user role from context
 
 const CourseDetails = () => {
   const { id } = useParams();
-  const navigate = useNavigate();  // Use the useNavigate hook
+  const navigate = useNavigate();
+  const { user } = useContext(AuthContext); // Get the user from context
   const [course, setCourse] = useState(null);
 
   useEffect(() => {
@@ -24,15 +25,31 @@ const CourseDetails = () => {
     fetchCourseDetails();
   }, [id]);
 
+  const handleBackButton = () => {
+    // Check user role and redirect accordingly
+    if (
+      user.role === "Department Manager" ||
+      user.role === "Team Leader" ||
+      user.role === "CEO" ||
+      user.role === "CTO" ||
+      user.role === "Director of HR" ||
+      user.role === "Director of Finance"
+    ) {
+      navigate("/course-management"); // Redirect higher roles to course management
+    } else {
+      navigate("/courses"); // Redirect lower roles to course catalog
+    }
+  };
+
   if (!course) return <div>Loading...</div>;
 
   return (
     <div className="flex h-screen">
       <Sidebar />
       <div className="flex-1 p-6 bg-gray-100 overflow-y-auto">
-        {/* Update the back button to use navigate(-1) */}
+        {/* Back button to handle role-based redirection */}
         <button
-          onClick={() => navigate(-1)}  // Go to the previous page
+          onClick={handleBackButton}
           className="mb-4 bg-blue-500 text-white py-2 px-4 rounded"
         >
           ← Back
