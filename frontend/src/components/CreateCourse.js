@@ -7,7 +7,8 @@ import api from '../utils/api';
 import CourseImageUpload from './CourseImageUpload';
 import CourseQuizForm from './CourseQuizForm';
 import CourseMaterialUpload from './CourseMaterialUpload';
-import SunEditorComponent from './SunEditorComponent'; // Import SunEditorComponent
+import ReactQuill from 'react-quill';
+import 'react-quill/dist/quill.snow.css'; // ReactQuill styling
 
 const CreateCourse = () => {
   const [title, setTitle] = useState('');
@@ -99,9 +100,6 @@ const CreateCourse = () => {
         courseRequirements,
         objectives,
       };
-
-      // Log the newCourse object
-      console.log('New Course:', newCourse);
 
       const { data } = await api.post('/courses/create', newCourse);
       toast.success('Course created successfully!');
@@ -281,15 +279,14 @@ const CreateCourse = () => {
                         />
 
                         {/* Lesson Text Editor */}
-                        <SunEditorComponent
-  value={section.lessons[lessonIndex].lessonText || ''}  // Fallback to empty string
-  onChange={(content) => {
-    const updatedModules = [...modules];
-    updatedModules[moduleIndex].sections[sectionIndex].lessons[lessonIndex].lessonText = content;
-    setModules(updatedModules);
-  }}
-/>
-
+                        <ReactQuill
+                          value={section.lessons[lessonIndex].lessonText || ''}
+                          onChange={(content) => {
+                            const updatedModules = [...modules];
+                            updatedModules[moduleIndex].sections[sectionIndex].lessons[lessonIndex].lessonText = content;
+                            setModules(updatedModules);
+                          }}
+                        />
 
                         {/* Materials */}
                         <CourseMaterialUpload
