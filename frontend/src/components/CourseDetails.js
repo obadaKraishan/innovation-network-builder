@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from "react";
-import { useParams } from "react-router-dom";
+import { useParams, useNavigate } from "react-router-dom";
 import Sidebar from "./Sidebar";
 import api from "../utils/api";
 import { toast } from "react-toastify";
@@ -8,6 +8,7 @@ import { Link } from "react-router-dom";
 
 const CourseDetails = () => {
   const { id } = useParams();
+  const navigate = useNavigate();  // Use the useNavigate hook
   const [course, setCourse] = useState(null);
 
   useEffect(() => {
@@ -29,8 +30,9 @@ const CourseDetails = () => {
     <div className="flex h-screen">
       <Sidebar />
       <div className="flex-1 p-6 bg-gray-100 overflow-y-auto">
+        {/* Update the back button to use navigate(-1) */}
         <button
-          onClick={() => window.history.back()}
+          onClick={() => navigate(-1)}  // Go to the previous page
           className="mb-4 bg-blue-500 text-white py-2 px-4 rounded"
         >
           ← Back
