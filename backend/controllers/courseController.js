@@ -1,4 +1,6 @@
 const sanitizeHtml = require('sanitize-html');
+const fs = require('fs');
+const path = require('path');
 const Course = require('../models/courseModel');
 const User = require('../models/userModel');
 
@@ -221,6 +223,40 @@ const uploadCourseMaterials = async (req, res) => {
   }
 };
 
+// Delete a material from a lesson
+const deleteMaterial = async (req, res) => {
+  const { id: courseId, materialId } = req.params;
+
+  try {
+    const course = await Course.findById(courseId);
+    if (!course) return res.status(404).json({ message: 'Course not found' });
+
+    course.modules.forEach((module) => {
+      module.sections.forEach((section) => {
+        section.lessons.forEach((lesson) => {
+          const materialIndex = lesson.materials.findIndex(material => material._id.toString() === materialId);
+          if (materialIndex !== -1) {
+            // Remove the material from the array
+            const material = lesson.materials[materialIndex];
+            lesson.materials.splice(materialIndex, 1);
+            // Optionally delete the file from the server
+            const filePath = path.join(__dirname, '..', material.materialUrl);
+            fs.unlink(filePath, (err) => {
+              if (err) console.error('Error deleting file:', err);
+            });
+          }
+        });
+      });
+    });
+
+    await course.save();
+    res.status(200).json({ message: 'Material deleted successfully' });
+  } catch (error) {
+    console.error('Error deleting material:', error);
+    res.status(500).json({ message: 'Error deleting material', error });
+  }
+};
+
 // Track course progress for a user
 const trackProgress = async (req, res) => {
   const { userId, courseId } = req.params;
@@ -358,6 +394,7 @@ module.exports = {
   getLessonById,
   enrollCourse,
   uploadCourseMaterials,
+  deleteMaterial,
   submitQuiz,
   trackProgress,
   issueCertificate,
