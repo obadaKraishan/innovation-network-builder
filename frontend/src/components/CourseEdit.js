@@ -1,4 +1,3 @@
-// File: frontend/src/components/CourseEdit.js
 import React, { useState, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { toast } from 'react-toastify';
@@ -7,7 +6,8 @@ import api from '../utils/api';
 import Sidebar from './Sidebar';
 import CourseQuizForm from './CourseQuizForm';
 import CourseMaterialUpload from './CourseMaterialUpload';
-import SunEditorComponent from './SunEditorComponent'; // Import SunEditorComponent
+import ReactQuill from 'react-quill';
+import 'react-quill/dist/quill.snow.css'; // ReactQuill styling
 
 const CourseEdit = () => {
   const { id } = useParams();
@@ -27,10 +27,7 @@ const CourseEdit = () => {
           {
             sectionTitle: '',
             lessons: [
-              { lessonTitle: '', lessonText: '', materials: [], quiz: [] }, // Add lessonText for rich content
-            ],
-            quiz: [
-              { questionText: '', choices: [''], correctAnswer: '' },
+              { lessonTitle: '', lessonText: '', materials: [], quiz: [] },
             ],
           },
         ],
@@ -60,14 +57,12 @@ const CourseEdit = () => {
     }
   };
 
-  // Helper function to handle array updates (e.g., skillsGained, courseRequirements, modules)
   const handleArrayChange = (field, index, value) => {
     const newArray = [...course[field]];
     newArray[index] = value;
     setCourse({ ...course, [field]: newArray });
   };
 
-  // Helper function to handle nested arrays like sections and lessons
   const handleModuleChange = (moduleIndex, key, value) => {
     const newModules = [...course.modules];
     newModules[moduleIndex][key] = value;
@@ -191,7 +186,6 @@ const CourseEdit = () => {
                   placeholder="Module Title"
                 />
 
-                {/* Section and Lesson Form */}
                 {module.sections.map((section, sectionIndex) => (
                   <div key={sectionIndex} className="mb-4">
                     <input
@@ -206,7 +200,6 @@ const CourseEdit = () => {
                       placeholder="Section Title"
                     />
 
-                    {/* Lessons */}
                     {section.lessons.map((lesson, lessonIndex) => (
                       <div key={lessonIndex} className="ml-4 mb-2">
                         <input
@@ -222,22 +215,19 @@ const CourseEdit = () => {
                         />
 
                         {/* Lesson Text Editor */}
-                        <SunEditorComponent
-  value={section.lessons[lessonIndex].lessonText || ''}  // Fallback to empty string
-  onChange={(content) => {
-    const updatedModules = [...course.modules];
-    updatedModules[moduleIndex].sections[sectionIndex].lessons[lessonIndex].lessonText = content;
-    setCourse({ ...course, modules: updatedModules });
-  }}
-/>
+                        <ReactQuill
+                          value={section.lessons[lessonIndex].lessonText || ''}
+                          onChange={(content) => {
+                            const updatedModules = [...course.modules];
+                            updatedModules[moduleIndex].sections[sectionIndex].lessons[lessonIndex].lessonText = content;
+                            setCourse({ ...course, modules: updatedModules });
+                          }}
+                        />
 
-
-                        {/* Materials */}
                         <CourseMaterialUpload moduleIndex={moduleIndex} sectionIndex={sectionIndex} lessonIndex={lessonIndex} />
 
                       </div>
                     ))}
-                    {/* Quiz Form */}
                     <CourseQuizForm moduleIndex={moduleIndex} sectionIndex={sectionIndex} modules={course.modules} setModules={setCourse} />
                   </div>
                 ))}
