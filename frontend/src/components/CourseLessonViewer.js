@@ -33,7 +33,7 @@ const CourseLessonViewer = () => {
     navigate(`/courses/${courseId}/module/${moduleId}/section/${sectionId}/lesson/${previousLessonId}`);
   };
 
-  // New: Back to Course Details button
+  // Back to Course Details button
   const goBackToCourseDetails = () => {
     navigate(`/courses/${courseId}`);
   };
@@ -47,16 +47,15 @@ const CourseLessonViewer = () => {
 
       {/* Main content area */}
       <div className="flex-1 p-6 bg-gray-100 overflow-y-auto">
+        {/* Back Button */}
+        <button
+          onClick={goBackToCourseDetails}
+          className="mb-4 bg-blue-500 text-white py-2 px-4 rounded"
+        >
+          ← Back to Course Details
+        </button>
+
         <div className="bg-white p-6 rounded-lg shadow-lg">
-
-          {/* New: Back to Course Details button */}
-          <button
-            onClick={goBackToCourseDetails}
-            className="mb-4 bg-gray-500 text-white py-2 px-4 rounded"
-          >
-            ← Back to Course Details
-          </button>
-
           <h2 className="text-2xl font-bold mb-4">{lesson.lessonTitle}</h2>
           <p>{lesson.description}</p>
           
