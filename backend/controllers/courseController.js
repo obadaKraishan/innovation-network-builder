@@ -202,6 +202,7 @@ const uploadCourseMaterials = async (req, res) => {
       return res.status(400).json({ message: 'No files uploaded' });
     }
 
+    // Add uploaded materials only to the specific lesson
     const materialUrls = req.files.map((file) => ({
       materialUrl: `${req.protocol}://${req.get('host')}/uploads/${file.filename}`, // Full URL to access the uploaded file
       title, // Title provided by the user
