@@ -1,7 +1,7 @@
-import React, { useState } from 'react';
-import { FaUpload, FaTrash } from 'react-icons/fa';
-import { toast } from 'react-toastify';
-import api from '../utils/api';
+import React, { useState } from "react";
+import { FaUpload, FaTrash } from "react-icons/fa";
+import { toast } from "react-toastify";
+import api from "../utils/api";
 
 const CourseMaterialUpload = ({
   moduleIndex,
@@ -12,10 +12,11 @@ const CourseMaterialUpload = ({
   setModules,
   refreshCourse, // Add this prop to trigger re-fetching of course data after upload/delete
 }) => {
-  const lesson = modules[moduleIndex]?.sections[sectionIndex]?.lessons[lessonIndex];
+  const lesson =
+    modules[moduleIndex]?.sections[sectionIndex]?.lessons[lessonIndex];
   const [files, setFiles] = useState([]);
-  const [materialType, setMaterialType] = useState('pdf');
-  const [title, setTitle] = useState('');
+  const [materialType, setMaterialType] = useState("pdf");
+  const [title, setTitle] = useState("");
 
   // Handle new file selection
   const handleFileChange = (e) => {
@@ -25,35 +26,45 @@ const CourseMaterialUpload = ({
   // Handle material upload
   const handleUpload = async () => {
     if (files.length === 0 || !title) {
-      toast.error('Please select materials and provide a title');
+      toast.error("Please select materials and provide a title");
       return;
     }
     const formData = new FormData();
     files.forEach((file) => {
-      formData.append('materials', file);
+      formData.append("materials", file);
     });
-    formData.append('title', title);
-    formData.append('materialType', materialType);
+    formData.append("title", title);
+    formData.append("materialType", materialType);
+
+    // Pass the indices for the module, section, and lesson
+    formData.append("moduleIndex", moduleIndex);
+    formData.append("sectionIndex", sectionIndex);
+    formData.append("lessonIndex", lessonIndex);
 
     try {
-      const { data } = await api.post(`/courses/upload-materials/${courseId}`, formData, {
-        headers: { 'Content-Type': 'multipart/form-data' },
-      });
-      
+      const { data } = await api.post(
+        `/courses/upload-materials/${courseId}`,
+        formData,
+        {
+          headers: { "Content-Type": "multipart/form-data" },
+        }
+      );
+
       // Update only the specific lesson's materials
       const updatedModules = [...modules];
-      const targetLesson = updatedModules[moduleIndex].sections[sectionIndex].lessons[lessonIndex];
+      const targetLesson =
+        updatedModules[moduleIndex].sections[sectionIndex].lessons[lessonIndex];
       if (!targetLesson.materials) {
         targetLesson.materials = [];
       }
       targetLesson.materials.push(...data.materialUrls);
       setModules(updatedModules);
-      
-      toast.success('Materials uploaded successfully!');
-      refreshCourse();  // Refresh course data to ensure all details are updated
+
+      toast.success("Materials uploaded successfully!");
+      refreshCourse(); // Refresh course data to ensure all details are updated
     } catch (error) {
-      console.error('Error uploading materials:', error);
-      toast.error('Failed to upload materials');
+      console.error("Error uploading materials:", error);
+      toast.error("Failed to upload materials");
     }
   };
 
@@ -61,14 +72,18 @@ const CourseMaterialUpload = ({
   const handleDeleteMaterial = async (materialIndex) => {
     try {
       const materialToDelete = lesson.materials[materialIndex];
-      await api.delete(`/courses/${courseId}/materials/${materialToDelete._id}`);
+      await api.delete(
+        `/courses/${courseId}/materials/${materialToDelete._id}`
+      );
       const updatedModules = [...modules];
-      updatedModules[moduleIndex].sections[sectionIndex].lessons[lessonIndex].materials.splice(materialIndex, 1);
+      updatedModules[moduleIndex].sections[sectionIndex].lessons[
+        lessonIndex
+      ].materials.splice(materialIndex, 1);
       setModules(updatedModules);
-      toast.success('Material deleted successfully!');
-      refreshCourse();  // Refresh course data to ensure all details are updated
+      toast.success("Material deleted successfully!");
+      refreshCourse(); // Refresh course data to ensure all details are updated
     } catch (error) {
-      toast.error('Failed to delete material');
+      toast.error("Failed to delete material");
     }
   };
 
@@ -109,10 +124,20 @@ const CourseMaterialUpload = ({
       {/* Display Existing Materials */}
       <div className="mt-4">
         {lesson?.materials?.map((material, index) => (
-          <div key={index} className="flex justify-between items-center mb-2 bg-gray-200 p-2 rounded">
+          <div
+            key={index}
+            className="flex justify-between items-center mb-2 bg-gray-200 p-2 rounded"
+          >
             <div>
               <strong>{material.title}</strong> ({material.materialType})
-              <a href={material.materialUrl} target="_blank" rel="noopener noreferrer" className="ml-2 text-blue-500">View</a>
+              <a
+                href={material.materialUrl}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="ml-2 text-blue-500"
+              >
+                View
+              </a>
             </div>
             <button
               type="button"
