@@ -4,6 +4,15 @@ import './index.css';
 import App from './App';
 import reportWebVitals from './reportWebVitals';
 
+// Override console.warn to filter out the 'DOMNodeInserted' warning
+const originalWarn = console.warn;
+console.warn = (msg, ...args) => {
+  if (msg.includes('DOMNodeInserted')) {
+    return;
+  }
+  originalWarn(msg, ...args);
+};
+
 const root = ReactDOM.createRoot(document.getElementById('root'));
 root.render(
   <React.StrictMode>
