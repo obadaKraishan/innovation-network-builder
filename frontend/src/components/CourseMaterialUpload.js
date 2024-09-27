@@ -35,7 +35,8 @@ const CourseMaterialUpload = ({ moduleIndex, modules, setModules }) => {
   
       toast.success('Materials uploaded successfully!');
     } catch (error) {
-      toast.error('Failed to upload materials');
+      console.error('Error uploading materials:', error); // Log the error to the console
+      toast.error(`Failed to upload materials: ${error.response?.data?.message || error.message}`);
     }
   };  
 
