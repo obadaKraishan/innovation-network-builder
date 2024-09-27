@@ -210,6 +210,9 @@ const uploadCourseMaterials = async (req, res) => {
 
     // Add uploaded materials only to the specific lesson
     const lesson = course.modules[moduleIndex].sections[sectionIndex].lessons[lessonIndex];
+    if (!lesson) {
+      return res.status(404).json({ message: 'Lesson not found' });
+    }
     lesson.materials.push(...materialUrls);
 
     await course.save();
