@@ -187,8 +187,9 @@ const submitQuiz = async (req, res) => {
 const uploadCourseMaterials = async (req, res) => {
   try {
     const { id } = req.params; // Get course id from request parameters
-    const course = await Course.findById(id);
+    const { title, materialType } = req.body; // Extract title and materialType from the request
 
+    const course = await Course.findById(id);
     if (!course) {
       return res.status(404).json({ message: 'Course not found' });
     }
@@ -197,12 +198,16 @@ const uploadCourseMaterials = async (req, res) => {
       return res.status(400).json({ message: 'No files uploaded' });
     }
 
-    const materialUrls = req.files.map(file => file.path); // Get file paths from uploaded files
+    const materialUrls = req.files.map(file => ({
+      materialUrl: file.path, // File path for the uploaded material
+      title, // Title provided by the user
+      materialType, // Material type provided by the user
+    }));
 
     // Add uploaded materials to the course
-    course.modules.forEach((module, moduleIndex) => {
-      module.sections.forEach((section, sectionIndex) => {
-        section.lessons.forEach((lesson, lessonIndex) => {
+    course.modules.forEach((module) => {
+      module.sections.forEach((section) => {
+        section.lessons.forEach((lesson) => {
           lesson.materials.push(...materialUrls);
         });
       });
