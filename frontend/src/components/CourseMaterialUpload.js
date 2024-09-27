@@ -39,12 +39,16 @@ const CourseMaterialUpload = ({
       const { data } = await api.post(`/courses/upload-materials/${courseId}`, formData, {
         headers: { 'Content-Type': 'multipart/form-data' },
       });
+      
+      // Update only the specific lesson's materials
       const updatedModules = [...modules];
-      if (!updatedModules[moduleIndex].sections[sectionIndex].lessons[lessonIndex].materials) {
-        updatedModules[moduleIndex].sections[sectionIndex].lessons[lessonIndex].materials = [];
+      const targetLesson = updatedModules[moduleIndex].sections[sectionIndex].lessons[lessonIndex];
+      if (!targetLesson.materials) {
+        targetLesson.materials = [];
       }
-      updatedModules[moduleIndex].sections[sectionIndex].lessons[lessonIndex].materials.push(...data.materialUrls);
+      targetLesson.materials.push(...data.materialUrls);
       setModules(updatedModules);
+      
       toast.success('Materials uploaded successfully!');
       refreshCourse();  // Refresh course data to ensure all details are updated
     } catch (error) {
