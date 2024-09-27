@@ -15,29 +15,29 @@ const CourseMaterialUpload = ({ moduleIndex, modules, setModules }) => {
       toast.error('Please select materials to upload');
       return;
     }
-
+  
     const formData = new FormData();
     files.forEach((file) => {
       formData.append('materials', file);
     });
-
+  
     try {
-      const { data } = await api.post('/courses/upload-materials', formData, {
+      const { data } = await api.post(`/courses/upload-materials/${courseId}`, formData, {
         headers: { 'Content-Type': 'multipart/form-data' },
       });
-
+  
       const updatedModules = [...modules];
       if (!updatedModules[moduleIndex].additionalMaterials) {
         updatedModules[moduleIndex].additionalMaterials = [];
       }
       updatedModules[moduleIndex].additionalMaterials.push(...data.materialUrls);
       setModules(updatedModules);
-
+  
       toast.success('Materials uploaded successfully!');
     } catch (error) {
       toast.error('Failed to upload materials');
     }
-  };
+  };  
 
   return (
     <div className="mt-6">
