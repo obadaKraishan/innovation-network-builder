@@ -6,6 +6,7 @@ const {
   getLessonById,
   enrollCourse, 
   uploadCourseMaterials,
+  deleteMaterial,
   submitQuiz, 
   trackProgress, 
   issueCertificate, 
@@ -28,6 +29,7 @@ router.post('/quiz/submit', protect, submitQuiz);
 router.get('/progress/:userId/:courseId', protect, trackProgress);
 router.get('/certificate/:userId/:courseId', protect, issueCertificate);
 router.post('/upload-materials/:id', protect, upload.array('materials', 10), uploadCourseMaterials);
+router.delete('/:id/materials/:materialId', protect, admin, deleteMaterial);
 router.get('/:courseId/module/:moduleId/section/:sectionId/lesson/:lessonId', protect, getLessonById);
 router.post('/qa/post', protect, postQuestion);
 router.post('/qa/answer', protect, postAnswer);
