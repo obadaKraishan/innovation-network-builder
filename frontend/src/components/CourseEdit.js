@@ -20,17 +20,16 @@ const CourseEdit = () => {
     skillsGained: [""],
     courseRequirements: [""],
     objectives: "",
-    modules: [],
+    modules: [], // Initialize as an empty array
   });
 
   useEffect(() => {
     const fetchCourse = async () => {
       try {
         const { data } = await api.get(`/courses/${id}`);
-        // Ensure modules and nested objects always exist
         const courseData = {
           ...data,
-          modules: data.modules || [],
+          modules: data.modules || [], // Ensure modules is an array
         };
         setCourse(courseData);
       } catch (error) {
@@ -136,10 +135,8 @@ const CourseEdit = () => {
 
           {/* Skills Gained */}
           <div>
-            <label className="block text-sm font-bold mb-2">
-              Skills Gained
-            </label>
-            {course.skillsGained.map((skill, index) => (
+            <label className="block text-sm font-bold mb-2">Skills Gained</label>
+            {course.skillsGained?.map((skill, index) => (
               <input
                 key={index}
                 type="text"
@@ -158,7 +155,7 @@ const CourseEdit = () => {
             <label className="block text-sm font-bold mb-2">
               Course Requirements
             </label>
-            {course.courseRequirements.map((requirement, index) => (
+            {course.courseRequirements?.map((requirement, index) => (
               <input
                 key={index}
                 type="text"
