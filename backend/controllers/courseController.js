@@ -94,6 +94,8 @@ const getLessonById = async (req, res) => {
     console.log('Lesson found:', section.lessons[lessonIndex].lessonTitle);
 
     const lesson = section.lessons[lessonIndex];
+    
+    // Check if previous and next lesson IDs exist
     const previousLessonId = lessonIndex > 0 ? section.lessons[lessonIndex - 1]._id : null;
     const nextLessonId = lessonIndex < section.lessons.length - 1 ? section.lessons[lessonIndex + 1]._id : null;
 
