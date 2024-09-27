@@ -183,6 +183,7 @@ const submitQuiz = async (req, res) => {
   }
 };
 
+// Function to handle course materials upload
 const uploadCourseMaterials = async (req, res) => {
   try {
     const { id } = req.params; // Get course id from request parameters
@@ -190,6 +191,10 @@ const uploadCourseMaterials = async (req, res) => {
 
     if (!course) {
       return res.status(404).json({ message: 'Course not found' });
+    }
+
+    if (!req.files || req.files.length === 0) {
+      return res.status(400).json({ message: 'No files uploaded' });
     }
 
     const materialUrls = req.files.map(file => file.path); // Get file paths from uploaded files
@@ -206,6 +211,7 @@ const uploadCourseMaterials = async (req, res) => {
     await course.save();
     res.status(200).json({ materialUrls });
   } catch (error) {
+    console.error('Error uploading materials:', error);
     res.status(500).json({ message: 'Error uploading materials', error });
   }
 };
