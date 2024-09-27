@@ -8,20 +8,18 @@ import { toast } from 'react-toastify';
 const CourseLessonViewer = () => {
   const { courseId, moduleId, sectionId, lessonId } = useParams(); // These are now ObjectIds
   const [lesson, setLesson] = useState(null);
-  const [isLastLesson, setIsLastLesson] = useState(false); // State to track if it's the last lesson
-  const [isFirstLesson, setIsFirstLesson] = useState(false); // State to track if it's the first lesson
+  const [previousLessonId, setPreviousLessonId] = useState(null); // Track the previous lesson ID
+  const [nextLessonId, setNextLessonId] = useState(null); // Track the next lesson ID
   const navigate = useNavigate();
 
   useEffect(() => {
     const fetchLessonDetails = async () => {
       try {
+        // Fetch lesson details and the IDs of the previous and next lessons
         const { data } = await api.get(`/courses/${courseId}/module/${moduleId}/section/${sectionId}/lesson/${lessonId}`);
-        setLesson(data);
-
-        // Check if it's the first or last lesson
-        const lessonIndex = parseInt(lessonId, 10);
-        setIsFirstLesson(lessonIndex === 1); // Disable "Previous" if first lesson
-        setIsLastLesson(!data.nextLessonId); // Disable "Next" if no next lesson
+        setLesson(data.lesson);
+        setPreviousLessonId(data.previousLessonId);
+        setNextLessonId(data.nextLessonId);
       } catch (error) {
         toast.error('Failed to load lesson details');
       }
@@ -31,13 +29,15 @@ const CourseLessonViewer = () => {
   }, [courseId, moduleId, sectionId, lessonId]);
 
   const goToNextLesson = () => {
-    const nextLessonId = parseInt(lessonId, 10) + 1;
-    navigate(`/courses/${courseId}/module/${moduleId}/section/${sectionId}/lesson/${nextLessonId}`);
+    if (nextLessonId) {
+      navigate(`/courses/${courseId}/module/${moduleId}/section/${sectionId}/lesson/${nextLessonId}`);
+    }
   };
 
   const goToPreviousLesson = () => {
-    const previousLessonId = parseInt(lessonId, 10) - 1;
-    navigate(`/courses/${courseId}/module/${moduleId}/section/${sectionId}/lesson/${previousLessonId}`);
+    if (previousLessonId) {
+      navigate(`/courses/${courseId}/module/${moduleId}/section/${sectionId}/lesson/${previousLessonId}`);
+    }
   };
 
   // Back to Course Details button
@@ -98,16 +98,16 @@ const CourseLessonViewer = () => {
           <div className="navigation-buttons mt-6 flex justify-between">
             <button
               onClick={goToPreviousLesson}
-              disabled={isFirstLesson} // Disable button if first lesson
-              className={`bg-blue-500 text-white py-2 px-4 rounded flex items-center ${isFirstLesson ? 'opacity-50 cursor-not-allowed' : ''}`}
+              disabled={!previousLessonId} // Disable button if there's no previous lesson
+              className={`bg-blue-500 text-white py-2 px-4 rounded flex items-center ${!previousLessonId ? 'opacity-50 cursor-not-allowed' : ''}`}
             >
               <FaChevronLeft className="mr-2" /> Previous Lesson
             </button>
 
             <button
               onClick={goToNextLesson}
-              disabled={isLastLesson} // Disable button if last lesson
-              className={`bg-blue-500 text-white py-2 px-4 rounded flex items-center ${isLastLesson ? 'opacity-50 cursor-not-allowed' : ''}`}
+              disabled={!nextLessonId} // Disable button if there's no next lesson
+              className={`bg-blue-500 text-white py-2 px-4 rounded flex items-center ${!nextLessonId ? 'opacity-50 cursor-not-allowed' : ''}`}
             >
               Next Lesson <FaChevronRight className="ml-2" />
             </button>
