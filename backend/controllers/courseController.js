@@ -183,6 +183,33 @@ const submitQuiz = async (req, res) => {
   }
 };
 
+const uploadCourseMaterials = async (req, res) => {
+  try {
+    const { id } = req.params; // Get course id from request parameters
+    const course = await Course.findById(id);
+
+    if (!course) {
+      return res.status(404).json({ message: 'Course not found' });
+    }
+
+    const materialUrls = req.files.map(file => file.path); // Get file paths from uploaded files
+
+    // Add uploaded materials to the course
+    course.modules.forEach((module, moduleIndex) => {
+      module.sections.forEach((section, sectionIndex) => {
+        section.lessons.forEach((lesson, lessonIndex) => {
+          lesson.materials.push(...materialUrls);
+        });
+      });
+    });
+
+    await course.save();
+    res.status(200).json({ materialUrls });
+  } catch (error) {
+    res.status(500).json({ message: 'Error uploading materials', error });
+  }
+};
+
 // Track course progress for a user
 const trackProgress = async (req, res) => {
   const { userId, courseId } = req.params;
@@ -319,6 +346,7 @@ module.exports = {
   getCourseById,
   getLessonById,
   enrollCourse,
+  uploadCourseMaterials,
   submitQuiz,
   trackProgress,
   issueCertificate,
