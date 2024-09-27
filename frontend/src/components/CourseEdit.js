@@ -20,26 +20,19 @@ const CourseEdit = () => {
     skillsGained: [""],
     courseRequirements: [""],
     objectives: "",
-    modules: [
-      {
-        moduleTitle: "",
-        sections: [
-          {
-            sectionTitle: "",
-            lessons: [
-              { lessonTitle: "", lessonText: "", materials: [], quiz: [] },
-            ],
-          },
-        ],
-      },
-    ],
+    modules: [],
   });
 
   useEffect(() => {
     const fetchCourse = async () => {
       try {
         const { data } = await api.get(`/courses/${id}`);
-        setCourse(data);
+        // Ensure modules and nested objects always exist
+        const courseData = {
+          ...data,
+          modules: data.modules || [],
+        };
+        setCourse(courseData);
       } catch (error) {
         toast.error("Failed to load course details");
       }
@@ -195,11 +188,11 @@ const CourseEdit = () => {
           {/* Modules */}
           <div>
             <h3 className="text-lg font-bold mb-4">Modules</h3>
-            {course.modules.map((module, moduleIndex) => (
+            {course.modules?.map((module, moduleIndex) => (
               <div key={moduleIndex} className="mb-4 bg-gray-100 p-4 rounded">
                 <input
                   type="text"
-                  value={module.moduleTitle}
+                  value={module.moduleTitle || ""}
                   onChange={(e) =>
                     handleModuleChange(
                       moduleIndex,
@@ -211,11 +204,11 @@ const CourseEdit = () => {
                   placeholder="Module Title"
                 />
 
-                {module.sections.map((section, sectionIndex) => (
+                {module.sections?.map((section, sectionIndex) => (
                   <div key={sectionIndex} className="mb-4">
                     <input
                       type="text"
-                      value={section.sectionTitle}
+                      value={section.sectionTitle || ""}
                       onChange={(e) => {
                         const newModules = [...course.modules];
                         newModules[moduleIndex].sections[
@@ -227,11 +220,11 @@ const CourseEdit = () => {
                       placeholder="Section Title"
                     />
 
-                    {section.lessons.map((lesson, lessonIndex) => (
+                    {section.lessons?.map((lesson, lessonIndex) => (
                       <div key={lessonIndex} className="ml-4 mb-2">
                         <input
                           type="text"
-                          value={lesson.lessonTitle}
+                          value={lesson.lessonTitle || ""}
                           onChange={(e) => {
                             const newModules = [...course.modules];
                             newModules[moduleIndex].sections[
@@ -245,7 +238,7 @@ const CourseEdit = () => {
 
                         {/* Lesson Text Editor */}
                         <ReactQuill
-                          value={section.lessons[lessonIndex].lessonText || ""}
+                          value={section.lessons[lessonIndex]?.lessonText || ""}
                           onChange={(content) => {
                             const updatedModules = [...course.modules];
                             updatedModules[moduleIndex].sections[
