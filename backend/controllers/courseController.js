@@ -40,10 +40,18 @@ const getAllCourses = async (req, res) => {
 // Fetch course details
 const getCourseById = async (req, res) => {
   try {
+    console.log('Fetching course details for courseId:', req.params.id);
+
     const course = await Course.findById(req.params.id).populate('creatorId', 'name');
-    if (!course) return res.status(404).json({ message: 'Course not found' });
+    if (!course) {
+      console.log('Course not found:', req.params.id);
+      return res.status(404).json({ message: 'Course not found' });
+    }
+    console.log('Course found:', course.title);
+
     res.json(course);
   } catch (error) {
+    console.error('Error fetching course details:', error);
     res.status(400).json({ message: 'Error fetching course details', error });
   }
 };
@@ -53,20 +61,39 @@ const getLessonById = async (req, res) => {
   const { courseId, moduleId, sectionId, lessonId } = req.params;
 
   try {
+    console.log('Fetching lesson details for courseId:', courseId, 'moduleId:', moduleId, 'sectionId:', sectionId, 'lessonId:', lessonId);
+
     const course = await Course.findById(courseId);
-    if (!course) return res.status(404).json({ message: 'Course not found' });
+    if (!course) {
+      console.log('Course not found:', courseId);
+      return res.status(404).json({ message: 'Course not found' });
+    }
+    console.log('Course found:', course.title);
 
     const module = course.modules.id(moduleId);
-    if (!module) return res.status(404).json({ message: 'Module not found' });
+    if (!module) {
+      console.log('Module not found:', moduleId);
+      return res.status(404).json({ message: 'Module not found' });
+    }
+    console.log('Module found:', module.moduleTitle);
 
     const section = module.sections.id(sectionId);
-    if (!section) return res.status(404).json({ message: 'Section not found' });
+    if (!section) {
+      console.log('Section not found:', sectionId);
+      return res.status(404).json({ message: 'Section not found' });
+    }
+    console.log('Section found:', section.sectionTitle);
 
     const lesson = section.lessons.id(lessonId);
-    if (!lesson) return res.status(404).json({ message: 'Lesson not found' });
+    if (!lesson) {
+      console.log('Lesson not found:', lessonId);
+      return res.status(404).json({ message: 'Lesson not found' });
+    }
+    console.log('Lesson found:', lesson.lessonTitle);
 
     res.json(lesson);
   } catch (error) {
+    console.error('Error fetching lesson details:', error);
     res.status(400).json({ message: 'Error fetching lesson details', error });
   }
 };

@@ -69,10 +69,10 @@ const CourseDetails = () => {
                         </h4>
                         <ul className="lessons-list">
                           {section.lessons?.length > 0 ? (
-                            section.lessons.map((lesson, lessonIndex) => (
-                              <li key={lessonIndex} className="lesson mb-2">
+                            section.lessons.map((lesson) => (
+                              <li key={lesson._id} className="lesson mb-2">
                                 <Link
-                                  to={`/courses/${id}/module/${moduleIndex}/section/${sectionIndex}/lesson/${lessonIndex}`}
+                                  to={`/courses/${id}/module/${module._id}/section/${section._id}/lesson/${lesson._id}`}
                                 >
                                   {lesson.lessonTitle}
                                 </Link>
