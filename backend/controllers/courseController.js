@@ -202,17 +202,14 @@ const uploadCourseMaterials = async (req, res) => {
       return res.status(400).json({ message: 'No files uploaded' });
     }
 
-    const materialUrls = req.files.map(file => ({
-      materialUrl: file.path, // File path for the uploaded material
+    const materialUrls = req.files.map((file) => ({
+      materialUrl: `${req.protocol}://${req.get('host')}/uploads/${file.filename}`, // Full URL to access the uploaded file
       title, // Title provided by the user
       materialType, // Material type provided by the user
     }));
 
     // Add uploaded materials only to the specific lesson
     const lesson = course.modules[moduleIndex].sections[sectionIndex].lessons[lessonIndex];
-    if (!lesson) {
-      return res.status(404).json({ message: 'Lesson not found' });
-    }
     lesson.materials.push(...materialUrls);
 
     await course.save();
