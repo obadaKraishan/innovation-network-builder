@@ -259,7 +259,7 @@ const CourseEdit = () => {
                 />
 
                 {module.sections?.map((section, sectionIndex) => (
-                  <div key={sectionIndex} className="mb-4">
+                  <div key={sectionIndex} className="ml-6 mb-4">
                     <input
                       type="text"
                       value={section.sectionTitle || ""}
