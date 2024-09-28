@@ -1,4 +1,3 @@
-// File: frontend/src/components/CreateCourse.js
 import React, { useState } from 'react';
 import Sidebar from './Sidebar';
 import { toast } from 'react-toastify';
@@ -233,6 +232,7 @@ const CreateCourse = () => {
             <h3 className="text-lg font-bold mb-4">Modules</h3>
             {modules.map((module, moduleIndex) => (
               <div key={moduleIndex} className="mb-4 bg-gray-100 p-4 rounded">
+                <label className="block text-sm font-bold mb-2">Module {moduleIndex + 1}</label>
                 <input
                   type="text"
                   value={module.moduleTitle}
@@ -248,6 +248,7 @@ const CreateCourse = () => {
                 {/* Sections */}
                 {module.sections.map((section, sectionIndex) => (
                   <div key={sectionIndex} className="ml-6 mb-4">
+                    <label className="block text-sm font-bold mb-2">Section {sectionIndex + 1}</label>
                     <input
                       type="text"
                       value={section.sectionTitle}
@@ -264,6 +265,7 @@ const CreateCourse = () => {
                     {/* Lessons */}
                     {section.lessons.map((lesson, lessonIndex) => (
                       <div key={lessonIndex} className="ml-12 mb-4">
+                        <label className="block text-sm font-bold mb-2">Lesson {lessonIndex + 1}</label>
                         <input
                           type="text"
                           value={lesson.lessonTitle}
