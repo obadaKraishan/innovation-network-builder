@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
-import Sidebar from './Sidebar'; 
+import Sidebar from './Sidebar';
 import { FaEye, FaChevronLeft, FaChevronRight } from 'react-icons/fa'; // Add FaEye for the button and navigation icons
 import api from '../utils/api';
 import { toast } from 'react-toastify';
@@ -70,30 +70,30 @@ const CourseLessonViewer = () => {
         {/* Back Button */}
         <button
           onClick={goBackToCourseDetails}
-          className="mb-4 bg-blue-500 text-white py-2 px-4 rounded"
+          className="mb-4 bg-gradient-to-r from-blue-500 to-purple-500 text-white py-2 px-6 rounded-lg shadow-lg hover:bg-blue-700 transition-all"
         >
           ← Back to Course Details
         </button>
 
-        <div className="bg-white p-6 rounded-lg shadow-lg">
+        <div className="bg-white p-8 rounded-lg shadow-lg space-y-8">
           {/* Course, Module, Section, and Lesson Information */}
-          <div className="mb-4">
-            <h2 className="text-xl font-bold">Course: {courseTitle}</h2>
-            <h3 className="text-lg font-semibold">Module: {moduleTitle}</h3>
-            <h4 className="text-md font-semibold">Section: {sectionTitle}</h4>
-            <h5 className="text-md font-semibold">Lesson: {lesson.lessonTitle}</h5>
+          <div className="space-y-3">
+            <h2 className="text-3xl font-extrabold text-gray-800">Course: {courseTitle}</h2>
+            <h3 className="text-xl font-semibold text-gray-700">Module: {moduleTitle}</h3>
+            <h4 className="text-lg font-semibold text-gray-600">Section: {sectionTitle}</h4>
+            <h5 className="text-lg font-semibold text-gray-600">Lesson: {lesson.lessonTitle}</h5>
           </div>
 
-          <p>{lesson.description}</p>
+          <p className="text-gray-700 leading-relaxed">{lesson.description}</p>
           
-          <div className="lesson-content">
+          <div className="lesson-content space-y-6">
             {/* Render lessonText as rich content */}
-            {lesson.lessonText && <div dangerouslySetInnerHTML={{ __html: lesson.lessonText }} />}
+            {lesson.lessonText && <div className="prose max-w-none" dangerouslySetInnerHTML={{ __html: lesson.lessonText }} />}
             
             {lesson.materials && lesson.materials.map((material, index) => (
-              <div key={index} className="flex items-center justify-between mt-4">
+              <div key={index} className="flex items-center justify-between mt-4 p-4 bg-gray-50 rounded-lg shadow-sm">
                 {material.materialType === 'video' && (
-                  <video controls className="w-full mb-4">
+                  <video controls className="w-full rounded-lg mb-4">
                     <source src={material.materialUrl} type="video/mp4" />
                     Your browser does not support the video tag.
                   </video>
@@ -104,7 +104,7 @@ const CourseLessonViewer = () => {
                       href={material.materialUrl}
                       target="_blank"
                       rel="noopener noreferrer"
-                      className="bg-green-500 text-white py-2 px-4 rounded flex items-center"
+                      className="bg-green-500 text-white py-2 px-4 rounded-lg shadow-lg hover:bg-green-700 transition-all flex items-center"
                     >
                       <FaEye className="mr-2" /> View {material.title}
                     </a>
@@ -115,21 +115,21 @@ const CourseLessonViewer = () => {
           </div>
 
           {/* Navigation Buttons */}
-          <div className="navigation-buttons mt-6 flex justify-between">
+          <div className="navigation-buttons mt-6 flex justify-between space-x-4">
             <button
               onClick={goToPreviousLesson}
               disabled={!previousLessonId} // Disable button if there's no previous lesson
-              className={`bg-blue-500 text-white py-2 px-4 rounded flex items-center ${!previousLessonId ? 'opacity-50 cursor-not-allowed' : ''}`}
+              className={`flex-1 bg-blue-500 text-white py-2 px-4 rounded-lg shadow-lg flex items-center justify-center space-x-2 ${!previousLessonId ? 'opacity-50 cursor-not-allowed' : 'hover:bg-blue-700 transition-all'}`}
             >
-              <FaChevronLeft className="mr-2" /> Previous Lesson
+              <FaChevronLeft /> <span>Previous Lesson</span>
             </button>
 
             <button
               onClick={goToNextLesson}
               disabled={!nextLessonId} // Disable button if there's no next lesson
-              className={`bg-blue-500 text-white py-2 px-4 rounded flex items-center ${!nextLessonId ? 'opacity-50 cursor-not-allowed' : ''}`}
+              className={`flex-1 bg-blue-500 text-white py-2 px-4 rounded-lg shadow-lg flex items-center justify-center space-x-2 ${!nextLessonId ? 'opacity-50 cursor-not-allowed' : 'hover:bg-blue-700 transition-all'}`}
             >
-              Next Lesson <FaChevronRight className="ml-2" />
+              <span>Next Lesson</span> <FaChevronRight />
             </button>
           </div>
         </div>
