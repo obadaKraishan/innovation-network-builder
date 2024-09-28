@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import { toast } from "react-toastify";
-import { AiOutlineSave, AiOutlineRollback } from "react-icons/ai";
+import { AiOutlineSave, AiOutlineRollback, AiOutlinePlusCircle } from "react-icons/ai";
 import api from "../utils/api";
 import Sidebar from "./Sidebar";
 import CourseQuizForm from "./CourseQuizForm";
@@ -60,6 +60,61 @@ const CourseEdit = () => {
   const handleModuleChange = (moduleIndex, key, value) => {
     const newModules = [...course.modules];
     newModules[moduleIndex][key] = value;
+    setCourse({ ...course, modules: newModules });
+  };
+
+  // Add new module
+  const addModule = () => {
+    setCourse({
+      ...course,
+      modules: [
+        ...course.modules,
+        {
+          moduleTitle: "",
+          sections: [
+            {
+              sectionTitle: "",
+              lessons: [
+                {
+                  lessonTitle: "",
+                  lessonText: "", // Add lessonText for new lessons
+                  materials: [],
+                  quiz: [],
+                },
+              ],
+            },
+          ],
+        },
+      ],
+    });
+  };
+
+  // Add new section to a module
+  const addSection = (moduleIndex) => {
+    const newModules = [...course.modules];
+    newModules[moduleIndex].sections.push({
+      sectionTitle: "",
+      lessons: [
+        {
+          lessonTitle: "",
+          lessonText: "", // Add lessonText for new sections
+          materials: [],
+          quiz: [],
+        },
+      ],
+    });
+    setCourse({ ...course, modules: newModules });
+  };
+
+  // Add new lesson to a section
+  const addLesson = (moduleIndex, sectionIndex) => {
+    const newModules = [...course.modules];
+    newModules[moduleIndex].sections[sectionIndex].lessons.push({
+      lessonTitle: "",
+      lessonText: "", // Add lessonText for new lessons
+      materials: [],
+      quiz: [],
+    });
     setCourse({ ...course, modules: newModules });
   };
 
@@ -264,10 +319,28 @@ const CourseEdit = () => {
                       modules={course.modules}
                       setModules={setCourse}
                     />
+                    <button
+                      onClick={() => addLesson(moduleIndex, sectionIndex)}
+                      className="text-blue-500 hover:underline mt-2"
+                    >
+                      Add New Lesson
+                    </button>
                   </div>
                 ))}
+                <button
+                  onClick={() => addSection(moduleIndex)}
+                  className="text-blue-500 hover:underline mt-2"
+                >
+                  Add New Section
+                </button>
               </div>
             ))}
+            <button
+              onClick={addModule}
+              className="text-blue-500 hover:underline mt-2"
+            >
+              <AiOutlinePlusCircle className="mr-2" /> Add New Module
+            </button>
           </div>
 
           {/* Save Changes Button */}
