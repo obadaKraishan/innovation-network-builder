@@ -76,7 +76,9 @@ const CourseDetails = () => {
                   key={moduleIndex}
                   className="module bg-gray-100 p-4 rounded-lg mb-4"
                 >
-                  <h3 className="text-lg font-bold">{module.moduleTitle}</h3>
+                  <h3 className="text-lg font-bold">
+                    Module {moduleIndex + 1}: {module.moduleTitle}
+                  </h3>
                   {module.sections?.length > 0 ? (
                     module.sections.map((section, sectionIndex) => (
                       <div
@@ -84,16 +86,20 @@ const CourseDetails = () => {
                         className="section bg-white p-4 rounded-lg shadow-md mb-2"
                       >
                         <h4 className="text-md font-semibold">
-                          {section.sectionTitle}
+                          Section {sectionIndex + 1}: {section.sectionTitle}
                         </h4>
                         <ul className="lessons-list">
                           {section.lessons?.length > 0 ? (
-                            section.lessons.map((lesson) => (
-                              <li key={lesson._id} className="lesson mb-2">
+                            section.lessons.map((lesson, lessonIndex) => (
+                              <li
+                                key={lesson._id}
+                                className="lesson mb-2"
+                              >
                                 <Link
                                   to={`/courses/${id}/module/${module._id}/section/${section._id}/lesson/${lesson._id}`}
+                                  className="text-blue-500 hover:underline"
                                 >
-                                  {lesson.lessonTitle}
+                                  Lesson {lessonIndex + 1}: {lesson.lessonTitle}
                                 </Link>
                               </li>
                             ))
