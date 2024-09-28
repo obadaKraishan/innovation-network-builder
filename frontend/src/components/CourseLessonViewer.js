@@ -6,36 +6,42 @@ import api from '../utils/api';
 import { toast } from 'react-toastify';
 
 const CourseLessonViewer = () => {
+  // Retrieve the current course, module, section, and lesson IDs from the URL parameters
   const { courseId, moduleId, sectionId, lessonId } = useParams();
+  
+  // State to store the current lesson data, course title, module title, section title, and navigation for previous/next lessons
   const [lesson, setLesson] = useState(null);
   const [courseTitle, setCourseTitle] = useState("");
   const [moduleTitle, setModuleTitle] = useState("");
   const [sectionTitle, setSectionTitle] = useState("");
   const [previousLesson, setPreviousLesson] = useState(null);
   const [nextLesson, setNextLesson] = useState(null);
+  
   const navigate = useNavigate();
 
   useEffect(() => {
     const fetchLessonDetails = async () => {
       try {
-        // Fetch full course details
+        // Fetch the entire course details
         const { data: courseData } = await api.get(`/courses/${courseId}`);
         setCourseTitle(courseData.title);
 
-        // Get current module and section
+        // Find the current module and section by matching their IDs
         const module = courseData.modules.find(mod => mod._id === moduleId);
         setModuleTitle(module.moduleTitle);
         const section = module.sections.find(sec => sec._id === sectionId);
         setSectionTitle(section.sectionTitle);
 
-        // Fetch current lesson
+        // Fetch the current lesson details
         const { data: lessonData } = await api.get(`/courses/${courseId}/module/${moduleId}/section/${sectionId}/lesson/${lessonId}`);
         setLesson(lessonData.lesson);
 
-        // Determine previous and next lessons in the entire course
+        // Flatten all lessons from all modules and sections to create a complete lesson list
         const allLessons = getAllLessons(courseData.modules);
+        // Find the index of the current lesson in the flattened list
         const currentLessonIndex = allLessons.findIndex(lesson => lesson._id === lessonId);
 
+        // Set the previous and next lessons based on the current lesson index
         setPreviousLesson(allLessons[currentLessonIndex - 1] || null);
         setNextLesson(allLessons[currentLessonIndex + 1] || null);
       } catch (error) {
@@ -46,9 +52,10 @@ const CourseLessonViewer = () => {
     fetchLessonDetails();
   }, [courseId, moduleId, sectionId, lessonId]);
 
-  // Helper function to flatten all lessons across modules and sections
+  // Helper function to flatten all lessons across all modules and sections
   const getAllLessons = (modules) => {
     const lessons = [];
+    // Iterate through each module and section, and push all lessons to a flat list
     modules.forEach((mod) => {
       mod.sections.forEach((sec) => {
         sec.lessons.forEach((lesson) => {
@@ -63,18 +70,21 @@ const CourseLessonViewer = () => {
     return lessons;
   };
 
+  // Navigate to the next lesson if available
   const goToNextLesson = () => {
     if (nextLesson) {
       navigate(`/courses/${courseId}/module/${nextLesson.moduleId}/section/${nextLesson.sectionId}/lesson/${nextLesson._id}`);
     }
   };
 
+  // Navigate to the previous lesson if available
   const goToPreviousLesson = () => {
     if (previousLesson) {
       navigate(`/courses/${courseId}/module/${previousLesson.moduleId}/section/${previousLesson.sectionId}/lesson/${previousLesson._id}`);
     }
   };
 
+  // Navigate back to the course details page
   const goBackToCourseDetails = () => {
     navigate(`/courses/${courseId}`);
   };
@@ -83,9 +93,12 @@ const CourseLessonViewer = () => {
 
   return (
     <div className="flex h-screen">
+      {/* Sidebar for navigation */}
       <Sidebar />
 
+      {/* Main content area */}
       <div className="flex-1 p-6 bg-gray-100 overflow-y-auto">
+        {/* Back to Course Details button */}
         <button
           onClick={goBackToCourseDetails}
           className="mb-4 bg-gradient-to-r from-blue-500 to-purple-500 text-white py-2 px-6 rounded-lg shadow-lg hover:bg-blue-700 transition-all"
@@ -94,6 +107,7 @@ const CourseLessonViewer = () => {
         </button>
 
         <div className="bg-white p-8 rounded-lg shadow-lg space-y-8">
+          {/* Display Course, Module, Section, and Lesson titles */}
           <div className="space-y-3">
             <h2 className="text-3xl font-extrabold text-gray-800">Course: {courseTitle}</h2>
             <h3 className="text-xl font-semibold text-gray-700">Module: {moduleTitle}</h3>
@@ -101,19 +115,25 @@ const CourseLessonViewer = () => {
             <h5 className="text-lg font-semibold text-gray-600">Lesson: {lesson.lessonTitle}</h5>
           </div>
 
+          {/* Lesson description */}
           <p className="text-gray-700 leading-relaxed">{lesson.description}</p>
 
+          {/* Lesson content (e.g., text, videos, materials) */}
           <div className="lesson-content space-y-6">
+            {/* Render rich text content of the lesson */}
             {lesson.lessonText && <div className="prose max-w-none" dangerouslySetInnerHTML={{ __html: lesson.lessonText }} />}
 
+            {/* Render lesson materials like videos and PDFs */}
             {lesson.materials && lesson.materials.map((material, index) => (
               <div key={index} className="flex items-center justify-between mt-4 p-4 bg-gray-50 rounded-lg shadow-sm">
+                {/* Render video material */}
                 {material.materialType === 'video' && (
                   <video controls className="w-full rounded-lg mb-4">
                     <source src={material.materialUrl} type="video/mp4" />
                     Your browser does not support the video tag.
                   </video>
                 )}
+                {/* Render PDF material */}
                 {material.materialType === 'pdf' && (
                   <div className="flex items-center">
                     <a
@@ -130,18 +150,21 @@ const CourseLessonViewer = () => {
             ))}
           </div>
 
+          {/* Navigation buttons for moving between lessons */}
           <div className="navigation-buttons mt-6 flex justify-between space-x-4">
+            {/* Previous Lesson button */}
             <button
               onClick={goToPreviousLesson}
-              disabled={!previousLesson}
+              disabled={!previousLesson} // Disable if no previous lesson
               className={`flex-1 bg-blue-500 text-white py-2 px-4 rounded-lg shadow-lg flex items-center justify-center space-x-2 ${!previousLesson ? 'opacity-50 cursor-not-allowed' : 'hover:bg-blue-700 transition-all'}`}
             >
               <FaChevronLeft /> <span>Previous Lesson</span>
             </button>
 
+            {/* Next Lesson button */}
             <button
               onClick={goToNextLesson}
-              disabled={!nextLesson}
+              disabled={!nextLesson} // Disable if no next lesson
               className={`flex-1 bg-blue-500 text-white py-2 px-4 rounded-lg shadow-lg flex items-center justify-center space-x-2 ${!nextLesson ? 'opacity-50 cursor-not-allowed' : 'hover:bg-blue-700 transition-all'}`}
             >
               <span>Next Lesson</span> <FaChevronRight />
