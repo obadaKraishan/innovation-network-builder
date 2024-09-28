@@ -8,6 +8,9 @@ import { toast } from 'react-toastify';
 const CourseLessonViewer = () => {
   const { courseId, moduleId, sectionId, lessonId } = useParams(); // These are now ObjectIds
   const [lesson, setLesson] = useState(null);
+  const [courseTitle, setCourseTitle] = useState(""); // Track the course title
+  const [moduleTitle, setModuleTitle] = useState(""); // Track the module title
+  const [sectionTitle, setSectionTitle] = useState(""); // Track the section title
   const [previousLessonId, setPreviousLessonId] = useState(null); // Track the previous lesson ID
   const [nextLessonId, setNextLessonId] = useState(null); // Track the next lesson ID
   const navigate = useNavigate();
@@ -15,6 +18,16 @@ const CourseLessonViewer = () => {
   useEffect(() => {
     const fetchLessonDetails = async () => {
       try {
+        // Fetch course details, including module and section titles
+        const { data: courseData } = await api.get(`/courses/${courseId}`);
+        setCourseTitle(courseData.title);
+
+        const module = courseData.modules.find((mod) => mod._id === moduleId);
+        setModuleTitle(module.moduleTitle);
+
+        const section = module.sections.find((sec) => sec._id === sectionId);
+        setSectionTitle(section.sectionTitle);
+
         // Fetch lesson details and the IDs of the previous and next lessons
         const { data } = await api.get(`/courses/${courseId}/module/${moduleId}/section/${sectionId}/lesson/${lessonId}`);
         setLesson(data.lesson);
@@ -63,7 +76,14 @@ const CourseLessonViewer = () => {
         </button>
 
         <div className="bg-white p-6 rounded-lg shadow-lg">
-          <h2 className="text-2xl font-bold mb-4">{lesson.lessonTitle}</h2>
+          {/* Course, Module, Section, and Lesson Information */}
+          <div className="mb-4">
+            <h2 className="text-xl font-bold">Course: {courseTitle}</h2>
+            <h3 className="text-lg font-semibold">Module: {moduleTitle}</h3>
+            <h4 className="text-md font-semibold">Section: {sectionTitle}</h4>
+            <h5 className="text-md font-semibold">Lesson: {lesson.lessonTitle}</h5>
+          </div>
+
           <p>{lesson.description}</p>
           
           <div className="lesson-content">
