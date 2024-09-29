@@ -11,6 +11,8 @@ import "react-quill/dist/quill.snow.css"; // ReactQuill styling
 const CourseEdit = () => {
   const { id } = useParams();
   const navigate = useNavigate();
+  
+  // Ensure default values for all fields to prevent controlled/uncontrolled warnings
   const [course, setCourse] = useState({
     title: "",
     description: "",
@@ -29,6 +31,9 @@ const CourseEdit = () => {
       const courseData = {
         ...data,
         modules: data.modules || [], // Ensure modules is an array
+        skillsGained: data.skillsGained.length ? data.skillsGained : [""], // Prevent undefined array
+        courseRequirements: data.courseRequirements.length ? data.courseRequirements : [""], // Prevent undefined array
+        description: data.description || "", // Prevent undefined description
       };
       setCourse(courseData);
     } catch (error) {
@@ -40,15 +45,13 @@ const CourseEdit = () => {
     fetchCourse();
   }, [id]);
 
-  // Before submitting, ensure that all fields are valid
+  // Ensure fields are valid
   const validateCourse = (courseData) => {
     const validatedCourse = { ...courseData };
 
-    // Ensure arrays like skillsGained, courseRequirements, etc. don't have undefined or null values
     validatedCourse.skillsGained = validatedCourse.skillsGained.filter(Boolean);
     validatedCourse.courseRequirements = validatedCourse.courseRequirements.filter(Boolean);
 
-    // Ensure required fields are not null or undefined
     if (!validatedCourse.title) throw new Error("Course title is required.");
     if (!validatedCourse.description) throw new Error("Course description is required.");
 
@@ -58,12 +61,10 @@ const CourseEdit = () => {
   const handleSubmit = async () => {
     try {
       const validatedCourse = validateCourse(course);
-      console.log("Submitting course:", validatedCourse); // Log course before submission
       await api.put(`/courses/${id}`, validatedCourse);
       toast.success("Course updated successfully!");
       navigate("/course-management");
     } catch (error) {
-      console.error("Error submitting course:", error.message);
       toast.error(`Error updating course: ${error.message}`);
     }
   };
@@ -80,7 +81,6 @@ const CourseEdit = () => {
     setCourse({ ...course, modules: newModules });
   };
 
-  // Add new module
   const addModule = () => {
     setCourse((prevCourse) => ({
       ...prevCourse,
@@ -105,7 +105,6 @@ const CourseEdit = () => {
     }));
   };
 
-  // Add new section to a module
   const addSection = (moduleIndex) => {
     const newModules = [...course.modules];
     newModules[moduleIndex].sections.push({
@@ -121,7 +120,6 @@ const CourseEdit = () => {
     setCourse({ ...course, modules: newModules });
   };
 
-  // Add new lesson to a section
   const addLesson = (moduleIndex, sectionIndex) => {
     const newModules = [...course.modules];
     newModules[moduleIndex].sections[sectionIndex].lessons.push({
@@ -153,7 +151,7 @@ const CourseEdit = () => {
             <label className="block text-sm font-bold mb-2">Course Title</label>
             <input
               type="text"
-              value={course.title}
+              value={course.title || ""}
               onChange={(e) => setCourse({ ...course, title: e.target.value })}
               className="w-full p-2 border border-gray-300 rounded"
               placeholder="Enter course title"
@@ -164,7 +162,7 @@ const CourseEdit = () => {
           <div>
             <label className="block text-sm font-bold mb-2">Description</label>
             <textarea
-              value={course.description}
+              value={course.description || ""}
               onChange={(e) =>
                 setCourse({ ...course, description: e.target.value })
               }
@@ -178,7 +176,7 @@ const CourseEdit = () => {
             <label className="block text-sm font-bold mb-2">Image URL</label>
             <input
               type="text"
-              value={course.image}
+              value={course.image || ""}
               onChange={(e) => setCourse({ ...course, image: e.target.value })}
               className="w-full p-2 border border-gray-300 rounded"
               placeholder="Enter image URL"
@@ -190,7 +188,7 @@ const CourseEdit = () => {
             <label className="block text-sm font-bold mb-2">Estimated Duration (hours)</label>
             <input
               type="number"
-              value={course.estimatedDuration}
+              value={course.estimatedDuration || 0}
               onChange={(e) =>
                 setCourse({
                   ...course,
@@ -226,7 +224,7 @@ const CourseEdit = () => {
               <input
                 key={index}
                 type="text"
-                value={requirement}
+                value={requirement || ""}
                 onChange={(e) =>
                   handleArrayChange("courseRequirements", index, e.target.value)
                 }
@@ -240,7 +238,7 @@ const CourseEdit = () => {
           <div>
             <label className="block text-sm font-bold mb-2">Objectives</label>
             <textarea
-              value={course.objectives}
+              value={course.objectives || ""}
               onChange={(e) =>
                 setCourse({ ...course, objectives: e.target.value })
               }
