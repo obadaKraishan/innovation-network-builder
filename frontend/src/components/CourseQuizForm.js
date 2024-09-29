@@ -1,10 +1,11 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useForm, Controller } from 'react-hook-form';
 import Select from 'react-select';
 import DatePicker from 'react-datepicker';
 import 'react-datepicker/dist/react-datepicker.css';
 import { FaPlusCircle } from 'react-icons/fa';
 import { toast } from 'react-toastify';
+import api from '../utils/api';
 
 const questionTypes = [
   { value: 'text', label: 'Text' },
@@ -14,7 +15,7 @@ const questionTypes = [
   { value: 'date', label: 'Date Picker' },
 ];
 
-const CourseQuizForm = ({ moduleIndex, sectionIndex, lessonIndex, modules, setModules }) => {
+const CourseQuizForm = () => {
   const { control } = useForm();
   const [quiz, setQuiz] = useState({
     quizTitle: '',
@@ -22,6 +23,25 @@ const CourseQuizForm = ({ moduleIndex, sectionIndex, lessonIndex, modules, setMo
     isTimed: false,
     randomizeQuestions: false,
   });
+
+  const [courses, setCourses] = useState([]);
+  const [selectedCourse, setSelectedCourse] = useState(null);
+  const [selectedModule, setSelectedModule] = useState(null);
+  const [selectedSection, setSelectedSection] = useState(null);
+  const [selectedLesson, setSelectedLesson] = useState(null);
+
+  useEffect(() => {
+    // Fetch all courses on mount
+    const fetchCourses = async () => {
+      try {
+        const { data } = await api.get('/courses');
+        setCourses(data.map(course => ({ value: course._id, label: course.title })));
+      } catch (error) {
+        toast.error('Error fetching courses');
+      }
+    };
+    fetchCourses();
+  }, []);
 
   const handleQuizChange = (e) => {
     setQuiz({ ...quiz, [e.target.name]: e.target.value });
@@ -41,34 +61,30 @@ const CourseQuizForm = ({ moduleIndex, sectionIndex, lessonIndex, modules, setMo
   };
 
   const handleAddQuiz = async () => {
+    if (!selectedCourse || !selectedModule || !selectedSection || !selectedLesson) {
+      return toast.error('Please select course, module, section, and lesson');
+    }
+
     try {
-      const updatedModules = [...modules];
-      const currentLesson = updatedModules[moduleIndex].sections[sectionIndex].lessons[lessonIndex];
-  
-      if (!currentLesson.quiz) {
-        currentLesson.quiz = [];
-      }
-  
-      currentLesson.quiz.push(quiz); // Add quiz to lesson
-  
-      setModules(updatedModules); // Update the parent component's course modules
-  
+      const quizData = {
+        ...quiz,
+        courseId: selectedCourse.value,
+        moduleId: selectedModule.value,
+        sectionId: selectedSection.value,
+        lessonId: selectedLesson.value,
+      };
+
+      await api.post('/quizzes/create', quizData); // Add appropriate backend endpoint
+      toast.success('Quiz added successfully!');
       setQuiz({
         quizTitle: '',
         questions: [{ type: 'text', label: '', options: [], correctAnswer: '' }],
         isTimed: false,
         randomizeQuestions: false,
       });
-  
-      // Log to confirm quiz is updated correctly
-      console.log('Quiz added:', quiz);
-      console.log('Updated modules:', updatedModules);
-
-      toast.success('Quiz added successfully!');
     } catch (error) {
-      // Log the error to console for debugging
       console.error('Error adding quiz:', error);
-      toast.error('Error adding quiz. Please try again.');
+      toast.error('Error adding quiz');
     }
   };
 
@@ -81,8 +97,59 @@ const CourseQuizForm = ({ moduleIndex, sectionIndex, lessonIndex, modules, setMo
 
   return (
     <div className="mt-6">
-      <h4 className="font-bold">Add/Edit Quiz</h4>
+      <h4 className="font-bold">Create a New Quiz</h4>
 
+      {/* Select Course */}
+      <Select
+        options={courses}
+        placeholder="Select Course"
+        value={selectedCourse}
+        onChange={(selected) => {
+          setSelectedCourse(selected);
+          setSelectedModule(null); // Reset module, section, lesson when course changes
+          setSelectedSection(null);
+          setSelectedLesson(null);
+        }}
+      />
+
+      {/* Fetch Modules */}
+      {selectedCourse && (
+        <Select
+          options={selectedCourse.modules.map(module => ({ value: module._id, label: module.moduleTitle }))}
+          placeholder="Select Module"
+          value={selectedModule}
+          onChange={(selected) => {
+            setSelectedModule(selected);
+            setSelectedSection(null);
+            setSelectedLesson(null);
+          }}
+        />
+      )}
+
+      {/* Fetch Sections */}
+      {selectedModule && (
+        <Select
+          options={selectedModule.sections.map(section => ({ value: section._id, label: section.sectionTitle }))}
+          placeholder="Select Section"
+          value={selectedSection}
+          onChange={(selected) => {
+            setSelectedSection(selected);
+            setSelectedLesson(null);
+          }}
+        />
+      )}
+
+      {/* Fetch Lessons */}
+      {selectedSection && (
+        <Select
+          options={selectedSection.lessons.map(lesson => ({ value: lesson._id, label: lesson.lessonTitle }))}
+          placeholder="Select Lesson"
+          value={selectedLesson}
+          onChange={setSelectedLesson}
+        />
+      )}
+
+      {/* Quiz Form */}
       <input
         type="text"
         name="quizTitle"
