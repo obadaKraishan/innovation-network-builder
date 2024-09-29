@@ -374,22 +374,24 @@ const updateCourse = async (req, res) => {
     const course = await Course.findById(req.params.id);
     if (!course) return res.status(404).json({ message: 'Course not found' });
 
-    // Sanitize lesson text in all modules, sections, and lessons
+    // Validate and sanitize lesson text in all modules, sections, and lessons
     req.body.modules.forEach(module => {
       module.sections.forEach(section => {
         section.lessons.forEach(lesson => {
-          lesson.lessonText = sanitizeHtml(lesson.lessonText); // Sanitize lessonText
+          if (lesson.lessonText) {
+            lesson.lessonText = sanitizeHtml(lesson.lessonText);
+          }
         });
       });
     });
 
     Object.assign(course, req.body);
     const updatedCourse = await course.save();
-    
+
     console.log('Course updated:', updatedCourse);
     res.json(updatedCourse);
   } catch (error) {
-    console.error('Error updating course:', error);
+    console.error('Error updating course:', error.message);
     res.status(400).json({ message: 'Error updating course', error: error.message });
   }
 };
