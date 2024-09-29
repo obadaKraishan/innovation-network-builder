@@ -1,26 +1,26 @@
-import React, { useState, useEffect } from 'react';
-import { useForm, Controller } from 'react-hook-form';
-import Select from 'react-select';
-import DatePicker from 'react-datepicker';
-import 'react-datepicker/dist/react-datepicker.css';
-import { FaPlusCircle } from 'react-icons/fa';
-import { toast } from 'react-toastify';
-import api from '../utils/api';
-import Sidebar from './Sidebar'; // Import the sidebar component
+import React, { useState, useEffect } from "react";
+import { useForm, Controller } from "react-hook-form";
+import Select from "react-select";
+import DatePicker from "react-datepicker";
+import "react-datepicker/dist/react-datepicker.css";
+import { FaPlusCircle } from "react-icons/fa";
+import { toast } from "react-toastify";
+import api from "../utils/api";
+import Sidebar from "./Sidebar"; // Import the sidebar component
 
 const questionTypes = [
-  { value: 'text', label: 'Text' },
-  { value: 'radio', label: 'Multiple Choice (Radio)' },
-  { value: 'checkbox', label: 'Multiple Choice (Checkbox)' },
-  { value: 'select', label: 'Dropdown' },
-  { value: 'date', label: 'Date Picker' },
+  { value: "text", label: "Text" },
+  { value: "radio", label: "Multiple Choice (Radio)" },
+  { value: "checkbox", label: "Multiple Choice (Checkbox)" },
+  { value: "select", label: "Dropdown" },
+  { value: "date", label: "Date Picker" },
 ];
 
 const CourseQuizForm = () => {
   const { control } = useForm();
   const [quiz, setQuiz] = useState({
-    quizTitle: '',
-    questions: [{ type: 'text', label: '', options: [], correctAnswer: '' }],
+    quizTitle: "",
+    questions: [{ type: "text", label: "", options: [], correctAnswer: "" }],
     isTimed: false,
     randomizeQuestions: false,
   });
@@ -35,10 +35,12 @@ const CourseQuizForm = () => {
   useEffect(() => {
     const fetchCourses = async () => {
       try {
-        const { data } = await api.get('/courses');
-        setCourses(data.map(course => ({ value: course._id, label: course.title })));
+        const { data } = await api.get("/courses");
+        setCourses(
+          data.map((course) => ({ value: course._id, label: course.title }))
+        );
       } catch (error) {
-        toast.error('Error fetching courses');
+        toast.error("Error fetching courses");
       }
     };
     fetchCourses();
@@ -50,7 +52,7 @@ const CourseQuizForm = () => {
       const { data } = await api.get(`/courses/${courseId}`);
       setSelectedCourse(data); // Set the full course object including modules
     } catch (error) {
-      toast.error('Error fetching course details');
+      toast.error("Error fetching course details");
     }
   };
 
@@ -60,20 +62,36 @@ const CourseQuizForm = () => {
 
   const handleQuestionChange = (index, field, value) => {
     const updatedQuestions = [...quiz.questions];
-    updatedQuestions[index][field] = value;
+
+    // For options field, split by comma and trim spaces
+    if (field === "options") {
+      const trimmedOptions = value.split(",").map((opt) => opt.trim());
+      updatedQuestions[index][field] = trimmedOptions;
+    } else {
+      updatedQuestions[index][field] = value;
+    }
+
     setQuiz({ ...quiz, questions: updatedQuestions });
   };
 
   const addQuestion = () => {
     setQuiz({
       ...quiz,
-      questions: [...quiz.questions, { type: 'text', label: '', options: [], correctAnswer: '' }],
+      questions: [
+        ...quiz.questions,
+        { type: "text", label: "", options: [], correctAnswer: "" },
+      ],
     });
   };
 
   const handleAddQuiz = async () => {
-    if (!selectedCourse || !selectedModule || !selectedSection || !selectedLesson) {
-      return toast.error('Please select course, module, section, and lesson');
+    if (
+      !selectedCourse ||
+      !selectedModule ||
+      !selectedSection ||
+      !selectedLesson
+    ) {
+      return toast.error("Please select course, module, section, and lesson");
     }
 
     try {
@@ -85,17 +103,19 @@ const CourseQuizForm = () => {
         lessonId: selectedLesson._id,
       };
 
-      await api.post('/quizzes/create', quizData);
-      toast.success('Quiz added successfully!');
+      await api.post("/quizzes/create", quizData);
+      toast.success("Quiz added successfully!");
       setQuiz({
-        quizTitle: '',
-        questions: [{ type: 'text', label: '', options: [], correctAnswer: '' }],
+        quizTitle: "",
+        questions: [
+          { type: "text", label: "", options: [], correctAnswer: "" },
+        ],
         isTimed: false,
         randomizeQuestions: false,
       });
     } catch (error) {
-      console.error('Error adding quiz:', error);
-      toast.error('Error adding quiz');
+      console.error("Error adding quiz:", error);
+      toast.error("Error adding quiz");
     }
   };
 
@@ -108,7 +128,7 @@ const CourseQuizForm = () => {
 
   return (
     <div className="flex h-screen">
-      <Sidebar />  {/* Sidebar added here */}
+      <Sidebar /> {/* Sidebar added here */}
       <div className="flex-1 p-6 bg-gray-100 overflow-auto">
         <h4 className="font-bold">Create a New Quiz</h4>
 
@@ -116,7 +136,11 @@ const CourseQuizForm = () => {
         <Select
           options={courses}
           placeholder="Select Course"
-          value={selectedCourse ? { value: selectedCourse._id, label: selectedCourse.title } : null}
+          value={
+            selectedCourse
+              ? { value: selectedCourse._id, label: selectedCourse.title }
+              : null
+          }
           onChange={(selected) => {
             fetchCourseDetails(selected.value); // Fetch course details when a course is selected
             setSelectedModule(null);
@@ -128,11 +152,23 @@ const CourseQuizForm = () => {
         {/* Select Module */}
         {selectedCourse && (
           <Select
-            options={selectedCourse.modules.map(module => ({ value: module._id, label: module.moduleTitle }))}
+            options={selectedCourse.modules.map((module) => ({
+              value: module._id,
+              label: module.moduleTitle,
+            }))}
             placeholder="Select Module"
-            value={selectedModule ? { value: selectedModule._id, label: selectedModule.moduleTitle } : null}
+            value={
+              selectedModule
+                ? {
+                    value: selectedModule._id,
+                    label: selectedModule.moduleTitle,
+                  }
+                : null
+            }
             onChange={(selected) => {
-              const module = selectedCourse.modules.find(mod => mod._id === selected.value);
+              const module = selectedCourse.modules.find(
+                (mod) => mod._id === selected.value
+              );
               setSelectedModule(module);
               setSelectedSection(null);
               setSelectedLesson(null);
@@ -143,11 +179,23 @@ const CourseQuizForm = () => {
         {/* Select Section */}
         {selectedModule && (
           <Select
-            options={selectedModule.sections.map(section => ({ value: section._id, label: section.sectionTitle }))}
+            options={selectedModule.sections.map((section) => ({
+              value: section._id,
+              label: section.sectionTitle,
+            }))}
             placeholder="Select Section"
-            value={selectedSection ? { value: selectedSection._id, label: selectedSection.sectionTitle } : null}
+            value={
+              selectedSection
+                ? {
+                    value: selectedSection._id,
+                    label: selectedSection.sectionTitle,
+                  }
+                : null
+            }
             onChange={(selected) => {
-              const section = selectedModule.sections.find(sec => sec._id === selected.value);
+              const section = selectedModule.sections.find(
+                (sec) => sec._id === selected.value
+              );
               setSelectedSection(section);
               setSelectedLesson(null);
             }}
@@ -157,11 +205,23 @@ const CourseQuizForm = () => {
         {/* Select Lesson */}
         {selectedSection && (
           <Select
-            options={selectedSection.lessons.map(lesson => ({ value: lesson._id, label: lesson.lessonTitle }))}
+            options={selectedSection.lessons.map((lesson) => ({
+              value: lesson._id,
+              label: lesson.lessonTitle,
+            }))}
             placeholder="Select Lesson"
-            value={selectedLesson ? { value: selectedLesson._id, label: selectedLesson.lessonTitle } : null}
+            value={
+              selectedLesson
+                ? {
+                    value: selectedLesson._id,
+                    label: selectedLesson.lessonTitle,
+                  }
+                : null
+            }
             onChange={(selected) => {
-              const lesson = selectedSection.lessons.find(les => les._id === selected.value);
+              const lesson = selectedSection.lessons.find(
+                (les) => les._id === selected.value
+              );
               setSelectedLesson(lesson);
             }}
           />
@@ -185,12 +245,18 @@ const CourseQuizForm = () => {
                 type="text"
                 name="label"
                 value={question.label}
-                onChange={(e) => handleQuestionChange(index, 'label', e.target.value)}
+                onChange={(e) =>
+                  handleQuestionChange(index, "label", e.target.value)
+                }
                 placeholder="Question Title"
                 className="w-full p-2 border border-gray-300 rounded"
                 required
               />
-              <button type="button" onClick={() => removeQuestion(index)} className="text-red-500 ml-2">
+              <button
+                type="button"
+                onClick={() => removeQuestion(index)}
+                className="text-red-500 ml-2"
+              >
                 Remove
               </button>
             </div>
@@ -200,19 +266,25 @@ const CourseQuizForm = () => {
               <label>Question Type</label>
               <Select
                 options={questionTypes}
-                onChange={(selected) => handleQuestionChange(index, 'type', selected.value)}
-                defaultValue={questionTypes.find((type) => type.value === question.type)}
+                onChange={(selected) =>
+                  handleQuestionChange(index, "type", selected.value)
+                }
+                defaultValue={questionTypes.find(
+                  (type) => type.value === question.type
+                )}
               />
             </div>
 
             {/* Options for Radio, Checkbox, Select */}
-            {['radio', 'checkbox', 'select'].includes(question.type) && (
+            {["radio", "checkbox", "select"].includes(question.type) && (
               <div className="mb-4">
                 <label>Options (comma-separated)</label>
                 <input
                   type="text"
-                  value={question.options.join(', ')}
-                  onChange={(e) => handleQuestionChange(index, 'options', e.target.value.split(','))}
+                  value={question.options.join(", ")}
+                  onChange={(e) =>
+                    handleQuestionChange(index, "options", e.target.value)
+                  }
                   placeholder="Option1, Option2, Option3"
                   className="w-full p-2 border border-gray-300 rounded"
                 />
@@ -225,14 +297,16 @@ const CourseQuizForm = () => {
               <input
                 type="text"
                 value={question.correctAnswer}
-                onChange={(e) => handleQuestionChange(index, 'correctAnswer', e.target.value)}
+                onChange={(e) =>
+                  handleQuestionChange(index, "correctAnswer", e.target.value)
+                }
                 placeholder="Enter correct answer"
                 className="w-full p-2 border border-gray-300 rounded"
               />
             </div>
 
             {/* Date Picker for Date Questions */}
-            {question.type === 'date' && (
+            {question.type === "date" && (
               <div className="mb-4">
                 <label>Select Default Date</label>
                 <Controller
@@ -278,7 +352,9 @@ const CourseQuizForm = () => {
               type="checkbox"
               name="randomizeQuestions"
               checked={quiz.randomizeQuestions}
-              onChange={(e) => setQuiz({ ...quiz, randomizeQuestions: e.target.checked })}
+              onChange={(e) =>
+                setQuiz({ ...quiz, randomizeQuestions: e.target.checked })
+              }
               className="mr-2"
             />
             Randomize Questions
