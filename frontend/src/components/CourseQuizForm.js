@@ -40,26 +40,36 @@ const CourseQuizForm = ({ moduleIndex, sectionIndex, lessonIndex, modules, setMo
     });
   };
 
-  const handleAddQuiz = () => {
-    const updatedModules = [...modules];
-    const currentLesson = updatedModules[moduleIndex].sections[sectionIndex].lessons[lessonIndex];
+  const handleAddQuiz = async () => {
+    try {
+      const updatedModules = [...modules];
+      const currentLesson = updatedModules[moduleIndex].sections[sectionIndex].lessons[lessonIndex];
   
-    if (!currentLesson.quiz) {
-      currentLesson.quiz = [];
+      if (!currentLesson.quiz) {
+        currentLesson.quiz = [];
+      }
+  
+      currentLesson.quiz.push(quiz); // Add quiz to lesson
+  
+      setModules(updatedModules); // Update the parent component's course modules
+  
+      setQuiz({
+        quizTitle: '',
+        questions: [{ type: 'text', label: '', options: [], correctAnswer: '' }],
+        isTimed: false,
+        randomizeQuestions: false,
+      });
+  
+      // Log to confirm quiz is updated correctly
+      console.log('Quiz added:', quiz);
+      console.log('Updated modules:', updatedModules);
+
+      toast.success('Quiz added successfully!');
+    } catch (error) {
+      // Log the error to console for debugging
+      console.error('Error adding quiz:', error);
+      toast.error('Error adding quiz. Please try again.');
     }
-  
-    currentLesson.quiz.push(quiz); // Add quiz to lesson
-  
-    setModules(updatedModules); // Update the parent component's course modules
-  
-    setQuiz({
-      quizTitle: '',
-      questions: [{ type: 'text', label: '', options: [], correctAnswer: '' }],
-      isTimed: false,
-      randomizeQuestions: false,
-    });
-  
-    toast.success('Quiz added successfully!');
   };
 
   const removeQuestion = (index) => {
