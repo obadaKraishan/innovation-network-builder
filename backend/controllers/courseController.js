@@ -402,6 +402,8 @@ const createQuiz = async (req, res) => {
   const { courseId, moduleId, sectionId, lessonId, quizTitle, questions, isTimed, randomizeQuestions } = req.body;
 
   try {
+    console.log("Creating a new quiz with data:", req.body); // Log the incoming data
+
     const quiz = new Quiz({
       quizTitle,
       questions,
@@ -414,9 +416,11 @@ const createQuiz = async (req, res) => {
     });
 
     const savedQuiz = await quiz.save();
+    console.log("Quiz saved successfully:", savedQuiz); // Log success
+
     res.status(201).json(savedQuiz);
   } catch (error) {
-    console.error('Error creating quiz:', error);
+    console.error("Error creating quiz:", error); // Log the error
     res.status(400).json({ message: 'Error creating quiz', error });
   }
 };
