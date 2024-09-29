@@ -320,6 +320,27 @@ const CourseEdit = () => {
                           setModules={setCourse}
                           refreshCourse={fetchCourse} // Pass refresh function
                         />
+
+                        {/* Display Added Quizzes */}
+                        {section.lessons[lessonIndex]?.quiz?.length > 0 && (
+                          <div className="mt-4">
+                            <h5 className="font-bold">Added Quizzes:</h5>
+                            <ul>
+                              {section.lessons[lessonIndex].quiz.map((quiz, quizIndex) => (
+                                <li key={quizIndex}>
+                                  <strong>{quiz.quizTitle}</strong>
+                                  <ul>
+                                    {quiz.questions.map((question, questionIndex) => (
+                                      <li key={questionIndex}>
+                                        {question.label} (Type: {question.type})
+                                      </li>
+                                    ))}
+                                  </ul>
+                                </li>
+                              ))}
+                            </ul>
+                          </div>
+                        )}
                       </div>
                     ))}
                     <CourseQuizForm
