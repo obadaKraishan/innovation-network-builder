@@ -41,13 +41,31 @@ const CourseEdit = () => {
     fetchCourse();
   }, [id]);
 
+  // Before submitting, ensure that all fields are valid
+  const validateCourse = (courseData) => {
+    const validatedCourse = { ...courseData };
+
+    // Ensure arrays like skillsGained, courseRequirements, etc. don't have undefined or null values
+    validatedCourse.skillsGained = validatedCourse.skillsGained.filter(Boolean);
+    validatedCourse.courseRequirements = validatedCourse.courseRequirements.filter(Boolean);
+
+    // Ensure required fields are not null or undefined
+    if (!validatedCourse.title) throw new Error("Course title is required.");
+    if (!validatedCourse.description) throw new Error("Course description is required.");
+
+    return validatedCourse;
+  };
+
   const handleSubmit = async () => {
     try {
-      await api.put(`/courses/${id}`, course);
+      const validatedCourse = validateCourse(course);
+      console.log("Submitting course:", validatedCourse); // Log course before submission
+      await api.put(`/courses/${id}`, validatedCourse);
       toast.success("Course updated successfully!");
       navigate("/course-management");
     } catch (error) {
-      toast.error("Error updating course");
+      console.error("Error submitting course:", error.message);
+      toast.error(`Error updating course: ${error.message}`);
     }
   };
 
@@ -77,7 +95,7 @@ const CourseEdit = () => {
               lessons: [
                 {
                   lessonTitle: "",
-                  lessonText: "", // Add lessonText for new lessons
+                  lessonText: "",
                   materials: [],
                   quiz: [], // Always initialize quiz as an array
                 },
@@ -97,9 +115,9 @@ const CourseEdit = () => {
       lessons: [
         {
           lessonTitle: "",
-          lessonText: "", // Add lessonText for new sections
+          lessonText: "",
           materials: [],
-          quiz: [], // Always initialize quiz as an array
+          quiz: [],
         },
       ],
     });
@@ -111,9 +129,9 @@ const CourseEdit = () => {
     const newModules = [...course.modules];
     newModules[moduleIndex].sections[sectionIndex].lessons.push({
       lessonTitle: "",
-      lessonText: "", // Add lessonText for new lessons
+      lessonText: "",
       materials: [],
-      quiz: [], // Always initialize quiz as an array
+      quiz: [],
     });
     setCourse({ ...course, modules: newModules });
   };
@@ -173,9 +191,7 @@ const CourseEdit = () => {
 
           {/* Estimated Duration */}
           <div>
-            <label className="block text-sm font-bold mb-2">
-              Estimated Duration (hours)
-            </label>
+            <label className="block text-sm font-bold mb-2">Estimated Duration (hours)</label>
             <input
               type="number"
               value={course.estimatedDuration}
@@ -209,9 +225,7 @@ const CourseEdit = () => {
 
           {/* Course Requirements */}
           <div>
-            <label className="block text-sm font-bold mb-2">
-              Course Requirements
-            </label>
+            <label className="block text-sm font-bold mb-2">Course Requirements</label>
             {course.courseRequirements?.map((requirement, index) => (
               <input
                 key={index}
@@ -315,10 +329,10 @@ const CourseEdit = () => {
                           moduleIndex={moduleIndex}
                           sectionIndex={sectionIndex}
                           lessonIndex={lessonIndex}
-                          courseId={id} // <-- Pass courseId here
+                          courseId={id}
                           modules={course.modules}
                           setModules={setCourse}
-                          refreshCourse={fetchCourse} // Pass refresh function
+                          refreshCourse={fetchCourse}
                         />
 
                         {/* Display Added Quizzes */}
@@ -346,7 +360,7 @@ const CourseEdit = () => {
                     <CourseQuizForm
                       moduleIndex={moduleIndex}
                       sectionIndex={sectionIndex}
-                      lessonIndex={section.lessons.length - 1} // Pass lessonIndex properly here
+                      lessonIndex={section.lessons.length - 1}
                       modules={course.modules}
                       setModules={setCourse}
                     />
