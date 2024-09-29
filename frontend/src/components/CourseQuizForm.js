@@ -44,15 +44,13 @@ const CourseQuizForm = ({ moduleIndex, sectionIndex, lessonIndex, modules, setMo
     const updatedModules = [...modules];
     const currentLesson = updatedModules[moduleIndex].sections[sectionIndex].lessons[lessonIndex];
   
-    // Check if a quiz array exists, if not, create one
     if (!currentLesson.quiz) {
       currentLesson.quiz = [];
     }
   
-    currentLesson.quiz.push(quiz);  // Add quiz to lesson
+    currentLesson.quiz.push(quiz); // Add quiz to lesson
   
-    // Update the course state in the parent component (CourseEdit)
-    setModules(updatedModules);  // This updates the parent component's course modules
+    setModules(updatedModules); // Update the parent component's course modules
   
     setQuiz({
       quizTitle: '',
@@ -62,7 +60,7 @@ const CourseQuizForm = ({ moduleIndex, sectionIndex, lessonIndex, modules, setMo
     });
   
     toast.success('Quiz added successfully!');
-  };  
+  };
 
   const removeQuestion = (index) => {
     setQuiz({
