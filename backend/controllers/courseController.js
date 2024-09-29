@@ -385,9 +385,12 @@ const updateCourse = async (req, res) => {
 
     Object.assign(course, req.body);
     const updatedCourse = await course.save();
+    
+    console.log('Course updated:', updatedCourse);
     res.json(updatedCourse);
   } catch (error) {
-    res.status(400).json({ message: 'Error updating course', error });
+    console.error('Error updating course:', error);
+    res.status(400).json({ message: 'Error updating course', error: error.message });
   }
 };
 
