@@ -103,8 +103,10 @@ const CourseQuizForm = () => {
         lessonId: selectedLesson._id,
       };
   
-      // Add the API request here
-      await api.post("/api/courses/quizzes/create", quizData);
+      console.log("Sending quiz data to API:", quizData); // Log the quiz data being sent
+      const response = await api.post("/api/courses/quizzes/create", quizData);
+  
+      console.log("API Response:", response.data); // Log the API response
   
       toast.success("Quiz added successfully!");
       setQuiz({
@@ -116,7 +118,7 @@ const CourseQuizForm = () => {
         randomizeQuestions: false,
       });
     } catch (error) {
-      console.error("Error adding quiz:", error);
+      console.error("Error adding quiz:", error.response ? error.response.data : error.message); // Log detailed error
       toast.error("Error adding quiz");
     }
   };  
