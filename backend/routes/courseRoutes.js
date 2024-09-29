@@ -1,25 +1,31 @@
 const express = require('express');
-const { 
-  createCourse, 
-  getAllCourses, 
-  getCourseById, 
+const {
+  createCourse,
+  getAllCourses,
+  getCourseById,
   getLessonById,
-  enrollCourse, 
+  enrollCourse,
   uploadCourseMaterials,
   deleteMaterial,
-  submitQuiz, 
-  trackProgress, 
-  issueCertificate, 
-  postQuestion, 
-  postAnswer, 
+  submitQuiz,
+  trackProgress,
+  issueCertificate,
+  postQuestion,
+  postAnswer,
   upvoteAnswer,
-  updateCourse,
+  updateCourse
 } = require('../controllers/courseController');
+const { 
+  createQuiz, 
+  getQuizzesByLesson, 
+  assignQuizToLesson 
+} = require('../controllers/quizController');  // Import quiz controller
 const { protect, admin } = require('../middleware/authMiddleware');
 const upload = require('../middleware/uploadMiddleware');
 
 const router = express.Router();
 
+// Course Routes
 router.get('/manage', protect, admin, getAllCourses);
 router.post('/create', protect, admin, createCourse);
 router.get('/', protect, getAllCourses);
@@ -35,5 +41,10 @@ router.post('/qa/post', protect, postQuestion);
 router.post('/qa/answer', protect, postAnswer);
 router.post('/qa/upvote', protect, upvoteAnswer);
 router.put('/:id', protect, admin, updateCourse);
+
+// Quiz Routes
+router.post('/quizzes/create', protect, admin, createQuiz);  // Create Quiz
+router.get('/quizzes/lesson/:lessonId', protect, getQuizzesByLesson);  // Get quizzes by lesson
+router.post('/quizzes/assign', protect, admin, assignQuizToLesson);  // Assign quiz to lesson
 
 module.exports = router;
