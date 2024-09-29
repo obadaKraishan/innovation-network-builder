@@ -4,7 +4,6 @@ import { toast } from 'react-toastify';
 import { FaPlusCircle, FaSave } from 'react-icons/fa';
 import api from '../utils/api';
 import CourseImageUpload from './CourseImageUpload';
-import CourseQuizForm from './CourseQuizForm';
 import CourseMaterialUpload from './CourseMaterialUpload';
 import ReactQuill from 'react-quill';
 import 'react-quill/dist/quill.snow.css'; // ReactQuill styling
@@ -23,7 +22,6 @@ const CreateCourse = () => {
               lessonTitle: '',
               lessonText: '', // Add lessonText for rich content
               materials: [],
-              quiz: [],
             },
           ],
         },
@@ -49,7 +47,6 @@ const CreateCourse = () => {
                 lessonTitle: '',
                 lessonText: '', // Initialize lessonText for new lesson
                 materials: [],
-                quiz: [],
               },
             ],
           },
@@ -68,7 +65,6 @@ const CreateCourse = () => {
           lessonTitle: '',
           lessonText: '', // Initialize lessonText for new section
           materials: [],
-          quiz: [],
         },
       ],
     });
@@ -82,7 +78,6 @@ const CreateCourse = () => {
       lessonTitle: '',
       lessonText: '', // Initialize lessonText for new lesson
       materials: [],
-      quiz: [],
     });
     setModules(updatedModules);
   };
@@ -116,7 +111,6 @@ const CreateCourse = () => {
                   lessonTitle: '',
                   lessonText: '', // Reset lessonText for new lesson
                   materials: [],
-                  quiz: [],
                 },
               ],
             },
@@ -298,36 +292,6 @@ const CreateCourse = () => {
                           modules={modules}
                           setModules={setModules}
                         />
-
-                        {/* Quiz */}
-                        <CourseQuizForm
-                          moduleIndex={moduleIndex}
-                          sectionIndex={sectionIndex}
-                          lessonIndex={lessonIndex}
-                          modules={modules}
-                          setModules={setModules}
-                        />
-
-                        {/* Display Added Quizzes */}
-                        {section.lessons[lessonIndex].quiz.length > 0 && (
-                          <div className="mt-4">
-                            <h5 className="font-bold">Added Quizzes:</h5>
-                            <ul>
-                              {section.lessons[lessonIndex].quiz.map((quiz, quizIndex) => (
-                                <li key={quizIndex}>
-                                  <strong>{quiz.quizTitle}</strong>
-                                  <ul>
-                                    {quiz.questions.map((question, questionIndex) => (
-                                      <li key={questionIndex}>
-                                        {question.label} (Type: {question.type})
-                                      </li>
-                                    ))}
-                                  </ul>
-                                </li>
-                              ))}
-                            </ul>
-                          </div>
-                        )}
                       </div>
                     ))}
                     <button
