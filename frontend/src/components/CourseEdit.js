@@ -65,10 +65,10 @@ const CourseEdit = () => {
 
   // Add new module
   const addModule = () => {
-    setCourse({
-      ...course,
+    setCourse((prevCourse) => ({
+      ...prevCourse,
       modules: [
-        ...course.modules,
+        ...prevCourse.modules,
         {
           moduleTitle: "",
           sections: [
@@ -86,7 +86,7 @@ const CourseEdit = () => {
           ],
         },
       ],
-    });
+    }));
   };
 
   // Add new section to a module
