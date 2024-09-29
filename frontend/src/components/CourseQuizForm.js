@@ -31,6 +31,7 @@ const CourseQuizForm = () => {
   const [selectedSection, setSelectedSection] = useState(null);
   const [selectedLesson, setSelectedLesson] = useState(null);
 
+  // Fetch all courses on component mount
   useEffect(() => {
     const fetchCourses = async () => {
       try {
@@ -42,6 +43,16 @@ const CourseQuizForm = () => {
     };
     fetchCourses();
   }, []);
+
+  // Fetch full course details when a course is selected
+  const fetchCourseDetails = async (courseId) => {
+    try {
+      const { data } = await api.get(`/courses/${courseId}`);
+      setSelectedCourse(data); // Set the full course object including modules
+    } catch (error) {
+      toast.error('Error fetching course details');
+    }
+  };
 
   const handleQuizChange = (e) => {
     setQuiz({ ...quiz, [e.target.name]: e.target.value });
@@ -68,10 +79,10 @@ const CourseQuizForm = () => {
     try {
       const quizData = {
         ...quiz,
-        courseId: selectedCourse.value,
-        moduleId: selectedModule.value,
-        sectionId: selectedSection.value,
-        lessonId: selectedLesson.value,
+        courseId: selectedCourse._id, // Use the full course object
+        moduleId: selectedModule._id,
+        sectionId: selectedSection._id,
+        lessonId: selectedLesson._id,
       };
 
       await api.post('/quizzes/create', quizData);
@@ -105,9 +116,9 @@ const CourseQuizForm = () => {
         <Select
           options={courses}
           placeholder="Select Course"
-          value={selectedCourse}
+          value={selectedCourse ? { value: selectedCourse._id, label: selectedCourse.title } : null}
           onChange={(selected) => {
-            setSelectedCourse(selected);
+            fetchCourseDetails(selected.value); // Fetch course details when a course is selected
             setSelectedModule(null);
             setSelectedSection(null);
             setSelectedLesson(null);
@@ -119,9 +130,10 @@ const CourseQuizForm = () => {
           <Select
             options={selectedCourse.modules.map(module => ({ value: module._id, label: module.moduleTitle }))}
             placeholder="Select Module"
-            value={selectedModule}
+            value={selectedModule ? { value: selectedModule._id, label: selectedModule.moduleTitle } : null}
             onChange={(selected) => {
-              setSelectedModule(selected);
+              const module = selectedCourse.modules.find(mod => mod._id === selected.value);
+              setSelectedModule(module);
               setSelectedSection(null);
               setSelectedLesson(null);
             }}
@@ -133,9 +145,10 @@ const CourseQuizForm = () => {
           <Select
             options={selectedModule.sections.map(section => ({ value: section._id, label: section.sectionTitle }))}
             placeholder="Select Section"
-            value={selectedSection}
+            value={selectedSection ? { value: selectedSection._id, label: selectedSection.sectionTitle } : null}
             onChange={(selected) => {
-              setSelectedSection(selected);
+              const section = selectedModule.sections.find(sec => sec._id === selected.value);
+              setSelectedSection(section);
               setSelectedLesson(null);
             }}
           />
@@ -146,8 +159,11 @@ const CourseQuizForm = () => {
           <Select
             options={selectedSection.lessons.map(lesson => ({ value: lesson._id, label: lesson.lessonTitle }))}
             placeholder="Select Lesson"
-            value={selectedLesson}
-            onChange={setSelectedLesson}
+            value={selectedLesson ? { value: selectedLesson._id, label: selectedLesson.lessonTitle } : null}
+            onChange={(selected) => {
+              const lesson = selectedSection.lessons.find(les => les._id === selected.value);
+              setSelectedLesson(lesson);
+            }}
           />
         )}
 
