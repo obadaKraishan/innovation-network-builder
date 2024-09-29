@@ -18,7 +18,7 @@ const CourseQuizForm = ({ moduleIndex, sectionIndex, lessonIndex, modules, setMo
   const { control } = useForm();
   const [quiz, setQuiz] = useState({
     quizTitle: '',
-    questions: [{ type: 'text', label: '', options: [] }],
+    questions: [{ type: 'text', label: '', options: [], correctAnswer: '' }],
     isTimed: false,
     randomizeQuestions: false,
   });
@@ -36,7 +36,7 @@ const CourseQuizForm = ({ moduleIndex, sectionIndex, lessonIndex, modules, setMo
   const addQuestion = () => {
     setQuiz({
       ...quiz,
-      questions: [...quiz.questions, { type: 'text', label: '', options: [] }],
+      questions: [...quiz.questions, { type: 'text', label: '', options: [], correctAnswer: '' }],
     });
   };
 
@@ -44,7 +44,7 @@ const CourseQuizForm = ({ moduleIndex, sectionIndex, lessonIndex, modules, setMo
     const updatedModules = [...modules];
     const currentLesson = updatedModules[moduleIndex].sections[sectionIndex].lessons[lessonIndex];
 
-    // Add the quiz to the specific lesson
+    // Add or update the quiz in the specific lesson
     if (!currentLesson.quiz) {
       currentLesson.quiz = [];
     }
@@ -53,7 +53,7 @@ const CourseQuizForm = ({ moduleIndex, sectionIndex, lessonIndex, modules, setMo
     setModules(updatedModules);
     setQuiz({
       quizTitle: '',
-      questions: [{ type: 'text', label: '', options: [] }],
+      questions: [{ type: 'text', label: '', options: [], correctAnswer: '' }],
       isTimed: false,
       randomizeQuestions: false,
     });
@@ -71,7 +71,7 @@ const CourseQuizForm = ({ moduleIndex, sectionIndex, lessonIndex, modules, setMo
 
   return (
     <div className="mt-6">
-      <h4 className="font-bold">Add Quiz</h4>
+      <h4 className="font-bold">Add/Edit Quiz</h4>
 
       <input
         type="text"
@@ -120,6 +120,17 @@ const CourseQuizForm = ({ moduleIndex, sectionIndex, lessonIndex, modules, setMo
               />
             </div>
           )}
+
+          <div className="mb-4">
+            <label>Correct Answer</label>
+            <input
+              type="text"
+              value={question.correctAnswer}
+              onChange={(e) => handleQuestionChange(index, 'correctAnswer', e.target.value)}
+              placeholder="Enter correct answer"
+              className="w-full p-2 border border-gray-300 rounded"
+            />
+          </div>
 
           {question.type === 'date' && (
             <div className="mb-4">
