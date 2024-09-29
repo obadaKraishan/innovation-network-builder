@@ -63,7 +63,7 @@ const courseSchema = new mongoose.Schema({
   image: { type: String }, 
   creatorId: { type: mongoose.Schema.Types.ObjectId, ref: 'User', required: true },
   modules: [moduleSchema],
-  finalQuiz: [quizSchema],  // Reference to Quiz schema
+  finalQuiz: { type: mongoose.Schema.Types.ObjectId, ref: 'Quiz' },  // Reference to Quiz schema
   estimatedDuration: { type: Number },
   skillsGained: [{ type: String }],
   courseRequirements: [{ type: String }],
