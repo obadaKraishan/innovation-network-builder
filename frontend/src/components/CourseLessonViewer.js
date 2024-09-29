@@ -12,38 +12,53 @@ const CourseLessonViewer = () => {
   // State to store the current lesson data, course title, module title, section title, and navigation for previous/next lessons
   const [lesson, setLesson] = useState(null);
   const [courseTitle, setCourseTitle] = useState("");
-  const [moduleTitle, setModuleTitle] = useState("");
-  const [sectionTitle, setSectionTitle] = useState("");
+  const [moduleIndex, setModuleIndex] = useState(null); // Track current module index
+  const [sectionIndex, setSectionIndex] = useState(null); // Track current section index
+  const [lessonIndex, setLessonIndex] = useState(null); // Track current lesson index
   const [previousLesson, setPreviousLesson] = useState(null);
   const [nextLesson, setNextLesson] = useState(null);
-  
+
   const navigate = useNavigate();
 
   useEffect(() => {
     const fetchLessonDetails = async () => {
       try {
-        // Fetch the entire course details
+        // Fetch the entire course data
         const { data: courseData } = await api.get(`/courses/${courseId}`);
         setCourseTitle(courseData.title);
 
-        // Find the current module and section by matching their IDs
-        const module = courseData.modules.find(mod => mod._id === moduleId);
-        setModuleTitle(module.moduleTitle);
-        const section = module.sections.find(sec => sec._id === sectionId);
-        setSectionTitle(section.sectionTitle);
+        // Find the current module and section, get their indexes
+        const module = courseData.modules.find((mod, modIndex) => {
+          if (mod._id === moduleId) {
+            setModuleIndex(modIndex + 1); // Add 1 to make it user-friendly (starting from 1)
+            return mod;
+          }
+          return null;
+        });
+
+        const section = module.sections.find((sec, secIndex) => {
+          if (sec._id === sectionId) {
+            setSectionIndex(secIndex + 1); // Add 1 to make it user-friendly
+            return sec;
+          }
+          return null;
+        });
 
         // Fetch the current lesson details
         const { data: lessonData } = await api.get(`/courses/${courseId}/module/${moduleId}/section/${sectionId}/lesson/${lessonId}`);
         setLesson(lessonData.lesson);
 
-        // Flatten all lessons from all modules and sections to create a complete lesson list
+        // Find the current lesson index
+        const currentLessonIndex = section.lessons.findIndex(lesson => lesson._id === lessonId);
+        setLessonIndex(currentLessonIndex + 1); // Add 1 to make it user-friendly
+
+        // Flatten all lessons across modules and sections for navigation
         const allLessons = getAllLessons(courseData.modules);
-        // Find the index of the current lesson in the flattened list
-        const currentLessonIndex = allLessons.findIndex(lesson => lesson._id === lessonId);
+        const flatLessonIndex = allLessons.findIndex(lesson => lesson._id === lessonId);
 
         // Set the previous and next lessons based on the current lesson index
-        setPreviousLesson(allLessons[currentLessonIndex - 1] || null);
-        setNextLesson(allLessons[currentLessonIndex + 1] || null);
+        setPreviousLesson(allLessons[flatLessonIndex - 1] || null);
+        setNextLesson(allLessons[flatLessonIndex + 1] || null);
       } catch (error) {
         toast.error('Failed to load lesson details');
       }
@@ -107,12 +122,18 @@ const CourseLessonViewer = () => {
         </button>
 
         <div className="bg-white p-8 rounded-lg shadow-lg space-y-8">
-          {/* Display Course, Module, Section, and Lesson titles */}
+          {/* Display Course, Module, Section, and Lesson titles and numbers */}
           <div className="space-y-3">
             <h2 className="text-3xl font-extrabold text-gray-800">Course: {courseTitle}</h2>
-            <h3 className="text-xl font-semibold text-gray-700">Module: {moduleTitle}</h3>
-            <h4 className="text-lg font-semibold text-gray-600">Section: {sectionTitle}</h4>
-            <h5 className="text-lg font-semibold text-gray-600">Lesson: {lesson.lessonTitle}</h5>
+            <h3 className="text-xl font-semibold text-gray-700">
+              Module {moduleIndex}: {lesson && lesson.moduleTitle}
+            </h3>
+            <h4 className="text-lg font-semibold text-gray-600">
+              Section {sectionIndex}: {lesson && lesson.sectionTitle}
+            </h4>
+            <h5 className="text-lg font-semibold text-gray-600">
+              Lesson {lessonIndex}: {lesson.lessonTitle}
+            </h5>
           </div>
 
           {/* Lesson description */}
@@ -120,20 +141,16 @@ const CourseLessonViewer = () => {
 
           {/* Lesson content (e.g., text, videos, materials) */}
           <div className="lesson-content space-y-6">
-            {/* Render rich text content of the lesson */}
             {lesson.lessonText && <div className="prose max-w-none" dangerouslySetInnerHTML={{ __html: lesson.lessonText }} />}
 
-            {/* Render lesson materials like videos and PDFs */}
             {lesson.materials && lesson.materials.map((material, index) => (
               <div key={index} className="flex items-center justify-between mt-4 p-4 bg-gray-50 rounded-lg shadow-sm">
-                {/* Render video material */}
                 {material.materialType === 'video' && (
                   <video controls className="w-full rounded-lg mb-4">
                     <source src={material.materialUrl} type="video/mp4" />
                     Your browser does not support the video tag.
                   </video>
                 )}
-                {/* Render PDF material */}
                 {material.materialType === 'pdf' && (
                   <div className="flex items-center">
                     <a
