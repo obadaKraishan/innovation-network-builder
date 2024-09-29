@@ -79,7 +79,7 @@ const CourseEdit = () => {
                   lessonTitle: "",
                   lessonText: "", // Add lessonText for new lessons
                   materials: [],
-                  quiz: [],
+                  quiz: [], // Always initialize quiz as an array
                 },
               ],
             },
@@ -99,7 +99,7 @@ const CourseEdit = () => {
           lessonTitle: "",
           lessonText: "", // Add lessonText for new sections
           materials: [],
-          quiz: [],
+          quiz: [], // Always initialize quiz as an array
         },
       ],
     });
@@ -113,7 +113,7 @@ const CourseEdit = () => {
       lessonTitle: "",
       lessonText: "", // Add lessonText for new lessons
       materials: [],
-      quiz: [],
+      quiz: [], // Always initialize quiz as an array
     });
     setCourse({ ...course, modules: newModules });
   };
@@ -346,6 +346,7 @@ const CourseEdit = () => {
                     <CourseQuizForm
                       moduleIndex={moduleIndex}
                       sectionIndex={sectionIndex}
+                      lessonIndex={lessonIndex} // Pass lessonIndex properly
                       modules={course.modules}
                       setModules={setCourse}
                     />
