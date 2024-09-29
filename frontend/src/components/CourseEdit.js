@@ -346,7 +346,7 @@ const CourseEdit = () => {
                     <CourseQuizForm
                       moduleIndex={moduleIndex}
                       sectionIndex={sectionIndex}
-                      lessonIndex={lessonIndex} // Pass lessonIndex properly
+                      lessonIndex={section.lessons.length - 1} // Pass lessonIndex properly here
                       modules={course.modules}
                       setModules={setCourse}
                     />
