@@ -397,9 +397,43 @@ const updateCourse = async (req, res) => {
 };
 
 
-// POST /quizzes/create
+// Create a new quiz
 const createQuiz = async (req, res) => {
   const { courseId, moduleId, sectionId, lessonId, quizTitle, questions, isTimed, randomizeQuestions } = req.body;
+
+  try {
+    const quiz = new Quiz({
+      quizTitle,
+      questions,
+      isTimed,
+      randomizeQuestions,
+      courseId,
+      moduleId,
+      sectionId,
+      lessonId,
+    });
+
+    const savedQuiz = await quiz.save();
+    res.status(201).json(savedQuiz);
+  } catch (error) {
+    res.status(400).json({ message: 'Error creating quiz', error });
+  }
+};
+
+// Get quizzes by lesson
+const getQuizzesByLesson = async (req, res) => {
+  const { lessonId } = req.params;
+  try {
+    const quizzes = await Quiz.find({ lessonId });
+    res.json(quizzes);
+  } catch (error) {
+    res.status(400).json({ message: 'Error fetching quizzes', error });
+  }
+};
+
+// Assign quiz to a lesson
+const assignQuizToLesson = async (req, res) => {
+  const { courseId, moduleId, sectionId, lessonId, quizId } = req.body;
 
   try {
     const course = await Course.findById(courseId);
@@ -409,21 +443,17 @@ const createQuiz = async (req, res) => {
     const section = module.sections.id(sectionId);
     const lesson = section.lessons.id(lessonId);
 
-    if (!lesson) return res.status(404).json({ message: 'Lesson not found' });
-
-    const newQuiz = { quizTitle, questions, isTimed, randomizeQuestions };
-    lesson.quiz.push(newQuiz);
+    lesson.quiz.push(quizId);  // Assign quiz to the lesson
 
     await course.save();
-    res.status(201).json({ message: 'Quiz created successfully' });
+    res.json({ message: 'Quiz assigned successfully', course });
   } catch (error) {
-    res.status(500).json({ message: 'Error creating quiz', error });
+    res.status(400).json({ message: 'Error assigning quiz', error });
   }
 };
 
 module.exports = {
   createCourse,
-  createQuiz,
   getAllCourses,
   getCourseById,
   getLessonById,
@@ -437,4 +467,7 @@ module.exports = {
   postAnswer,
   upvoteAnswer,
   updateCourse,
+  createQuiz,
+  getQuizzesByLesson,
+  assignQuizToLesson,
 };
