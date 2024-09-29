@@ -84,6 +84,7 @@ import CourseAnalytics from './components/CourseAnalytics';
 import CourseProgressDashboard from './components/CourseProgressDashboard';
 import CourseManagement from './components/CourseManagement';
 import CourseEdit from './components/CourseEdit';
+import CourseQuizForm from './components/CourseQuizForm'; 
 
 
 const AppRoutes = () => {
@@ -164,6 +165,7 @@ const AppRoutes = () => {
           <Route path="/courses" element={<CourseCatalogDashboard />} />
           <Route path="/courses/:id" element={<CourseDetails />} />
           <Route path="/courses/:courseId/lesson/:lessonId" element={<CourseLessonViewer />} />
+          <Route path="/create-quiz" element={<CourseQuizForm />} />
           <Route path="/courses/:courseId/quiz/:quizId" element={<CourseQuizSection />} />
           <Route path="/courses/:courseId/final-quiz" element={<CourseFinalQuiz />} />
           <Route path="/courses/:courseId/qa" element={<CourseQASection />} />
