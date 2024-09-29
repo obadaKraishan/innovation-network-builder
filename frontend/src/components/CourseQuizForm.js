@@ -43,24 +43,26 @@ const CourseQuizForm = ({ moduleIndex, sectionIndex, lessonIndex, modules, setMo
   const handleAddQuiz = () => {
     const updatedModules = [...modules];
     const currentLesson = updatedModules[moduleIndex].sections[sectionIndex].lessons[lessonIndex];
-
-    // Add or update the quiz in the specific lesson
+  
+    // Check if a quiz array exists, if not, create one
     if (!currentLesson.quiz) {
       currentLesson.quiz = [];
     }
-    currentLesson.quiz.push(quiz);
-
-    setModules(updatedModules);
+  
+    currentLesson.quiz.push(quiz);  // Add quiz to lesson
+  
+    // Update the course state in the parent component (CourseEdit)
+    setModules(updatedModules);  // This updates the parent component's course modules
+  
     setQuiz({
       quizTitle: '',
       questions: [{ type: 'text', label: '', options: [], correctAnswer: '' }],
       isTimed: false,
       randomizeQuestions: false,
     });
-
-    // Show toast notification
+  
     toast.success('Quiz added successfully!');
-  };
+  };  
 
   const removeQuestion = (index) => {
     setQuiz({
