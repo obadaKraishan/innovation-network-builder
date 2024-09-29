@@ -14,6 +14,19 @@ const questionSchema = new mongoose.Schema({
   randomizeQuestions: { type: Boolean, default: false },
 });
 
+// Updated schema for quiz with references
+const quizSchema = new mongoose.Schema({
+  quizTitle: { type: String, required: true },
+  questions: [questionSchema],
+  isTimed: { type: Boolean, default: false },
+  randomizeQuestions: { type: Boolean, default: false },
+  courseId: { type: mongoose.Schema.Types.ObjectId, ref: 'Course', required: true },  // Reference to Course
+  moduleId: { type: mongoose.Schema.Types.ObjectId, ref: 'Module', required: true },  // Reference to Module
+  sectionId: { type: mongoose.Schema.Types.ObjectId, ref: 'Section', required: true }, // Reference to Section
+  lessonId: { type: mongoose.Schema.Types.ObjectId, ref: 'Lesson', required: true },   // Reference to Lesson
+  isFinalQuiz: { type: Boolean, default: false }  // Indicator if this is a final quiz
+}, { timestamps: true });
+
 // Schema for lesson materials
 const materialSchema = new mongoose.Schema({
   materialType: { type: String, enum: ['video', 'pdf'], required: true },
@@ -28,7 +41,7 @@ const lessonSchema = new mongoose.Schema({
   description: { type: String },
   lessonText: { type: String }, // Updated to handle rich text content
   materials: [materialSchema], 
-  quiz: [questionSchema],
+  quiz: [{ type: mongoose.Schema.Types.ObjectId, ref: 'Quiz' }],  // Reference to Quiz schema
 });
 
 // Schema for sections in modules
@@ -50,7 +63,7 @@ const courseSchema = new mongoose.Schema({
   image: { type: String }, 
   creatorId: { type: mongoose.Schema.Types.ObjectId, ref: 'User', required: true },
   modules: [moduleSchema],
-  finalQuiz: [questionSchema], 
+  finalQuiz: [quizSchema],  // Reference to Quiz schema
   estimatedDuration: { type: Number },
   skillsGained: [{ type: String }],
   courseRequirements: [{ type: String }],
@@ -68,5 +81,6 @@ const courseSchema = new mongoose.Schema({
 }, { timestamps: true });
 
 const Course = mongoose.model('Course', courseSchema);
+const Quiz = mongoose.model('Quiz', quizSchema); // Export Quiz Model
 
-module.exports = Course;
+module.exports = { Course, Quiz };
