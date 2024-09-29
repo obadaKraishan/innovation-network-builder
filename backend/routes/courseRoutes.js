@@ -41,7 +41,7 @@ router.post('/qa/upvote', protect, upvoteAnswer);
 router.put('/:id', protect, admin, updateCourse);
 
 // Quiz Routes (now handled by courseController)
-router.post('/quizzes/create', protect, admin, createQuiz);  
+router.post('/quizzes/create', protect, admin, createQuiz);
 router.get('/quizzes/lesson/:lessonId', protect, getQuizzesByLesson); 
 router.post('/quizzes/assign', protect, admin, assignQuizToLesson);  
 

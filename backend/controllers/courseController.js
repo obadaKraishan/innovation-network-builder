@@ -416,6 +416,7 @@ const createQuiz = async (req, res) => {
     const savedQuiz = await quiz.save();
     res.status(201).json(savedQuiz);
   } catch (error) {
+    console.error('Error creating quiz:', error);
     res.status(400).json({ message: 'Error creating quiz', error });
   }
 };

@@ -93,7 +93,7 @@ const CourseQuizForm = () => {
     ) {
       return toast.error("Please select course, module, section, and lesson");
     }
-
+  
     try {
       const quizData = {
         ...quiz,
@@ -102,8 +102,10 @@ const CourseQuizForm = () => {
         sectionId: selectedSection._id,
         lessonId: selectedLesson._id,
       };
-
-      await api.post("/quizzes/create", quizData);
+  
+      // Add the API request here
+      await api.post("/api/courses/quizzes/create", quizData);
+  
       toast.success("Quiz added successfully!");
       setQuiz({
         quizTitle: "",
@@ -117,7 +119,7 @@ const CourseQuizForm = () => {
       console.error("Error adding quiz:", error);
       toast.error("Error adding quiz");
     }
-  };
+  };  
 
   const removeQuestion = (index) => {
     setQuiz({
