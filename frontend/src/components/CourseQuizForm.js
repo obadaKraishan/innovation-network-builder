@@ -20,7 +20,7 @@ const CourseQuizForm = () => {
   const { control } = useForm();
   const [quiz, setQuiz] = useState({
     quizTitle: "",
-    questions: [{ type: "text", label: "", options: [], correctAnswer: "" }],
+    questions: [{ type: "text", questionText: "", options: [], correctAnswer: "" }],
     isTimed: false,
     randomizeQuestions: false,
   });
@@ -62,15 +62,14 @@ const CourseQuizForm = () => {
 
   const handleQuestionChange = (index, field, value) => {
     const updatedQuestions = [...quiz.questions];
-
-    // For options field, split by comma and trim spaces
+  
     if (field === "options") {
       const trimmedOptions = value.split(",").map((opt) => opt.trim());
       updatedQuestions[index][field] = trimmedOptions;
     } else {
       updatedQuestions[index][field] = value;
     }
-
+  
     setQuiz({ ...quiz, questions: updatedQuestions });
   };
 
@@ -79,7 +78,7 @@ const CourseQuizForm = () => {
       ...quiz,
       questions: [
         ...quiz.questions,
-        { type: "text", label: "", options: [], correctAnswer: "" },
+        { type: "text", questionText: "", options: [], correctAnswer: "" },
       ],
     });
   };
@@ -112,7 +111,7 @@ const CourseQuizForm = () => {
       setQuiz({
         quizTitle: "",
         questions: [
-          { type: "text", label: "", options: [], correctAnswer: "" },
+          { type: "text", questionText: "", options: [], correctAnswer: "" },
         ],
         isTimed: false,
         randomizeQuestions: false,
@@ -121,7 +120,7 @@ const CourseQuizForm = () => {
       console.error("Error adding quiz:", error.response ? error.response.data : error.message); // Log detailed error
       toast.error("Error adding quiz");
     }
-  };  
+  };
 
   const removeQuestion = (index) => {
     setQuiz({
@@ -247,12 +246,12 @@ const CourseQuizForm = () => {
             <div className="flex justify-between">
               <input
                 type="text"
-                name="label"
-                value={question.label}
+                name="questionText"
+                value={question.questionText}
                 onChange={(e) =>
-                  handleQuestionChange(index, "label", e.target.value)
+                  handleQuestionChange(index, "questionText", e.target.value)
                 }
-                placeholder="Question Title"
+                placeholder="Enter your question"
                 className="w-full p-2 border border-gray-300 rounded"
                 required
               />
