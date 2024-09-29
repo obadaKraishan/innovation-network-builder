@@ -396,8 +396,34 @@ const updateCourse = async (req, res) => {
   }
 };
 
+
+// POST /quizzes/create
+const createQuiz = async (req, res) => {
+  const { courseId, moduleId, sectionId, lessonId, quizTitle, questions, isTimed, randomizeQuestions } = req.body;
+
+  try {
+    const course = await Course.findById(courseId);
+    if (!course) return res.status(404).json({ message: 'Course not found' });
+
+    const module = course.modules.id(moduleId);
+    const section = module.sections.id(sectionId);
+    const lesson = section.lessons.id(lessonId);
+
+    if (!lesson) return res.status(404).json({ message: 'Lesson not found' });
+
+    const newQuiz = { quizTitle, questions, isTimed, randomizeQuestions };
+    lesson.quiz.push(newQuiz);
+
+    await course.save();
+    res.status(201).json({ message: 'Quiz created successfully' });
+  } catch (error) {
+    res.status(500).json({ message: 'Error creating quiz', error });
+  }
+};
+
 module.exports = {
   createCourse,
+  createQuiz,
   getAllCourses,
   getCourseById,
   getLessonById,
