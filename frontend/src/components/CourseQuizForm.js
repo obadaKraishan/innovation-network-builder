@@ -1,10 +1,10 @@
-// File: frontend/src/components/CourseQuizForm.js
 import React, { useState } from 'react';
 import { useForm, Controller } from 'react-hook-form';
 import Select from 'react-select';
 import DatePicker from 'react-datepicker';
 import 'react-datepicker/dist/react-datepicker.css';
 import { FaPlusCircle } from 'react-icons/fa';
+import { toast } from 'react-toastify';
 
 const questionTypes = [
   { value: 'text', label: 'Text' },
@@ -14,7 +14,7 @@ const questionTypes = [
   { value: 'date', label: 'Date Picker' },
 ];
 
-const CourseQuizForm = ({ moduleIndex, modules, setModules }) => {
+const CourseQuizForm = ({ moduleIndex, sectionIndex, lessonIndex, modules, setModules }) => {
   const { control } = useForm();
   const [quiz, setQuiz] = useState({
     quizTitle: '',
@@ -39,13 +39,17 @@ const CourseQuizForm = ({ moduleIndex, modules, setModules }) => {
       questions: [...quiz.questions, { type: 'text', label: '', options: [] }],
     });
   };
-  
+
   const handleAddQuiz = () => {
     const updatedModules = [...modules];
-    if (!updatedModules[moduleIndex].quiz) {
-      updatedModules[moduleIndex].quiz = [];
+    const currentLesson = updatedModules[moduleIndex].sections[sectionIndex].lessons[lessonIndex];
+
+    // Add the quiz to the specific lesson
+    if (!currentLesson.quiz) {
+      currentLesson.quiz = [];
     }
-    updatedModules[moduleIndex].quiz.push(quiz);
+    currentLesson.quiz.push(quiz);
+
     setModules(updatedModules);
     setQuiz({
       quizTitle: '',
@@ -53,6 +57,9 @@ const CourseQuizForm = ({ moduleIndex, modules, setModules }) => {
       isTimed: false,
       randomizeQuestions: false,
     });
+
+    // Show toast notification
+    toast.success('Quiz added successfully!');
   };
 
   const removeQuestion = (index) => {

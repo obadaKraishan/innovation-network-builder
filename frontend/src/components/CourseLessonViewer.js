@@ -12,6 +12,8 @@ const CourseLessonViewer = () => {
   // State to store the current lesson data, course title, module title, section title, and navigation for previous/next lessons
   const [lesson, setLesson] = useState(null);
   const [courseTitle, setCourseTitle] = useState("");
+  const [moduleTitle, setModuleTitle] = useState(""); // Track current module title
+  const [sectionTitle, setSectionTitle] = useState(""); // Track current section title
   const [moduleIndex, setModuleIndex] = useState(null); // Track current module index
   const [sectionIndex, setSectionIndex] = useState(null); // Track current section index
   const [lessonIndex, setLessonIndex] = useState(null); // Track current lesson index
@@ -27,10 +29,11 @@ const CourseLessonViewer = () => {
         const { data: courseData } = await api.get(`/courses/${courseId}`);
         setCourseTitle(courseData.title);
 
-        // Find the current module and section, get their indexes
+        // Find the current module and section, get their indexes and titles
         const module = courseData.modules.find((mod, modIndex) => {
           if (mod._id === moduleId) {
             setModuleIndex(modIndex + 1); // Add 1 to make it user-friendly (starting from 1)
+            setModuleTitle(mod.moduleTitle); // Set the module title
             return mod;
           }
           return null;
@@ -39,6 +42,7 @@ const CourseLessonViewer = () => {
         const section = module.sections.find((sec, secIndex) => {
           if (sec._id === sectionId) {
             setSectionIndex(secIndex + 1); // Add 1 to make it user-friendly
+            setSectionTitle(sec.sectionTitle); // Set the section title
             return sec;
           }
           return null;
@@ -126,10 +130,10 @@ const CourseLessonViewer = () => {
           <div className="space-y-3">
             <h2 className="text-3xl font-extrabold text-gray-800">Course: {courseTitle}</h2>
             <h3 className="text-xl font-semibold text-gray-700">
-              Module {moduleIndex}: {lesson && lesson.moduleTitle}
+              Module {moduleIndex}: {moduleTitle}
             </h3>
             <h4 className="text-lg font-semibold text-gray-600">
-              Section {sectionIndex}: {lesson && lesson.sectionTitle}
+              Section {sectionIndex}: {sectionTitle}
             </h4>
             <h5 className="text-lg font-semibold text-gray-600">
               Lesson {lessonIndex}: {lesson.lessonTitle}
