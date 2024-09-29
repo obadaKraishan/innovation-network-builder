@@ -1,7 +1,7 @@
 const sanitizeHtml = require('sanitize-html');
 const fs = require('fs');
 const path = require('path');
-const Course = require('../models/courseModel');
+const { Course, Quiz } = require('../models/courseModel'); // Make sure this is the correct path and Course is destructured
 const User = require('../models/userModel');
 
 // Create a new course
