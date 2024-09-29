@@ -4,7 +4,6 @@ import { toast } from "react-toastify";
 import { AiOutlineSave, AiOutlineRollback, AiOutlinePlusCircle } from "react-icons/ai";
 import api from "../utils/api";
 import Sidebar from "./Sidebar";
-import CourseQuizForm from "./CourseQuizForm";
 import CourseMaterialUpload from "./CourseMaterialUpload";
 import ReactQuill from "react-quill";
 import "react-quill/dist/quill.snow.css"; // ReactQuill styling
@@ -97,7 +96,6 @@ const CourseEdit = () => {
                   lessonTitle: "",
                   lessonText: "",
                   materials: [],
-                  quiz: [], // Always initialize quiz as an array
                 },
               ],
             },
@@ -117,7 +115,6 @@ const CourseEdit = () => {
           lessonTitle: "",
           lessonText: "",
           materials: [],
-          quiz: [],
         },
       ],
     });
@@ -131,7 +128,6 @@ const CourseEdit = () => {
       lessonTitle: "",
       lessonText: "",
       materials: [],
-      quiz: [],
     });
     setCourse({ ...course, modules: newModules });
   };
@@ -334,36 +330,8 @@ const CourseEdit = () => {
                           setModules={setCourse}
                           refreshCourse={fetchCourse}
                         />
-
-                        {/* Display Added Quizzes */}
-                        {section.lessons[lessonIndex]?.quiz?.length > 0 && (
-                          <div className="mt-4">
-                            <h5 className="font-bold">Added Quizzes:</h5>
-                            <ul>
-                              {section.lessons[lessonIndex].quiz.map((quiz, quizIndex) => (
-                                <li key={quizIndex}>
-                                  <strong>{quiz.quizTitle}</strong>
-                                  <ul>
-                                    {quiz.questions.map((question, questionIndex) => (
-                                      <li key={questionIndex}>
-                                        {question.label} (Type: {question.type})
-                                      </li>
-                                    ))}
-                                  </ul>
-                                </li>
-                              ))}
-                            </ul>
-                          </div>
-                        )}
                       </div>
                     ))}
-                    <CourseQuizForm
-                      moduleIndex={moduleIndex}
-                      sectionIndex={sectionIndex}
-                      lessonIndex={section.lessons.length - 1}
-                      modules={course.modules}
-                      setModules={setCourse}
-                    />
                     <button
                       onClick={() => addLesson(moduleIndex, sectionIndex)}
                       className="text-blue-500 hover:underline mt-2"
