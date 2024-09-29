@@ -104,7 +104,7 @@ const CourseQuizForm = () => {
       };
   
       console.log("Sending quiz data to API:", quizData); // Log the quiz data being sent
-      const response = await api.post("/api/courses/quizzes/create", quizData);
+      const response = await api.post("/courses/quizzes/create", quizData); // Corrected URL
   
       console.log("API Response:", response.data); // Log the API response
   
