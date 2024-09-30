@@ -18,6 +18,7 @@ const CourseQuizEdit = () => {
         toast.error('Error fetching quiz');
       }
     };
+    
     fetchQuiz();
   }, [id]);
 
