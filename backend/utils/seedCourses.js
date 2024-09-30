@@ -1,158 +1,98 @@
 const mongoose = require('mongoose');
-const Course = require('../models/courseModel');
-const User = require('../models/userModel');
-const connectDB = require('../config/db');
-
-connectDB();
+const { Course } = require('../models/courseModel'); // Adjust the path to match your project structure
+const User = require('../models/userModel'); // Assuming the path is correct
 
 const seedCourses = async () => {
   try {
-    const creator = await User.findOne({ role: 'CEO' }); // Find a user with a higher role to assign as creator
+    await mongoose.connect('mongodb://localhost:27017/innovationNetworkBuilderBD', {
+      useNewUrlParser: true,
+      useUnifiedTopology: true,
+    });
 
-    if (!creator) {
-      throw new Error('No user found with the role of CEO. Please create a user with that role.');
+    // Clear the existing collections if necessary
+    await Course.deleteMany({});
+
+    // Find a user to set as the course creator (you can use any user, like an admin or a specific role)
+    const creatorUser = await User.findOne({ email: 'robert.ceo@example.com' }); // Adjust email to match an actual user
+
+    if (!creatorUser) {
+      throw new Error('No user found to assign as creator. Make sure there are users in the database.');
     }
 
+    // Seed two sample courses
     const courses = [
       {
-        title: 'Introduction to Machine Learning',
-        description: 'A beginner course in Machine Learning covering fundamental concepts, algorithms, and real-world applications.',
-        image: 'https://example.com/ml-course-image.jpg',
-        creatorId: creator._id,
+        title: 'Introduction to React',
+        description: 'A complete guide to getting started with React.js and its ecosystem.',
+        creatorId: creatorUser._id, // Assign the creatorId
         modules: [
           {
-            moduleTitle: 'Introduction to ML',
+            moduleTitle: 'Getting Started with React',
             sections: [
               {
-                sectionTitle: 'What is Machine Learning?',
+                sectionTitle: 'Introduction',
                 lessons: [
                   {
-                    lessonTitle: 'Introduction to Machine Learning',
-                    lessonType: 'video',
-                    videoUrl: 'https://example.com/intro-ml.mp4',
-                  },
-                  {
-                    lessonTitle: 'History of ML',
-                    lessonType: 'text',
-                    textContent: 'Machine learning is a subfield of artificial intelligence...',
-                  },
-                ],
-              },
-              {
-                sectionTitle: 'Types of Machine Learning',
-                lessons: [
-                  {
-                    lessonTitle: 'Supervised Learning',
-                    lessonType: 'text',
-                    textContent: 'In supervised learning, the model is trained on labeled data...',
-                  },
-                  {
-                    lessonTitle: 'Unsupervised Learning',
-                    lessonType: 'text',
-                    textContent: 'In unsupervised learning, the model works with unlabeled data...',
-                  },
-                ],
-                quiz: [
-                  {
-                    questionText: 'What is supervised learning?',
-                    choices: [
-                      'Learning with labeled data',
-                      'Learning with unlabeled data',
-                      'Learning with rewards',
+                    lessonTitle: 'What is React?',
+                    lessonText: 'React is a popular JavaScript library for building user interfaces.',
+                    materials: [
+                      {
+                        materialType: 'video',
+                        materialUrl: 'https://example.com/intro-to-react-video',
+                        title: 'Introduction Video',
+                        description: 'A brief introduction to React.js and its core concepts.',
+                      },
                     ],
-                    correctAnswer: 'Learning with labeled data',
-                  },
-                ],
-              },
-            ],
-          },
-          {
-            moduleTitle: 'Applications of ML',
-            sections: [
-              {
-                sectionTitle: 'Real-World Applications',
-                lessons: [
-                  {
-                    lessonTitle: 'ML in Healthcare',
-                    lessonType: 'video',
-                    videoUrl: 'https://example.com/ml-healthcare.mp4',
-                  },
-                  {
-                    lessonTitle: 'ML in Finance',
-                    lessonType: 'text',
-                    textContent: 'Machine learning plays a significant role in the finance industry...',
                   },
                 ],
               },
             ],
           },
         ],
-        estimatedDuration: 10,
-        skillsGained: ['Machine Learning', 'Python', 'Supervised Learning', 'Unsupervised Learning'],
-        courseRequirements: ['Basic Python knowledge'],
-        objectives: 'To provide students with a fundamental understanding of machine learning.',
-        isMandatory: false,
-        certificateIssued: false,
+        skillsGained: ['React Basics', 'Component-Based Design', 'State Management'],
+        courseRequirements: ['Basic JavaScript knowledge'],
+        objectives: 'By the end of this course, you will be able to build basic web applications using React.',
       },
       {
-        title: 'Data Science for Beginners',
-        description: 'A comprehensive course that introduces data science concepts, Python programming, and data analysis.',
-        image: 'https://example.com/ds-course-image.jpg',
-        creatorId: creator._id,
+        title: 'Advanced Node.js Development',
+        description: 'A comprehensive course on advanced Node.js topics and backend development.',
+        creatorId: creatorUser._id, // Assign the creatorId
         modules: [
           {
-            moduleTitle: 'Introduction to Data Science',
+            moduleTitle: 'Advanced JavaScript in Node.js',
             sections: [
               {
-                sectionTitle: 'What is Data Science?',
+                sectionTitle: 'Async Programming',
                 lessons: [
                   {
-                    lessonTitle: 'Data Science Overview',
-                    lessonType: 'video',
-                    videoUrl: 'https://example.com/data-science-overview.mp4',
-                  },
-                  {
-                    lessonTitle: 'Data Science Tools',
-                    lessonType: 'text',
-                    textContent: 'In this section, we will discuss the essential tools for data science...',
-                  },
-                ],
-              },
-            ],
-          },
-          {
-            moduleTitle: 'Python for Data Science',
-            sections: [
-              {
-                sectionTitle: 'Python Basics',
-                lessons: [
-                  {
-                    lessonTitle: 'Introduction to Python',
-                    lessonType: 'text',
-                    textContent: 'Python is a versatile programming language used in various domains...',
+                    lessonTitle: 'Callbacks and Promises',
+                    lessonText: 'This lesson covers how to handle asynchronous operations in Node.js using callbacks and promises.',
+                    materials: [
+                      {
+                        materialType: 'video',
+                        materialUrl: 'https://example.com/node-async-video',
+                        title: 'Asynchronous Programming in Node.js',
+                        description: 'An overview of async programming in Node.js.',
+                      },
+                    ],
                   },
                 ],
               },
             ],
           },
         ],
-        estimatedDuration: 8,
-        skillsGained: ['Python', 'Data Analysis', 'Data Science'],
-        courseRequirements: ['No prior experience required'],
-        objectives: 'To introduce students to data science and Python programming.',
-        isMandatory: true,
-        certificateIssued: true,
+        skillsGained: ['Advanced JavaScript', 'Backend Development', 'REST APIs'],
+        courseRequirements: ['Basic knowledge of Node.js and Express.js'],
+        objectives: 'By the end of this course, you will be able to build and maintain advanced Node.js applications.',
       },
     ];
 
-    await Course.deleteMany(); // Clear the existing courses
-    await Course.insertMany(courses); // Insert the new courses
-
+    await Course.insertMany(courses);
     console.log('Courses seeded successfully!');
-    process.exit();
+    mongoose.connection.close();
   } catch (error) {
     console.error('Error seeding courses:', error);
-    process.exit(1);
+    mongoose.connection.close();
   }
 };
 
