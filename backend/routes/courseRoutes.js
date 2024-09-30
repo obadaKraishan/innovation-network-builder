@@ -57,4 +57,5 @@ router.post('/qa/answer', protect, postAnswer);
 router.post('/qa/upvote', protect, upvoteAnswer);
 router.put('/:id', protect, admin, updateCourse);
 
+
 module.exports = router;
