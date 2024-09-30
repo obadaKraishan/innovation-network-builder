@@ -9,9 +9,9 @@ const api = axios.create({
 api.interceptors.request.use(
   (config) => {
     const token = localStorage.getItem('token');
-    console.log('Token being used:', token); // This should show the token
+    console.log('Token being sent in request:', token); // Log token here
     if (token) {
-      config.headers.Authorization = `Bearer ${token}`; // Corrected syntax for Bearer token
+      config.headers.Authorization = `Bearer ${token}`; // Ensure correct syntax
     } else {
       console.warn('No token found in localStorage.');
     }

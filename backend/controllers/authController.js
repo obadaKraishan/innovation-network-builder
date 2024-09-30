@@ -25,9 +25,8 @@ const authUser = async (req, res) => {
         name: user.name,
         email: user.email,
         role: user.role,
-        position: user.position, // Include the position
-        skills: user.skills,     // Include skills if needed
-        token: generateToken(user._id, user.role),
+        position: user.position,
+        token: generateToken(user._id, user.role), // Ensure this generates a valid JWT
       });
     } else {
       res.status(401).json({ message: 'Invalid email or password' });
