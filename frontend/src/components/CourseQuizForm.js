@@ -20,7 +20,7 @@ const CourseQuizForm = () => {
   const { control } = useForm();
   const [quiz, setQuiz] = useState({
     quizTitle: "",
-    questions: [{ type: "text", questionText: "", options: [], correctAnswer: "" }],
+    questions: [{ type: "text", questionText: "", choices: [], correctAnswer: "" }],
     isTimed: false,
     randomizeQuestions: false,
   });
@@ -63,9 +63,9 @@ const CourseQuizForm = () => {
   const handleQuestionChange = (index, field, value) => {
     const updatedQuestions = [...quiz.questions];
   
-    if (field === "options") {
-      const trimmedOptions = value.split(",").map((opt) => opt.trim());
-      updatedQuestions[index][field] = trimmedOptions;
+    if (field === "choices") {
+      const trimmedChoices = value.split(",").map((opt) => opt.trim());
+      updatedQuestions[index][field] = trimmedChoices;
     } else {
       updatedQuestions[index][field] = value;
     }
@@ -78,7 +78,7 @@ const CourseQuizForm = () => {
       ...quiz,
       questions: [
         ...quiz.questions,
-        { type: "text", questionText: "", options: [], correctAnswer: "" },
+        { type: "text", questionText: "", choices: [], correctAnswer: "" },
       ],
     });
   };
@@ -111,7 +111,7 @@ const CourseQuizForm = () => {
       setQuiz({
         quizTitle: "",
         questions: [
-          { type: "text", questionText: "", options: [], correctAnswer: "" },
+          { type: "text", questionText: "", choices: [], correctAnswer: "" },
         ],
         isTimed: false,
         randomizeQuestions: false,
@@ -278,15 +278,15 @@ const CourseQuizForm = () => {
               />
             </div>
 
-            {/* Options for Radio, Checkbox, Select */}
+            {/* Choices for Radio, Checkbox, Select */}
             {["radio", "checkbox", "select"].includes(question.type) && (
               <div className="mb-4">
-                <label>Options (comma-separated)</label>
+                <label>Choices (comma-separated)</label>
                 <input
                   type="text"
-                  value={question.options.join(", ")}
+                  value={question.choices.join(", ")}
                   onChange={(e) =>
-                    handleQuestionChange(index, "options", e.target.value)
+                    handleQuestionChange(index, "choices", e.target.value)
                   }
                   placeholder="Option1, Option2, Option3"
                   className="w-full p-2 border border-gray-300 rounded"
