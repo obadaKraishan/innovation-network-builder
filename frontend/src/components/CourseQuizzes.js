@@ -10,7 +10,7 @@ const CourseQuizzes = () => {
   useEffect(() => {
     const fetchQuizzes = async () => {
       try {
-        const { data } = await api.get('/quizzes');
+        const { data } = await api.get('/courses/quizzes');
         setQuizzes(data);
       } catch (error) {
         console.error('Error fetching quizzes:', error.response || error.message);
