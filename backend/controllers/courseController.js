@@ -457,6 +457,49 @@ const assignQuizToLesson = async (req, res) => {
   }
 };
 
+ // Fetch all quizzes
+const getAllQuizzes = async (req, res) => {
+  try {
+    const quizzes = await Quiz.find().populate('courseId', 'title').populate('moduleId', 'moduleTitle').populate('sectionId', 'sectionTitle').populate('lessonId', 'lessonTitle');
+    res.status(200).json(quizzes);
+  } catch (error) {
+    res.status(400).json({ message: 'Error fetching quizzes', error });
+  }
+};
+
+// Fetch a single quiz by ID
+const getQuizById = async (req, res) => {
+  try {
+    const quiz = await Quiz.findById(req.params.id).populate('courseId').populate('moduleId').populate('sectionId').populate('lessonId');
+    if (!quiz) return res.status(404).json({ message: 'Quiz not found' });
+    res.status(200).json(quiz);
+  } catch (error) {
+    res.status(400).json({ message: 'Error fetching quiz', error });
+  }
+};
+
+// Update quiz
+const updateQuiz = async (req, res) => {
+  try {
+    const quiz = await Quiz.findByIdAndUpdate(req.params.id, req.body, { new: true });
+    if (!quiz) return res.status(404).json({ message: 'Quiz not found' });
+    res.status(200).json(quiz);
+  } catch (error) {
+    res.status(400).json({ message: 'Error updating quiz', error });
+  }
+};
+
+// Delete a quiz
+const deleteQuiz = async (req, res) => {
+  try {
+    const quiz = await Quiz.findByIdAndDelete(req.params.id);
+    if (!quiz) return res.status(404).json({ message: 'Quiz not found' });
+    res.status(200).json({ message: 'Quiz deleted successfully' });
+  } catch (error) {
+    res.status(400).json({ message: 'Error deleting quiz', error });
+  }
+};
+
 module.exports = {
   createCourse,
   getAllCourses,
@@ -475,4 +518,8 @@ module.exports = {
   createQuiz,
   getQuizzesByLesson,
   assignQuizToLesson,
+  getAllQuizzes,
+  getQuizById,
+  updateQuiz,
+  deleteQuiz,
 };
