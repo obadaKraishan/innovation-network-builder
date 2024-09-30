@@ -17,6 +17,10 @@ const {
   createQuiz,  
   getQuizzesByLesson, 
   assignQuizToLesson,
+  getAllQuizzes,
+  getQuizById,
+  updateQuiz,
+  deleteQuiz,
 } = require('../controllers/courseController');
 const { protect, admin } = require('../middleware/authMiddleware');
 const upload = require('../middleware/uploadMiddleware');
@@ -47,5 +51,9 @@ router.post('/quizzes/create', protect, admin, (req, res, next) => {
 }, createQuiz);
 router.get('/quizzes/lesson/:lessonId', protect, getQuizzesByLesson); 
 router.post('/quizzes/assign', protect, admin, assignQuizToLesson);  
+router.get('/quizzes', protect, getAllQuizzes); // Get all quizzes
+router.get('/quizzes/:id', protect, getQuizById); // Get quiz details
+router.put('/quizzes/:id', protect, admin, updateQuiz); // Update quiz
+router.delete('/quizzes/:id', protect, admin, deleteQuiz); // Delete quiz
 
 module.exports = router;
