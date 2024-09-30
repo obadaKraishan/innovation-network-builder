@@ -45,14 +45,14 @@ router.post('/qa/upvote', protect, upvoteAnswer);
 router.put('/:id', protect, admin, updateCourse);
 
 // Quiz Routes (now handled by courseController)
+router.get('/quizzes', protect, getAllQuizzes); 
+router.get('/quizzes/:id', protect, getQuizById); // Get quiz details
 router.post('/quizzes/create', protect, admin, (req, res, next) => {
   console.log("POST request received on /api/courses/quizzes/create with data:", req.body); // Log the incoming request
   next(); // Pass to the controller
 }, createQuiz);
 router.get('/quizzes/lesson/:lessonId', protect, getQuizzesByLesson); 
 router.post('/quizzes/assign', protect, admin, assignQuizToLesson);  
-router.get('/quizzes', protect, getAllQuizzes); 
-router.get('/quizzes/:id', protect, getQuizById); // Get quiz details
 router.put('/quizzes/:id', protect, admin, updateQuiz); // Update quiz
 router.delete('/quizzes/:id', protect, admin, deleteQuiz); // Delete quiz
 
