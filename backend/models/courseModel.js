@@ -14,17 +14,17 @@ const questionSchema = new mongoose.Schema({
   randomizeQuestions: { type: Boolean, default: false },
 });
 
-// Updated schema for quiz with references
+// Schema for quiz with references to course, module, section, and lesson
 const quizSchema = new mongoose.Schema({
   quizTitle: { type: String, required: true },
   questions: [questionSchema],
   isTimed: { type: Boolean, default: false },
   randomizeQuestions: { type: Boolean, default: false },
-  courseId: { type: mongoose.Schema.Types.ObjectId, ref: 'Course', required: true },  // Reference to Course
-  moduleId: { type: mongoose.Schema.Types.ObjectId, ref: 'Module', required: true },  // Reference to Module
-  sectionId: { type: mongoose.Schema.Types.ObjectId, ref: 'Section', required: true }, // Reference to Section
-  lessonId: { type: mongoose.Schema.Types.ObjectId, ref: 'Lesson', required: true },   // Reference to Lesson
-  isFinalQuiz: { type: Boolean, default: false }  // Indicator if this is a final quiz
+  courseId: { type: mongoose.Schema.Types.ObjectId, ref: 'Course', required: true },  
+  moduleId: { type: mongoose.Schema.Types.ObjectId, ref: 'Module', required: true },  
+  sectionId: { type: mongoose.Schema.Types.ObjectId, ref: 'Section', required: true }, 
+  lessonId: { type: mongoose.Schema.Types.ObjectId, ref: 'Lesson', required: true },   
+  isFinalQuiz: { type: Boolean, default: false }
 }, { timestamps: true });
 
 // Schema for lesson materials
@@ -39,9 +39,9 @@ const materialSchema = new mongoose.Schema({
 const lessonSchema = new mongoose.Schema({
   lessonTitle: { type: String, required: true },
   description: { type: String },
-  lessonText: { type: String }, // Updated to handle rich text content
-  materials: [materialSchema], 
-  quiz: [{ type: mongoose.Schema.Types.ObjectId, ref: 'Quiz' }],  // Reference to Quiz schema
+  lessonText: { type: String },
+  materials: [materialSchema],
+  quiz: [{ type: mongoose.Schema.Types.ObjectId, ref: 'Quiz' }],  
 });
 
 // Schema for sections in modules
@@ -60,10 +60,10 @@ const moduleSchema = new mongoose.Schema({
 const courseSchema = new mongoose.Schema({
   title: { type: String, required: true },
   description: { type: String, required: true },
-  image: { type: String }, 
+  image: { type: String },
   creatorId: { type: mongoose.Schema.Types.ObjectId, ref: 'User', required: true },
   modules: [moduleSchema],
-  finalQuiz: { type: mongoose.Schema.Types.ObjectId, ref: 'Quiz' },  // Reference to Quiz schema
+  finalQuiz: { type: mongoose.Schema.Types.ObjectId, ref: 'Quiz' },  
   estimatedDuration: { type: Number },
   skillsGained: [{ type: String }],
   courseRequirements: [{ type: String }],
@@ -81,6 +81,6 @@ const courseSchema = new mongoose.Schema({
 }, { timestamps: true });
 
 const Course = mongoose.model('Course', courseSchema);
-const Quiz = mongoose.model('Quiz', quizSchema); // Export Quiz Model
+const Quiz = mongoose.model('Quiz', quizSchema);
 
 module.exports = { Course, Quiz };

@@ -461,13 +461,19 @@ const assignQuizToLesson = async (req, res) => {
  const getAllQuizzes = async (req, res) => {
   try {
     console.log('Fetching all quizzes...');
-    // Adjust the query if necessary or add additional logging to catch the issue
-    const quizzes = await Quiz.find().populate('courseId', 'title').populate('moduleId', 'moduleTitle').populate('sectionId', 'sectionTitle').populate('lessonId', 'lessonTitle');
+    
+    // Fetch quizzes and populate the references to Course, Module, Section, and Lesson
+    const quizzes = await Quiz.find()
+      .populate('courseId', 'title')
+      .populate('moduleId', 'moduleTitle') // Populate Module reference
+      .populate('sectionId', 'sectionTitle') // Populate Section reference
+      .populate('lessonId', 'lessonTitle'); // Populate Lesson reference
+    
     console.log('Quizzes fetched successfully:', quizzes);
     res.status(200).json(quizzes);
   } catch (error) {
-    console.error('Error fetching quizzes:', error); // Log the error
-    res.status(400).json({ message: 'Error fetching quizzes', error }); // Return the error
+    console.error('Error fetching quizzes:', error);
+    res.status(400).json({ message: 'Error fetching quizzes', error });
   }
 };
 

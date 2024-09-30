@@ -16,7 +16,7 @@ const CourseQuizzes = () => {
         console.error('Error fetching quizzes:', error.response || error.message);
         toast.error('Error fetching quizzes');
       }
-    };    
+    };     
 
     fetchQuizzes();
   }, []); 
