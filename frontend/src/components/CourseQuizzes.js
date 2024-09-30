@@ -18,7 +18,7 @@ const CourseQuizzes = () => {
     };
 
     fetchQuizzes();
-  }, []);
+  }, []); 
 
   const handleDelete = async (id) => {
     try {
