@@ -20,7 +20,7 @@ const {
   getAllQuizzes,
   getQuizById,
   updateQuiz,
-  deleteQuiz,
+  deleteQuiz, 
 } = require('../controllers/courseController');
 const { protect, admin } = require('../middleware/authMiddleware');
 const upload = require('../middleware/uploadMiddleware');
