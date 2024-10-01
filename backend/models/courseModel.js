@@ -80,7 +80,13 @@ const courseSchema = new mongoose.Schema({
   }],
 }, { timestamps: true });
 
+// Register the models
 const Course = mongoose.model('Course', courseSchema);
 const Quiz = mongoose.model('Quiz', quizSchema);
 
-module.exports = { Course, Quiz };
+// Now, register the separate models for Module, Section, and Lesson
+const Module = mongoose.model('Module', moduleSchema);
+const Section = mongoose.model('Section', sectionSchema);
+const Lesson = mongoose.model('Lesson', lessonSchema);
+
+module.exports = { Course, Quiz, Module, Section, Lesson };
