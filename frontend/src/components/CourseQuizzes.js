@@ -16,10 +16,10 @@ const CourseQuizzes = () => {
         console.error('Error fetching quizzes:', error.response || error.message);
         toast.error('Error fetching quizzes');
       }
-    };     
+    };
 
     fetchQuizzes();
-  }, []); 
+  }, []);
 
   const handleDelete = async (id) => {
     try {
@@ -32,32 +32,51 @@ const CourseQuizzes = () => {
   };
 
   return (
-    <div className="flex">
+    <div className="flex min-h-screen bg-gray-100">
       <Sidebar />
       <div className="flex-1 p-6">
-        <h2 className="font-bold text-xl mb-4">All Quizzes</h2>
-        <table className="table-auto w-full">
-          <thead>
-            <tr>
-              <th>Title</th>
-              <th>Course</th>
-              <th>Actions</th>
-            </tr>
-          </thead>
-          <tbody>
-            {quizzes.map((quiz) => (
-              <tr key={quiz._id}>
-                <td>{quiz.quizTitle}</td>
-                <td>{quiz.courseId?.title}</td>
-                <td>
-                  <Link to={`/quizzes/details/${quiz._id}`} className="text-blue-500 mr-2">Details</Link>
-                  <Link to={`/quizzes/edit/${quiz._id}`} className="text-green-500 mr-2">Edit</Link>
-                  <button onClick={() => handleDelete(quiz._id)} className="text-red-500">Delete</button>
-                </td>
+        <h2 className="font-bold text-2xl mb-6 text-gray-700">All Quizzes</h2>
+        <div className="bg-white rounded-lg shadow overflow-hidden">
+          <table className="min-w-full table-auto">
+            <thead className="bg-gray-200">
+              <tr>
+                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Title</th>
+                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Course</th>
+                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Actions</th>
               </tr>
-            ))}
-          </tbody>
-        </table>
+            </thead>
+            <tbody className="bg-white divide-y divide-gray-200">
+              {quizzes.length > 0 ? (
+                quizzes.map((quiz) => (
+                  <tr key={quiz._id} className="hover:bg-gray-100">
+                    <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">{quiz.quizTitle}</td>
+                    <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">{quiz.courseId?.title}</td>
+                    <td className="px-6 py-4 whitespace-nowrap text-sm font-medium">
+                      <Link to={`/quizzes/details/${quiz._id}`} className="text-blue-500 hover:text-blue-700 mr-4">
+                        Details
+                      </Link>
+                      <Link to={`/quizzes/edit/${quiz._id}`} className="text-green-500 hover:text-green-700 mr-4">
+                        Edit
+                      </Link>
+                      <button
+                        onClick={() => handleDelete(quiz._id)}
+                        className="text-red-500 hover:text-red-700"
+                      >
+                        Delete
+                      </button>
+                    </td>
+                  </tr>
+                ))
+              ) : (
+                <tr>
+                  <td colSpan="3" className="px-6 py-4 text-center text-sm text-gray-500">
+                    No quizzes found.
+                  </td>
+                </tr>
+              )}
+            </tbody>
+          </table>
+        </div>
       </div>
     </div>
   );
