@@ -462,13 +462,12 @@ const assignQuizToLesson = async (req, res) => {
   try {
     console.log('Fetching all quizzes...');
     
-    // Fetch quizzes and populate the references to Course, Module, Section, and Lesson
     const quizzes = await Quiz.find()
       .populate('courseId', 'title')
       .populate('moduleId', 'moduleTitle') // Populate Module reference
       .populate('sectionId', 'sectionTitle') // Populate Section reference
       .populate('lessonId', 'lessonTitle'); // Populate Lesson reference
-    
+
     console.log('Quizzes fetched successfully:', quizzes);
     res.status(200).json(quizzes);
   } catch (error) {
