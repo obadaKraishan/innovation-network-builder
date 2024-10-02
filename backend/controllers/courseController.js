@@ -480,18 +480,25 @@ const assignQuizToLesson = async (req, res) => {
 const getQuizById = async (req, res) => {
   try {
     console.log('Fetching quiz by ID:', req.params.id);
+
+    // Ensure the provided ID is a valid ObjectId
+    if (!mongoose.Types.ObjectId.isValid(req.params.id)) {
+      return res.status(400).json({ message: 'Invalid quiz ID' });
+    }
+
     const quiz = await Quiz.findById(req.params.id)
-      .populate('courseId', 'title')
-      .populate('moduleId', 'moduleTitle')
-      .populate('sectionId', 'sectionTitle')
-      .populate('lessonId', 'lessonTitle');
-    
+      .populate('courseId', 'title') // Make sure courseId is a proper ObjectId in the database
+      .populate('moduleId', 'moduleTitle') // Populate module details
+      .populate('sectionId', 'sectionTitle') // Populate section details
+      .populate('lessonId', 'lessonTitle'); // Populate lesson details
+
     if (!quiz) {
       return res.status(404).json({ message: 'Quiz not found' });
     }
-    
+
     res.status(200).json(quiz);
   } catch (error) {
+    console.error('Error fetching quiz:', error);
     res.status(400).json({ message: 'Error fetching quiz', error });
   }
 };
