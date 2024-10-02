@@ -9,25 +9,43 @@ const CourseQuizDetails = () => {
   const { id } = useParams();
   const navigate = useNavigate();
   const [quiz, setQuiz] = useState(null);
+  const [course, setCourse] = useState(null);
+  const [module, setModule] = useState(null);
+  const [section, setSection] = useState(null);
+  const [lesson, setLesson] = useState(null);
 
   useEffect(() => {
-    const fetchQuiz = async () => {
+    const fetchQuizDetails = async () => {
       try {
-        const { data } = await api.get(`/courses/quizzes/${id}`);
-        setQuiz(data);
+        const { data: quizData } = await api.get(`/courses/quizzes/${id}`);
+        setQuiz(quizData);
+        const { courseId, moduleId, sectionId, lessonId } = quizData;
+
+        // Fetch course, module, section, and lesson details
+        const { data: courseData } = await api.get(`/courses/${courseId}`);
+        setCourse(courseData);
+
+        const selectedModule = courseData.modules.find((mod) => mod._id === moduleId);
+        setModule(selectedModule);
+
+        const selectedSection = selectedModule.sections.find((sec) => sec._id === sectionId);
+        setSection(selectedSection);
+
+        const selectedLesson = selectedSection.lessons.find((les) => les._id === lessonId);
+        setLesson(selectedLesson);
       } catch (error) {
         toast.error('Error fetching quiz details');
       }
     };
 
-    fetchQuiz();
+    fetchQuizDetails();
   }, [id]);
 
   const handleBack = () => {
     navigate(-1); // Go back to the previous page
   };
 
-  if (!quiz) return <div>Loading...</div>;
+  if (!quiz || !course || !module || !section || !lesson) return <div>Loading...</div>;
 
   return (
     <div className="flex h-screen">
@@ -44,28 +62,31 @@ const CourseQuizDetails = () => {
 
         <h2 className="font-bold text-3xl mb-6 text-gray-700">Quiz Details</h2>
 
-        {/* Quiz Title Section */}
+        {/* Course, Module, Section, and Lesson Details */}
         <div className="mb-6 p-6 bg-white shadow-md rounded-lg">
-          <h3 className="font-bold text-xl text-gray-700 mb-2">Title</h3>
+          <h3 className="font-bold text-xl text-gray-700 mb-2">Course Information</h3>
+          <p className="text-lg text-gray-900"><strong>Course:</strong> {course.title}</p>
+          <p className="text-lg text-gray-900"><strong>Module:</strong> {module.moduleTitle}</p>
+          <p className="text-lg text-gray-900"><strong>Section:</strong> {section.sectionTitle}</p>
+          <p className="text-lg text-gray-900"><strong>Lesson:</strong> {lesson.lessonTitle}</p>
+        </div>
+
+        {/* Quiz Title */}
+        <div className="mb-6 p-6 bg-white shadow-md rounded-lg">
+          <h3 className="font-bold text-xl text-gray-700 mb-2">Quiz Title</h3>
           <p className="text-lg text-gray-900">{quiz.quizTitle}</p>
         </div>
 
-        {/* Related Course Section */}
-        <div className="mb-6 p-6 bg-white shadow-md rounded-lg">
-          <h3 className="font-bold text-xl text-gray-700 mb-2">Course</h3>
-          <p className="text-lg text-gray-900">{quiz.courseId?.title || 'N/A'}</p>
-        </div>
-
-        {/* Quiz Settings Section */}
+        {/* Quiz Settings */}
         <div className="mb-6 p-6 bg-white shadow-md rounded-lg">
           <h3 className="font-bold text-xl text-gray-700 mb-2">Quiz Settings</h3>
-          <ul className="list-inside list-disc text-gray-900">
+          <ul className="list-disc pl-6">
             <li><strong>Timed:</strong> {quiz.isTimed ? 'Yes' : 'No'}</li>
             <li><strong>Randomize Questions:</strong> {quiz.randomizeQuestions ? 'Yes' : 'No'}</li>
           </ul>
         </div>
 
-        {/* Quiz Questions Section */}
+        {/* Quiz Questions */}
         <div className="p-6 bg-white shadow-md rounded-lg">
           <h3 className="font-bold text-xl text-gray-700 mb-4">Questions</h3>
           {quiz.questions.length > 0 ? (
