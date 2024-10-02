@@ -488,10 +488,10 @@ const getQuizById = async (req, res) => {
     }
 
     const quiz = await Quiz.findById(req.params.id)
-      .populate('courseId', 'title') // Make sure courseId is a proper ObjectId in the database
-      .populate('moduleId', 'moduleTitle') // Populate module details
-      .populate('sectionId', 'sectionTitle') // Populate section details
-      .populate('lessonId', 'lessonTitle'); // Populate lesson details
+      .populate('courseId', 'title')
+      .populate('moduleId', 'moduleTitle')
+      .populate('sectionId', 'sectionTitle')
+      .populate('lessonId', 'lessonTitle');
 
     if (!quiz) {
       return res.status(404).json({ message: 'Quiz not found' });
