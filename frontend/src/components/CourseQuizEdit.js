@@ -4,7 +4,7 @@ import { toast } from 'react-toastify';
 import Select from 'react-select';
 import api from '../utils/api';
 import Sidebar from './Sidebar';
-import { FaPlusCircle, FaTrashAlt } from 'react-icons/fa';
+import { FaPlusCircle, FaTrashAlt, FaArrowLeft } from 'react-icons/fa';
 
 const questionTypes = [
   { value: 'text', label: 'Text' },
@@ -82,12 +82,25 @@ const CourseQuizEdit = () => {
     }
   };
 
+  const handleBack = () => {
+    navigate(-1); // Go back to the previous page
+  };
+
   if (!quiz) return <div>Loading...</div>;
 
   return (
     <div className="flex h-screen">
       <Sidebar />
       <div className="flex-1 p-6 overflow-auto">
+        {/* Back Button */}
+        <button
+          onClick={handleBack}
+          className="mb-4 bg-blue-500 text-white py-2 px-4 rounded inline-flex items-center hover:bg-blue-600 transition"
+        >
+          <FaArrowLeft className="mr-2" />
+          Back
+        </button>
+
         <h2 className="font-bold text-xl mb-4">Edit Quiz</h2>
 
         {/* Quiz Title */}
