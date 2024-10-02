@@ -36,21 +36,25 @@ const CourseQuizDetails = () => {
         // Fetch course details only if courseId is valid
         if (courseId) {
           const { data: courseData } = await api.get(`/courses/${courseId}`);
+          console.log("Course Data:", courseData); // Log the full course data to verify its structure
           setCourse(courseData);
 
-          if (moduleId) {
+          // Check if modules exist and select the correct one
+          if (moduleId && courseData.modules) {
             const selectedModule = courseData.modules.find(
-              (mod) => mod._id === moduleId
+                (mod) => mod._id === moduleId
             );
             setModule(selectedModule);
 
-            if (sectionId && selectedModule) {
+            // Check if sections exist within the selected module
+            if (sectionId && selectedModule?.sections) {
               const selectedSection = selectedModule.sections.find(
                 (sec) => sec._id === sectionId
               );
               setSection(selectedSection);
 
-              if (lessonId && selectedSection) {
+              // Check if lessons exist within the selected section
+              if (lessonId && selectedSection?.lessons) {
                 const selectedLesson = selectedSection.lessons.find(
                   (les) => les._id === lessonId
                 );
@@ -98,20 +102,26 @@ const CourseQuizDetails = () => {
           <p className="text-lg text-gray-900">
             <strong>Course:</strong> {course?.title || 'N/A'}
           </p>
-          {module && (
+          {module ? (
             <p className="text-lg text-gray-900">
               <strong>Module:</strong> {module?.moduleTitle || 'N/A'}
             </p>
+          ) : (
+            <p className="text-lg text-red-500">No module found</p>
           )}
-          {section && (
+          {section ? (
             <p className="text-lg text-gray-900">
               <strong>Section:</strong> {section?.sectionTitle || 'N/A'}
             </p>
+          ) : (
+            <p className="text-lg text-red-500">No section found</p>
           )}
-          {lesson && (
+          {lesson ? (
             <p className="text-lg text-gray-900">
               <strong>Lesson:</strong> {lesson?.lessonTitle || 'N/A'}
             </p>
+          ) : (
+            <p className="text-lg text-red-500">No lesson found</p>
           )}
         </div>
 
