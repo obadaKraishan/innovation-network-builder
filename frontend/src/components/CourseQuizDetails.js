@@ -11,7 +11,7 @@ const CourseQuizDetails = () => {
   useEffect(() => {
     const fetchQuiz = async () => {
       try {
-        const { data } = await api.get(`/quizzes/${id}`);
+        const { data } = await api.get(`/courses/quizzes/${id}`);
         setQuiz(data);
       } catch (error) {
         toast.error('Error fetching quiz');
