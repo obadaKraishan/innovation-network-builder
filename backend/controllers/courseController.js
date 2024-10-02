@@ -1,3 +1,4 @@
+const mongoose = require('mongoose');
 const sanitizeHtml = require('sanitize-html');
 const fs = require('fs');
 const path = require('path');
