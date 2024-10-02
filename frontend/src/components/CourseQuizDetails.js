@@ -20,44 +20,53 @@ const CourseQuizDetails = () => {
         const { data: quizData } = await api.get(`/courses/quizzes/${id}`);
         console.log("Quiz Data:", quizData); // Log the full quiz data to verify its structure
         setQuiz(quizData);
-  
+
         let { courseId, moduleId, sectionId, lessonId } = quizData;
-  
+
         // Ensure these are strings and not objects
         if (typeof courseId === "object" && courseId._id)
           courseId = courseId._id;
-        if (typeof moduleId === "object" && moduleId._id)
+        if (typeof moduleId === "object" && moduleId?._id)
           moduleId = moduleId._id;
-        if (typeof sectionId === "object" && sectionId._id)
+        if (typeof sectionId === "object" && sectionId?._id)
           sectionId = sectionId._id;
-        if (typeof lessonId === "object" && lessonId._id)
+        if (typeof lessonId === "object" && lessonId?._id)
           lessonId = lessonId._id;
-  
-        // Fetch related data
-        const { data: courseData } = await api.get(`/courses/${courseId}`);
-        setCourse(courseData);
-  
-        const selectedModule = courseData.modules.find(
-          (mod) => mod._id === moduleId
-        );
-        setModule(selectedModule);
-  
-        const selectedSection = selectedModule.sections.find(
-          (sec) => sec._id === sectionId
-        );
-        setSection(selectedSection);
-  
-        const selectedLesson = selectedSection.lessons.find(
-          (les) => les._id === lessonId
-        );
-        setLesson(selectedLesson);
+
+        // Fetch course details only if courseId is valid
+        if (courseId) {
+          const { data: courseData } = await api.get(`/courses/${courseId}`);
+          setCourse(courseData);
+
+          if (moduleId) {
+            const selectedModule = courseData.modules.find(
+              (mod) => mod._id === moduleId
+            );
+            setModule(selectedModule);
+
+            if (sectionId && selectedModule) {
+              const selectedSection = selectedModule.sections.find(
+                (sec) => sec._id === sectionId
+              );
+              setSection(selectedSection);
+
+              if (lessonId && selectedSection) {
+                const selectedLesson = selectedSection.lessons.find(
+                  (les) => les._id === lessonId
+                );
+                setLesson(selectedLesson);
+              }
+            }
+          }
+        }
       } catch (error) {
+        console.error("Error fetching quiz details:", error);
         toast.error("Error fetching quiz details");
       }
     };
-  
+
     fetchQuizDetails();
-  }, [id]);  
+  }, [id]);
 
   const handleBack = () => {
     navigate(-1); // Go back to the previous page
@@ -87,17 +96,23 @@ const CourseQuizDetails = () => {
             Course Information
           </h3>
           <p className="text-lg text-gray-900">
-            <strong>Course:</strong> {course.title}
+            <strong>Course:</strong> {course?.title}
           </p>
-          <p className="text-lg text-gray-900">
-            <strong>Module:</strong> {module.moduleTitle}
-          </p>
-          <p className="text-lg text-gray-900">
-            <strong>Section:</strong> {section.sectionTitle}
-          </p>
-          <p className="text-lg text-gray-900">
-            <strong>Lesson:</strong> {lesson.lessonTitle}
-          </p>
+          {module && (
+            <p className="text-lg text-gray-900">
+              <strong>Module:</strong> {module.moduleTitle}
+            </p>
+          )}
+          {section && (
+            <p className="text-lg text-gray-900">
+              <strong>Section:</strong> {section.sectionTitle}
+            </p>
+          )}
+          {lesson && (
+            <p className="text-lg text-gray-900">
+              <strong>Lesson:</strong> {lesson.lessonTitle}
+            </p>
+          )}
         </div>
 
         {/* Quiz Title */}
