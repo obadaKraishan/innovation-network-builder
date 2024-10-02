@@ -16,33 +16,35 @@ const CourseQuizDetails = () => {
 
   useEffect(() => {
     const fetchQuizDetails = async () => {
-      try {
-        const { data: quizData } = await api.get(`/courses/quizzes/${id}`);
-        console.log("Quiz Data:", quizData); // Log the quiz data
-        setQuiz(quizData);
-  
-        const { courseId, moduleId, sectionId, lessonId } = quizData;
-  
-        // Fetch course, module, section, and lesson details
-        const { data: courseData } = await api.get(`/courses/${courseId}`);
-        console.log("Course Data:", courseData); // Log the course data
-        setCourse(courseData);
-  
-        const selectedModule = courseData.modules.find((mod) => mod._id === moduleId);
-        console.log("Module Data:", selectedModule); // Log the module data
-        setModule(selectedModule);
-  
-        const selectedSection = selectedModule.sections.find((sec) => sec._id === sectionId);
-        console.log("Section Data:", selectedSection); // Log the section data
-        setSection(selectedSection);
-  
-        const selectedLesson = selectedSection.lessons.find((les) => les._id === lessonId);
-        console.log("Lesson Data:", selectedLesson); // Log the lesson data
-        setLesson(selectedLesson);
-      } catch (error) {
-        toast.error('Error fetching quiz details');
-      }
-    };
+        try {
+          const { data: quizData } = await api.get(`/courses/quizzes/${id}`);
+          console.log("Quiz Data:", quizData); // Log the full quiz data to verify its structure
+          setQuiz(quizData);
+          
+          const { courseId, moduleId, sectionId, lessonId } = quizData;
+          
+          // Check the exact values being passed
+          console.log("Course ID:", courseId); // Should be a string, not an object
+          console.log("Module ID:", moduleId); // Should be a string, not an object
+          console.log("Section ID:", sectionId); // Should be a string, not an object
+          console.log("Lesson ID:", lessonId); // Should be a string, not an object
+          
+          // Proceed to fetch related data
+          const { data: courseData } = await api.get(`/courses/${courseId}`);
+          setCourse(courseData);
+          
+          const selectedModule = courseData.modules.find((mod) => mod._id === moduleId);
+          setModule(selectedModule);
+          
+          const selectedSection = selectedModule.sections.find((sec) => sec._id === sectionId);
+          setSection(selectedSection);
+          
+          const selectedLesson = selectedSection.lessons.find((les) => les._id === lessonId);
+          setLesson(selectedLesson);
+        } catch (error) {
+          toast.error('Error fetching quiz details');
+        }
+      };      
   
     fetchQuizDetails();
   }, [id]);  
