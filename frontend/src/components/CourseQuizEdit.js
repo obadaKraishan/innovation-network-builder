@@ -333,7 +333,7 @@ const CourseQuizEdit = () => {
           </label>
         </div>
 
-        {/* Submit Button */}
+        {/* Submit Button */} 
         <button onClick={handleSubmit} className="bg-green-500 text-white py-2 px-4 rounded mt-4">
           Save Changes
         </button>
