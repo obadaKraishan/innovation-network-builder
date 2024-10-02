@@ -479,21 +479,19 @@ const assignQuizToLesson = async (req, res) => {
 // Fetch a single quiz by ID
 const getQuizById = async (req, res) => {
   try {
-    console.log('Fetching quiz by ID:', req.params.id); // Add this log to check the incoming ID
+    console.log('Fetching quiz by ID:', req.params.id);
     const quiz = await Quiz.findById(req.params.id)
-      .populate('courseId')
-      .populate('moduleId')
-      .populate('sectionId')
-      .populate('lessonId');
+      .populate('courseId', 'title')
+      .populate('moduleId', 'moduleTitle')
+      .populate('sectionId', 'sectionTitle')
+      .populate('lessonId', 'lessonTitle');
     
     if (!quiz) {
-      console.log('Quiz not found'); // Add log to check if quiz not found
       return res.status(404).json({ message: 'Quiz not found' });
     }
     
     res.status(200).json(quiz);
   } catch (error) {
-    console.error('Error fetching quiz by ID:', error);
     res.status(400).json({ message: 'Error fetching quiz', error });
   }
 };
