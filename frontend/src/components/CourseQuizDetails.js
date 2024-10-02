@@ -24,7 +24,7 @@ const CourseQuizDetails = () => {
         let { courseId, moduleId, sectionId, lessonId } = quizData;
 
         // Ensure these are strings and not objects
-        if (typeof courseId === "object" && courseId._id)
+        if (typeof courseId === "object" && courseId?._id)
           courseId = courseId._id;
         if (typeof moduleId === "object" && moduleId?._id)
           moduleId = moduleId._id;
@@ -72,7 +72,7 @@ const CourseQuizDetails = () => {
     navigate(-1); // Go back to the previous page
   };
 
-  if (!quiz || !course || !module || !section || !lesson)
+  if (!quiz)
     return <div>Loading...</div>;
 
   return (
@@ -96,21 +96,21 @@ const CourseQuizDetails = () => {
             Course Information
           </h3>
           <p className="text-lg text-gray-900">
-            <strong>Course:</strong> {course?.title}
+            <strong>Course:</strong> {course?.title || 'N/A'}
           </p>
           {module && (
             <p className="text-lg text-gray-900">
-              <strong>Module:</strong> {module.moduleTitle}
+              <strong>Module:</strong> {module?.moduleTitle || 'N/A'}
             </p>
           )}
           {section && (
             <p className="text-lg text-gray-900">
-              <strong>Section:</strong> {section.sectionTitle}
+              <strong>Section:</strong> {section?.sectionTitle || 'N/A'}
             </p>
           )}
           {lesson && (
             <p className="text-lg text-gray-900">
-              <strong>Lesson:</strong> {lesson.lessonTitle}
+              <strong>Lesson:</strong> {lesson?.lessonTitle || 'N/A'}
             </p>
           )}
         </div>
