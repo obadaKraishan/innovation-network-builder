@@ -40,11 +40,29 @@ const CourseQuizEdit = () => {
     setQuiz({ ...quiz, questions: updatedQuestions });
   };
 
+  const handleChoicesChange = (index, choiceIndex, value) => {
+    const updatedQuestions = [...quiz.questions];
+    updatedQuestions[index].choices[choiceIndex] = value;
+    setQuiz({ ...quiz, questions: updatedQuestions });
+  };
+
   const addQuestion = () => {
     setQuiz({
       ...quiz,
       questions: [...quiz.questions, { type: 'text', questionText: '', choices: [], correctAnswer: '' }],
     });
+  };
+
+  const addChoice = (index) => {
+    const updatedQuestions = [...quiz.questions];
+    updatedQuestions[index].choices.push('');
+    setQuiz({ ...quiz, questions: updatedQuestions });
+  };
+
+  const removeChoice = (questionIndex, choiceIndex) => {
+    const updatedQuestions = [...quiz.questions];
+    updatedQuestions[questionIndex].choices = updatedQuestions[questionIndex].choices.filter((_, i) => i !== choiceIndex);
+    setQuiz({ ...quiz, questions: updatedQuestions });
   };
 
   const removeQuestion = (index) => {
@@ -73,19 +91,24 @@ const CourseQuizEdit = () => {
         <h2 className="font-bold text-xl mb-4">Edit Quiz</h2>
 
         {/* Quiz Title */}
-        <input
-          type="text"
-          name="quizTitle"
-          value={quiz.quizTitle}
-          onChange={handleQuizChange}
-          className="w-full p-2 border mb-4"
-          placeholder="Quiz Title"
-        />
+        <div className="mb-4">
+          <label className="block text-gray-700 font-medium mb-2">Quiz Title</label>
+          <input
+            type="text"
+            name="quizTitle"
+            value={quiz.quizTitle}
+            onChange={handleQuizChange}
+            className="w-full p-2 border mb-4"
+            placeholder="Quiz Title"
+          />
+        </div>
 
         {/* Quiz Questions */}
         {quiz.questions.map((question, index) => (
           <div key={index} className="mb-4 p-4 border rounded-lg bg-gray-100">
+            <label className="block text-gray-700 font-medium mb-2">Question {index + 1}</label>
             {/* Question Text */}
+            <label className="block text-gray-700">Question Text</label>
             <input
               type="text"
               name="questionText"
@@ -96,6 +119,7 @@ const CourseQuizEdit = () => {
             />
 
             {/* Question Type */}
+            <label className="block text-gray-700">Question Type</label>
             <Select
               options={questionTypes}
               value={questionTypes.find((opt) => opt.value === question.type)}
@@ -105,15 +129,38 @@ const CourseQuizEdit = () => {
 
             {/* Choices for Multiple Choice Questions */}
             {['radio', 'checkbox', 'select'].includes(question.type) && (
-              <textarea
-                value={question.choices.join(', ')}
-                onChange={(e) => handleQuestionChange(index, 'choices', e.target.value.split(',').map((choice) => choice.trim()))}
-                placeholder="Comma-separated choices (e.g., Choice1, Choice2, Choice3)"
-                className="w-full p-2 border mb-2"
-              />
+              <div>
+                <label className="block text-gray-700">Choices</label>
+                {question.choices.map((choice, choiceIndex) => (
+                  <div key={choiceIndex} className="flex items-center mb-2">
+                    <input
+                      type="text"
+                      value={choice}
+                      onChange={(e) => handleChoicesChange(index, choiceIndex, e.target.value)}
+                      placeholder={`Choice ${choiceIndex + 1}`}
+                      className="w-full p-2 border mr-2"
+                    />
+                    <button
+                      type="button"
+                      onClick={() => removeChoice(index, choiceIndex)}
+                      className="text-red-500"
+                    >
+                      <FaTrashAlt />
+                    </button>
+                  </div>
+                ))}
+                <button
+                  type="button"
+                  onClick={() => addChoice(index)}
+                  className="text-blue-500 hover:underline mt-2 flex items-center"
+                >
+                  <FaPlusCircle className="mr-2" /> Add Choice
+                </button>
+              </div>
             )}
 
             {/* Correct Answer */}
+            <label className="block text-gray-700">Correct Answer</label>
             <input
               type="text"
               value={question.correctAnswer}
@@ -123,14 +170,22 @@ const CourseQuizEdit = () => {
             />
 
             {/* Remove Question Button */}
-            <button type="button" onClick={() => removeQuestion(index)} className="text-red-500 mt-2 flex items-center">
+            <button
+              type="button"
+              onClick={() => removeQuestion(index)}
+              className="text-red-500 mt-2 flex items-center"
+            >
               <FaTrashAlt className="mr-2" /> Remove Question
             </button>
           </div>
         ))}
 
         {/* Add Question Button */}
-        <button type="button" onClick={addQuestion} className="text-blue-500 hover:underline mt-2 flex items-center">
+        <button
+          type="button"
+          onClick={addQuestion}
+          className="text-blue-500 hover:underline mt-2 flex items-center"
+        >
           <FaPlusCircle className="mr-2" /> Add Question
         </button>
 
