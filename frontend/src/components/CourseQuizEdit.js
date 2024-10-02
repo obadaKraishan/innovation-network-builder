@@ -85,9 +85,9 @@ const CourseQuizEdit = () => {
   if (!quiz) return <div>Loading...</div>;
 
   return (
-    <div className="flex">
+    <div className="flex h-screen">
       <Sidebar />
-      <div className="flex-1 p-6">
+      <div className="flex-1 p-6 overflow-auto">
         <h2 className="font-bold text-xl mb-4">Edit Quiz</h2>
 
         {/* Quiz Title */}
