@@ -17,12 +17,31 @@ const CourseQuizEdit = () => {
   const { id } = useParams();
   const navigate = useNavigate();
   const [quiz, setQuiz] = useState(null);
+  const [courses, setCourses] = useState([]);
+  const [selectedCourse, setSelectedCourse] = useState(null);
+  const [selectedModule, setSelectedModule] = useState(null);
+  const [selectedSection, setSelectedSection] = useState(null);
+  const [selectedLesson, setSelectedLesson] = useState(null);
 
   useEffect(() => {
     const fetchQuiz = async () => {
       try {
         const { data } = await api.get(`/courses/quizzes/${id}`);
         setQuiz(data);
+
+        if (data.courseId) {
+          const courseResponse = await api.get(`/courses/${data.courseId}`);
+          setSelectedCourse(courseResponse.data);
+
+          const module = courseResponse.data.modules.find(mod => mod._id === data.moduleId);
+          setSelectedModule(module);
+
+          const section = module?.sections.find(sec => sec._id === data.sectionId);
+          setSelectedSection(section);
+
+          const lesson = section?.lessons.find(les => les._id === data.lessonId);
+          setSelectedLesson(lesson);
+        }
       } catch (error) {
         toast.error('Error fetching quiz');
       }
@@ -30,7 +49,24 @@ const CourseQuizEdit = () => {
     fetchQuiz();
   }, [id]);
 
-  const handleQuizChange = (e) => {
+  useEffect(() => {
+    const fetchCourses = async () => {
+      try {
+        const { data } = await api.get('/courses');
+        setCourses(
+          data.map(course => ({
+            value: course._id,
+            label: course.title,
+          }))
+        );
+      } catch (error) {
+        toast.error('Error fetching courses');
+      }
+    };
+    fetchCourses();
+  }, []);
+
+  const handleQuizChange = e => {
     setQuiz({ ...quiz, [e.target.name]: e.target.value });
   };
 
@@ -53,7 +89,7 @@ const CourseQuizEdit = () => {
     });
   };
 
-  const addChoice = (index) => {
+  const addChoice = index => {
     const updatedQuestions = [...quiz.questions];
     updatedQuestions[index].choices.push('');
     setQuiz({ ...quiz, questions: updatedQuestions });
@@ -65,7 +101,7 @@ const CourseQuizEdit = () => {
     setQuiz({ ...quiz, questions: updatedQuestions });
   };
 
-  const removeQuestion = (index) => {
+  const removeQuestion = index => {
     setQuiz({
       ...quiz,
       questions: quiz.questions.filter((_, i) => i !== index),
@@ -74,7 +110,13 @@ const CourseQuizEdit = () => {
 
   const handleSubmit = async () => {
     try {
-      await api.put(`/courses/quizzes/${id}`, quiz);
+      await api.put(`/courses/quizzes/${id}`, {
+        ...quiz,
+        courseId: selectedCourse?._id,
+        moduleId: selectedModule?._id,
+        sectionId: selectedSection?._id,
+        lessonId: selectedLesson?._id,
+      });
       toast.success('Quiz updated successfully');
       navigate('/quizzes');
     } catch (error) {
@@ -103,6 +145,70 @@ const CourseQuizEdit = () => {
 
         <h2 className="font-bold text-xl mb-4">Edit Quiz</h2>
 
+        {/* Select Course */}
+        <Select
+          options={courses}
+          placeholder="Select Course"
+          value={selectedCourse ? { value: selectedCourse._id, label: selectedCourse.title } : null}
+          onChange={selected => {
+            fetchCourseDetails(selected.value);
+            setSelectedModule(null);
+            setSelectedSection(null);
+            setSelectedLesson(null);
+          }}
+        />
+
+        {/* Select Module */}
+        {selectedCourse && (
+          <Select
+            options={selectedCourse.modules.map(module => ({
+              value: module._id,
+              label: module.moduleTitle,
+            }))}
+            placeholder="Select Module"
+            value={selectedModule ? { value: selectedModule._id, label: selectedModule.moduleTitle } : null}
+            onChange={selected => {
+              const module = selectedCourse.modules.find(mod => mod._id === selected.value);
+              setSelectedModule(module);
+              setSelectedSection(null);
+              setSelectedLesson(null);
+            }}
+          />
+        )}
+
+        {/* Select Section */}
+        {selectedModule && (
+          <Select
+            options={selectedModule.sections.map(section => ({
+              value: section._id,
+              label: section.sectionTitle,
+            }))}
+            placeholder="Select Section"
+            value={selectedSection ? { value: selectedSection._id, label: selectedSection.sectionTitle } : null}
+            onChange={selected => {
+              const section = selectedModule.sections.find(sec => sec._id === selected.value);
+              setSelectedSection(section);
+              setSelectedLesson(null);
+            }}
+          />
+        )}
+
+        {/* Select Lesson */}
+        {selectedSection && (
+          <Select
+            options={selectedSection.lessons.map(lesson => ({
+              value: lesson._id,
+              label: lesson.lessonTitle,
+            }))}
+            placeholder="Select Lesson"
+            value={selectedLesson ? { value: selectedLesson._id, label: selectedLesson.lessonTitle } : null}
+            onChange={selected => {
+              const lesson = selectedSection.lessons.find(les => les._id === selected.value);
+              setSelectedLesson(lesson);
+            }}
+          />
+        )}
+
         {/* Quiz Title */}
         <div className="mb-4">
           <label className="block text-gray-700 font-medium mb-2">Quiz Title</label>
@@ -126,7 +232,7 @@ const CourseQuizEdit = () => {
               type="text"
               name="questionText"
               value={question.questionText}
-              onChange={(e) => handleQuestionChange(index, 'questionText', e.target.value)}
+              onChange={e => handleQuestionChange(index, 'questionText', e.target.value)}
               className="w-full p-2 border mb-2"
               placeholder="Question Text"
             />
@@ -135,8 +241,8 @@ const CourseQuizEdit = () => {
             <label className="block text-gray-700">Question Type</label>
             <Select
               options={questionTypes}
-              value={questionTypes.find((opt) => opt.value === question.type)}
-              onChange={(selected) => handleQuestionChange(index, 'type', selected.value)}
+              value={questionTypes.find(opt => opt.value === question.type)}
+              onChange={selected => handleQuestionChange(index, 'type', selected.value)}
               className="mb-2"
             />
 
@@ -149,7 +255,7 @@ const CourseQuizEdit = () => {
                     <input
                       type="text"
                       value={choice}
-                      onChange={(e) => handleChoicesChange(index, choiceIndex, e.target.value)}
+                      onChange={e => handleChoicesChange(index, choiceIndex, e.target.value)}
                       placeholder={`Choice ${choiceIndex + 1}`}
                       className="w-full p-2 border mr-2"
                     />
@@ -177,7 +283,7 @@ const CourseQuizEdit = () => {
             <input
               type="text"
               value={question.correctAnswer}
-              onChange={(e) => handleQuestionChange(index, 'correctAnswer', e.target.value)}
+              onChange={e => handleQuestionChange(index, 'correctAnswer', e.target.value)}
               placeholder="Correct Answer"
               className="w-full p-2 border mb-2"
             />
@@ -209,7 +315,7 @@ const CourseQuizEdit = () => {
               type="checkbox"
               name="isTimed"
               checked={quiz.isTimed}
-              onChange={(e) => setQuiz({ ...quiz, isTimed: e.target.checked })}
+              onChange={e => setQuiz({ ...quiz, isTimed: e.target.checked })}
               className="mr-2"
             />
             Timed Quiz
@@ -220,7 +326,7 @@ const CourseQuizEdit = () => {
               type="checkbox"
               name="randomizeQuestions"
               checked={quiz.randomizeQuestions}
-              onChange={(e) => setQuiz({ ...quiz, randomizeQuestions: e.target.checked })}
+              onChange={e => setQuiz({ ...quiz, randomizeQuestions: e.target.checked })}
               className="mr-2"
             />
             Randomize Questions
