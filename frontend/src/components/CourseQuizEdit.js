@@ -12,7 +12,7 @@ const CourseQuizEdit = () => {
   useEffect(() => {
     const fetchQuiz = async () => {
       try {
-        const { data } = await api.get(`/quizzes/${id}`);
+        const { data } = await api.get(`/courses/quizzes/${id}`);
         setQuiz(data);
       } catch (error) {
         toast.error('Error fetching quiz');
@@ -27,7 +27,7 @@ const CourseQuizEdit = () => {
 
   const handleSubmit = async () => {
     try {
-      await api.put(`/quizzes/${id}`, quiz);
+      await api.put(`/courses/quizzes/${id}`, quiz);
       toast.success('Quiz updated successfully');
       navigate('/quizzes');
     } catch (error) {
