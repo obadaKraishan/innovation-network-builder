@@ -479,7 +479,7 @@ const assignQuizToLesson = async (req, res) => {
 
 // Fetch a single quiz by ID
 const getQuizById = async (req, res) => {
-  try {
+  try { 
     console.log('Fetching quiz by ID:', req.params.id);
 
     // Ensure the provided ID is a valid ObjectId
