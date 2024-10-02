@@ -18,28 +18,34 @@ const CourseQuizDetails = () => {
     const fetchQuizDetails = async () => {
       try {
         const { data: quizData } = await api.get(`/courses/quizzes/${id}`);
+        console.log("Quiz Data:", quizData); // Log the quiz data
         setQuiz(quizData);
+  
         const { courseId, moduleId, sectionId, lessonId } = quizData;
-
+  
         // Fetch course, module, section, and lesson details
         const { data: courseData } = await api.get(`/courses/${courseId}`);
+        console.log("Course Data:", courseData); // Log the course data
         setCourse(courseData);
-
+  
         const selectedModule = courseData.modules.find((mod) => mod._id === moduleId);
+        console.log("Module Data:", selectedModule); // Log the module data
         setModule(selectedModule);
-
+  
         const selectedSection = selectedModule.sections.find((sec) => sec._id === sectionId);
+        console.log("Section Data:", selectedSection); // Log the section data
         setSection(selectedSection);
-
+  
         const selectedLesson = selectedSection.lessons.find((les) => les._id === lessonId);
+        console.log("Lesson Data:", selectedLesson); // Log the lesson data
         setLesson(selectedLesson);
       } catch (error) {
         toast.error('Error fetching quiz details');
       }
     };
-
+  
     fetchQuizDetails();
-  }, [id]);
+  }, [id]);  
 
   const handleBack = () => {
     navigate(-1); // Go back to the previous page
