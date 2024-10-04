@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { useParams, useNavigate } from 'react-router-dom';
+import { useNavigate } from 'react-router-dom';
 import { toast } from 'react-toastify';
 import api from '../utils/api';
 
@@ -8,17 +8,29 @@ const CourseQuizSection = ({ courseId, quizId }) => {
   const [answers, setAnswers] = useState({});
   const [loading, setLoading] = useState(true);
   const [submitted, setSubmitted] = useState(false);
+  const [quizNotFound, setQuizNotFound] = useState(false); // New state to track quiz availability
   const navigate = useNavigate();
 
   useEffect(() => {
     const fetchQuiz = async () => {
       try {
+        if (!quizId) {
+          setQuizNotFound(true); // If no quizId, mark quiz as not found
+          setLoading(false);
+          return;
+        }
+
         // Fetch the quiz for the specific lesson
         const { data } = await api.get(`/quizzes/${quizId}`);
-        setQuiz(data); // Set the quiz data
+        if (data) {
+          setQuiz(data); // Set the quiz data
+        } else {
+          setQuizNotFound(true); // If quiz data is empty, mark quiz as not found
+        }
         setLoading(false);
       } catch (error) {
         toast.error('Failed to load quiz');
+        setQuizNotFound(true); // In case of error, mark quiz as not found
         setLoading(false);
       }
     };
@@ -59,6 +71,15 @@ const CourseQuizSection = ({ courseId, quizId }) => {
 
   if (loading) {
     return <div>Loading quiz...</div>;
+  }
+
+  if (quizNotFound) {
+    return (
+      <div className="text-center mt-8">
+        <h2 className="text-2xl font-bold">No Quiz Available</h2>
+        <p>This lesson does not have a quiz.</p>
+      </div>
+    );
   }
 
   if (submitted) {
