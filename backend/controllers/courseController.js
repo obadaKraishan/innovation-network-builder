@@ -95,12 +95,19 @@ const getLessonById = async (req, res) => {
     console.log('Lesson found:', section.lessons[lessonIndex].lessonTitle);
 
     const lesson = section.lessons[lessonIndex];
-    
+
+    // Fetch the associated quiz if it exists
+    let quiz = null;
+    if (lesson.quiz && lesson.quiz.length > 0) {
+      quiz = await Quiz.find({ _id: { $in: lesson.quiz } }); // Fetch the quizzes associated with the lesson
+    }
+
     // Check if previous and next lesson IDs exist
     const previousLessonId = lessonIndex > 0 ? section.lessons[lessonIndex - 1]._id : null;
     const nextLessonId = lessonIndex < section.lessons.length - 1 ? section.lessons[lessonIndex + 1]._id : null;
 
-    res.json({ lesson, previousLessonId, nextLessonId });
+    // Return lesson, quiz, and navigation info
+    res.json({ lesson, quiz, previousLessonId, nextLessonId });
   } catch (error) {
     console.error('Error fetching lesson details:', error);
     res.status(400).json({ message: 'Error fetching lesson details', error });
