@@ -14,8 +14,11 @@ const CourseQuizSection = ({ courseId, quizId }) => {
   useEffect(() => {
     const fetchQuiz = async () => {
       try {
+        console.log('Fetching quiz with quizId:', quizId); // Log the quizId being used
+
         // Check if quizId is provided; if not, assume no quiz
         if (!quizId) {
+          console.log('No quizId provided');
           setQuizNotFound(true);
           setLoading(false);
           return;
@@ -23,13 +26,18 @@ const CourseQuizSection = ({ courseId, quizId }) => {
 
         // Fetch the quiz for the specific lesson
         const response = await api.get(`/quizzes/${quizId}`);
+        console.log('Quiz response from server:', response.data); // Log the response from backend
+
         if (response.data && response.data.questions.length > 0) {
+          console.log('Quiz found:', response.data);
           setQuiz(response.data); // Set quiz if valid data exists
         } else {
+          console.log('No questions found in quiz');
           setQuizNotFound(true); // Mark quiz as not found if no questions
         }
         setLoading(false);
       } catch (error) {
+        console.log('Error fetching quiz:', error); // Log any error that occurs
         toast.error('Failed to load quiz');
         setQuizNotFound(true);
         setLoading(false);
@@ -40,6 +48,7 @@ const CourseQuizSection = ({ courseId, quizId }) => {
 
   const handleChange = (questionId, answer) => {
     setAnswers({ ...answers, [questionId]: answer });
+    console.log('Updated answers:', answers); // Log the updated answers for each question
   };
 
   const handleCheckboxChange = (questionId, value) => {
@@ -54,16 +63,19 @@ const CourseQuizSection = ({ courseId, quizId }) => {
       updatedAnswers[questionId] = [value];
     }
     setAnswers(updatedAnswers);
+    console.log('Updated answers for checkbox:', updatedAnswers); // Log the updated answers for checkboxes
   };
 
   const handleSubmit = async (e) => {
     e.preventDefault();
     try {
+      console.log('Submitting quiz with answers:', answers); // Log the answers being submitted
       await api.post(`/courses/${courseId}/quiz/submit`, { quizId, answers });
       toast.success('Quiz submitted successfully');
       setSubmitted(true); // Mark quiz as submitted
       navigate(`/courses/${courseId}/progress`); // Navigate to progress
     } catch (error) {
+      console.log('Error submitting quiz:', error); // Log any error during submission
       toast.error('Failed to submit quiz');
     }
   };
