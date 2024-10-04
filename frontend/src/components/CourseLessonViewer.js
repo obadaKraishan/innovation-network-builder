@@ -19,6 +19,10 @@ const CourseLessonViewer = () => {
   const [lessonIndex, setLessonIndex] = useState(null); // Track current lesson index
   const [previousLesson, setPreviousLesson] = useState(null);
   const [nextLesson, setNextLesson] = useState(null);
+  
+  // State to track if there is a quiz available and if the user has taken it
+  const [quizAvailable, setQuizAvailable] = useState(false);
+  const [quizTaken, setQuizTaken] = useState(false);
 
   const navigate = useNavigate();
 
@@ -63,6 +67,13 @@ const CourseLessonViewer = () => {
         // Set the previous and next lessons based on the current lesson index
         setPreviousLesson(allLessons[flatLessonIndex - 1] || null);
         setNextLesson(allLessons[flatLessonIndex + 1] || null);
+
+        // Check if the current lesson has a quiz and whether the user has taken it
+        if (lessonData.lesson.quiz && lessonData.lesson.quiz.length > 0) {
+          setQuizAvailable(true);
+          const quizStatus = await api.get(`/courses/${courseId}/module/${moduleId}/section/${sectionId}/lesson/${lessonId}/quiz/status`);
+          setQuizTaken(quizStatus.data.taken);
+        }
       } catch (error) {
         toast.error('Failed to load lesson details');
       }
@@ -106,6 +117,11 @@ const CourseLessonViewer = () => {
   // Navigate back to the course details page
   const goBackToCourseDetails = () => {
     navigate(`/courses/${courseId}`);
+  };
+
+  // Navigate to the quiz page if available
+  const goToQuiz = () => {
+    navigate(`/courses/${courseId}/quiz/${lesson.quiz[0]._id}`);
   };
 
   if (!lesson) return <div>Loading...</div>;
@@ -170,6 +186,27 @@ const CourseLessonViewer = () => {
               </div>
             ))}
           </div>
+
+          {/* Quiz Section */}
+          {quizAvailable && (
+            <div className="quiz-section mt-8">
+              {quizTaken ? (
+                <button
+                  onClick={goToQuiz}
+                  className="bg-green-500 text-white py-2 px-4 rounded-lg shadow-lg hover:bg-green-700 transition-all"
+                >
+                  Retake Quiz
+                </button>
+              ) : (
+                <button
+                  onClick={goToQuiz}
+                  className="bg-blue-500 text-white py-2 px-4 rounded-lg shadow-lg hover:bg-blue-700 transition-all"
+                >
+                  Take Quiz (Required)
+                </button>
+              )}
+            </div>
+          )}
 
           {/* Navigation buttons for moving between lessons */}
           <div className="navigation-buttons mt-6 flex justify-between space-x-4">
