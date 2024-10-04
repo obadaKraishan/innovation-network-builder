@@ -14,23 +14,24 @@ const CourseQuizSection = ({ courseId, quizId }) => {
   useEffect(() => {
     const fetchQuiz = async () => {
       try {
+        // Check if quizId is provided; if not, assume no quiz
         if (!quizId) {
-          setQuizNotFound(true); // If no quizId, mark quiz as not found
+          setQuizNotFound(true);
           setLoading(false);
           return;
         }
 
         // Fetch the quiz for the specific lesson
-        const { data } = await api.get(`/quizzes/${quizId}`);
-        if (data) {
-          setQuiz(data); // Set the quiz data
+        const response = await api.get(`/quizzes/${quizId}`);
+        if (response.data && response.data.questions.length > 0) {
+          setQuiz(response.data); // Set quiz if valid data exists
         } else {
-          setQuizNotFound(true); // If quiz data is empty, mark quiz as not found
+          setQuizNotFound(true); // Mark quiz as not found if no questions
         }
         setLoading(false);
       } catch (error) {
         toast.error('Failed to load quiz');
-        setQuizNotFound(true); // In case of error, mark quiz as not found
+        setQuizNotFound(true);
         setLoading(false);
       }
     };
@@ -38,7 +39,6 @@ const CourseQuizSection = ({ courseId, quizId }) => {
   }, [quizId]);
 
   const handleChange = (questionId, answer) => {
-    // Handle change based on input type
     setAnswers({ ...answers, [questionId]: answer });
   };
 
@@ -59,7 +59,6 @@ const CourseQuizSection = ({ courseId, quizId }) => {
   const handleSubmit = async (e) => {
     e.preventDefault();
     try {
-      // Submit the answers for the specific quiz
       await api.post(`/courses/${courseId}/quiz/submit`, { quizId, answers });
       toast.success('Quiz submitted successfully');
       setSubmitted(true); // Mark quiz as submitted
@@ -106,7 +105,6 @@ const CourseQuizSection = ({ courseId, quizId }) => {
               <div key={index} className="mb-6">
                 <h3 className="text-lg font-semibold mb-2">{question.questionText}</h3>
 
-                {/* Render input types based on question type */}
                 {question.type === 'text' && (
                   <input
                     type="text"
