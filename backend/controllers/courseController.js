@@ -485,7 +485,6 @@ const assignQuizToLesson = async (req, res) => {
 };
 
 // Fetch a single quiz by ID
-// Fetch a single quiz by ID
 const getQuizById = async (req, res) => {
   try { 
     console.log('Fetching quiz by ID:', req.params.id);
