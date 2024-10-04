@@ -3,8 +3,7 @@ import { useParams, useNavigate } from 'react-router-dom';
 import { toast } from 'react-toastify';
 import api from '../utils/api';
 
-const CourseQuizSection = () => {
-  const { courseId, quizId } = useParams(); // Ensure correct IDs are passed from the URL
+const CourseQuizSection = ({ courseId, quizId }) => {
   const [quiz, setQuiz] = useState(null);
   const [answers, setAnswers] = useState({});
   const [loading, setLoading] = useState(true);
@@ -14,9 +13,9 @@ const CourseQuizSection = () => {
   useEffect(() => {
     const fetchQuiz = async () => {
       try {
-        // Fetch the quiz data using the quizId
+        // Fetch the quiz for the specific lesson
         const { data } = await api.get(`/quizzes/${quizId}`);
-        setQuiz(data); // Set the quiz data to the state
+        setQuiz(data); // Set the quiz data
         setLoading(false);
       } catch (error) {
         toast.error('Failed to load quiz');
@@ -27,25 +26,39 @@ const CourseQuizSection = () => {
   }, [quizId]);
 
   const handleChange = (questionId, answer) => {
-    // Handle changes for each question's answer
+    // Handle change based on input type
     setAnswers({ ...answers, [questionId]: answer });
+  };
+
+  const handleCheckboxChange = (questionId, value) => {
+    const updatedAnswers = { ...answers };
+    if (updatedAnswers[questionId]) {
+      if (updatedAnswers[questionId].includes(value)) {
+        updatedAnswers[questionId] = updatedAnswers[questionId].filter(val => val !== value);
+      } else {
+        updatedAnswers[questionId].push(value);
+      }
+    } else {
+      updatedAnswers[questionId] = [value];
+    }
+    setAnswers(updatedAnswers);
   };
 
   const handleSubmit = async (e) => {
     e.preventDefault();
     try {
-      // Submit the quiz answers to the server
+      // Submit the answers for the specific quiz
       await api.post(`/courses/${courseId}/quiz/submit`, { quizId, answers });
       toast.success('Quiz submitted successfully');
-      setSubmitted(true); // Set quiz as submitted
-      navigate(`/courses/${courseId}/progress`); // Redirect to the course progress page
+      setSubmitted(true); // Mark quiz as submitted
+      navigate(`/courses/${courseId}/progress`); // Navigate to progress
     } catch (error) {
       toast.error('Failed to submit quiz');
     }
   };
 
   if (loading) {
-    return <div>Loading quiz...</div>; // Loading state
+    return <div>Loading quiz...</div>;
   }
 
   if (submitted) {
@@ -72,7 +85,18 @@ const CourseQuizSection = () => {
               <div key={index} className="mb-6">
                 <h3 className="text-lg font-semibold mb-2">{question.questionText}</h3>
 
-                {question.choices && question.choices.map((choice, i) => (
+                {/* Render input types based on question type */}
+                {question.type === 'text' && (
+                  <input
+                    type="text"
+                    className="w-full p-2 border"
+                    value={answers[question._id] || ''}
+                    onChange={(e) => handleChange(question._id, e.target.value)}
+                    placeholder="Your answer"
+                  />
+                )}
+
+                {question.type === 'radio' && question.choices.map((choice, i) => (
                   <div key={i} className="mb-2">
                     <label className="flex items-center">
                       <input
@@ -80,12 +104,38 @@ const CourseQuizSection = () => {
                         name={`question-${index}`}
                         value={choice}
                         onChange={() => handleChange(question._id, choice)}
+                        checked={answers[question._id] === choice}
                         className="mr-2"
                       />
                       {choice}
                     </label>
                   </div>
                 ))}
+
+                {question.type === 'checkbox' && question.choices.map((choice, i) => (
+                  <div key={i} className="mb-2">
+                    <label className="flex items-center">
+                      <input
+                        type="checkbox"
+                        name={`question-${index}`}
+                        value={choice}
+                        onChange={() => handleCheckboxChange(question._id, choice)}
+                        checked={answers[question._id]?.includes(choice)}
+                        className="mr-2"
+                      />
+                      {choice}
+                    </label>
+                  </div>
+                ))}
+
+                {question.type === 'date' && (
+                  <input
+                    type="date"
+                    className="w-full p-2 border"
+                    value={answers[question._id] || ''}
+                    onChange={(e) => handleChange(question._id, e.target.value)}
+                  />
+                )}
               </div>
             ))}
 
