@@ -47,21 +47,25 @@ const CourseLessonViewer = () => {
           return null;
         });
 
+        // Fetch lesson details
         const { data: lessonData } = await api.get(`/courses/${courseId}/module/${moduleId}/section/${sectionId}/lesson/${lessonId}`);
         setLesson(lessonData.lesson);
 
+        // Determine the index of the current lesson
         const currentLessonIndex = section.lessons.findIndex(lesson => lesson._id === lessonId);
         setLessonIndex(currentLessonIndex + 1);
 
+        // Flatten all lessons across modules and sections for navigation
         const allLessons = getAllLessons(courseData.modules);
         const flatLessonIndex = allLessons.findIndex(lesson => lesson._id === lessonId);
 
         setPreviousLesson(allLessons[flatLessonIndex - 1] || null);
         setNextLesson(allLessons[flatLessonIndex + 1] || null);
 
+        // Check if a quiz is available for this lesson
         if (lessonData.lesson.quiz && lessonData.lesson.quiz.length > 0) {
           setQuizAvailable(true);
-          setQuizId(lessonData.lesson.quiz[0]);
+          setQuizId(lessonData.lesson.quiz[0]); // Assuming there's only one quiz per lesson
         }
       } catch (error) {
         toast.error('Failed to load lesson details');
@@ -71,6 +75,7 @@ const CourseLessonViewer = () => {
     fetchLessonDetails();
   }, [courseId, moduleId, sectionId, lessonId]);
 
+  // Helper function to flatten all lessons across modules and sections
   const getAllLessons = (modules) => {
     const lessons = [];
     modules.forEach((mod) => {
@@ -87,18 +92,21 @@ const CourseLessonViewer = () => {
     return lessons;
   };
 
+  // Navigate to the next lesson if available
   const goToNextLesson = () => {
     if (nextLesson) {
       navigate(`/courses/${courseId}/module/${nextLesson.moduleId}/section/${nextLesson.sectionId}/lesson/${nextLesson._id}`);
     }
   };
 
+  // Navigate to the previous lesson if available
   const goToPreviousLesson = () => {
     if (previousLesson) {
       navigate(`/courses/${courseId}/module/${previousLesson.moduleId}/section/${previousLesson.sectionId}/lesson/${previousLesson._id}`);
     }
   };
 
+  // Navigate back to the course details page
   const goBackToCourseDetails = () => {
     navigate(`/courses/${courseId}`);
   };
@@ -107,8 +115,12 @@ const CourseLessonViewer = () => {
 
   return (
     <div className="flex h-screen">
+      {/* Sidebar for navigation */}
       <Sidebar />
+
+      {/* Main content area */}
       <div className="flex-1 p-6 bg-gray-100 overflow-y-auto">
+        {/* Back to Course Details button */}
         <button
           onClick={goBackToCourseDetails}
           className="mb-4 bg-gradient-to-r from-blue-500 to-purple-500 text-white py-2 px-6 rounded-lg shadow-lg hover:bg-blue-700 transition-all"
@@ -117,6 +129,7 @@ const CourseLessonViewer = () => {
         </button>
 
         <div className="bg-white p-8 rounded-lg shadow-lg space-y-8">
+          {/* Display Course, Module, Section, and Lesson titles and numbers */}
           <div className="space-y-3">
             <h2 className="text-3xl font-extrabold text-gray-800">Course: {courseTitle}</h2>
             <h3 className="text-xl font-semibold text-gray-700">
@@ -130,10 +143,13 @@ const CourseLessonViewer = () => {
             </h5>
           </div>
 
+          {/* Lesson description */}
           <p className="text-gray-700 leading-relaxed">{lesson.description}</p>
 
+          {/* Lesson content (e.g., text, videos, materials) */}
           <div className="lesson-content space-y-6">
             {lesson.lessonText && <div className="prose max-w-none" dangerouslySetInnerHTML={{ __html: lesson.lessonText }} />}
+
             {lesson.materials && lesson.materials.map((material, index) => (
               <div key={index} className="flex items-center justify-between mt-4 p-4 bg-gray-50 rounded-lg shadow-sm">
                 {material.materialType === 'video' && (
@@ -158,13 +174,16 @@ const CourseLessonViewer = () => {
             ))}
           </div>
 
+          {/* Quiz Section (embedded) */}
           {quizAvailable && quizId && (
             <div className="quiz-section mt-8">
               <h3 className="text-2xl font-bold mb-4">Take Quiz</h3>
+              {/* Pass courseId and quizId to the CourseQuizSection component */}
               <CourseQuizSection courseId={courseId} quizId={quizId} />
             </div>
           )}
 
+          {/* Navigation buttons for moving between lessons */}
           <div className="navigation-buttons mt-6 flex justify-between space-x-4">
             <button
               onClick={goToPreviousLesson}
