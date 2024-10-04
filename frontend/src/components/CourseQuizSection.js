@@ -1,20 +1,20 @@
 import React, { useState, useEffect } from 'react';
-import Sidebar from './Sidebar';
 import { useParams, useNavigate } from 'react-router-dom';
-import api from '../utils/api';
 import { toast } from 'react-toastify';
+import api from '../utils/api';
 
 const CourseQuizSection = () => {
   const { courseId, quizId } = useParams();
   const [quiz, setQuiz] = useState(null);
   const [answers, setAnswers] = useState({});
   const [loading, setLoading] = useState(true);
+  const [submitted, setSubmitted] = useState(false);
   const navigate = useNavigate();
 
   useEffect(() => {
     const fetchQuiz = async () => {
       try {
-        const { data } = await api.get(`/courses/${courseId}/quiz/${quizId}`);
+        const { data } = await api.get(`/courses/${courseId}/quizzes/${quizId}`);
         setQuiz(data);
         setLoading(false);
       } catch (error) {
@@ -32,9 +32,9 @@ const CourseQuizSection = () => {
   const handleSubmit = async (e) => {
     e.preventDefault();
     try {
-      // Submit quiz answers to the backend
       await api.post(`/courses/${courseId}/quiz/submit`, { quizId, answers });
       toast.success('Quiz submitted successfully');
+      setSubmitted(true); // Set quiz as submitted
       navigate(`/courses/${courseId}/progress`);
     } catch (error) {
       toast.error('Failed to submit quiz');
@@ -45,11 +45,19 @@ const CourseQuizSection = () => {
     return <div>Loading quiz...</div>;
   }
 
+  if (submitted) {
+    return (
+      <div className="text-center mt-8">
+        <h2 className="text-2xl font-bold">Quiz Submitted</h2>
+        <p>Your quiz has been successfully submitted!</p>
+      </div>
+    );
+  }
+
   return (
     <div className="flex h-screen">
-      <Sidebar />
       <div className="flex-1 p-6 bg-gray-100 overflow-auto">
-        <button onClick={() => window.history.back()} className="mb-4 bg-blue-500 text-white py-2 px-4 rounded">
+        <button onClick={() => navigate(-1)} className="mb-4 bg-blue-500 text-white py-2 px-4 rounded">
           ← Back
         </button>
 
@@ -77,7 +85,7 @@ const CourseQuizSection = () => {
                 ))}
               </div>
             ))}
- 
+
             <button type="submit" className="mt-4 w-full bg-blue-500 text-white py-3 rounded-lg">
               Submit Quiz
             </button>
