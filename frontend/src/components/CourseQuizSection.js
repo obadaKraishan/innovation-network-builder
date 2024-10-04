@@ -4,7 +4,7 @@ import { toast } from 'react-toastify';
 import api from '../utils/api';
 
 const CourseQuizSection = () => {
-  const { courseId, quizId } = useParams();
+  const { courseId, quizId } = useParams(); // Ensure correct IDs are passed from the URL
   const [quiz, setQuiz] = useState(null);
   const [answers, setAnswers] = useState({});
   const [loading, setLoading] = useState(true);
@@ -14,8 +14,9 @@ const CourseQuizSection = () => {
   useEffect(() => {
     const fetchQuiz = async () => {
       try {
-        const { data } = await api.get(`/quizzes/${quizId}`); // Updated to fetch the quiz directly
-        setQuiz(data);
+        // Fetch the quiz data using the quizId
+        const { data } = await api.get(`/quizzes/${quizId}`);
+        setQuiz(data); // Set the quiz data to the state
         setLoading(false);
       } catch (error) {
         toast.error('Failed to load quiz');
@@ -26,23 +27,25 @@ const CourseQuizSection = () => {
   }, [quizId]);
 
   const handleChange = (questionId, answer) => {
+    // Handle changes for each question's answer
     setAnswers({ ...answers, [questionId]: answer });
   };
 
   const handleSubmit = async (e) => {
     e.preventDefault();
     try {
+      // Submit the quiz answers to the server
       await api.post(`/courses/${courseId}/quiz/submit`, { quizId, answers });
       toast.success('Quiz submitted successfully');
       setSubmitted(true); // Set quiz as submitted
-      navigate(`/courses/${courseId}/progress`);
+      navigate(`/courses/${courseId}/progress`); // Redirect to the course progress page
     } catch (error) {
       toast.error('Failed to submit quiz');
     }
   };
 
   if (loading) {
-    return <div>Loading quiz...</div>;
+    return <div>Loading quiz...</div>; // Loading state
   }
 
   if (submitted) {
@@ -69,7 +72,7 @@ const CourseQuizSection = () => {
               <div key={index} className="mb-6">
                 <h3 className="text-lg font-semibold mb-2">{question.questionText}</h3>
 
-                {question.choices.map((choice, i) => (
+                {question.choices && question.choices.map((choice, i) => (
                   <div key={i} className="mb-2">
                     <label className="flex items-center">
                       <input
