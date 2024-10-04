@@ -485,6 +485,7 @@ const assignQuizToLesson = async (req, res) => {
 };
 
 // Fetch a single quiz by ID
+// Fetch a single quiz by ID
 const getQuizById = async (req, res) => {
   try { 
     console.log('Fetching quiz by ID:', req.params.id);
@@ -501,9 +502,11 @@ const getQuizById = async (req, res) => {
       .populate('lessonId', 'lessonTitle');
 
     if (!quiz) {
+      console.log('Quiz not found'); // Log in case quiz is not found
       return res.status(404).json({ message: 'Quiz not found' });
     }
 
+    console.log('Fetched quiz:', quiz); // Log the quiz data
     res.status(200).json(quiz);
   } catch (error) {
     console.error('Error fetching quiz:', error);
