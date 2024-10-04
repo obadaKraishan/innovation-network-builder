@@ -32,6 +32,7 @@ const CourseQuizSection = () => {
   const handleSubmit = async (e) => {
     e.preventDefault();
     try {
+      // Submit quiz answers to the backend
       await api.post(`/courses/${courseId}/quiz/submit`, { quizId, answers });
       toast.success('Quiz submitted successfully');
       navigate(`/courses/${courseId}/progress`);
