@@ -4,6 +4,7 @@ import Sidebar from './Sidebar';
 import { FaEye, FaChevronLeft, FaChevronRight } from 'react-icons/fa';
 import api from '../utils/api';
 import { toast } from 'react-toastify';
+import CourseQuizSection from './CourseQuizSection'; // Import the CourseQuizSection component
 
 const CourseLessonViewer = () => {
   // Retrieve the current course, module, section, and lesson IDs from the URL parameters
@@ -11,18 +12,18 @@ const CourseLessonViewer = () => {
   
   // State to store the current lesson data, course title, module title, section title, and navigation for previous/next lessons
   const [lesson, setLesson] = useState(null);
-  const [courseTitle, setCourseTitle] = useState("");
-  const [moduleTitle, setModuleTitle] = useState(""); // Track current module title
-  const [sectionTitle, setSectionTitle] = useState(""); // Track current section title
-  const [moduleIndex, setModuleIndex] = useState(null); // Track current module index
-  const [sectionIndex, setSectionIndex] = useState(null); // Track current section index
-  const [lessonIndex, setLessonIndex] = useState(null); // Track current lesson index
+  const [courseTitle, setCourseTitle] = useState('');
+  const [moduleTitle, setModuleTitle] = useState('');
+  const [sectionTitle, setSectionTitle] = useState('');
+  const [moduleIndex, setModuleIndex] = useState(null);
+  const [sectionIndex, setSectionIndex] = useState(null);
+  const [lessonIndex, setLessonIndex] = useState(null);
   const [previousLesson, setPreviousLesson] = useState(null);
   const [nextLesson, setNextLesson] = useState(null);
-  
-  // State to track if there is a quiz available and if the user has taken it
+
+  // State to track if there is a quiz available
   const [quizAvailable, setQuizAvailable] = useState(false);
-  const [quizTaken, setQuizTaken] = useState(false);
+  const [quizId, setQuizId] = useState(null);
 
   const navigate = useNavigate();
 
@@ -68,11 +69,10 @@ const CourseLessonViewer = () => {
         setPreviousLesson(allLessons[flatLessonIndex - 1] || null);
         setNextLesson(allLessons[flatLessonIndex + 1] || null);
 
-        // Check if the current lesson has a quiz and whether the user has taken it
+        // Check if the current lesson has a quiz available
         if (lessonData.lesson.quiz && lessonData.lesson.quiz.length > 0) {
           setQuizAvailable(true);
-          const quizStatus = await api.get(`/courses/${courseId}/module/${moduleId}/section/${sectionId}/lesson/${lessonId}/quiz/status`);
-          setQuizTaken(quizStatus.data.taken);
+          setQuizId(lessonData.lesson.quiz[0]); // Store the quiz ID to pass to the quiz section
         }
       } catch (error) {
         toast.error('Failed to load lesson details');
@@ -85,7 +85,6 @@ const CourseLessonViewer = () => {
   // Helper function to flatten all lessons across all modules and sections
   const getAllLessons = (modules) => {
     const lessons = [];
-    // Iterate through each module and section, and push all lessons to a flat list
     modules.forEach((mod) => {
       mod.sections.forEach((sec) => {
         sec.lessons.forEach((lesson) => {
@@ -117,11 +116,6 @@ const CourseLessonViewer = () => {
   // Navigate back to the course details page
   const goBackToCourseDetails = () => {
     navigate(`/courses/${courseId}`);
-  };
-
-  // Navigate to the quiz page if available
-  const goToQuiz = () => {
-    navigate(`/courses/${courseId}/quiz/${lesson.quiz[0]._id}`);
   };
 
   if (!lesson) return <div>Loading...</div>;
@@ -187,42 +181,27 @@ const CourseLessonViewer = () => {
             ))}
           </div>
 
-          {/* Quiz Section */}
-          {quizAvailable && (
+          {/* Quiz Section (embedded) */}
+          {quizAvailable && quizId && (
             <div className="quiz-section mt-8">
-              {quizTaken ? (
-                <button
-                  onClick={goToQuiz}
-                  className="bg-green-500 text-white py-2 px-4 rounded-lg shadow-lg hover:bg-green-700 transition-all"
-                >
-                  Retake Quiz
-                </button>
-              ) : (
-                <button
-                  onClick={goToQuiz}
-                  className="bg-blue-500 text-white py-2 px-4 rounded-lg shadow-lg hover:bg-blue-700 transition-all"
-                >
-                  Take Quiz (Required)
-                </button>
-              )}
+              <h3 className="text-2xl font-bold mb-4">Take Quiz</h3>
+              <CourseQuizSection courseId={courseId} quizId={quizId} />
             </div>
           )}
 
           {/* Navigation buttons for moving between lessons */}
           <div className="navigation-buttons mt-6 flex justify-between space-x-4">
-            {/* Previous Lesson button */}
             <button
               onClick={goToPreviousLesson}
-              disabled={!previousLesson} // Disable if no previous lesson
+              disabled={!previousLesson}
               className={`flex-1 bg-blue-500 text-white py-2 px-4 rounded-lg shadow-lg flex items-center justify-center space-x-2 ${!previousLesson ? 'opacity-50 cursor-not-allowed' : 'hover:bg-blue-700 transition-all'}`}
             >
               <FaChevronLeft /> <span>Previous Lesson</span>
             </button>
 
-            {/* Next Lesson button */}
             <button
               onClick={goToNextLesson}
-              disabled={!nextLesson} // Disable if no next lesson
+              disabled={!nextLesson}
               className={`flex-1 bg-blue-500 text-white py-2 px-4 rounded-lg shadow-lg flex items-center justify-center space-x-2 ${!nextLesson ? 'opacity-50 cursor-not-allowed' : 'hover:bg-blue-700 transition-all'}`}
             >
               <span>Next Lesson</span> <FaChevronRight />
