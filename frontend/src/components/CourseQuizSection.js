@@ -14,7 +14,7 @@ const CourseQuizSection = () => {
   useEffect(() => {
     const fetchQuiz = async () => {
       try {
-        const { data } = await api.get(`/courses/${courseId}/quizzes/${quizId}`);
+        const { data } = await api.get(`/quizzes/${quizId}`); // Updated to fetch the quiz directly
         setQuiz(data);
         setLoading(false);
       } catch (error) {
@@ -23,7 +23,7 @@ const CourseQuizSection = () => {
       }
     };
     fetchQuiz();
-  }, [courseId, quizId]);
+  }, [quizId]);
 
   const handleChange = (questionId, answer) => {
     setAnswers({ ...answers, [questionId]: answer });
