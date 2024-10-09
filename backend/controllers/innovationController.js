@@ -328,8 +328,26 @@ const updateFeedback = asyncHandler(async (req, res) => {
     res.status(403);
     throw new Error('Not authorized to edit this feedback');
   }
+
   feedback.comment = req.body.comment;
   await feedback.save();
+
+  // Send notification to the idea owner
+  const idea = await Innovation.findById(feedback.ideaId);
+  if (idea) {
+    const notificationMessage = `${req.user.name} updated their feedback on your idea "${idea.title}".`;
+    const newNotification = new Notification({
+      recipient: idea.employeeId,
+      sender: req.user._id,
+      message: notificationMessage,
+      type: 'info',
+      link: `/ideas/${feedback.ideaId}`,
+    });
+
+    await newNotification.save();
+    sendNotification(idea.employeeId, newNotification);
+  }
+
   res.json(feedback);
 });
   
