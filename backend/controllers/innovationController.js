@@ -281,39 +281,57 @@ const withdrawIdea = asyncHandler(async (req, res) => {
 
 // Add feedback
 const addFeedback = asyncHandler(async (req, res) => {
-    const { comment, parent, ideaId } = req.body;
-    const feedback = new feedbackModel({
-      user: req.user._id,
-      comment,
-      parent,
-      ideaId,
+  const { comment, parent, ideaId } = req.body;
+  const feedback = new feedbackModel({
+    user: req.user._id,
+    comment,
+    parent,
+    ideaId,
+  });
+
+  const savedFeedback = await feedback.save();
+
+  // Send notification to the idea owner
+  const idea = await Innovation.findById(ideaId);
+  if (idea) {
+    const notificationMessage = `${req.user.name} added feedback to your idea "${idea.title}".`;
+    const newNotification = new Notification({
+      recipient: idea.employeeId,
+      sender: req.user._id,
+      message: notificationMessage,
+      type: 'info',
+      link: `/ideas/${ideaId}`,
     });
-    const savedFeedback = await feedback.save();
-    res.status(201).json(savedFeedback);
-  });
+
+    await newNotification.save();
+    sendNotification(idea.employeeId, newNotification);
+  }
+
+  res.status(201).json(savedFeedback);
+});
   
-  // Get feedback for idea
-  const getFeedback = asyncHandler(async (req, res) => {
-    const { ideaId } = req.params;
-    const feedback = await feedbackModel.find({ ideaId }).populate('user', 'name');
-    res.json(feedback);
-  });
-  
-  // Edit feedback
-  const updateFeedback = asyncHandler(async (req, res) => {
-    const feedback = await feedbackModel.findById(req.params.feedbackId);
-    if (!feedback) {
-      res.status(404);
-      throw new Error('Feedback not found');
-    }
-    if (feedback.user.toString() !== req.user._id.toString()) {
-      res.status(403);
-      throw new Error('Not authorized to edit this feedback');
-    }
-    feedback.comment = req.body.comment;
-    await feedback.save();
-    res.json(feedback);
-  });
+// Get feedback for idea
+const getFeedback = asyncHandler(async (req, res) => {
+  const { ideaId } = req.params;
+  const feedback = await feedbackModel.find({ ideaId }).populate('user', 'name');
+  res.json(feedback);
+});
+
+// Edit feedback
+const updateFeedback = asyncHandler(async (req, res) => {
+  const feedback = await feedbackModel.findById(req.params.feedbackId);
+  if (!feedback) {
+    res.status(404);
+    throw new Error('Feedback not found');
+  }
+  if (feedback.user.toString() !== req.user._id.toString()) {
+    res.status(403);
+    throw new Error('Not authorized to edit this feedback');
+  }
+  feedback.comment = req.body.comment;
+  await feedback.save();
+  res.json(feedback);
+});
   
 // Delete feedback
 const deleteFeedback = asyncHandler(async (req, res) => {
