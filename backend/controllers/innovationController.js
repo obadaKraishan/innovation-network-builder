@@ -206,6 +206,20 @@ const evaluateIdea = asyncHandler(async (req, res) => {
   idea.priority = impactScore + feasibilityScore + costScore + alignmentScore;
 
   const updatedIdea = await idea.save();
+
+  // Send notification to the idea owner
+  const notificationMessage = `Your idea "${idea.title}" has been evaluated.`;
+  const newNotification = new Notification({
+    recipient: idea.employeeId,
+    sender: req.user._id,
+    message: notificationMessage,
+    type: 'info',
+    link: `/ideas/${idea._id}`,
+  });
+
+  await newNotification.save();
+  sendNotification(idea.employeeId, newNotification);
+
   res.json(updatedIdea);
 });
 
