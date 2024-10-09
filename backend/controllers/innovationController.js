@@ -162,16 +162,28 @@ const updateIdeaStage = asyncHandler(async (req, res) => {
     throw new Error('Idea not found');
   }
 
-  // Log the old and new stages for debugging
   console.log(`Updating idea stage from ${idea.stage} to ${stage}`);
 
-  // Add any special handling logic here, if required for certain stages
   if (stage === 'completed') {
     idea.implementedAt = new Date(); // Mark implementation date when the idea is completed
   }
 
   idea.stage = stage;
   const updatedIdea = await idea.save();
+
+  // Send notification to idea owner
+  const notificationMessage = `Your idea "${idea.title}" has moved to the "${stage}" stage.`;
+  const newNotification = new Notification({
+    recipient: idea.employeeId,
+    sender: req.user._id,
+    message: notificationMessage,
+    type: 'info',
+    link: `/ideas/${idea._id}`,  // Link to the idea
+  });
+
+  await newNotification.save();
+  sendNotification(idea.employeeId, newNotification);
+
   res.json(updatedIdea);
 });
 
