@@ -3,6 +3,29 @@
 const Ticket = require('../models/ticketModel');
 const User = require('../models/userModel');
 
+// Utility function to create a new connection between two users
+const createConnection = async (userA, userB, context) => {
+  try {
+    console.log(`Attempting to create connection between ${userA} and ${userB} with context: ${context}`);
+
+    const newConnection = new Connection({
+      userA,
+      userB,
+      context,
+      interactionCount: 1,
+      lastInteractedAt: Date.now(),
+    });
+
+    const savedConnection = await newConnection.save();
+    console.log(`Connection successfully created:`, savedConnection);
+
+    // Return the saved connection to avoid querying again
+    return savedConnection;
+  } catch (error) {
+    console.error(`Error creating connection between ${userA} and ${userB} for context: ${context}:`, error.message);
+  }
+};
+
 // Submit a new ticket
 const submitTicket = async (req, res) => {
   try {
