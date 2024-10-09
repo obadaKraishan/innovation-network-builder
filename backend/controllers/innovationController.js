@@ -3,6 +3,30 @@ const { Innovation, feedbackModel } = require('../models/innovationModel');
 const ResourceAllocation = require('../models/resourceAllocationModel');
 const mongoose = require("mongoose");
 
+
+// Utility function to create a new connection between two users
+const createConnection = async (userA, userB, context) => {
+  try {
+    console.log(`Attempting to create connection between ${userA} and ${userB} with context: ${context}`);
+
+    const newConnection = new Connection({
+      userA,
+      userB,
+      context,
+      interactionCount: 1,
+      lastInteractedAt: Date.now(),
+    });
+
+    const savedConnection = await newConnection.save();
+    console.log(`Connection successfully created:`, savedConnection);
+
+    return savedConnection;
+  } catch (error) {
+    console.error(`Error creating connection between ${userA} and ${userB} for context: ${context}:`, error.message);
+  }
+};
+
+
 // Submit a new innovation idea
 const submitIdea = asyncHandler(async (req, res) => {
   console.log('Received form-data:', req.body); // Log the request body
