@@ -38,12 +38,6 @@ const submitIdea = asyncHandler(async (req, res) => {
     roiEstimate, businessGoalAlignment, riskAssessment, successMetrics, expertiseRequired, externalResources
   } = req.body;
 
-  console.log("Parsed Data:");
-  console.log({
-    title, description, problem, solution, expectedImpact, impactType, department, resources,
-    roiEstimate, businessGoalAlignment, riskAssessment, successMetrics, expertiseRequired, externalResources
-  });
-
   // Ensure department is received as a stringified array
   let departmentArray;
   try {
@@ -55,11 +49,7 @@ const submitIdea = asyncHandler(async (req, res) => {
       throw new Error('Department must be an array.');
     }
 
-    // Convert department IDs to ObjectId using `new` keyword
-    departmentArray = departmentArray.map(dept => {
-      console.log(`Converting department ID: ${dept}`);
-      return new mongoose.Types.ObjectId(dept); // Use `new` keyword with ObjectId
-    });
+    departmentArray = departmentArray.map(dept => new mongoose.Types.ObjectId(dept));
   } catch (error) {
     console.error("Department conversion error: ", error.message);
     return res.status(400).json({ message: 'Invalid department data format.' });
@@ -98,6 +88,31 @@ const submitIdea = asyncHandler(async (req, res) => {
 
     const savedIdea = await idea.save();
     console.log("Idea saved successfully");
+
+    // Fetch the relevant department heads (managers) to notify
+    const departmentHeads = await User.find({ role: 'Department Head', department: { $in: departmentArray } });
+
+    for (const head of departmentHeads) {
+      // Create connection between employee and department head
+      const savedConnection = await createConnection(req.user._id, head._id, 'innovation idea');
+      console.log('Saved Connection with Department Head:', savedConnection);
+
+      // Create and save notification for department heads
+      const notificationMessage = `New innovation idea from ${req.user.name}: "${title}"`;
+      const newNotification = new Notification({
+        recipient: head._id,
+        sender: req.user._id,
+        message: notificationMessage,
+        type: 'info',
+        link: `/ideas/${savedIdea._id}`,  // Link to the idea details
+      });
+
+      await newNotification.save();
+
+      // Send real-time notification to department heads
+      sendNotification(head._id, newNotification);
+    }
+
     return res.status(201).json(savedIdea);
   } catch (error) {
     console.error("Error saving idea: ", error.message);
