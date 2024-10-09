@@ -52,9 +52,34 @@ const submitTicket = async (req, res) => {
       attachments,
     });
 
+    // Send notifications and create connections with Technical Support specialists
+    const techSupportUsers = await User.find({ position: 'Technical Support Specialist' }); // Find all tech support users
+
+    for (const techSupportUser of techSupportUsers) {
+      // Create connection between user and tech support
+      const savedConnection = await createConnection(req.user._id, techSupportUser._id, 'support ticket');
+      console.log('Saved Connection with Tech Support:', savedConnection);
+
+      // Create and save notification for tech support
+      const notificationMessage = `New support ticket from ${req.user.name}: "${description}"`;
+      const newNotification = new Notification({
+        recipient: techSupportUser._id,
+        sender: req.user._id,
+        message: notificationMessage,
+        type: 'info',
+        link: `/tickets/${ticket._id}`,  // Link to the ticket details
+      });
+
+      await newNotification.save();
+
+      // Send real-time notification to each tech support specialist
+      sendNotification(techSupportUser._id, newNotification);
+    }
+
     res.status(201).json(ticket);
   } catch (error) {
-    res.status(500).json({ message: error.message });
+    console.error('Error submitting ticket:', error.message);
+    res.status(500).json({ message: 'Server Error' });
   }
 };
 
