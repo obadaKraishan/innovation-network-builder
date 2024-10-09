@@ -1,7 +1,10 @@
 // File: backend/controllers/supportController.js
 
+const { sendNotification } = require('../services/notificationService');
 const Ticket = require('../models/ticketModel');
 const User = require('../models/userModel');
+const Connection = require('../models/connectionModel');
+const Notification = require('../models/notificationModel');
 
 // Utility function to create a new connection between two users
 const createConnection = async (userA, userB, context) => {
