@@ -371,53 +371,53 @@ const deleteFeedback = asyncHandler(async (req, res) => {
 
 // Vote
 const submitVote = asyncHandler(async (req, res) => {
-    const { id } = req.params;
-    const { impact, feasibility, cost, alignment } = req.body;
-  
-    const idea = await Innovation.findById(id);
-  
-    if (!idea) {
-        console.error(`Idea with ID ${id} not found`);
-        res.status(404).json({ message: 'Idea not found' });
-        return;
-      }
-  
-    // Check if the user is eligible to vote
-    const eligibleRoles = ["CEO", "CTO", "Executive", "Team Leader", "Product Manager"];
-    if (!eligibleRoles.includes(req.user.role)) {
-      res.status(403);
-      throw new Error('You are not authorized to vote');
+  const { id } = req.params;
+  const { impact, feasibility, cost, alignment } = req.body;
+
+  const idea = await Innovation.findById(id);
+
+  if (!idea) {
+      console.error(`Idea with ID ${id} not found`);
+      res.status(404).json({ message: 'Idea not found' });
+      return;
     }
-  
-    // Check if the user has already voted
-    if (idea.voters.includes(req.user._id)) {
-      res.status(400);
-      throw new Error('You have already voted');
-    }
-  
-    // Add the user's vote
-    idea.impactVotes.push(impact);
-    idea.feasibilityVotes.push(feasibility);
-    idea.costVotes.push(cost);
-    idea.alignmentVotes.push(alignment);
-    idea.voters.push(req.user._id);
-  
-    // Recalculate average scores
-    const calcAverage = (votes) => votes.reduce((sum, v) => sum + v, 0) / votes.length;
-    idea.impactScore = calcAverage(idea.impactVotes);
-    idea.feasibilityScore = calcAverage(idea.feasibilityVotes);
-    idea.costScore = calcAverage(idea.costVotes);
-    idea.alignmentScore = calcAverage(idea.alignmentVotes);
-  
-    await idea.save();
-  
-    res.json({
-      impactScore: idea.impactScore,
-      feasibilityScore: idea.feasibilityScore,
-      costScore: idea.costScore,
-      alignmentScore: idea.alignmentScore,
-    });
+
+  // Check if the user is eligible to vote
+  const eligibleRoles = ["CEO", "CTO", "Executive", "Team Leader", "Product Manager"];
+  if (!eligibleRoles.includes(req.user.role)) {
+    res.status(403);
+    throw new Error('You are not authorized to vote');
+  }
+
+  // Check if the user has already voted
+  if (idea.voters.includes(req.user._id)) {
+    res.status(400);
+    throw new Error('You have already voted');
+  }
+
+  // Add the user's vote
+  idea.impactVotes.push(impact);
+  idea.feasibilityVotes.push(feasibility);
+  idea.costVotes.push(cost);
+  idea.alignmentVotes.push(alignment);
+  idea.voters.push(req.user._id);
+
+  // Recalculate average scores
+  const calcAverage = (votes) => votes.reduce((sum, v) => sum + v, 0) / votes.length;
+  idea.impactScore = calcAverage(idea.impactVotes);
+  idea.feasibilityScore = calcAverage(idea.feasibilityVotes);
+  idea.costScore = calcAverage(idea.costVotes);
+  idea.alignmentScore = calcAverage(idea.alignmentVotes);
+
+  await idea.save();
+
+  res.json({
+    impactScore: idea.impactScore,
+    feasibilityScore: idea.feasibilityScore,
+    costScore: idea.costScore,
+    alignmentScore: idea.alignmentScore,
   });
+});
   
 
 module.exports = {
