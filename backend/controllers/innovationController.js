@@ -1,7 +1,9 @@
-const asyncHandler = require('express-async-handler');
-const { Innovation, feedbackModel } = require('../models/innovationModel');
-const ResourceAllocation = require('../models/resourceAllocationModel');
+const { sendNotification } = require('../services/notificationService');
+const { Innovation } = require('../models/innovationModel');
+const Connection = require('../models/connectionModel');
+const Notification = require('../models/notificationModel');
 const mongoose = require("mongoose");
+const asyncHandler = require('express-async-handler');
 
 
 // Utility function to create a new connection between two users
